@@ -1,0 +1,12 @@
+{
+  "appId": "com.sijil.taqyim.pro",
+  "appName": "المواكبة التربوية الذكية",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#0f172a"
+  }
+}

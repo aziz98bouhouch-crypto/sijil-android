@@ -1,0 +1,40 @@
+# ملفات بناء سطح المكتب والنسخ القديمة — لا حاجة لها في بناء أندرويد
+release*/
+release_build/
+release_fix/
+release_new/
+node_modules/
+build/
+previews/
+*.broken
+*.log
+
+# سكربتات فحص مؤقتة
+aucheck.js
+authstack.js
+balance.js
+bisect*.js
+blkcheck.js
+depthscan3.js
+fdepth.js
+finalmap2.js
+fullerr.js
+hardcheck.js
+isolate_func.js
+mm1.js
+realsnap.js
+reveal*.js
+scan*.js
+scanline.js
+sectdump5.js
+tailecho.js
+vmcheck.js
+wholemap.js
+find_corrupt.py
+fix_*.py
+replace_init.py
+__sync_payload.html
+
+# مجلد أندرويد المولّد محليًا (إعادة توليده في السحابة)
+cap/android/
+cap/node_modules/
