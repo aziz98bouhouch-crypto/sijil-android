@@ -45,6 +45,10 @@ jobs:
           rm -rf android
           npx cap add android
 
+      - name: Inject camera/storage permissions into manifest
+        working-directory: cap
+        run: node add-permissions.js
+
       - name: Sync Capacitor
         working-directory: cap
         run: npx cap sync android
