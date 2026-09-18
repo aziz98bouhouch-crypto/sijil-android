@@ -938,10 +938,22 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <div class="field"><label>المنفذ</label><input id="syncPort" type="number" value="8050" min="1024" max="65535" style="direction:ltr;text-align:left" title="منفذ خادم المزامنة على الجهاز الآخر"></div>
     <div class="field"><label>الحالة</label><div id="syncStatus" class="muted">لم يُختبر</div></div>
   </div><div class="actions">
-    <button class="btn primary" id="syncTest">اختبار الاتصال</button>
+    <button class="btn primary" id="syncScanBtn">📷 مسح رمز الجهاز الآخر (SCAN)</button>
+    <button class="btn" id="syncTest">اختبار الاتصال</button>
     <button class="btn" id="pushToComputer">دفع بياناتي إلى الحاسوب</button>
     <button class="btn" id="pullFromComputer">سحب بيانات الحاسوب إلى هنا</button>
-  </div></div>
+  </div><p id="syncScanHint" class="muted" style="font-size:12px;margin-top:6px">امسح رمز QR الظاهر على الجهاز الآخر ليُملأ عنوانه تلقائيًا ثم يُختبر الاتصال.</p></div>
+  <div id="syncScanOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:#0b1020f2;flex-direction:column;align-items:center;justify-content:center;padding:16px">
+    <div style="width:min(92vw,460px);text-align:center">
+      <div style="color:#e6edf3;font-size:14px;margin-bottom:10px">وجّه الكاميرا نحو رمز QR على الجهاز الآخر</div>
+      <div style="position:relative;width:100%;aspect-ratio:1/1;max-width:340px;margin:0 auto;border-radius:16px;overflow:hidden;background:#000">
+        <video id="syncScanVideo" playsinline muted style="width:100%;height:100%;object-fit:cover"></video>
+        <div style="position:absolute;inset:16%;border:2px solid #7ee787;border-radius:12px;box-shadow:0 0 0 100vmax #0b102066"></div>
+      </div>
+      <div id="syncScanMsg" style="color:#8892b0;font-size:12px;margin-top:10px;min-height:18px">جارٍ تشغيل الكاميرا…</div>
+      <div class="actions" style="justify-content:center;margin-top:10px"><button class="btn" id="syncScanClose">إلغاء</button></div>
+    </div>
+  </div>
   <div class="card"><div class="section-title"><h2>سجل المزامنة</h2></div>
     <pre id="syncLog" style="background:#0f1117;color:#7ee787;font-family:Consolas,monospace;font-size:11px;line-height:1.7;padding:12px;border-radius:8px;max-height:260px;overflow:auto;white-space:pre-wrap;direction:ltr;text-align:left"></pre>
   </div></div>
@@ -4531,6 +4543,8 @@ function renderSync(){var host=document.getElementById('syncHost'),port=document
   try{var ss2=document.getElementById('syncServerStop');if(ss2)ss2.onclick=syncServerStop;}catch(e){}
   try{var fa=document.getElementById('syncFwAllow');if(fa)fa.onclick=syncFwAllowUI;}catch(e){}
   try{var fr=document.getElementById('syncFwRecheck');if(fr)fr.onclick=syncFwCheckUI;}catch(e){}
+  try{var sc=document.getElementById('syncScanBtn');if(sc)sc.onclick=syncStartScan;}catch(e){}
+  try{var scx=document.getElementById('syncScanClose');if(scx)scx.onclick=syncScanClose;}catch(e){}
   try{syncFwCheckUI();}catch(e){}
   restoreSyncPrefs();
   try{syncRefreshServer();}catch(e){}
@@ -4541,6 +4555,12 @@ async function syncServerStart(){try{var port=parseInt(syncState().port,10)||805
 async function syncServerStop(){try{if(window.sijilAPI&&typeof window.sijilAPI.portalStop==='function')await window.sijilAPI.portalStop();syncMsg('أُوقفت خدمة المزامنة','');}catch(e){syncMsg('✖ '+e.message,'err');}syncRefreshServer();}
 async function syncFwCheckUI(){var el=document.getElementById('syncFwMsg');try{var r=(window.sijilAPI&&typeof window.sijilAPI.portalFirewallCheck==='function')?await window.sijilAPI.portalFirewallCheck():null;if(el){if(r&&r.ok&&r.present){el.textContent='الإذن مُعطى — الهواتف تستطيع الوصول إلى هذا الحاسوب';el.style.color='var(--s)';}else if(r&&r.ok){el.textContent='الإذن غير مُعطى — اضغط «منح إذن جدار الحماية» ثم وافق على طلب النظام';el.style.color='var(--w)';}else{el.textContent='تعذّر فحص الجدار (متاح في الإصدار المثبّت)';el.style.color='';}}return r;}catch(e){if(el){el.textContent='تعذّر فحص الجدار';el.style.color='';}return{ok:false,present:false};}}
 async function syncFwAllowUI(){try{var r=(window.sijilAPI&&typeof window.sijilAPI.portalFirewallAllow==='function')?await window.sijilAPI.portalFirewallAllow():null;await syncFwCheckUI();toast(r&&r.ok&&r.present?'تم منح الإذن — جرّب هاتفك الآن':'لم يُمنح الإذن أو أُلغي طلب النظام');}catch(e){toast('تعذّرت العملية');}}
+var __syncScanStream=null,__syncScanRAF=0,__syncScanDetector=null,__syncScanBusy=false;
+function syncScanMsg(t){try{var el=document.getElementById('syncScanMsg');if(el)el.textContent=t;}catch(e){}}
+function parseSyncTarget(raw){var t=String(raw||'').trim();if(!t)return null;var host='',port='';try{if(/^https?:\/\//i.test(t)){var u=new URL(t);host=u.hostname||'';port=u.port||'';}else if(t.indexOf(':')>0&&t.indexOf('/')<0){var p=t.split(':');host=(p[0]||'').trim();port=(p[1]||'').trim();}else{host=t;}}catch(e){host=t;}if(!host)return null;if(port&&!/^\d{1,5}$/.test(port))port='';return{host:host,port:port};}
+function syncScanClose(){try{if(__syncScanRAF){cancelAnimationFrame(__syncScanRAF);__syncScanRAF=0;}}catch(e){}try{if(__syncScanStream){__syncScanStream.getTracks().forEach(function(tr){try{tr.stop()}catch(e){}});__syncScanStream=null;}}catch(e){}try{var v=document.getElementById('syncScanVideo');if(v)v.srcObject=null;}catch(e){}try{var ov=document.getElementById('syncScanOverlay');if(ov)ov.style.display='none';}catch(e){}__syncScanBusy=false;}
+function syncApplyScanTarget(tgt,txt){var hf=document.getElementById('syncHost'),pf=document.getElementById('syncPort');if(hf){hf.value=tgt.host;saveSyncHost();}if(pf&&tgt.port){pf.value=tgt.port;saveSyncPort();}syncScanClose();toast('تم التقاط عنوان الجهاز الآخر: '+tgt.host+(tgt.port?':'+tgt.port:''));syncMsg('تم المسح — جارٍ اختبار الاتصال…','');try{syncTestNow();}catch(e){}syncLogLine('📷 نتيجة المسح: '+String(txt||'').slice(0,120));}
+async function syncStartScan(){var ov=document.getElementById('syncScanOverlay'),vid=document.getElementById('syncScanVideo');if(!ov||!vid)return;if(typeof BarcodeDetector==='undefined'){syncMsg('المسح غير مدعوم في هذا المتصفح — استخدم تطبيق أندرويد أو أدخل العنوان يدويًا','err');toast('المسح بالكاميرا غير مدعوم هنا');return;}if(!window.isSecureContext&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){ov.style.display='flex';syncScanMsg('يحتاج الكاميرا اتصالًا آمنًا (HTTPS). استعمل تطبيق أندرويد أو localhost.');return;}if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){toast('الكاميرا غير متاحة في هذه البيئة');return;}ov.style.display='flex';syncScanMsg('جارٍ تشغيل الكاميرا…');try{__syncScanStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});vid.srcObject=__syncScanStream;await vid.play();}catch(e){syncScanClose();toast('تعذّر فتح الكاميرا: '+((e&&e.name)||e));return;}try{__syncScanDetector=new BarcodeDetector({formats:['qr_code']});}catch(e){try{__syncScanDetector=new BarcodeDetector();}catch(e2){syncScanClose();toast('تعذّر تهيئة قارئ الرموز');return;}}syncScanMsg('وجّه الكاميرا نحو الرمز…');__syncScanBusy=false;var tick=async function(){if(!__syncScanStream){return;}if(!__syncScanBusy&&vid.readyState>=2){__syncScanBusy=true;try{var codes=await __syncScanDetector.detect(vid);if(codes&&codes.length){var txt=codes[0].rawValue||codes[0].value||'';var tgt=parseSyncTarget(txt);if(tgt){syncApplyScanTarget(tgt,txt);return;}syncScanMsg('رمز غير صالح — امسح رمز «عنوان هذا الجهاز»');}}catch(e){}__syncScanBusy=false;}__syncScanRAF=requestAnimationFrame(tick);};__syncScanRAF=requestAnimationFrame(tick);}
 function saveSyncHost(){try{localStorage.setItem('syncHost',document.getElementById('syncHost').value);}catch(e){}}
 function saveSyncPort(){try{localStorage.setItem('syncPort',document.getElementById('syncPort').value);}catch(e){}}
 function restoreSyncPrefs(){try{var hv=document.getElementById('syncHost'),pv=document.getElementById('syncPort');if(hv&&localStorage.getItem('syncHost'))hv.value=localStorage.getItem('syncHost');if(pv&&localStorage.getItem('syncPort'))pv.value=localStorage.getItem('syncPort');if(location.protocol==='http:'||location.protocol==='https:'){if(hv&&!hv.value)hv.value=location.hostname;if(pv&&!pv.value&&location.port)pv.value=location.port;}}catch(e){}}
