@@ -1,0 +1,59 @@
+{
+  "name": "sijil-taqyim-pro",
+  "productName": "المواكبة التربوية الذكية",
+  "version": "1.0.0",
+  "description": "سجل التقويم والتشخيص والدعم التربوي — مسار ذكي يرافق المتعلم من التقويم إلى النجاح",
+  "main": "main.js",
+  "author": "Sijil Taqyim",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --win dir",
+    "dist": "electron-builder --win nsis portable"
+  },
+  "build": {
+    "appId": "com.sijil.taqyim.pro",
+    "productName": "المواكبة التربوية الذكية",
+    "asar": true,
+    "electronDist": "node_modules/electron/dist",
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "build/**"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": true,
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "المواكبة التربوية الذكية",
+      "installerLanguages": [
+        "ar_SA"
+      ],
+      "language": "2057"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-portable.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.2.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "acorn": "^8.18.0"
+  }
+}
