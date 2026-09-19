@@ -2,6 +2,15 @@ name: Build Signed Release APK
 
 on:
   workflow_dispatch:
+    inputs:
+      app_id:
+        description: "Android applicationId (غيّره لتفادي تعارض التوقيع)"
+        required: false
+        default: "com.sijil.taqyim.pro"
+      app_name:
+        description: "اسم التطبيق الظاهر"
+        required: false
+        default: "المواكبة التربوية الذكية"
 
 permissions:
   contents: write
@@ -47,6 +56,14 @@ jobs:
       - name: Copy latest web app into www
         working-directory: cap
         run: node copy-web.js
+
+      - name: Apply requested appId/appName to Capacitor config
+        working-directory: cap
+        env:
+          ALT_APP_ID: ${{ inputs.app_id }}
+          ALT_APP_NAME: ${{ inputs.app_name }}
+        run: |
+          node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p));if(process.env.ALT_APP_ID)c.appId=process.env.ALT_APP_ID;if(process.env.ALT_APP_NAME)c.appName=process.env.ALT_APP_NAME;fs.writeFileSync(p,JSON.stringify(c,null,2));console.log('BUILD appId='+c.appId+' appName='+c.appName);"
 
       - name: Add Android platform project
         working-directory: cap
