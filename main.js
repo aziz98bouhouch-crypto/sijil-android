@@ -8,6 +8,9 @@ const {execFile}=require('child_process');
 
 app.setPath('userData', path.join(app.getPath('appData'), 'sijil-taqyim-pro'));
 
+const gotTheLock=app.requestSingleInstanceLock();
+if(!gotTheLock){ app.quit(); }
+
 let win=null;
 
 function createWindow(){
@@ -483,11 +486,13 @@ function setupAutoUpdater(){
 }
 
 app.whenReady().then(async()=>{
+  if(!gotTheLock) return;
   createWindow();
   createTray();
   try{ await portalRun(portalBasePort); }catch(e){}
   startBackupScheduler();
   setupAutoUpdater();
+  app.on('second-instance',()=>{ showWindow(); });
   app.on('activate',()=>{ if(BrowserWindow.getAllWindows().length===0)createWindow(); });
 });
 
