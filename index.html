@@ -4551,6 +4551,7 @@ if(window.addEventListener)window.addEventListener('error',function(e){try{toast
 
 window.SijilTaqyimCore={CORE,DB,Bus,V,Router};
 window.Router=Router;
+window.toast=toast;window.esc=esc;
 window.CORE=window.SijilTaqyimCore.CORE;
 window.DB=window.SijilTaqyimCore.DB;
 window.__syncSnapshot=async function(){const C=window.SijilTaqyimCore;const out={};for(const st of (C.CORE.stores||[])){try{out[st]=(await C.DB.all(st))||[];}catch(e){out[st]=[];}}return out;};
