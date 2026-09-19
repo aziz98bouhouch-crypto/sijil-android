@@ -1,4 +1,4 @@
-const {app,BrowserWindow,Menu,shell,ipcMain,dialog,nativeImage}=require('electron');
+const {app,BrowserWindow,Menu,shell,ipcMain,dialog,nativeImage,Tray,Notification}=require('electron');
 const path=require('path');
 const fs=require('fs');
 const http=require('http');
@@ -35,6 +35,7 @@ function createWindow(){
     if(/^https?:/i.test(url))shell.openExternal(url);
     return {action:'deny'};
   });
+  win.on('close',(e)=>{ try{ if(tray&&!quitRequested){ e.preventDefault(); win.hide(); } }catch(e2){} });
   win.on('closed',()=>{win=null;});
 }
 
@@ -385,11 +386,94 @@ async function rendererSnapshot(){if(!win||!win.webContents||win.webContents.isD
 ipcMain.handle('sync:export',async()=>{try{return{ok:true,data:await rendererSnapshot()};}catch(e){return{ok:false,error:String(e.message)}}});
 ipcMain.handle('sync:import',async(e,payload)=>{try{if(!payload||!payload.data)return{ok:false,error:'no data'};syncData=payload.data;syncLastPush=Date.now();if(win&&win.webContents&&!win.webContents.isDestroyed()){win.webContents.executeJavaScript('if(typeof window.handleSyncImport==="function")window.handleSyncImport('+JSON.stringify(payload.data)+')').catch(()=>{});}return{ok:true};}catch(e){return{ok:false,error:String(e.message)}}});
 
-app.whenReady().then(()=>{
+// ===== دفعة 4: درج النظام + تشغيل تلقائي + نسخ احتياطي مجدوّل ومشفّر =====
+let tray=null,quitRequested=false,backupTimer=null,lastBackupAt=0;
+const BACKUP_INTERVAL_MS=6*3600*1000;   // فحص كل 6 ساعات
+const BACKUP_MAX_AGE_H=20;              // نسخ إن مضى على الأحدث أكثر من 20 ساعة
+const BACKUP_KEEP=14;
+
+function pad2(n){return String(n).padStart(2,'0');}
+function backupsDir(){return path.join(app.getPath('userData'),'backups');}
+function getBackupKey(){
+  const kp=path.join(app.getPath('userData'),'backup.key');
+  try{ if(fs.existsSync(kp)){ const s=fs.readFileSync(kp,'utf8').trim(); if(s&&s.length>=44) return s; } }catch(e){}
+  try{ const k=crypto.randomBytes(32).toString('base64'); fs.writeFileSync(kp,k,{mode:0o600}); return k; }catch(e){ return null; }
+}
+function encryptString(keyB64,plaintext){
+  const key=Buffer.from(keyB64,'base64');
+  const iv=crypto.randomBytes(12);
+  const cipher=crypto.createCipheriv('aes-256-gcm',key,iv);
+  const enc=Buffer.concat([cipher.update(Buffer.from(plaintext,'utf8')),cipher.final()]);
+  const tag=cipher.getAuthTag();
+  return JSON.stringify({v:1,alg:'aes-256-gcm',iv:iv.toString('base64'),tag:tag.toString('base64'),data:enc.toString('base64')});
+}
+function pruneBackups(dir,keep){
+  try{
+    const files=fs.readdirSync(dir).filter(f=>/^sijil-backup_.*\.enc\.json$/.test(f))
+      .map(f=>({f,m:fs.statSync(path.join(dir,f)).mtimeMs})).sort((a,b)=>b.m-a.m);
+    for(let i=keep;i<files.length;i++){ try{ fs.unlinkSync(path.join(dir,files[i].f)); }catch(e){} }
+  }catch(e){}
+}
+async function doEncryptedBackup(reason){
+  try{
+    const key=getBackupKey(); if(!key) return {ok:false,error:'no-key'};
+    const data=await rendererSnapshot(); if(!data) return {ok:false,skipped:true};
+    const dir=backupsDir(); try{ fs.mkdirSync(dir,{recursive:true}); }catch(e){}
+    const ts=new Date();
+    const stamp=ts.getFullYear()+'-'+pad2(ts.getMonth()+1)+'-'+pad2(ts.getDate())+'_'+pad2(ts.getHours())+'-'+pad2(ts.getMinutes());
+    const payload=encryptString(key,JSON.stringify({createdAt:ts.toISOString(),reason:reason||'scheduled',app:'sijil-taqyim-pro',data}));
+    const fp=path.join(dir,'sijil-backup_'+stamp+'.enc.json');
+    fs.writeFileSync(fp,payload,{mode:0o600});
+    pruneBackups(dir,BACKUP_KEEP);
+    lastBackupAt=Date.now();
+    return {ok:true,file:fp};
+  }catch(e){ return {ok:false,error:String((e&&e.message)||e)}; }
+}
+function newestBackupAgeHours(){
+  try{
+    const dir=backupsDir(); if(!fs.existsSync(dir)) return 1e9;
+    const ms=fs.readdirSync(dir).filter(f=>/\.enc\.json$/.test(f)).map(f=>{ try{return fs.statSync(path.join(dir,f)).mtimeMs;}catch(e){return 0;} });
+    if(!ms.length) return 1e9;
+    return (Date.now()-Math.max.apply(null,ms))/3600000;
+  }catch(e){ return 1e9; }
+}
+function startBackupScheduler(){
+  (async()=>{ try{ if(newestBackupAgeHours()>BACKUP_MAX_AGE_H){ const r=await doEncryptedBackup('startup'); if(r&&r.ok) notify('نسخة احتياطية مشفّرة','أُنشئت نسخة عند التشغيل'); } }catch(e){} })();
+  if(backupTimer) clearInterval(backupTimer);
+  backupTimer=setInterval(()=>{ doEncryptedBackup('scheduled'); },BACKUP_INTERVAL_MS);
+}
+function getAutoLaunch(){ try{ return !!app.getLoginItemSettings().openAtLogin; }catch(e){ return false; } }
+function setAutoLaunch(v){ try{ app.setLoginItemSettings({openAtLogin:!!v,arguments:[]}); }catch(e){} }
+function notify(title,body){ try{ if(Notification.isSupported()){ const n=new Notification({title:String(title||''),body:String(body||'')}); n.on('click',()=>showWindow()); n.show(); } }catch(e){} }
+function trayIcon(){ try{ const i=nativeImage.createFromPath(APP_ICON_PNG); if(i&&!i.isEmpty()) return i.resize({width:16,height:16}); }catch(e){} return nativeImage.createEmpty(); }
+function refreshTrayMenu(){ try{ if(tray) tray.setContextMenu(buildTrayMenu()); }catch(e){} }
+function buildTrayMenu(){
+  const running=!!portalSrv;
+  return Menu.buildFromTemplate([
+    {label:'فتح التطبيق',click:()=>showWindow()},
+    {type:'separator'},
+    {label:running?'إيقاف خادم المزامنة':'تشغيل خادم المزامنة',click:async()=>{ try{ if(portalSrv){portalStopSync();}else{await portalRun(portalBasePort);} }catch(e){} refreshTrayMenu(); }},
+    {label:'نسخة احتياطية مشفّرة الآن',click:async()=>{ const r=await doEncryptedBackup('manual'); if(r&&r.ok){ notify('تم إنشاء نسخة احتياطية مشفّرة',path.basename(r.file)); } else if(r&&r.skipped){ notify('لا توجد بيانات للنسخ','افتح التطبيق أولًا'); } else { notify('تعذّر إنشاء النسخة الاحتياطية',''); } refreshTrayMenu(); }},
+    {label:'البدء تلقائيًا مع النظام',type:'checkbox',checked:getAutoLaunch(),click:(it)=>{ setAutoLaunch(it.checked); }},
+    {label:'فتح مجلد النسخ الاحتياطية',click:()=>{ try{ fs.mkdirSync(backupsDir(),{recursive:true}); shell.openPath(backupsDir()); }catch(e){} }},
+    {type:'separator'},
+    {label:'خروج',click:()=>{ quitRequested=true; app.quit(); }}
+  ]);
+}
+function createTray(){ try{ tray=new Tray(trayIcon()); tray.setToolTip('المواكبة التربوية الذكية'); tray.setContextMenu(buildTrayMenu()); tray.on('click',()=>showWindow()); tray.on('double-click',()=>showWindow()); }catch(e){ tray=null; } }
+function showWindow(){ try{ if(!win) createWindow(); if(win){ if(win.isMinimized())win.restore(); win.show(); win.focus(); } }catch(e){} }
+
+app.whenReady().then(async()=>{
   createWindow();
-  app.on('activate',()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});
+  createTray();
+  try{ await portalRun(portalBasePort); }catch(e){}
+  startBackupScheduler();
+  app.on('activate',()=>{ if(BrowserWindow.getAllWindows().length===0)createWindow(); });
 });
 
-app.on('window-all-closed',()=>{if(process.platform!=='darwin')app.quit();});
+app.on('window-all-closed',()=>{
+  if(tray&&process.platform!=='darwin'){ return; }
+  if(process.platform!=='darwin')app.quit();
+});
 
-app.on('will-quit',()=>{portalStopSync();});
+app.on('will-quit',()=>{ try{ if(backupTimer)clearInterval(backupTimer); }catch(e){} portalStopSync(); });
