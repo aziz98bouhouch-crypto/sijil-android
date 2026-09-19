@@ -9,26 +9,35 @@ if (!fs.existsSync(manifestPath)) {
 
 let xml = fs.readFileSync(manifestPath, 'utf8');
 
+// 1) Runtime permissions (camera + storage) so getUserMedia / file access work.
 const additions = [
   '<uses-permission android:name="android.permission.CAMERA" />',
   '<uses-feature android:name="android.hardware.camera" android:required="false" />',
   '<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />',
   '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />'
 ];
-
 const missing = additions.filter(line => xml.indexOf(line) === -1);
-if (missing.length === 0) {
-  console.log('permissions already present, nothing to do');
-  process.exit(0);
+if (missing.length) {
+  if (xml.indexOf('</manifest>') === -1) {
+    console.error('could not find </manifest> closing tag');
+    process.exit(1);
+  }
+  xml = xml.replace('</manifest>', '\n    ' + missing.join('\n    ') + '\n</manifest>');
+  console.log('injected permissions:', missing.join(', '));
+} else {
+  console.log('permissions already present');
 }
 
-const inject = '\n    ' + missing.join('\n    ') + '\n';
-if (xml.indexOf('</manifest>') !== -1) {
-  xml = xml.replace('</manifest>', inject + '</manifest>');
+// 2) Allow cleartext (plain http) so the phone app can reach the desktop sync server over the LAN.
+if (xml.indexOf('android:usesCleartextTraffic') === -1) {
+  if (xml.indexOf('<application') === -1) {
+    console.error('could not find <application tag');
+    process.exit(1);
+  }
+  xml = xml.replace(/<application(\s)/, '<application$1android:usesCleartextTraffic="true"$1        ');
+  console.log('enabled usesCleartextTraffic on <application>');
 } else {
-  console.error('could not find </manifest> closing tag');
-  process.exit(1);
+  console.log('usesCleartextTraffic already present');
 }
 
 fs.writeFileSync(manifestPath, xml, 'utf8');
-console.log('injected permissions:', missing.join(', '));
