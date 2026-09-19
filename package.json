@@ -1,7 +1,7 @@
 {
   "name": "sijil-taqyim-pro",
   "productName": "المواكبة التربوية الذكية",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "سجل التقويم والتشخيص والدعم التربوي — مسار ذكي يرافق المتعلم من التقويم إلى النجاح",
   "main": "main.js",
   "author": "Sijil Taqyim",
@@ -31,10 +31,11 @@
       ],
       "icon": "build/icon.ico",
       "signAndEditExecutable": true,
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "sijil-taqyim-pro-${version}-${arch}.${ext}"
     },
     "nsis": {
       "oneClick": false,
+      "artifactName": "sijil-taqyim-pro-${version}-${arch}.${ext}",
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,

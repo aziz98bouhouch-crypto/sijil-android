@@ -60,4 +60,4 @@ jobs:
           files: |
             release/*.exe
             release/*.blockmap
-            release/*.yml
+            release/latest.yml
