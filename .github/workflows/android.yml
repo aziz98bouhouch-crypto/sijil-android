@@ -2,11 +2,27 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      app_id:
+        description: "Android applicationId (اتركه فارغًا للافتراضي)"
+        required: false
+        default: ""
+      app_name:
+        description: "اسم التطبيق الظاهر"
+        required: false
+        default: ""
+      as_release:
+        description: "نشر نسخة الـdebug على Release (true/false)"
+        required: false
+        default: "false"
   push:
     paths:
       - 'index.html'
       - 'cap/**'
       - '.github/workflows/android.yml'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -38,6 +54,14 @@ jobs:
       - name: Copy latest web app into www
         working-directory: cap
         run: node copy-web.js
+
+      - name: Apply requested appId/appName to Capacitor config
+        working-directory: cap
+        env:
+          ALT_APP_ID: ${{ inputs.app_id }}
+          ALT_APP_NAME: ${{ inputs.app_name }}
+        run: |
+          node -e "const fs=require('fs');const p='capacitor.config.json';const c=JSON.parse(fs.readFileSync(p));if(process.env.ALT_APP_ID)c.appId=process.env.ALT_APP_ID;if(process.env.ALT_APP_NAME)c.appName=process.env.ALT_APP_NAME;fs.writeFileSync(p,JSON.stringify(c,null,2));console.log('BUILD appId='+c.appId+' appName='+c.appName);"
 
       - name: Add Android platform project
         working-directory: cap
@@ -72,3 +96,20 @@ jobs:
           name: sijil-android-apk
           path: cap/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
+      - name: Publish debug APK to a Release (optional)
+        if: ${{ inputs.as_release == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp -f cap/android/app/build/outputs/apk/debug/app-debug.apk sijil-taqyim-android.apk
+          ls -la sijil-taqyim-android.apk
+      - name: Create debug GitHub Release
+        if: ${{ inputs.as_release == 'true' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: debug-v${{ github.run_number }}
+          name: "نسخة أندرويد debug (build ${{ github.run_number }})"
+          files: sijil-taqyim-android.apk
+          prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}
