@@ -92,7 +92,7 @@ ipcMain.handle('write-backup-file', (event, dir, payload)=>{
 
 // ===== PORTAL (بوابة المتعلمين عن بعد — خادم محلي بلا إنترنت) =====
 let portalSrv=null,portalData=null,portalBasePort=8050;
-let syncData=null,syncLastPush=null;
+let syncLastPush=null;
 
 function lanIPv4(){
   const out=[];
@@ -285,13 +285,6 @@ async function portalHandler(req,res){
       }
     });return;
   }
-  if(u==='/api/sync/export'){
-    let ex=null;try{ex=await rendererSnapshot();}catch(e){}
-    res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(JSON.stringify({ok:true,time:new Date().toISOString(),data:ex}));return;
-  }
-  if(u==='/api/status'){
-    res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(JSON.stringify({ok:true,time:new Date().toISOString()}));return;
-  }
   if(u==='/api/view'){
     if(portalLocked(ip)){res.writeHead(429,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify({error:'محاولات كثيرة — حاول بعد قليل'}));return;}
     let code='',pin='';
@@ -386,8 +379,6 @@ ipcMain.handle('portal-status',()=>{const port=portalSrv?(portalSrv.address()&&p
 
 
 async function rendererSnapshot(){if(!win||!win.webContents||win.webContents.isDestroyed())return null;try{return await win.webContents.executeJavaScript('(typeof window.__syncSnapshot==="function")?window.__syncSnapshot():Promise.resolve(null)');}catch(e){return null;}}
-ipcMain.handle('sync:export',async()=>{try{return{ok:true,data:await rendererSnapshot()};}catch(e){return{ok:false,error:String(e.message)}}});
-ipcMain.handle('sync:import',async(e,payload)=>{try{if(!payload||!payload.data)return{ok:false,error:'no data'};syncData=payload.data;syncLastPush=Date.now();if(win&&win.webContents&&!win.webContents.isDestroyed()){win.webContents.executeJavaScript('if(typeof window.handleSyncImport==="function")window.handleSyncImport('+JSON.stringify(payload.data)+')').catch(()=>{});}return{ok:true};}catch(e){return{ok:false,error:String(e.message)}}});
 
 // ===== دفعة 4: درج النظام + تشغيل تلقائي + نسخ احتياطي مجدوّل ومشفّر =====
 let tray=null,quitRequested=false,backupTimer=null,lastBackupAt=0;

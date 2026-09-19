@@ -8,7 +8,5 @@ contextBridge.exposeInMainWorld('sijilAPI',{
   portalPush:(payload)=>ipcRenderer.invoke('portal-push',payload),
   portalStatus:()=>ipcRenderer.invoke('portal-status'),
   portalFirewallCheck:()=>ipcRenderer.invoke('portal-fw-check'),
-  portalFirewallAllow:()=>ipcRenderer.invoke('portal-fw-allow'),
-  syncExport:()=>ipcRenderer.invoke('sync:export'),
-  syncImport:(data)=>ipcRenderer.invoke('sync:import',data)
+  portalFirewallAllow:()=>ipcRenderer.invoke('portal-fw-allow')
 });

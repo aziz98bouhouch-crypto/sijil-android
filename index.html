@@ -63,12 +63,14 @@
 .cert-footer .sig-line{border-bottom:2px solid var(--t);height:60px;margin-top:8px}
 .ped-tech{margin-top:32px;font-size:11px;color:var(--m);font-style:italic;letter-spacing:.5px;
   padding:16px;background:rgba(0,0,0,.02);border-radius:0;border-top:1px solid rgba(0,0,0,.08)}
-.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.dash-card{background:var(--p);border:1px solid var(--l);border-radius:var(--r);padding:16px}
-.dash-card h3{margin:0 0 6px;font-size:14px;color:var(--a)}
-.dash-card .dash-big{font-size:32px;font-weight:800;color:var(--t)}
+.dash-grid,#rptDashboardView{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.dash-card{position:relative;overflow:hidden;background:var(--p);border:1px solid var(--l);border-radius:var(--radius-lg);padding:16px 18px;min-height:124px;display:flex;flex-direction:column;gap:6px;transition:transform .18s,box-shadow .18s}
+.dash-card::before{content:'';position:absolute;inset-block-start:0;inset-inline:0;height:3px;background:var(--brand-grad)}
+.dash-card:hover{transform:translateY(-3px);box-shadow:0 12px 26px -14px rgba(2,6,23,.3)}
+.dash-card h3{margin:0;font-size:13px;font-weight:700;color:var(--a);letter-spacing:.2px}
+.dash-card .dash-big{font-size:34px;font-weight:800;color:var(--t);letter-spacing:-.6px;line-height:1}
 .dash-card .dash-sub{color:var(--m);font-size:12px}
-.dash-card .dash-bar{height:8px;background:var(--l);border-radius:4px;margin-top:8px;overflow:hidden}
+.dash-card .dash-bar{height:8px;background:var(--l);border-radius:4px;margin-top:auto;overflow:hidden}
 .dash-card .dash-bar .fill{height:100%;border-radius:4px}
 .chart-box{width:100%;overflow-x:auto;background:var(--p);border:1px solid var(--l);border-radius:var(--r);padding:16px;box-shadow:var(--card-shadow);transition:background .25s ease}
 .chart-box svg{display:block}
@@ -409,10 +411,10 @@ input,select,textarea{border-radius:10px}
 .hero p{font-size:14px;line-height:1.85;max-width:780px;color:var(--m)}
 .hero .badge{background:var(--brand-grad);color:#fff;padding:6px 13px;font-size:11px;letter-spacing:.4px;font-weight:800}
 .page>.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:6px 0 16px}
-.page>.grid .card.stat{display:grid;gap:4px;padding:16px;background:linear-gradient(165deg,var(--bg2),transparent);border:1px solid var(--l);border-radius:var(--radius-md);box-shadow:var(--shadow-sm)}
-.page>.grid .card.stat::before{content:'';width:34px;height:4px;border-radius:99px;background:var(--brand-grad)}
-.page>.grid .card.stat strong{font-size:26px;font-weight:800;letter-spacing:-.5px}
-.page>.grid .card.stat .muted{font-size:12px}
+.page>.grid .card.stat{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;gap:10px;padding:16px 18px;min-height:108px;background:linear-gradient(165deg,var(--bg2),transparent);border:1px solid var(--l);border-radius:var(--radius-md);box-shadow:var(--shadow-sm)}
+.page>.grid .card.stat::before{content:'';position:absolute;inset-block-start:0;inset-inline:0;height:3px;background:var(--brand-grad)}
+.page>.grid .card.stat strong{font-size:30px;font-weight:800;letter-spacing:-.6px;line-height:1}
+.page>.grid .card.stat .muted{font-size:12px;font-weight:600;letter-spacing:.2px}
 .section-title{position:relative}
 .section-title::after{content:'';flex:1;height:1px;background:var(--l);opacity:.55;margin-inline-start:8px}
 .section-title h2{font-size:17px;font-weight:800}
@@ -961,9 +963,9 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <pre id="syncLog" style="background:#0f1117;color:#7ee787;font-family:Consolas,monospace;font-size:11px;line-height:1.7;padding:12px;border-radius:8px;max-height:260px;overflow:auto;white-space:pre-wrap;direction:ltr;text-align:left"></pre>
   </div></div>
     <!-- SETTINGS -->
-<div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
+<div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="section-title"><h2>المظهر والواجهة</h2></div><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
 <div class="card"><div class="section-title"><h2>عتبات الأوسمة</h2></div><div class="form"><div class="field"><label>عتبة وسام «المتفوق» /20</label><input id="badgeTop" type="number" min="0" max="20" step="0.5" value="16"></div><div class="field"><label>عتبة وسام «المجتهد» /20</label><input id="badgeDil" type="number" min="0" max="20" step="0.5" value="14"></div></div><p class="muted">تُطبَّق على منح أوسمة التحفيز في كل الحاسبات والتقارير: وسام «المتفوق» لمن بلغ معدله العام العتبة الأولى فما فوق، و«المجتهد» لمن بلغ العتبة الثانية. تُحفظ تلقائيًا وتنعكس على صفحة التحفيز والتنبيهات.</p><div class="actions"><button class="btn primary" id="saveBadgeWeights">حفظ عتبات الأوسمة</button></div></div><div class="card"><div class="section-title"><h2>شعار المؤسسة</h2></div><p class="muted">يظهر الشعار أعلى رأس كل بطاقة وتقرير رسمي (بطاقة المتعلم، ولي الأمر، الأكشفة، الشهادات...).</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><img id="logoPreview" alt="الشعار" style="height:64px;max-width:200px;object-fit:contain;display:none;border:1px solid var(--l);border-radius:8px;padding:6px;background:#fff"><div style="display:flex;flex-direction:column;gap:8px"><input id="logoInput" type="file" accept="image/*"><button class="btn danger" id="logoRemoveBtn">إزالة الشعار</button></div></div></div><div class="card"><div class="section-title"><h2>أوزان المواد</h2></div><p class="muted">تحديد وزن «النشاط» و«الفرض» لكل مادة على حدة عند تركيب معدلها في البطاقات والنتائج والأكشفة. مؤشر «عام» يعني الاعتماد على الأوزان العامة الموضوعة في صفحة التقويم.</p><div id="subjectWeightsList"></div><div class="actions"><button class="btn primary" id="saveSubjectWeights">حفظ أوزان المواد</button></div></div>
-<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div></div>
+<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.8</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
 
 <!-- TRASH -->
 <div id="trash" class="page"><div class="hero"><span class="badge">TRASH</span><h1>السلة</h1><p>ما حُذف عبر أزرار «حذف» يبقى هنا قابلاً للاستعادة في أي وقت، حتى تحذفه نهائيًا.</p></div>
@@ -1041,7 +1043,7 @@ const Bus=(()=>{const m={};return{on:(t,f)=>(m[t]??=new Set()).add(f),emit:(t,p)
 const DB=(()=>{let db,useLocal=false;const LK='SJX_'+CORE.db+'_';function lsAll(s){try{return JSON.parse(localStorage.getItem(LK+s)||'[]')}catch(e){return[]}}function lsPutAll(s,a){try{localStorage.setItem(LK+s,JSON.stringify(a))}catch(e){}}function lsPut(s,o){const a=lsAll(s);const i=a.findIndex(x=>x.id===o.id);if(i>=0)a[i]=o;else a.push(o);lsPutAll(s,a)}function lsRemove(s,id){lsPutAll(s,lsAll(s).filter(x=>x.id!==id))}function lsClear(){CORE.stores.forEach(s=>{try{localStorage.removeItem(LK+s)}catch(e){}})}async function open(){if(useLocal||db)return;try{await new Promise((res,rej)=>{let r=indexedDB.open(CORE.db,6);r.onupgradeneeded=e=>{let d=e.target.result;CORE.stores.forEach(n=>{if(!d.objectStoreNames.contains(n)){let s=d.createObjectStore(n,{keyPath:'id'});s.createIndex('updatedAt','updatedAt')}})};r.onsuccess=e=>res(db=e.target.result);r.onerror=()=>rej(r.error)})}catch(e){useLocal=true;db=null}}async function all(s,o){let r;if(useLocal)r=lsAll(s);else{await open();r=useLocal?lsAll(s):await new Promise((res,rej)=>{let t=db.transaction(s).objectStore(s).getAll();t.onsuccess=()=>res(t.result||[]);t.onerror=()=>rej(t.error)})}const HW=['classes','levels','branches','tracks'];let out=HW.indexOf(s)>=0&&!(o&&o.inactive)?(r||[]).filter(x=>x.status!=='archived'):(r||[]);if(s==='students')out=out.slice().sort(stCmp);return out;}
 async function get(s,id){if(id==null||id==='')return null;if(useLocal)return lsAll(s).find(x=>x.id===id)||null;await open();return useLocal?lsAll(s).find(x=>x.id===id)||null:new Promise((res,rej)=>{let r=db.transaction(s).objectStore(s).get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}async function put(s,o){o={...o,id:o.id||uid(s.slice(0,3)),updatedAt:now()};if(useLocal){lsPut(s,o);Bus.emit(s+'.changed',o);return o}await open();if(useLocal){lsPut(s,o);Bus.emit(s+'.changed',o);return o}return new Promise((res,rej)=>{let t=db.transaction(s,'readwrite');t.objectStore(s).put(o);t.oncomplete=()=>{Bus.emit(s+'.changed',o);res(o)};t.onerror=()=>rej(t.error)})}async function remove(s,id,opts){const soft=!(opts&&opts.permanent)&&s!=='trash'&&s!=='appMeta';if(soft){try{const rec=await get(s,id);if(rec)await put('trash',{id:uid('tr'),store:s,record:rec,deletedAt:now()});}catch(e){}}if(useLocal){lsRemove(s,id);return}await open();if(useLocal){lsRemove(s,id);return}return new Promise((res,rej)=>{let t=db.transaction(s,'readwrite');t.objectStore(s).delete(id);t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function clear(){if(useLocal){lsClear();return}await open();if(useLocal){lsClear();return}return new Promise((res,rej)=>{let t=db.transaction(CORE.stores,'readwrite');CORE.stores.forEach(s=>t.objectStore(s).clear());t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function clearStore(s){if(useLocal){try{localStorage.removeItem(LK+s)}catch(e){}return}await open();if(useLocal){try{localStorage.removeItem(LK+s)}catch(e){}return}return new Promise((res,rej)=>{let t=db.transaction(s,'readwrite');t.objectStore(s).clear();t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function counts(){let n=0;for(const s of CORE.stores)n+=(await all(s)).length;return n}function mode(){return useLocal?'local':'indexeddb'}return{open,all,get,put,remove,clear,clearStore,counts,mode}})();
 const toast=(m,t)=>{const el=$('toast');let tv=t;const s=String(m);if(!tv){tv=/^تم/.test(s)?'ok':/^(تعذ|خطأ|فشل|معرّف مستعمل|القسم غير|لا توجد)/.test(s)?'err':/^(اختر|أكمل|لا )/.test(s)?'warn':'n';}const ic={ok:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',err:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',warn:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',n:''};el.dataset.t=tv||'n';el.innerHTML='<span class="toast-ico">'+(ic[tv]||'')+'</span><span class="toast-tx">'+esc(s)+'</span><span class="toast-bar"></span>';el.classList.add('show');clearTimeout(toast._h);toast._h=setTimeout(()=>el.classList.remove('show'),3200)};
-const Router={go(p){const titles={home:'الرئيسية',academic:'الهوية الأكاديمية',curriculum:'المنهاج الدراسي',management:'الأقسام',students:'ملفات المتعلمين',studentProfile:'ملف المتعلم',assessment:'التقويم والنتائج',tracking:'المتابعة',schedule:'استعمال الزمان والحصص',diagnosis:'التشخيص والدعم',motivation:'التحفيز والإنجاز',resources:'الموارد والتعلم',reports:'التقارير والمؤشرات',analytics:'التحليلات والإحصاء',evolution:'تتبع التطور',communication:'سجل التواصل',exams:'منشئ نماذج الامتحانات',health:'فحص النظام',backup:'النسخ الاحتياطي',trash:'السلة',settings:'الإعدادات',portal:'بوابة المتعلمين',sync:'المزامنة'};p=titles[p]?p:'home';document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('title').textContent='سجل التقييم PRO — '+titles[p];try{localStorage.setItem('corePage',p)}catch(e){}const fns={academic:renderAcademic,curriculum:renderCurriculum,management:renderManagement,students:renderStudents,studentProfile:renderStudentProfile,assessment:renderAssessment,tracking:renderTracking,schedule:renderSchedule,diagnosis:renderDiagnosis,motivation:renderMotivation,resources:renderResources,reports:renderReports,analytics:renderAnalytics,evolution:renderEvolution,communication:renderCommunication,exams:renderExams,health:health,backup:renderBackup,trash:renderTrash,settings:function(){renderInstCard();try{renderTeacherSubjects()}catch(e){}},portal:renderPortal,sync:()=>renderSync()};if(fns[p])fns[p]();try{renderSubjectSwitch()}catch(e){}}};
+const Router={go(p){const titles={home:'الرئيسية',academic:'الهوية الأكاديمية',curriculum:'المنهاج الدراسي',management:'الأقسام',students:'ملفات المتعلمين',studentProfile:'ملف المتعلم',assessment:'التقويم والنتائج',tracking:'المتابعة',schedule:'استعمال الزمان والحصص',diagnosis:'التشخيص والدعم',motivation:'التحفيز والإنجاز',resources:'الموارد والتعلم',reports:'التقارير والمؤشرات',analytics:'التحليلات والإحصاء',evolution:'تتبع التطور',communication:'سجل التواصل',exams:'منشئ نماذج الامتحانات',health:'فحص النظام',backup:'النسخ الاحتياطي',trash:'السلة',settings:'الإعدادات',portal:'بوابة المتعلمين',sync:'المزامنة'};p=titles[p]?p:'home';document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('title').textContent='سجل التقييم PRO — '+titles[p];try{localStorage.setItem('corePage',p)}catch(e){}const fns={academic:renderAcademic,curriculum:renderCurriculum,management:renderManagement,students:renderStudents,studentProfile:renderStudentProfile,assessment:renderAssessment,tracking:renderTracking,schedule:renderSchedule,diagnosis:renderDiagnosis,motivation:renderMotivation,resources:renderResources,reports:renderReports,analytics:renderAnalytics,evolution:renderEvolution,communication:renderCommunication,exams:renderExams,health:health,backup:renderBackup,trash:renderTrash,settings:function(){renderInstCard();try{renderTeacherSubjects()}catch(e){}},portal:renderPortal,sync:()=>renderSync()};if(fns[p])fns[p]();try{renderSubjectSwitch()}catch(e){}try{Router.current={page:p};window.dispatchEvent(new Event('appnav'))}catch(e){}}};
 document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>Router.go(b.dataset.page));
 const NAV_ICONS={home:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4v-7h-6v7H5a2 2 0 0 1-2-2V9z"/><polyline points="9 22 9 12 15 12 15 22"/>',sync:'<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',curriculum:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="9" y1="7" x2="16" y2="7"/><line x1="9" y1="11" x2="16" y2="11"/>',academic:'<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5"/><line x1="12" y1="15" x2="22" y2="10"/>',management:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',students:'<path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/>',assessment:'<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',tracking:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',schedule:'<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/><line x1="10" y1="18" x2="14" y2="18"/>',diagnosis:'<circle cx="12" cy="12" r="9"/><line x1="12" y1="7.5" x2="12" y2="16.5"/><line x1="7.5" y1="12" x2="16.5" y2="12"/>',motivation:'<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',resources:'<path d="M2 3h6a4 4 0 0 1 4 4 4 4 0 0 1 4-4h6v14h-6a4 4 0 0 0-4 4 4 4 0 0 0-4-4H2V3z"/>',reports:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',analytics:'<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',evolution:'<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',communication:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',exams:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>',portal:'<path d="M9 3h6v2H9V3z"/><path d="M5 7h14v14H5V7z"/><path d="M9 11v6"/><path d="M15 11v6"/><path d="M9 14h6"/>',health:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',backup:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',trash:'<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',settings:'<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>'};
 (document.querySelectorAll('.nav button,.mobile button')||[]).forEach(b=>{const p=b.dataset.page;if(!NAV_ICONS[p])return;const label=b.textContent.trim().replace(/^[^ا-يA-Za-z0-9]+/,'');b.innerHTML='<svg class="ni" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+NAV_ICONS[p]+'</svg><span>'+esc(label)+'</span>';b.title=label});
@@ -2940,7 +2942,18 @@ async function loadLeaderboard(){
   const badgeCount={};badges.forEach(b=>{if(classStudents.some(s=>s.id===b.studentId)) badgeCount[b.studentId]=(badgeCount[b.studentId]||0)+1;});
   const ranked=classStudents.map(s=>({student:s,xp:motMap[s.id]?.totalXp||0,badges:badgeCount[s.id]||0})).sort((a,b)=>b.xp-a.xp);
   const container=$('leaderboardContainer');container.style.display='block';const list=$('leaderboardList');
-  list.innerHTML=ranked.map((item,i)=>{const rank=i+1;const rankClass=rank===1?'gold':rank===2?'silver':rank===3?'bronze':'';const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':rank;return '<div class="leaderboard-item"><span class="rank '+rankClass+'">'+medal+'</span><span>'+esc(item.student.name)+'</span><span style="flex:1"></span><span class="xp">'+item.xp+' XP</span><span class="pill purple">🎖️ '+item.badges+'</span></div>';}).join('');
+  const maxXp=ranked.length?Math.max(ranked[0].xp,1):1;
+  const medal=r=>r===1?'🥇':r===2?'🥈':r===3?'🥉':'';
+  let html='';let listStart=1;
+  if(ranked.length>=3){
+    const byRank={1:ranked[0],2:ranked[1],3:ranked[2]};
+    const cell=r=>{const it=byRank[r];return '<div class="lb-pod p'+r+'"><div class="pod-medal">'+medal(r)+'</div><div class="pod-name">'+esc(it.student.name)+'</div><div class="pod-xp">'+it.xp+' XP</div><div class="pill purple">🎖️ '+it.badges+'</div></div>';};
+    html+='<div class="lb-podium">'+cell(2)+cell(1)+cell(3)+'</div>';
+    listStart=4;
+  }
+  const rows=ranked.slice(listStart-1).map((item,idx)=>{const rank=idx+listStart;const pct=Math.max(4,Math.round(item.xp/maxXp*100));return '<div class="leaderboard-item"><span class="rank">'+rank+'</span><span class="lb-name">'+esc(item.student.name)+'</span><span class="lb-bar"><span style="width:'+pct+'%"></span></span><span class="xp">'+item.xp+' XP</span><span class="pill purple">🎖️ '+item.badges+'</span></div>';}).join('');
+  html+=rows?'<div id="lbRest">'+rows+'</div>':'<p class="muted" style="text-align:center;margin-top:6px">لا يوجد متعلمون بعد في هذا القسم.</p>';
+  list.innerHTML=html;
   toast('تم تحميل لوحة المتصدرين');
 }
 
@@ -4551,18 +4564,16 @@ if(window.addEventListener)window.addEventListener('error',function(e){try{toast
 
 window.SijilTaqyimCore={CORE,DB,Bus,V,Router};
 window.Router=Router;
-window.toast=toast;window.esc=esc;
+window.toast=toast;window.esc=esc;window.closeDrawer=closeDrawer;
 window.CORE=window.SijilTaqyimCore.CORE;
 window.DB=window.SijilTaqyimCore.DB;
 window.__syncSnapshot=async function(){const C=window.SijilTaqyimCore;const out={};for(const st of (C.CORE.stores||[])){try{out[st]=(await C.DB.all(st))||[];}catch(e){out[st]=[];}}return out;};
-window.__syncApply=async function(data){const C=window.SijilTaqyimCore;let n=0;if(!data||typeof data!=='object')return 0;for(const st in data){if(!Array.isArray(data[st]))continue;try{await C.DB.clearStore(st);for(const r of data[st]){try{if(r&&typeof r==='object'){await C.DB.put(st,r);n++;}}catch(e){}}}catch(e){}}return n;};
 })();
 </script>
 <script>
 /* ===== SYNC — المجتمع حقيقية، بدون إنترنت (يعمل على الهاتف والمتصفح والحاسوب) ===== */
 const SYNC_DEFAULT_PORT=8050;
 var syncLogLines=[];
-function syncSet(id){return document.getElementById(id);}
 function syncState(){var http=(location.protocol==='http:'||location.protocol==='https:');var host=http?(location.hostname||'127.0.0.1'):'127.0.0.1';var port=(http&&location.port)?(parseInt(location.port,10)||SYNC_DEFAULT_PORT):SYNC_DEFAULT_PORT;try{var h=document.getElementById('syncHost');if(h&&h.value.trim())host=h.value.trim();}catch(e){}try{var p=document.getElementById('syncPort');if(p&&parseInt(p.value,10))port=parseInt(p.value,10);}catch(e){}return{host:host,port:port};}
 function syncBase(){var o=syncState();return 'http://'+o.host+':'+o.port;}
 function cacheBust(u){return u+(u.indexOf('?')>=0?'&_=':'?_=')+Date.now();}
@@ -4572,7 +4583,6 @@ async function fetchJson(u,opt){var r=await fetch(cacheBust(u),Object.assign({mo
 async function syncTestNow(){var b=syncBase();syncMsg('فحص الاتصال بـ '+b+' ...');try{var j=await fetchJson(b+'/api/sync');if(j&&j.ok){syncMsg('✔ تم الاتصال بالحاسوب — المزامنة جاهزة','ok');return{ok:true,time:j.time};}throw new Error('استجابة غير صالحة');}catch(e){syncMsg('✖ لا يوجد اتصال: '+e.message,'err');return{ok:false,error:e.message};}}
 async function snapshotAll(){var stores=(window.CORE&&CORE.stores)||['institutions','academicYears','levels','branches','tracks','classes','students','studentProfiles','subjects','assessments','scores','attendance','behaviorRecords','homework','homeworkSubmissions','competencies','competencyAssessments','supportPlans','reassessments','diagDomains','diagMatrixScores','motivation','badges','xpHistory','resources','resourceLinks','lessons','commLog','examModels','schedules','teacherSchedules','scheduleSessions','curriculum','trash','appMeta'];var data={};for(var st of stores){try{data[st]=(await DB.all(st))||[];}catch(e){data[st]=[];}}return data;}
 window.__syncSnapshot=window.__syncSnapshot||async function(){try{return await snapshotAll();}catch(e){return null;}};
-async function applySnapshot(name,rows){var n=0;if(!Array.isArray(rows))return 0;try{await DB.clearStore(name);for(var r of rows){try{await DB.put(name,r);n++;}catch(e){}}}catch(e){}return n;}
 function _recTs(r){try{if(!r)return 0;var t=r.updatedAt||r.createdAt||r.date||0;if(typeof t==='number')return t;if(typeof t==='string'){var p=Date.parse(t);if(!isNaN(p))return p;var n2=parseFloat(t);if(!isNaN(n2))return n2;}return 0;}catch(e){return 0;}}
 async function mergeStore(name,incoming){var added=0,updated=0;if(!Array.isArray(incoming))return{added:added,updated:updated};try{var local=(await DB.all(name))||[];var map={};for(var i=0;i<local.length;i++){var l=local[i];if(l&&l.id!=null)map[String(l.id)]=l;}for(var j=0;j<incoming.length;j++){var r=incoming[j];if(!r||r.id==null)continue;var id=String(r.id);var cur=map[id];if(!cur){await DB.put(name,r);added++;}else if(_recTs(r)>_recTs(cur)){await DB.put(name,r);updated++;}}}catch(e){}return{added:added,updated:updated};}
 async function mergeSnapshot(data){var added=0,updated=0;if(!data)return{added:added,updated:updated};for(var st in data){try{var res=await mergeStore(st,data[st]);added+=res.added;updated+=res.updated;}catch(e){}}return{added:added,updated:updated};}
@@ -4582,8 +4592,6 @@ async function syncPreviewPull(){var b=syncBase();syncMsg('جارٍ حساب ا�
 function rememberPeer(){try{var o=syncState();if(!o.host||o.host==='127.0.0.1'||o.host==='localhost')return;var list=JSON.parse(localStorage.getItem('syncPeers')||'[]');var key=o.host+':'+o.port;list=list.filter(function(x){return (x.host+':'+x.port)!==key;});list.unshift({host:o.host,port:o.port,ts:Date.now()});list=list.slice(0,6);localStorage.setItem('syncPeers',JSON.stringify(list));renderPeers();}catch(e){}}
 function renderPeers(){var el=document.getElementById('syncPeers');if(!el)return;var list=[];try{list=JSON.parse(localStorage.getItem('syncPeers')||'[]');}catch(e){}if(!list.length){el.innerHTML='';return;}var html='<label style="font-size:12px;color:#8892b0">أجهزة مقترنة مؤخرًا:</label> ';list.forEach(function(p,i){html+='<button class="btn" data-peer="'+i+'" style="margin:2px;font-size:12px" dir="ltr">'+esc(p.host)+':'+esc(p.port)+'</button>';});el.innerHTML=html;el.querySelectorAll('[data-peer]').forEach(function(btn){btn.onclick=function(){var p=list[parseInt(btn.dataset.peer,10)];if(!p)return;var hf=document.getElementById('syncHost'),pf=document.getElementById('syncPort');if(hf){hf.value=p.host;saveSyncHost();}if(pf){pf.value=p.port;saveSyncPort();}syncMsg('تم اختيار الجهاز '+p.host,'');try{syncTestNow();}catch(e){};};});}
 async function pushToComputer(){var b=syncBase();syncMsg('دفع كل المعطيات إلى '+b+' ...');try{var data=await snapshotAll();var cnt=0;for(var k in data)cnt+=data[k].length;var j=await fetchJson(b+'/api/sync/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:data})});syncMsg('✔ تم دفع '+cnt+' سجلاً إلى الحاسوب','ok');return{ok:true,count:cnt};}catch(e){syncMsg('✖ فشل الدفع: '+e.message,'err');return{ok:false,error:e.message};}}
-function renderSyncServer(){return renderSync();}
-async function startSyncServer(){if(window.sijilAPI&&typeof window.sijilAPI.startPortalServer==='function'){try{return await window.sijilAPI.startPortalServer();}catch(e){}}if(window.sijilAPI&&typeof window.sijilAPI.startSyncServer==='function'){try{return await window.sijilAPI.startSyncServer();}catch(e){}}syncMsg('✖ لا يمكن تشغيل خادم هنا — استعمل واجهة البوابة على الحاسوب','err');return{ok:false};}
 function renderSync(){var host=document.getElementById('syncHost'),port=document.getElementById('syncPort');try{if(host)host.oninput=saveSyncHost;if(port)port.oninput=saveSyncPort;}catch(e){}
   try{var t=document.getElementById('syncTest');if(t)t.onclick=syncTestNow;}catch(e){}
   try{var p=document.getElementById('pushToComputer');if(p)p.onclick=pushToComputer;}catch(e){}
@@ -4619,12 +4627,10 @@ function syncStartScan(){openScanner({title:'امسح رمز «عنوان هذا
 function parseStudentQr(raw){var t=String(raw||'').trim();if(!t)return null;var m=t.match(/رقم المسار[:：]\s*([^|｜]+)/);if(m&&m[1])return m[1].trim();m=t.match(/المتعلم[:：]\s*([^|｜]+)/);return t;}
 async function findStudentByCode(code){if(!code)return null;code=String(code).trim();if(!code)return null;var sts=[];try{sts=(await DB.all('students',{inactive:true}))||[];}catch(e){return null;}var lc=code.toLowerCase();return sts.find(function(x){return x.code&&String(x.code).toLowerCase()===lc;})||sts.find(function(x){return x.externalId&&String(x.externalId).toLowerCase()===lc;})||sts.find(function(x){return String(x.id||'').toLowerCase()===lc;})||null;}
 function scanStudent(){openScanner({title:'امسح رمز QR الخاص بالمتعلم لفتح ملفه',onText:async function(txt){var code=parseStudentQr(txt);var s=await findStudentByCode(code);if(!s){scanMsg('لم يُعثر على متعلم بهذا الرمز — امسح مجددًا');return true;}try{if(typeof openStudentProfile==='function'){openStudentProfile(s.id);}else{window.selectedStudentId=s.id;Router.go('studentProfile');}}catch(e){}toast('فتح ملف المتعلم: '+(s.name||''));return false;}});}
-(function mountQrFab(){try{var isMobile=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)||!!window.Capacitor;if(!isMobile)return;if(document.getElementById('qrFab'))return;var b=document.createElement('button');b.id='qrFab';b.type='button';b.title='مسح رمز متعلم';b.textContent='📷';b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:5000;width:54px;height:54px;border-radius:50%;border:none;background:#2563eb;color:#fff;font-size:24px;box-shadow:0 6px 18px rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;cursor:pointer';b.onclick=function(){try{scanStudent();}catch(e){}};document.body.appendChild(b);var show=function(){try{var on=(typeof Router&&Router.current&&Router.current.page&&Router.current.page!=='sync');b.style.display=on?'flex':'none';}catch(e){}};try{window.addEventListener('hashchange',show);window.addEventListener('popstate',show);show();setTimeout(show,500);}catch(e){}}catch(e){}})();
+(function mountQrFab(){try{var isMobile=/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent)||!!window.Capacitor;if(!isMobile)return;if(document.getElementById('qrFab'))return;var b=document.createElement('button');b.id='qrFab';b.type='button';b.title='مسح رمز متعلم';b.textContent='📷';b.style.cssText='position:fixed;left:16px;bottom:16px;z-index:5000;width:54px;height:54px;border-radius:50%;border:none;background:#2563eb;color:#fff;font-size:24px;box-shadow:0 6px 18px rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;cursor:pointer';b.onclick=function(){try{scanStudent();}catch(e){}};document.body.appendChild(b);var show=function(){try{var on=(typeof Router&&Router.current&&Router.current.page&&Router.current.page!=='sync');b.style.display=on?'flex':'none';}catch(e){}};try{window.addEventListener('hashchange',show);window.addEventListener('popstate',show);window.addEventListener('appnav',show);show();setTimeout(show,500);}catch(e){}}catch(e){}})();
 function saveSyncHost(){try{localStorage.setItem('syncHost',document.getElementById('syncHost').value);}catch(e){}}
 function saveSyncPort(){try{localStorage.setItem('syncPort',document.getElementById('syncPort').value);}catch(e){}}
 function restoreSyncPrefs(){try{var hv=document.getElementById('syncHost'),pv=document.getElementById('syncPort');if(hv&&localStorage.getItem('syncHost'))hv.value=localStorage.getItem('syncHost');if(pv&&localStorage.getItem('syncPort'))pv.value=localStorage.getItem('syncPort');if(location.protocol==='http:'||location.protocol==='https:'){if(hv&&!hv.value)hv.value=location.hostname;if(pv&&!pv.value&&location.port)pv.value=location.port;}}catch(e){}}
-async function pushToComputerBtn(){return pushToComputer();}
-async function pullFromComputerBtn(){return pullFromComputer();}
 window.handleSyncImport=window.handleSyncImport||function(payload){return (async function(){try{var data=payload&&(payload.data||payload);var res=await mergeSnapshot(data);var n=res.added+res.updated;syncLogLine('✔ وردت بيانات من الحاسوب: '+res.added+' جديد + '+res.updated+' مُحدَّث (دمج بدون حذف)');if(n>0){setTimeout(function(){try{location.reload();}catch(e){}},900);}return{ok:true,added:res.added,updated:res.updated};}catch(e){syncLogLine('✖ وردت بيانات مرفوضة: '+e.message);return{ok:false,error:e.message};}})();};
 </script>
 
@@ -4698,6 +4704,56 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
+<!-- ===== PAGE FOLD (بطاقات كل الصفحات قابلة للطي) ===== -->
+<style>
+.page>.card>.section-title{cursor:pointer;user-select:none;position:relative;padding-inline-end:30px}
+.page>.card>.section-title::after{content:'';position:absolute;inset-inline-end:8px;top:50%;width:9px;height:9px;border-right:2px solid var(--m);border-bottom:2px solid var(--m);transform:translateY(-70%) rotate(45deg);transition:transform .2s ease;opacity:.7}
+.page>.card.folded>.section-title::after{transform:translateY(-20%) rotate(-135deg)}
+.page>.card.folded>*:not(:first-child){display:none!important}
+.page-foldbar{display:flex;gap:8px;justify-content:flex-end;margin:2px 0 4px}
+</style>
+<script>
+(function(){
+ try{
+  function foldable(card){var st=card.querySelector(':scope > .section-title');if(!st||st.dataset.folded)return;st.dataset.folded='1';st.title='اضغط العنوان للطي أو التوسيع';st.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('button,select,input,a,label,textarea'))return;card.classList.toggle('folded');});}
+  function scanPage(p){[].forEach.call(p.children,function(c){if(c.classList&&c.classList.contains('card'))foldable(c);});}
+  function nextCard(st){var el=st.nextElementSibling;while(el&&el.classList&&!el.classList.contains('section-title')){if(el.classList.contains('card'))return el;el=el.nextElementSibling;}return null;}
+  function innerCards(p){return [].filter.call(p.children,function(c){return c.classList&&c.classList.contains('card')&&c.querySelector(':scope>.section-title');});}
+  function sibTitles(p){return [].slice.call(p.querySelectorAll('.section-title[data-collapsible]')).filter(function(st){return !st.closest('.card')&&nextCard(st);});}
+  function setAll(p,folded){
+   innerCards(p).forEach(function(c){c.classList.toggle('folded',folded);});
+   sibTitles(p).forEach(function(st){var card=nextCard(st);if(card){card.classList.toggle('card-collapsed',folded);st.classList.toggle('collapsed',folded);}});
+  }
+  function ensureBar(p){if(p.querySelector(':scope > [data-page-foldbar]'))return;var has=innerCards(p).length||sibTitles(p).length;if(!has)return;var hero=p.querySelector(':scope > .hero');var bar=document.createElement('div');bar.setAttribute('data-page-foldbar','1');bar.className='page-foldbar';bar.innerHTML='<button class="btn" type="button" data-fold>طي الكل</button><button class="btn" type="button" data-unfold>توسيع الكل</button>';if(hero)hero.insertAdjacentElement('afterend',bar);else p.insertBefore(bar,p.firstChild);bar.querySelector('[data-fold]').onclick=function(){setAll(p,true);};bar.querySelector('[data-unfold]').onclick=function(){setAll(p,false);};}
+  function run(){[].forEach.call(document.querySelectorAll('.page'),function(p){ensureBar(p);scanPage(p);});}
+  var q=false;function schedule(){if(q)return;q=true;requestAnimationFrame(function(){q=false;run();});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
+  try{var mo=new MutationObserver(schedule);mo.observe(document.body,{childList:true,subtree:true});}catch(e){}
+ }catch(e){}
+})();
+</script>
+<!-- ===== LEADERBOARD (لوحة المتصدرين) ===== -->
+<style>
+#leaderboardList{display:flex;flex-direction:column;gap:10px}
+.lb-podium{display:grid;grid-template-columns:1fr 1.18fr 1fr;gap:10px;align-items:end}
+.lb-pod{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 12px;border-radius:16px;border:1px solid var(--l);background:var(--p);box-shadow:var(--shadow-sm);text-align:center;min-height:120px}
+.lb-pod .pod-medal{font-size:32px;line-height:1}
+.lb-pod .pod-name{font-weight:800;font-size:13.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-pod .pod-xp{font-weight:800;font-size:16px;color:var(--a)}
+.lb-pod.p1{min-height:150px;border-color:#eab308;background:linear-gradient(180deg,rgba(234,179,8,.16),var(--p))}
+.lb-pod.p2{border-color:#94a3b8;background:linear-gradient(180deg,rgba(148,163,184,.16),var(--p))}
+.lb-pod.p3{border-color:#c2703a;background:linear-gradient(180deg,rgba(194,112,58,.16),var(--p))}
+#lbRest{display:flex;flex-direction:column;gap:8px}
+.leaderboard-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--l);border-radius:12px;background:var(--p);transition:transform .15s,box-shadow .15s}
+.leaderboard-item:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.leaderboard-item .rank{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--bg2);color:var(--m);border:1px solid var(--l)}
+.leaderboard-item .lb-name{font-weight:700;font-size:14px;flex:0 1 auto;min-width:80px;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.leaderboard-item .lb-bar{flex:1 1 auto;height:8px;border-radius:99px;background:var(--bg2);overflow:hidden;min-width:36px}
+.leaderboard-item .lb-bar>span{display:block;height:100%;border-radius:99px;background:var(--brand-grad)}
+.leaderboard-item .xp{flex:none;font-weight:800;font-size:13px;color:var(--a);white-space:nowrap}
+.leaderboard-item .pill{flex:none}
+@media(max-width:560px){.lb-podium{grid-template-columns:1fr}.lb-pod.p1{order:-1;min-height:auto}.leaderboard-item .lb-name{max-width:44%}}
+</style>
 <!-- ===== TABLE ENHANCEMENT (collapsible + polish) ===== -->
 <style>
 .tablewrap:has(.tbl-bar){padding:0}
@@ -4796,7 +4852,7 @@ html[data-design="glass2"] .lock-screen .lock-card .field input:focus{border-col
 </script>
 <!-- ===== SMART BENTO LAYOUT PREVIEW ===== -->
 <style>
-html[data-layout="smart"] .page.active{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:16px;align-items:start}
+html[data-layout="smart"] .page.active{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:16px;align-items:start}
 html[data-layout="smart"] .page.active>*{grid-column:1/-1}
 html[data-layout="smart"] .page.active>.sec-group{grid-column:auto;min-width:0}
 html[data-layout="smart"] .page.active>.sec-group:has(.tablewrap),
@@ -4805,6 +4861,7 @@ html[data-layout="smart"] .page.active>.sec-group:has(.grid),
 html[data-layout="smart"] .page.active>.sec-group:has(.form.three),
 html[data-layout="smart"] .page.active>.sec-group:has(.two){grid-column:1/-1}
 html[data-layout="smart"] .sec-group>.section-title{margin-top:2px}
+html[data-layout="smart"] #settings.page.active{grid-template-columns:1fr}
 #g2layout{position:fixed;inset-inline-start:14px;bottom:56px;z-index:3000;display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:999px;font:700 12.5px var(--ff);cursor:pointer;border:1px solid rgba(16,185,129,.45);background:linear-gradient(135deg,#10b981,#0ea5e9);color:#fff;box-shadow:0 12px 30px -8px rgba(16,185,129,.6);transition:transform .15s,box-shadow .15s}
 #g2layout:hover{transform:translateY(-1px);box-shadow:0 16px 34px -8px rgba(14,165,233,.7)}
 </style>
@@ -4833,6 +4890,130 @@ html[data-layout="smart"] .sec-group>.section-title{margin-top:2px}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
 })();
 </script>
+<!-- ===== UI TIDY (الهاتف: بطاقات مدمجة + جداول متناسقة) ===== -->
+<style>
+@media(max-width:560px){
+ html[data-ui="tidy"] #home::before{inset:0 0 auto 0!important;height:200px;background:radial-gradient(70% 120% at 50% -10%,rgba(99,102,241,.10),transparent 70%)!important;filter:none!important;animation:none!important}
+ html[data-ui="tidy"] .grid{grid-template-columns:repeat(2,1fr)!important;gap:10px!important}
+ html[data-ui="tidy"] #home .bento{gap:10px!important}
+ html[data-ui="tidy"] #home .bento .bento-3,html[data-ui="tidy"] #home .bento .bento-2{grid-column:span 6!important}
+ html[data-ui="tidy"] #home .bento .bento-4,html[data-ui="tidy"] #home .bento .bento-12{grid-column:span 12!important}
+ html[data-ui="tidy"] .card.stat{padding:11px 12px!important}
+ html[data-ui="tidy"] .card.stat strong{font-size:20px!important}
+ html[data-ui="tidy"] .card.stat .muted{font-size:11px}
+ html[data-ui="tidy"] .dash-card{padding:11px 12px!important}
+ html[data-ui="tidy"] .dash-card h3{font-size:12px!important;margin-bottom:3px}
+ html[data-ui="tidy"] .dash-card .dash-big{font-size:22px!important}
+ html[data-ui="tidy"] .dash-card .dash-sub{font-size:11px}
+ html[data-ui="tidy"] #home .bento-cell strong{font-size:20px}
+ html[data-ui="tidy"] .table th,html[data-ui="tidy"] .table td{padding:8px 8px!important;font-size:12.5px}
+ html[data-ui="tidy"] .table th{font-size:11px}
+}
+</style>
+<script>
+(function(){
+ try{document.documentElement.setAttribute('data-ui','tidy');document.documentElement.setAttribute('data-fluid','on');}catch(e){}
+})();
+</script>
+<!-- ===== FLUID SCALING (الأحجام تتبع مقاس الشاشة تلقائيًا) ===== -->
+<style>
+html[data-fluid]{
+ --ui-nav-icon:clamp(15px,11.5px + .85vw,19px);
+ --ui-mob-icon:clamp(16px,12px + 1vw,22px);
+ --ui-logo:clamp(30px,24px + .9vw,40px);
+ --ui-rail:clamp(28px,24px + .7vw,36px);
+ --ui-res-icon:clamp(18px,14px + .85vw,26px);
+ --ui-h1:clamp(20px,15px + 1.15vw,29px);
+ --ui-brand:clamp(15px,13px + .42vw,19px);
+ --ui-stat:clamp(20px,15px + 1.1vw,28px);
+ --ui-section:clamp(15px,13px + .42vw,19px);
+ --ui-btn-fs:clamp(12px,11px + .28vw,14px);
+ --ui-btn-h:clamp(32px,28px + .55vw,40px);
+ --ui-card-pad:clamp(11px,8px + .62vw,18px);
+ --ui-content-pad:clamp(13px,8px + 1.05vw,26px);
+ --ui-top-h:clamp(56px,48px + 1.05vw,72px);
+ --ui-table-fs:clamp(11.5px,10px + .32vw,13.5px);
+ --ui-muted:clamp(11.5px,10px + .28vw,14px)
+}
+html[data-fluid] .nav button .ni{width:var(--ui-nav-icon);height:var(--ui-nav-icon)}
+html[data-fluid] .mobile button .ni{width:var(--ui-mob-icon);height:var(--ui-mob-icon)}
+html[data-fluid] .brand .logo{width:var(--ui-logo);height:var(--ui-logo)}
+html[data-fluid] .rail-toggle{width:var(--ui-rail);height:var(--ui-rail)}
+html[data-fluid] .resource-icon{font-size:var(--ui-res-icon)}
+html[data-fluid] .hero h1{font-size:var(--ui-h1)}
+html[data-fluid] .brand{font-size:var(--ui-brand)}
+html[data-fluid] .stat strong{font-size:var(--ui-stat)}
+html[data-fluid] .section-title h2{font-size:var(--ui-section)}
+html[data-fluid] .section-title h2::before{height:calc(var(--ui-section) * 1.15)}
+html[data-fluid] .btn{font-size:var(--ui-btn-fs);min-height:var(--ui-btn-h)}
+html[data-fluid] .card{padding:var(--ui-card-pad)}
+html[data-fluid] .content{padding-inline:var(--ui-content-pad)}
+html[data-fluid] .top{height:var(--ui-top-h);padding-inline:var(--ui-content-pad)}
+html[data-fluid] .table th,html[data-fluid] .table td{font-size:var(--ui-table-fs)}
+html[data-fluid] .muted{font-size:var(--ui-muted)}
+</style>
+<!-- ===== SPLIT SHELL (شريط علوي وحيد كامل العرض + شريط جانبي) ===== -->
+<style>
+html[data-shell="split"]{--appbar-h:64px}
+html[data-shell="split"] .app{display:flex;flex-direction:column;min-height:100vh}
+html[data-shell="split"] .app-body{display:grid;grid-template-columns:var(--side-w,260px) 1fr;flex:1;min-height:0;transition:grid-template-columns .32s cubic-bezier(.4,0,.2,1)}
+html[data-shell="split"] .appbar{display:flex;align-items:center;gap:14px;height:var(--appbar-h);flex-shrink:0;padding:0 clamp(12px,10px + 1vw,26px);background:var(--glass);border-bottom:1px solid var(--glass-bd);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);position:sticky;top:0;z-index:7}
+html[data-shell="split"] .appbar .brand{margin-bottom:0;flex-shrink:0;display:flex;align-items:center}
+html[data-shell="split"] .appbar .brand span,html[data-shell="split"] .appbar .brand small{display:none}
+html[data-shell="split"] .top-shortcuts{display:flex;align-items:center;gap:8px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+html[data-shell="split"] .top-shortcuts::-webkit-scrollbar{display:none}
+html[data-shell="split"] .top-shortcut{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:1px solid var(--glass-bd);background:var(--p);color:var(--t);border-radius:99px;padding:7px 13px;font-size:13px;cursor:pointer;transition:background .15s ease,color .15s ease,border-color .15s ease}
+html[data-shell="split"] .top-shortcut:hover{border-color:var(--a)}
+html[data-shell="split"] .top-shortcut.active{background:var(--a);border-color:var(--a);color:#fff}
+html[data-shell="split"] .top-shortcut .ni{width:16px;height:16px;flex-shrink:0}
+html[data-shell="split"] .top-shortcut span{display:none}
+html[data-shell="split"] .top-shortcut{padding:8px;justify-content:center;width:36px}
+html[data-shell="split"] .appbar-right{display:flex;align-items:center;gap:10px;flex-shrink:0}
+html[data-shell="split"] .appbar #title{display:none}
+html[data-shell="split"] .side{position:sticky;top:var(--appbar-h);height:calc(100vh - var(--appbar-h))}
+html[data-shell="split"] .main>.content{padding-top:18px}
+html[data-shell="split"] .app.side-collapsed .appbar .brand{margin-bottom:0}
+@media(max-width:800px){html[data-shell="split"] .app-body{display:block}html[data-shell="split"] .appbar{height:auto;min-height:52px;flex-wrap:nowrap;padding-block:6px;gap:8px}html[data-shell="split"] .appbar #title{display:none}html[data-shell="split"] .appbar #hCounter{display:none}#backupNow{display:none!important}html[data-shell="split"] .appbar .btn.icon{width:34px;height:34px;padding:0;justify-content:center}html[data-shell="split"] .appbar .theme-btn{width:34px;height:34px}html[data-shell="split"] .appbar .top-shortcut{width:34px;height:34px;padding:7px}html[data-shell="split"] .appbar .brand .logo{width:34px;height:34px;border-radius:9px}html[data-shell="split"] .appbar-right{margin-inline-start:auto;justify-content:flex-end}}
+</style>
+<script>
+(function(){
+ try{
+  var de=document.documentElement;de.setAttribute('data-shell','split');
+  var app=document.querySelector('.app');
+  var side=app&&app.querySelector(':scope > .side');
+  var main=app&&app.querySelector(':scope > .main');
+  if(!app||!side||!main||app.querySelector('.appbar'))return;
+  function getTopShortcuts(){var s;try{s=JSON.parse(localStorage.getItem('coreSettings')||'{}')}catch(e){s={}}return Array.isArray(s.topShortcuts)?s.topShortcuts:['assessment','schedule','students'];}
+  function getNavPages(){var seen={},out=[];document.querySelectorAll('.side .nav button[data-page]').forEach(function(b){var p=b.dataset.page;if(!p||seen[p])return;seen[p]=1;var svg=b.querySelector('svg');out.push({p:p,label:b.textContent.trim(),svg:svg?svg.outerHTML:''});});return out;}
+  function syncShortcuts(p){document.querySelectorAll('.top-shortcut').forEach(function(b){b.classList.toggle('active',b.dataset.page===p);});}
+  function renderTopShortcuts(){var host=document.querySelector('.appbar .top-shortcuts');if(!host)return;var pages=getNavPages(),sel=getTopShortcuts();host.innerHTML='';sel.forEach(function(p){var pg=null;for(var i=0;i<pages.length;i++){if(pages[i].p===p){pg=pages[i];break;}}if(!pg)return;var b=document.createElement('button');b.className='top-shortcut';b.setAttribute('data-page',p);b.title=pg.label;b.innerHTML=pg.svg+'<span>'+pg.label+'</span>';b.onclick=function(){Router.go(p);};host.appendChild(b);});syncShortcuts(localStorage.getItem('corePage')||'home');}
+  var freq=side.querySelector('.nav-freq');if(freq&&freq.parentNode)freq.parentNode.removeChild(freq);
+  var top=main.querySelector(':scope > .top');
+  var bar=document.createElement('header');bar.className='appbar';
+  var brand=side.querySelector('.brand');if(brand)bar.appendChild(brand);
+  var sc=document.createElement('span');sc.className='top-shortcuts';bar.appendChild(sc);
+  var right=document.createElement('div');right.className='appbar-right';
+  if(top){var title=top.querySelector('#title');var chips=top.querySelector('.top-chips');var actions=top.querySelector('.top-actions');if(title)right.appendChild(title);if(chips)right.appendChild(chips);if(actions)right.appendChild(actions);if(top.parentNode)top.parentNode.removeChild(top);}
+  bar.appendChild(right);
+  var body=document.createElement('div');body.className='app-body';
+  app.insertBefore(bar,app.firstChild);
+  app.insertBefore(body,side);
+  body.appendChild(side);
+  body.appendChild(main);
+  renderTopShortcuts();
+  if(window.Router&&Router.go&&!Router.__scW){var _g=Router.go;Router.go=function(p){var r=_g.call(Router,p);try{syncShortcuts(p)}catch(e){}return r;};Router.__scW=1;}
+  var settings=document.getElementById('settings');
+  if(settings&&!document.getElementById('topShortcutCard')){
+   var card=document.createElement('div');card.className='card';card.id='topShortcutCard';
+   card.innerHTML='<div class="section-title"><h2>أيقونات الشريط العلوي</h2></div><div style="color:var(--m);font-size:13px;margin-bottom:10px">اختر الصفحات التي تظهر كأيقونات سريعة في الشريط العلوي.</div><div class="form" id="topShortcutOpts"></div><div class="actions"><button class="btn primary" id="saveTopShortcuts">حفظ</button></div>';
+   settings.appendChild(card);
+   var opts=card.querySelector('#topShortcutOpts');var sel=getTopShortcuts();
+   getNavPages().forEach(function(pg){var lab=document.createElement('label');lab.className='opt';var cb=document.createElement('input');cb.type='checkbox';cb.value=pg.p;if(sel.indexOf(pg.p)>=0)cb.checked=true;lab.appendChild(cb);lab.appendChild(document.createTextNode(' '+pg.label));opts.appendChild(lab);});
+   card.querySelector('#saveTopShortcuts').onclick=function(){var chosen=[].slice.call(opts.querySelectorAll('input:checked')).map(function(i){return i.value;});var s={};try{s=JSON.parse(localStorage.getItem('coreSettings')||'{}')}catch(e){}s.topShortcuts=chosen;try{localStorage.setItem('coreSettings',JSON.stringify(s))}catch(e){}renderTopShortcuts();try{toast('تم حفظ أيقونات الشريط العلوي')}catch(e){}};
+  }
+ }catch(e){}
+})();
+</script>
 <!-- ===== DARK-MODE BUTTON TEXT FIX ===== -->
 <style>
 button{color:var(--t)}
@@ -4848,6 +5029,9 @@ button{color:var(--t)}
 select.exh-i{cursor:pointer}
 @media(max-width:640px){.exh-grid{grid-template-columns:1fr}}
 html[data-layout="smart"] .page.active>.sec-group:has(.exh-grid){grid-column:1/-1}
+html[data-layout="smart"] .page.active>.sec-group:has(#exPreview){grid-column:1/-1}
+html[data-layout="smart"] .page.active>.sec-group:has(#exPreview) .ex-svgbox{max-width:100%}
+#exPreview .ex-paper{width:210mm;max-width:100%;margin-inline:auto}
 /* exam emblem + institution logo upload boxes */
 .exh-logos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
 .exh-logo-box{display:flex;flex-direction:column;gap:6px;cursor:pointer}
