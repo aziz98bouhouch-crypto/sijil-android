@@ -47,13 +47,22 @@
     },
     "portable": {
       "artifactName": "${productName}-${version}-portable.${ext}"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "aziz98bouhouch-crypto",
+        "repo": "sijil-android",
+        "releaseType": "release"
+      }
+    ]
   },
   "devDependencies": {
     "electron": "^44.2.0",
     "electron-builder": "^26.15.3"
   },
   "dependencies": {
-    "acorn": "^8.18.0"
+    "acorn": "^8.18.0",
+    "electron-updater": "^6.6.2"
   }
 }

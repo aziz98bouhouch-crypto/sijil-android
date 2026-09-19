@@ -463,11 +463,31 @@ function buildTrayMenu(){
 function createTray(){ try{ tray=new Tray(trayIcon()); tray.setToolTip('المواكبة التربوية الذكية'); tray.setContextMenu(buildTrayMenu()); tray.on('click',()=>showWindow()); tray.on('double-click',()=>showWindow()); }catch(e){ tray=null; } }
 function showWindow(){ try{ if(!win) createWindow(); if(win){ if(win.isMinimized())win.restore(); win.show(); win.focus(); } }catch(e){} }
 
+function setupAutoUpdater(){
+  if(!app.isPackaged) return;
+  try{
+    const {autoUpdater}=require('electron-updater');
+    autoUpdater.logger=null;
+    autoUpdater.autoDownload=true;
+    autoUpdater.autoInstallOnAppQuit=true;
+    autoUpdater.disableWebInstaller=true;
+    autoUpdater.on('error',()=>{});
+    autoUpdater.on('update-downloaded',(info)=>{
+      try{
+        const opts={type:'info',title:'تحديث جديد جاهز',message:'تم تنزيل التحديث'+((info&&info.version)?(' (الإصدار '+info.version+')'):'')+'. هل تريد إعادة تشغيل التطبيق الآن لتثبيته؟',buttons:['إعادة التشغيل الآن','لاحقًا']};
+        dialog.showMessageBox(win&&!win.isDestroyed()?win:undefined,opts).then(r=>{ if(r&&r.response===0){ quitRequested=true; setImmediate(()=>{ try{ autoUpdater.quitAndInstall(false,true); }catch(e){ app.quit(); } }); } }).catch(()=>{});
+      }catch(e){}
+    });
+    setTimeout(()=>{ try{ autoUpdater.checkForUpdates(); }catch(e){} },6000);
+  }catch(e){}
+}
+
 app.whenReady().then(async()=>{
   createWindow();
   createTray();
   try{ await portalRun(portalBasePort); }catch(e){}
   startBackupScheduler();
+  setupAutoUpdater();
   app.on('activate',()=>{ if(BrowserWindow.getAllWindows().length===0)createWindow(); });
 });
 

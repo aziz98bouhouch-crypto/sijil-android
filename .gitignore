@@ -4,7 +4,10 @@ release_build/
 release_fix/
 release_new/
 node_modules/
-build/
+build/*
+!build/icon.png
+!build/icon.ico
+!build/fonts/
 previews/
 *.broken
 *.log
