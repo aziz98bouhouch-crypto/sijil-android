@@ -15,17 +15,44 @@ jobs:
     steps:
       - name: Fetch code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+
+      - name: Verify Electron install
+        shell: bash
+        run: |
+          echo "electron-builder: $(npx electron-builder --version)"
+          echo "electron pkg version: $(node -p "require('electron/package.json').version")"
+          echo "electron dist present:"
+          ls -la node_modules/electron/dist 2>&1 | head -5 || echo "MISSING node_modules/electron/dist"
 
       - name: Build and publish to GitHub Releases
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx electron-builder --win nsis --publish always
+        run: |
+          set +e
+          npx electron-builder --win nsis --publish always 2>&1 | tee build.log
+          code=${PIPESTATUS[0]}
+          set -e
+          if [ "$code" -ne 0 ]; then
+            echo "::error::electron-builder failed (exit $code). See job summary for the log tail."
+            {
+              echo "## electron-builder failed (exit $code)"
+              echo '```'
+              tail -n 80 build.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            tail -n 80 build.log
+          fi
+          exit "$code"
