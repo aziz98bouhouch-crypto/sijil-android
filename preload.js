@@ -8,5 +8,9 @@ contextBridge.exposeInMainWorld('sijilAPI',{
   portalPush:(payload)=>ipcRenderer.invoke('portal-push',payload),
   portalStatus:()=>ipcRenderer.invoke('portal-status'),
   portalFirewallCheck:()=>ipcRenderer.invoke('portal-fw-check'),
-  portalFirewallAllow:()=>ipcRenderer.invoke('portal-fw-allow')
+  portalFirewallAllow:()=>ipcRenderer.invoke('portal-fw-allow'),
+  updaterCheck:()=>ipcRenderer.invoke('updater:check'),
+  updaterInstall:()=>ipcRenderer.invoke('updater:install'),
+  updaterState:()=>ipcRenderer.invoke('updater:state'),
+  onUpdaterStatus:(cb)=>{ ipcRenderer.on('updater:status',(e,s)=>{ try{ cb(s); }catch(_){} }); }
 });

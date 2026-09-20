@@ -450,6 +450,7 @@ function buildTrayMenu(){
     {label:'نسخة احتياطية مشفّرة الآن',click:async()=>{ const r=await doEncryptedBackup('manual'); if(r&&r.ok){ notify('تم إنشاء نسخة احتياطية مشفّرة',path.basename(r.file)); } else if(r&&r.skipped){ notify('لا توجد بيانات للنسخ','افتح التطبيق أولًا'); } else { notify('تعذّر إنشاء النسخة الاحتياطية',''); } refreshTrayMenu(); }},
     {label:'البدء تلقائيًا مع النظام',type:'checkbox',checked:getAutoLaunch(),click:(it)=>{ setAutoLaunch(it.checked); }},
     {label:'فتح مجلد النسخ الاحتياطية',click:()=>{ try{ fs.mkdirSync(backupsDir(),{recursive:true}); shell.openPath(backupsDir()); }catch(e){} }},
+    {label:'التحقق من التحديثات',click:async()=>{ try{ updSend({status:'checking'}); if(__upd){ await __upd.checkForUpdates(); } }catch(e){} }},
     {type:'separator'},
     {label:'خروج',click:()=>{ quitRequested=true; app.quit(); }}
   ]);
@@ -457,16 +458,24 @@ function buildTrayMenu(){
 function createTray(){ try{ tray=new Tray(trayIcon()); tray.setToolTip('المواكبة التربوية الذكية'); tray.setContextMenu(buildTrayMenu()); tray.on('click',()=>showWindow()); tray.on('double-click',()=>showWindow()); }catch(e){ tray=null; } }
 function showWindow(){ try{ if(!win) createWindow(); if(win){ if(win.isMinimized())win.restore(); win.show(); win.focus(); } }catch(e){} }
 
+let __upd=null,__updState={status:'idle'};
+function updSend(payload){ __updState=Object.assign({},__updState,payload||{}); try{ if(win&&win.webContents&&!win.webContents.isDestroyed()) win.webContents.send('updater:status',__updState); }catch(e){} }
 function setupAutoUpdater(){
   if(!app.isPackaged) return;
   try{
-    const {autoUpdater}=require('electron-updater');
+    const {autoUpdater}=require('electron-updater'); __upd=autoUpdater;
     autoUpdater.logger=null;
     autoUpdater.autoDownload=true;
     autoUpdater.autoInstallOnAppQuit=true;
     autoUpdater.disableWebInstaller=true;
-    autoUpdater.on('error',()=>{});
+    autoUpdater.on('error',(e)=>{ updSend({status:'error',message:String((e&&e.message)||e)}); });
+    autoUpdater.on('checking',()=>{ updSend({status:'checking'}); });
+    autoUpdater.on('update-not-available',()=>{ updSend({status:'up-to-date'}); });
+    autoUpdater.on('update-available',(info)=>{ const v=info&&info.version; updSend({status:'available',version:v}); notify('توفّر تحديث جديد','جارٍ تنزيل الإصدار '+(v||'')+' تلقائيًا…'); });
+    autoUpdater.on('download-progress',(p)=>{ updSend({status:'downloading',percent:Math.round((p&&p.percent)||0)}); });
     autoUpdater.on('update-downloaded',(info)=>{
+      const v=info&&info.version; updSend({status:'downloaded',version:v});
+      notify('التحديث جاهز للتثبيت','الإصدار '+(v||'')+' — اضغط «إعادة التشغيل الآن» لتثبيته');
       try{
         const opts={type:'info',title:'تحديث جديد جاهز',message:'تم تنزيل التحديث'+((info&&info.version)?(' (الإصدار '+info.version+')'):'')+'. هل تريد إعادة تشغيل التطبيق الآن لتثبيته؟',buttons:['إعادة التشغيل الآن','لاحقًا']};
         dialog.showMessageBox(win&&!win.isDestroyed()?win:undefined,opts).then(r=>{ if(r&&r.response===0){ quitRequested=true; setImmediate(()=>{ try{ autoUpdater.quitAndInstall(false,true); }catch(e){ app.quit(); } }); } }).catch(()=>{});
@@ -475,6 +484,9 @@ function setupAutoUpdater(){
     setTimeout(()=>{ try{ autoUpdater.checkForUpdates(); }catch(e){} },6000);
   }catch(e){}
 }
+ipcMain.handle('updater:check',async()=>{ try{ if(!__upd) return {ok:false,dev:true}; const r=await __upd.checkForUpdates(); return {ok:true,state:__updState,version:r&&r.updateInfo&&r.updateInfo.version}; }catch(e){ return {ok:false,error:String(e&&e.message||e)}; } });
+ipcMain.handle('updater:install',async()=>{ try{ if(__upd){ quitRequested=true; setImmediate(()=>{ try{ __upd.quitAndInstall(false,true); }catch(e){ app.quit(); } }); } return {ok:true}; }catch(e){ return {ok:false,error:String(e&&e.message||e)}; } });
+ipcMain.handle('updater:state',()=>__updState);
 
 app.whenReady().then(async()=>{
   if(!gotTheLock) return;
