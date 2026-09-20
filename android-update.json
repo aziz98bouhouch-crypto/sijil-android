@@ -1,5 +1,5 @@
 {
-  "version": "1.0.10",
+  "version": "1.0.11",
   "url": "https://github.com/aziz98bouhouch-crypto/sijil-android/releases/download/android-latest/sijil-taqyim-release.apk",
-  "notes": "إزالة زر الكاميرا العائم من نسخة الهاتف (إصلاح التشوّه)."
+  "notes": "إصلاح الطباعة وتصدير PDF وExcel على الهاتف: توليد PDF وفتحه للطباعة، وحفظ/مشاركة ملفات Excel وCSV صحيحة."
 }
