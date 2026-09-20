@@ -1,5 +1,5 @@
 {
-  "version": "1.0.9",
+  "version": "1.0.10",
   "url": "https://github.com/aziz98bouhouch-crypto/sijil-android/releases/download/android-latest/sijil-taqyim-release.apk",
-  "notes": "تحسينات التصميم، إصلاح شعار الهاتف، زر مسح قابل للسحب، وماسح QR يعمل على الهاتف."
+  "notes": "إزالة زر الكاميرا العائم من نسخة الهاتف (إصلاح التشوّه)."
 }
