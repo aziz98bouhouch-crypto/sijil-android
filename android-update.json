@@ -1,5 +1,5 @@
 {
-  "version": "1.0.11",
+  "version": "1.0.13",
   "url": "https://github.com/aziz98bouhouch-crypto/sijil-android/releases/download/android-latest/sijil-taqyim-release.apk",
-  "notes": "إصلاح الطباعة وتصدير PDF وExcel على الهاتف: توليد PDF وفتحه للطباعة، وحفظ/مشاركة ملفات Excel وCSV صحيحة."
+  "notes": "الطباعة/PDF على الهاتف: رسالة إذن قبل الإنشاء، وأماكن حفظ بديلة، ثم نافذة النظام لاختيار مكان الحفظ أو تطبيق الطباعة."
 }
