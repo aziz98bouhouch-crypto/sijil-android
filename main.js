@@ -210,25 +210,24 @@ async function portalHandler(req,res){
     });return;
   }
   if(u==='/api/view'){
-    if(portalLocked(ip)){res.writeHead(429,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify({error:'محاولات كثيرة — حاول بعد قليل'}));return;}
-    let code='',pin='';
-    try{const sp=new URL(req.url,'http://x').searchParams;code=sp.get('code')||'';pin=sp.get('pin')||'';}catch(e){}
-    const auth=(portalData&&portalData.auth)||{};
-    if(auth.enabled&&auth.hash&&auth.salt){
-      if(!ctEq(sha256HexNode(pin+auth.salt),String(auth.hash).toLowerCase())){
-        portalDeny(res,ip);await sleepMs(THROT_MS);
-        res.writeHead(404,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify({error:'الرمز غير صحيح'}));return;
-      }
-    }
+    const cors={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'GET,OPTIONS','Access-Control-Allow-Headers':'Content-Type'};
+    if(portalLocked(ip)){res.writeHead(429,cors);res.end(JSON.stringify({error:'محاولات كثيرة — حاول بعد قليل'}));return;}
+    let code='',sec='';
+    try{const sp=new URL(req.url,'http://x').searchParams;code=sp.get('code')||'';sec=sp.get('sec')||sp.get('pin')||'';}catch(e){}
     const list=(portalData&&portalData.studs)?(portalData.studs||[]):[];
     const st=list.find(x=>x.code&&String(x.code).toLowerCase()===String(code).toLowerCase());
     if(!st){
       portalDeny(res,ip);await sleepMs(THROT_MS);
-      res.writeHead(404,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify({error:'الرمز غير صحيح'}));return;
+      res.writeHead(404,cors);res.end(JSON.stringify({error:'رمز الدخول غير صحيح'}));return;
+    }
+    if(!st.sec||!ctEq(String(sec),String(st.sec))){
+      portalDeny(res,ip);await sleepMs(THROT_MS);
+      res.writeHead(404,cors);res.end(JSON.stringify({error:'الرمز غير صحيح'}));return;
     }
     portalClear(ip);
-    res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
-    res.end(JSON.stringify({meta:portalData&&portalData.meta?portalData.meta:null,student:st}));
+    const safe=Object.assign({},st);delete safe.sec;
+    res.writeHead(200,cors);
+    res.end(JSON.stringify({meta:portalData&&portalData.meta?portalData.meta:null,student:safe}));
     return;
   }
   if(u==='/app'||u==='/app/'||u.indexOf('/app/')===0){serveAppHtml(res);return;}
