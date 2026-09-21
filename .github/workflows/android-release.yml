@@ -75,6 +75,10 @@ jobs:
         working-directory: cap
         run: node add-permissions.js
 
+      - name: Inject native Chromium print plugin
+        working-directory: cap
+        run: node add-print-plugin.js
+
       - name: Inject release signingConfig into build.gradle
         working-directory: cap
         run: node add-signing.js
