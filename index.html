@@ -1095,9 +1095,13 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     window.print=function(){try{
       if(typeof window.__nativePdfFromHtml!=='function')return true;
       var active=document.querySelector('.page.active')||document.querySelector('.page');
-      var node=(active&&active.querySelector('.report-view'))||(active&&active.querySelector('.ex-paper'))||active||document.querySelector('main')||document.body;
+      var isVis=function(el){try{if(!el)return false;var p=el;while(p&&p!==document.body){var cs=(window.getComputedStyle?getComputedStyle(p):null);if(cs&&cs.display==='none')return false;p=p.parentElement;}return true;}catch(e){return true;}};
+      var nodes=active?[].slice.call(active.querySelectorAll('.report-view,.ex-paper')).filter(isVis):[];
+      var container=active||document.querySelector('main')||document.body;
+      var node=nodes[0]||container.querySelector('.report-view')||container.querySelector('.ex-paper')||container;
+      var bodyHtml=nodes.length?nodes.map(function(n){return n.outerHTML;}).join(''):(node?node.outerHTML:'');
       var st=document.querySelector('style');
-      var full='<html dir="rtl" lang="ar"><head><meta charset="utf-8"><style>'+(st?st.textContent:'')+'</style></head><body><div class="app">'+(node?node.outerHTML:'')+'</div></body></html>';
+      var full='<html dir="rtl" lang="ar"><head><meta charset="utf-8"><style>'+(st?st.textContent:'')+'</style></head><body><div class="app">'+bodyHtml+'</div></body></html>';
       if(typeof window.__pdfBusy==='undefined')window.__pdfBusy=false;
       if(window.__pdfBusy)return true;window.__pdfBusy=true;
       if(typeof toast==='function')toast('جارٍ تجهيز الطباعة (PDF)…');
