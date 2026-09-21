@@ -54,6 +54,10 @@ jobs:
           rm -rf android
           npx cap add android
 
+      - name: Inject JitPack repository (barcode-scanner dependency)
+        working-directory: cap-student
+        run: node add-jitpack.js
+
       - name: Inject camera + cleartext permissions into manifest
         working-directory: cap-student
         run: node add-permissions.js
