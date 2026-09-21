@@ -1,0 +1,20 @@
+{
+  "name": "mawakibati-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "غلاف أندرويد (Capacitor) لتطبيق مواكبتي — بوابة التلميذ",
+  "scripts": {
+    "copy:web": "node copy-web.js",
+    "sync": "npm run copy:web && cap sync android",
+    "open:android": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/barcode-scanner": "1.0.3",
+    "@capacitor/local-notifications": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.0"
+  }
+}

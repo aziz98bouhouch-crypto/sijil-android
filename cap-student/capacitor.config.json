@@ -1,0 +1,12 @@
+{
+  "appId": "com.sijil.taqyim.student",
+  "appName": "مواكبتي",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#eef2f7"
+  }
+}

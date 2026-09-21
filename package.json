@@ -19,6 +19,7 @@
       "main.js",
       "preload.js",
       "index.html",
+      "portal-html.js",
       "build/**"
     ],
     "directories": {

@@ -928,6 +928,21 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     </div>
     <div class="actions"><button class="btn" id="portalCodes">عرض رموز التلاميذ</button></div>
     <div id="portalCs" style="display:none;margin-top:10px"></div>
+  </div>
+  <div class="card"><div class="section-title"><h2>النشر عبر الإنترنت (Supabase)</h2></div>
+    <p class="muted" style="font-size:12px">للوصول من بعد (خارج الشبكة المحلية): انشر نسخة من النقط والواجبات والدروس إلى قاعدة Supabase، ويتصل بها تطبيق التلميذ عبر الإنترنت. يبقى عمل البوابة المحلية كما هو دون تغيير.</p>
+    <div class="form three">
+      <div class="field"><label>Supabase URL</label><input id="cloudUrl" placeholder="https://xxxx.supabase.co"></div>
+      <div class="field"><label>مفتاح القراءة (anon)</label><input id="cloudKey" placeholder="eyJhbGciOi..." autocomplete="off"></div>
+      <div class="field"><label>معرّف المؤسسة</label><input id="cloudInst" placeholder="اسم/معرّف المؤسسة"></div>
+    </div>
+    <div class="form three">
+      <div class="field"><label>تفعيل المزامنة السحابية</label><label style="display:flex;align-items:center;gap:6px;font-weight:400;margin-top:4px"><input id="cloudOn" type="checkbox"> انشر تلقائيًا عند كل تحديث للبيانات</label></div>
+      <div class="field"><label>رمز حماية البوابة (نفسه لدى التلاميذ)</label><input id="cloudPin" type="text" placeholder="اتركه فارغًا إن لم تُفعّل رمزًا" autocomplete="off"></div>
+      <div class="field"><label>الحالة</label><div id="cloudStatus" class="muted">غير مفعّل</div></div>
+    </div>
+    <div class="actions"><button class="btn" id="cloudSave">حفظ الإعدادات</button><button class="btn primary" id="cloudPush">نشر الآن إلى السحابة</button></div>
+    <p class="muted" style="font-size:11px;margin-top:8px">الأمان: لا يُنشر أي سجلّ إلا بمفتاح <code>rowkey</code> مشتقّ من رمز الدخول ورمز الحماية ومعرّف المؤسسة، فلا يستطيع تلميذ قراءة بيانات تلميذ آخر. أنشئ جدول <code>portal_students</code> في Supabase بأعمدة: <code>inst</code> (نص) و<code>rowkey</code> (نص، فريد) و<code>payload</code> (jsonb: بيانات التلميذ) و<code>meta</code> (jsonb) و<code>updated_at</code>، وفعّل RLS مع سياسة تسمح بالكتابة للمفتاح service_role والقراءة العامة لعمود payload فقط. املأ «رمز حماية البوابة» أعلاه بالرمز نفسه الذي يعطيه التلاميذ أثناء الدخول.</p>
   </div></div>
 
 
@@ -3376,7 +3391,7 @@ async function genRankReport(){
 }
 // ===== PORTAL RENDERER =====
 let __portalOn=false,__pt=null;
-function __portalSchedule(){if(!__portalOn)return;try{clearTimeout(__pt)}catch(e){}__pt=setTimeout(()=>{if(!__portalOn)return;buildPortalSnapshot().then(d=>{sijilAPI.portalPush(d);}).catch(()=>{});},800);}
+function __portalSchedule(){if(!__portalOn)return;try{clearTimeout(__pt)}catch(e){}__pt=setTimeout(()=>{if(!__portalOn)return;buildPortalSnapshot().then(d=>{sijilAPI.portalPush(d);loadCloud().then(c=>{if(c.enabled)cloudPublish(d)}).catch(()=>{});}).catch(()=>{});},800);}
 function __portalSecure(){
   try{const bp=DB.put.bind(DB);DB.put=function(...a){const r=bp.apply(DB,a);__portalSchedule();return r;};}catch(e){}
   try{const br=(DB.remove||DB.del||DB.clear).bind(DB);DB.remove=function(...a){const r=br.apply(DB,a);__portalSchedule();return r;};}catch(e){}
@@ -3458,6 +3473,12 @@ async function buildPortalSnapshot(){
   const cutIso=cut.getFullYear()+'-'+String(cut.getMonth()+1).padStart(2,'0')+'-'+String(cut.getDate()).padStart(2,'0');
   const classTracks={};
   for(const c of classes){classTracks[c.id]=await classTrackOf(c.id);}
+  let weekA={periods:0,days:[],times:[]};try{weekA=await scWeek();}catch(e){}
+  const classActive={};for(const c of classes){try{classActive[c.id]=new Set((await classCurriculumSubjects(c.id)).map(s=>s.id))}catch(e){classActive[c.id]=new Set()}}
+  const isActiveSub=(cid,sid)=>{const a=classActive[cid];return !a||!a.size||a.has(sid);};
+  const schedByClass={};for(const c of classes){try{const g=await scGet('schedules',c.id);const days=[];for(const d of weekA.days){const slots=[];for(let p=0;p<weekA.periods;p++){const sid=(g[d]||[])[p];const show=sid&&isActiveSub(c.id,sid);slots.push({t:scTT(weekA,p),s:show?((subMap[sid]||{}).name||''):''});}days.push({day:WEEK_DAYS[d],slots:slots});}schedByClass[c.id]=days;}catch(e){schedByClass[c.id]=[];}}
+  const allRes=await DB.all('resources');
+  const lessonsByClass={};for(const c of classes){lessonsByClass[c.id]=allRes.filter(r=>r&&r.url&&isActiveSub(c.id,r.subjectId)).sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'ar')).map(r=>({t:r.title||'درس',s:(subMap[r.subjectId]||{}).name||'—',ty:r.type||'link',u:r.url,d:r.description||''}));}
   const studs=students.filter(s=>s.status!=='archived').map(st=>{
     const cr=classMap[st.classId]||{};
     const myAss=assessments.filter(a=>a.classId===st.classId);
@@ -3465,6 +3486,8 @@ async function buildPortalSnapshot(){
     myAss.forEach(ass=>{const v=scoreMap[st.id+'_'+ass.id];if(v==null)return;bucketAss(subRes,ass,v);});
     let wSum=0,wAvg=0;const subsOut=[];
     const trackBox=classTracks[st.classId]||'qualifying';
+    const avgForCycle=(cyc)=>{const sr={};myAss.forEach(ass=>{if(cyc!==0&&ass.cycle!==cyc)return;const v=scoreMap[st.id+'_'+ass.id];if(v==null)return;bucketAss(sr,ass,v);});let ws=0,wa=0;for(const sid of Object.keys(sr)){if(sid===GENERAL_SUB)continue;if(!subMap[sid])continue;const d=sr[sid];const aa=actSum20(d.ass,scoreMap,attendance,behavior,st.id,cyc);const ea=d.exams.length?d.exams.reduce((a,b)=>a+b,0)/d.exams.length:null;const f=aa!==null&&ea!==null?(trackBox==='college'?(d.exams.length?(d.exams.reduce((a,b)=>a+b,0)+aa)/(d.exams.length+1):(ea+aa)/2):wavgX(aa,ea,sid)):(aa!==null?aa:ea);const coeff=(classCoeffs[st.classId]||{})[sid]||1;if(f!==null){wa+=f*coeff;ws+=coeff;}}return ws?Math.round(wa/ws*100)/100:null;};
+    const evo=[1,2].map(c=>({c:c,a:avgForCycle(c)})).filter(e=>e.a!==null);
     for(const sid of Object.keys(subRes)){
       const sub=subMap[sid]||(sid===GENERAL_SUB?generalSubObj:null);if(!sub)continue;
       const isGen=sid===GENERAL_SUB;
@@ -3474,7 +3497,7 @@ async function buildPortalSnapshot(){
       const f=aa!==null&&ea!==null?(trackBox==='college'?(d.exams.length?(d.exams.reduce((a,b)=>a+b,0)+aa)/(d.exams.length+1):(ea+aa)/2):wavgX(aa,ea,sid)):(aa!==null?aa:ea);
       const coeff=isGen?1:((classCoeffs[st.classId]||{})[sid]||1);
       if(f!==null&&!isGen){wAvg+=f*coeff;wSum+=coeff;}
-      subsOut.push({s:sub.name,c:coeff,aa:aa===null?null:Math.round(aa*100)/100,ea:ea===null?null:Math.round(ea*100)/100,f:f===null?null:Math.round(f*100)/100,p:passFnX(f)});
+      if(isGen||isActiveSub(st.classId,sid))subsOut.push({s:sub.name,c:coeff,aa:aa===null?null:Math.round(aa*100)/100,ea:ea===null?null:Math.round(ea*100)/100,f:f===null?null:Math.round(f*100)/100,p:passFnX(f)});
     }
     subsOut.sort((a,b)=>(String(a.s)).localeCompare(String(b.s),'ar'));
     const avg=wSum?Math.round(wAvg/wSum*100)/100:null;
@@ -3482,7 +3505,7 @@ async function buildPortalSnapshot(){
     const hwOut=myHw.map(h=>({t:h.title||'واجب',s:(subMap[h.subjectId]||{}).name||'—',d:h.deadline||'',sub:!!(hwSubMap[st.id+'_'+h.id]&&hwSubMap[st.id+'_'+h.id].submitted)})).sort((a,b)=>String(a.d).localeCompare(String(b.d),'ar'));
     const mine=attendance.filter(a=>a.studentId===st.id&&effD(a)>=cutIso);
     const ab=mine.filter(a=>a.type==='absent').length,la=mine.filter(a=>a.type==='late').length,ex=mine.filter(a=>a.type==='excused').length,px=mine.filter(a=>a.type==='present').length;
-    return {code:st.externalId||'',name:st.name||'',cls:cr.name||'',lv:(levelMap[cr.levelId]||{}).name||'',br:(branchMap[cr.branchId]||{}).name||'',avg,p:avg!==null?passFnX(avg):null,g:avg!==null?gradX(avg):'',subs:subsOut,hw:hwOut,att:{ab,la,ex,px}};
+    return {code:st.externalId||'',name:st.name||'',cls:cr.name||'',lv:(levelMap[cr.levelId]||{}).name||'',br:(branchMap[cr.branchId]||{}).name||'',avg,p:avg!==null?passFnX(avg):null,g:avg!==null?gradX(avg):'',subs:subsOut,hw:hwOut,att:{ab,la,ex,px},evo:evo,sched:schedByClass[st.classId]||[],lessons:lessonsByClass[st.classId]||[]};
   });
   const inst=institutions.find(i=>i.id===ctx.institutionId)||institutions[0]||{};
   return {meta:{inst:inst.name||ctx.inst||'',updatedAt:new Date().toISOString(),days:30},auth,studs};
@@ -3494,6 +3517,15 @@ async function renderPortal(){
   if(st.running){portalShowUrls(st.urls||[]);portalQr((st.urls||[]).filter(u=>u.indexOf('127.0.0.1')<0)[0]||(st.urls||[])[0]||'');}
   await portalLoadPin();
   await portalFwCheckUI();
+  const cc=await loadCloud();
+  if($('cloudUrl'))$('cloudUrl').value=cc.url||'';
+  if($('cloudKey'))$('cloudKey').value=cc.key||'';
+  if($('cloudInst'))$('cloudInst').value=cc.inst||'';
+  if($('cloudOn'))$('cloudOn').checked=!!cc.enabled;
+  if($('cloudPin'))$('cloudPin').value=cc.pin||'';
+  if($('cloudStatus'))$('cloudStatus').textContent=cc.enabled?(cc.lastAt?('مفعّل — آخر نشر '+new Date(cc.lastAt).toLocaleString('ar')):'مفعّل — لم يُنشر بعد'):'غير مفعّل';
+  if($('cloudSave'))$('cloudSave').onclick=async()=>{const cur=await loadCloud();await saveCloud({url:$('cloudUrl').value.trim(),key:$('cloudKey').value.trim(),inst:$('cloudInst').value.trim(),pin:($('cloudPin')?$('cloudPin').value.trim():cur.pin||''),enabled:!!$('cloudOn').checked,lastAt:cur.lastAt,lastOk:cur.lastOk});toast('حُفظت إعدادات السحابة');renderPortal()};
+  if($('cloudPush'))$('cloudPush').onclick=async()=>{const d=await buildPortalSnapshot();await cloudPublish(d)};
 }
 async function portalStart(){
   const port=parseInt($('portalPort').value,10)||8050;
@@ -3523,6 +3555,33 @@ async function portalRefresh(){
   await sijilAPI.portalPush(data);
   if($('portalUpdated'))$('portalUpdated').textContent=portalNow();
   toast('حُدّثت بيانات البوابة بنجاح');
+  const c=await loadCloud();if(c.enabled)await cloudPublish(data);
+}
+async function loadCloud(){try{const m=await DB.get('appMeta','syncCloud');return (m&&m.value)||{}}catch(e){return{}}}
+async function saveCloud(v){const m=await DB.get('appMeta','syncCloud');await DB.put('appMeta',{...(m||{}),id:'syncCloud',value:v,updatedAt:now()})}
+async function sha256h(txt){txt=String(txt==null?'':txt);try{if(window.sijilAPI&&sijilAPI.sha256){const h=await sijilAPI.sha256(txt);if(h&&h.length===64)return h.toLowerCase();}}catch(e){}try{if(window.crypto&&crypto.subtle&&crypto.subtle.digest){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));const a=new Uint8Array(b);let s='';for(let i=0;i<a.length;i++){s+=(a[i]<16?'0':'')+a[i].toString(16);}if(s.length===64)return s;}}catch(e){}return '';}
+async function cloudPublish(data){
+  const c=await loadCloud();
+  if(!c.url||!c.key||!c.inst){toast('أكمل إعدادات السحابة أولاً');return{ok:false}}
+  const st=$('cloudStatus');if(st)st.textContent='جارٍ النشر…';
+  const studs=(data&&data.studs)||[];
+  const rows=[];
+  try{
+    for(const s of studs){
+      const code=String(s.code||'').trim();if(!code)continue;
+      const rowkey=await sha256h(code+'::'+String(c.pin||'')+'::'+String(c.inst));
+      if(!rowkey){toast('تعذّر حساب مفتاح الحماية');return{ok:false};}
+      rows.push({inst:c.inst,rowkey:rowkey,payload:s,meta:(data.meta||{}),updated_at:new Date().toISOString()});
+    }
+    if(!rows.length){if(st)st.textContent='لا تلاميذ برقم دخول';toast('لا يوجد تلميذ يملك رقم دخول');return{ok:false};}
+    const base=String(c.url).replace(/\/+$/,'');
+    const r=await fetch(base+'/rest/v1/portal_students',{method:'POST',headers:{apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify(rows)});
+    const ok=r.ok||r.status===201;
+    await saveCloud({...c,lastAt:Date.now(),lastOk:ok});
+    if(st)st.textContent=ok?('تم نشر '+rows.length+' تلميذًا — '+portalNow()):('فشل النشر ('+r.status+')');
+    if(ok)toast('تم نشر البيانات إلى السحابة');else toast('فشل النشر: '+r.status);
+    return{ok:ok};
+  }catch(e){if(st)st.textContent='خطأ في الاتصال بالسحابة';toast('تعذّر الاتصال بالسحابة');return{ok:false}}
 }
 async function portalToggleCodes(){
   const el=$('portalCs');if(!el)return;

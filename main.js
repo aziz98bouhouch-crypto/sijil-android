@@ -106,83 +106,7 @@ function lanIPv4(){
 }
 function portalUrls(port){const urls=['http://127.0.0.1:'+port];lanIPv4().forEach(a=>urls.push('http://'+a+':'+port));return urls;}
 
-const PORTAL_HTML=`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>بوابة المتعلمين</title><style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:#eef2f7;color:#0f172a;min-height:100vh;display:flex;justify-content:center;padding:16px}
-.wrap{width:100%;max-width:660px}
-.brand{background:linear-gradient(135deg,#0f766e,#2563eb);color:#fff;border-radius:16px;padding:18px 16px;margin-bottom:14px;text-align:center}
-.brand h1{font-size:20px;margin-bottom:4px}
-.brand small{opacity:.85}
-.card{background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(15,23,42,.08);margin-bottom:14px}
-label{display:block;font-weight:600;margin-bottom:6px;font-size:13px}
-input{width:100%;padding:10px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;margin-bottom:8px}
-button{width:100%;padding:11px;border:0;border-radius:10px;background:#0f766e;color:#fff;font-size:15px;font-weight:600;cursor:pointer}
-button.secondary{background:#e2e8f0;color:#0f172a}
-.err{color:#dc2626;font-size:13px;margin-top:6px;display:none}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:10px;text-align:center}
-.kpi b{display:block;font-size:17px}
-.kpi span{font-size:11px;color:#475569}
-.meta{font-size:13px;color:#334155;margin-bottom:10px;text-align:center}
-h3{font-size:13px;color:#0f766e;margin:12px 0 8px}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:7px 6px;border-bottom:1px solid #eef2f7;text-align:center}
-th{background:#f1f5f9;color:#334155}
-.pass{color:#15803d;font-weight:700}
-.fail{color:#dc2626;font-weight:700}
-.att{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-size:12px;text-align:center}
-.hwrow{display:flex;justify-content:space-between;gap:8px;padding:8px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:6px;font-size:13px}
-.done{color:#15803d}
-.pend{color:#b45309}
-.none{color:#94a3b8;font-size:13px;text-align:center;padding:8px}
-.headrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.nm{font-weight:700;font-size:15px}
-@media(max-width:440px){.kpis{grid-template-columns:1fr 1fr 1fr}.hwrow{flex-direction:column}}
-</style></head><body><div class="wrap">
-<div class="brand"><h1>بوابة المتعلمين</h1><small>اطّلاع على النقط والواجبات المنزلية — سجل التقييم PRO</small></div>
-<div class="card" id="auth"><label>رمز البوابة (إن فعّله الأستاذ)</label><input id="pin" type="password" placeholder="" autocomplete="off"><label>رقم دخولك</label><input id="code" type="text" placeholder="مثال: 2025/01" autocomplete="off"><button onclick="doLogin()">دخول</button><div class="err" id="err"></div></div>
-<div id="view" style="display:none">
-  <div class="card">
-    <div class="headrow"><div class="nm" id="vname"></div><button class="secondary" style="width:auto;padding:7px 12px;font-size:12px" onclick="doLogout()">خروج</button></div>
-    <div class="meta" id="vmeta"></div>
-    <div class="kpis"><div class="kpi"><b id="vavg">—</b><span>المعدل العام</span></div><div class="kpi"><b id="vres">—</b><span>النتيجة</span></div><div class="kpi"><b id="vgrade">—</b><span>التقدير</span></div></div>
-    <h3>النتائج في المواد (نشاط / فرض / علامة)</h3>
-    <div style="overflow-x:auto"><table><thead><tr><th>المادة</th><th>معامل</th><th>نشاط</th><th>فرض</th><th>العلامة</th><th>النتيجة</th></tr></thead><tbody id="vsubs"></tbody></table></div>
-  </div>
-  <div class="card"><h3>الحضور — آخر 30 يوماً</h3><div class="att"><div><b id="aab">0</b><span>غائب</span></div><div><b id="ala">0</b><span>متأخر</span></div><div><b id="aex">0</b><span>مبرر</span></div><div><b id="apx">0</b><span>حاضر</span></div></div></div>
-  <div class="card"><h3>الواجبات المنزلية</h3><div id="vhw"></div></div>
-</div>
-</div><script>
-var D=null;
-function $x(id){return document.getElementById(id)}
-function esc(s){return String(s==null?'':s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
-function showErr(m){var e=$x("err");e.textContent=m;e.style.display="block"}
-function doLogin(){
-  var c=$x("code").value.trim(),p=$x("pin").value.trim();if(!c){showErr("أدخل رقم دخولك");return}
-  var q="api/view?code="+encodeURIComponent(c);if(p)q+="&pin="+encodeURIComponent(p);
-  fetch(q,{cache:"no-store"}).then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})}).then(function(x){
-    if(!x.ok){showErr((x.j&&x.j.error)||"الرمز غير صحيح");return}
-    $x("err").style.display="none";D=x.j.student;render();
-  }).catch(function(){showErr("تعذّر الاتصال بالخادم")})
-}
-function render(){
-  if(!D)return;
-  $x("auth").style.display="none";$x("view").style.display="block";
-  $x("vname").textContent=D.name||"متعلم";
-  $x("vmeta").textContent=((D.cls||"")+((D.br||D.lv)?(" — "+(D.br||"")+((D.lv?(" / "+D.lv):""))):""));
-  $x("vavg").textContent=D.avg==null?"—":(Number(D.avg).toFixed(2));
-  $x("vres").textContent=(D.avg==null)?"—":(D.p?"ناجح":"راسب");
-  $x("vres").className=D.p?"pass":"fail";
-  $x("vgrade").textContent=D.g||"—";
-  var s="";(D.subs||[]).forEach(function(r){s+="<tr><td>"+esc(r.s)+"</td><td>"+(r.c||"—")+"</td><td>"+(r.aa==null?"—":Number(r.aa).toFixed(1))+"</td><td>"+(r.ea==null?"—":Number(r.ea).toFixed(1))+"</td><td class='"+(r.p?"pass":"fail")+"'>"+(r.f==null?"—":Number(r.f).toFixed(2))+"</td><td class='"+(r.p?"pass":"fail")+"'>"+(r.p?"ناجح":"راسب")+"</td></tr>";});
-  $x("vsubs").innerHTML=s||"<tr><td colspan='6' class='none'>لا توجد نتائج بعد</td></tr>";
-  $x("aab").textContent=D.att?(D.att.ab||0):0;$x("ala").textContent=D.att?(D.att.la||0):0;$x("aex").textContent=D.att?(D.att.ex||0):0;$x("apx").textContent=D.att?(D.att.px||0):0;
-  var hw=D.hw||[];
-  $x("vhw").innerHTML=hw.length?hw.map(function(h){return "<div class='hwrow'><div><b>"+esc(h.t)+"</b><div style='font-size:11px;color:#64748b'>"+esc(h.s)+" · "+(h.d?esc(h.d):"بدون موعد")+"</div></div><span class='"+(h.sub?"done":"pend")+"'>"+(h.sub?"مسلَّم":"معلق")+"</span></div>"}).join(""):"<div class='none'>لا توجد واجبات معلنة</div>";
-}
-function doLogout(){D=null;$x("view").style.display="none";$x("auth").style.display="block";$x("code").value="";$x("err").style.display="none"}
-$x("code").addEventListener("keyup",function(e){if(e.key==="Enter")doLogin()})
-</script></body></html>`;
+const PORTAL_HTML=require("./portal-html.js");
 
 function sha256HexNode(txt){try{return crypto.createHash('sha256').update(String(txt==null?'':txt)).digest('hex');}catch(e){return '';}}
 function ctEq(a,b){if(!a||!b||a.length!==b.length)return false;let r=0;for(let i=0;i<a.length;i++){r|=a.charCodeAt(i)^b.charCodeAt(i);}return r===0;}
@@ -311,6 +235,7 @@ async function portalHandler(req,res){
   if(u==='/manifest.webmanifest'){res.writeHead(200,{'Content-Type':'application/manifest+json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(manifestJson());return;}
   if(u==='/sw.js'){res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'no-store','Service-Worker-Allowed':'/'});res.end(SW_JS);return;}
   if(u==='/icon-192.png'||u==='/icon-512.png'){const size=u.indexOf('192')>=0?192:512;const b=appIcon(size);if(b){res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=86400'});res.end(b);}else{res.writeHead(404,{'Content-Type':'text/plain'});res.end('no icon');}return;}
+  if(u==='/logo.png'){try{const fp=path.join(__dirname,'build','icon.png');if(fs.existsSync(fp)){res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=86400','Access-Control-Allow-Origin':'*'});res.end(fs.readFileSync(fp));return;}}catch(e){}res.writeHead(404,{'Content-Type':'text/plain'});res.end('no logo');return;}
   if(u.indexOf('/build/')===0){
     try{
       const base=path.join(__dirname,'build');
@@ -376,6 +301,7 @@ ipcMain.handle('portal-start',async(e,payload)=>{
 ipcMain.handle('portal-stop',()=>{portalStopSync();return{ok:true,running:false};});
 ipcMain.handle('portal-push',(e,payload)=>{try{portalData=payload||null}catch(eo){}return{ok:true,running:!!portalSrv};});
 ipcMain.handle('portal-status',()=>{const port=portalSrv?(portalSrv.address()&&portalSrv.address().port):0;return{running:!!portalSrv,port:port||0,urls:portalSrv?portalUrls(port||8050):[]};});
+ipcMain.handle('sha256',(e,txt)=>sha256HexNode(txt));
 
 
 async function rendererSnapshot(){if(!win||!win.webContents||win.webContents.isDestroyed())return null;try{return await win.webContents.executeJavaScript('(typeof window.__syncSnapshot==="function")?window.__syncSnapshot():Promise.resolve(null)');}catch(e){return null;}}
