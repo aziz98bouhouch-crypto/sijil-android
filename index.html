@@ -5205,9 +5205,10 @@ html[data-design="glass2"] .lock-screen .lock-card .field input:focus{border-col
 .alert-scroll{max-height:none;overflow:visible}
 @media(max-width:520px){.alert-cats{grid-template-columns:1fr}.alert-group .list{max-height:none;overflow:visible}}
 @media(min-width:1024px){
-#homeAlerts{margin-inline:calc(-1*max(0px,(100vw - var(--side-w,260px) - 40px - 100%)/2))}
+.content:has(#home.active){max-width:none}
 #homeAlerts .alert-cats{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
 }
+html[data-layout="smart"] .page.active>.sec-group:has(#homeAlerts){grid-column:1/-1}
 .table .lg-head td{background:linear-gradient(90deg,rgba(79,124,255,.17),rgba(79,124,255,.02));font-weight:800;font-size:13px;padding:8px 10px;border-top:2px solid var(--l)}
 .table .lg-head .lv{font-weight:600;opacity:.85;font-size:12px}
 </style>
