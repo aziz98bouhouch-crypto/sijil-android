@@ -1,7 +1,7 @@
 {
   "name": "sijil-taqyim-pro",
   "productName": "المواكبة التربوية الذكية",
-  "version": "1.0.31",
+  "version": "1.0.32",
   "description": "سجل التقويم والتشخيص والدعم التربوي — مسار ذكي يرافق المتعلم من التقويم إلى النجاح",
   "main": "main.js",
   "author": "Sijil Taqyim",
@@ -20,7 +20,8 @@
       "preload.js",
       "index.html",
       "portal-html.js",
-      "build/**"
+      "build/**",
+      "vendor/**"
     ],
     "directories": {
       "output": "release"

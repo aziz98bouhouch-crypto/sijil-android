@@ -128,6 +128,24 @@ function portalDeny(res,ip){portalHit(ip);return res;}
 
 // ===== نسخة الهاتف (تطبيق ويب/PWA يقدّمه نفس الخادم على /app) =====
 const APP_ICON_PNG=path.join(__dirname,'build','icon.png');
+const VENDOR_DIR=path.join(__dirname,'vendor');
+// مكتبات البائع (jsQR / html2pdf) يجب أن تُقدَّم كـ JavaScript، لا كصفحة /app
+function serveVendor(res,u){
+  let rel=null;
+  if(u.indexOf('/app/vendor/')===0)rel=u.slice('/app/vendor/'.length);
+  else if(u.indexOf('/vendor/')===0)rel=u.slice('/vendor/'.length);
+  if(rel===null)return false;
+  try{
+    const fp=path.join(VENDOR_DIR,rel.replace(/\\/g,'/').replace(/^\/+/,''));
+    if(rel.indexOf('..')<0&&fp.startsWith(VENDOR_DIR)&&fs.existsSync(fp)&&fs.statSync(fp).isFile()){
+      const ext=path.extname(fp).toLowerCase();
+      const types={'.js':'application/javascript; charset=utf-8','.mjs':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.wasm':'application/wasm'};
+      res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public, max-age=86400','Access-Control-Allow-Origin':'*'});
+      res.end(fs.readFileSync(fp));return true;
+    }
+  }catch(e){}
+  res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8'});res.end('not found');return true;
+}
 const appIconCache={};
 function appIcon(size){
   if(appIconCache[size])return appIconCache[size];
@@ -230,6 +248,7 @@ async function portalHandler(req,res){
     res.end(JSON.stringify({meta:portalData&&portalData.meta?portalData.meta:null,student:safe}));
     return;
   }
+  if(u.indexOf('/vendor/')===0||u.indexOf('/app/vendor/')===0){if(serveVendor(res,u))return;}
   if(u==='/app'||u==='/app/'||u.indexOf('/app/')===0){serveAppHtml(res);return;}
   if(u==='/manifest.webmanifest'){res.writeHead(200,{'Content-Type':'application/manifest+json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(manifestJson());return;}
   if(u==='/sw.js'){res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'no-store','Service-Worker-Allowed':'/'});res.end(SW_JS);return;}
