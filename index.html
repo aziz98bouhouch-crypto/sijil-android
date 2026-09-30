@@ -625,7 +625,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
 <!-- SCHEDULE -->
 <div id="schedule" class="page"><div class="hero"><span class="badge">استعمال الزمان</span><h1>استعمال الزمان وتتبع الحصص</h1></div><div class="grid"><div class="card stat"><span class="muted">حصص منجزة</span><strong id="slDone">0</strong></div><div class="card stat"><span class="muted">حصص غير منجزة</span><strong id="slMissed">0</strong></div><div class="card stat"><span class="muted">حصص تعويض</span><strong id="slCatch">0</strong></div><div class="card stat"><span class="muted">حصص دعم</span><strong id="slSupp">0</strong></div></div><div class="tab-group"><button class="active" data-ztab="week">بنية الأسبوع</button><button data-ztab="gsched">استعمال الأستاذ</button><button data-ztab="csched">استعمال الأقسام</button><button data-ztab="track">تتبع الحصص</button><button data-ztab="sugg">تعويض ودعم</button><button data-ztab="ccatch">استعمال التعويض والدعم</button></div>
 <div id="ztab-week" class="ztab-content"><div class="section-title"><h2>بنية الأسبوع</h2></div><div class="card"><div class="form three"><div class="field"><label>عدد الحصص اليومية</label><input id="wkPeriods" type="number" min="1" max="12" value="8"></div><div class="field" style="flex:1 1 100%"><label>أيام الدراسة</label><div id="wkDays"></div></div><div class="field" style="flex:1 1 100%"><label>أوقات الحصص (من — إلى)</label><div id="wkTimes"></div></div></div><div class="actions"><button class="btn primary" id="wkSave">حفظ بنية الأسبوع</button></div><p class="muted" id="wkHint"></p></div></div>
-<div id="ztab-gsched" class="ztab-content" style="display:none"><div class="section-title"><h2>استعمال الزمان الخاص بالأستاذ</h2></div><div class="card" style="margin-bottom:16px"><div class="form three"><div class="field"><label>المادة الأساسية للمعلم</label><select id="gsSubject"></select></div><div class="field" style="display:flex;align-items:flex-end"><button class="btn primary" id="gsSubjSave">حفظ المادة</button></div></div><p class="muted">كل خلية تمثّل حصة يدرّسها الأستاذ: <b>اختر القسم أولاً</b> من الأقسام التي يدرّسها، وتُحدَّد المادة تلقائيًا من مقرَّر القسم. «متفرغ» تعني فترة فراغ.</p></div><div class="card"><p class="muted" style="margin-bottom:10px">خيار القسم يعرض القسم مع مادته لدى الأستاذ (على سبيل المثال «3/1 — رياضيات»). بعد اختيار القسم يمكن تعديل المادة يدويًا من القائمة الثانية إذا درّس الأستاذ أكثر من مادة في نفس القسم.</p><div id="gsGrid"></div><p class="muted" id="gsSum"></p><div class="actions"><button class="btn primary" id="gsSave">حفظ استعمال الأستاذ</button></div></div><div class="card" style="margin-top:16px"><div class="section-title"><h2>🗓 استعمال زمان الأستاذ: استيراد وتدقيق</h2></div><p class="muted">الأسرع والأصدق: الصق ورقة الاستعمال الرسمية من Excel فيصبح استعمالك مطابقًا لها في دقيقة، ثم دقّقه ليقترح التطبيق ما ينقص من حصص مطابقة لاستعمالات الأقسام. المعاينة قبل الحفظ دائمًا، ولا تُمسّ خلاياك المملوءة.</p><div class="actions"><button class="btn primary" id="tpImportBtn" type="button">📥 استيراد الورقة الرسمية</button><button class="btn info" id="tpAuditBtn" type="button">🔎 تدقيق واقتراح إصلاح</button><button class="btn" id="tpTplBtn" type="button">📄 نموذج للتعبئة</button></div></div><details class="card" style="margin-top:12px"><summary style="cursor:pointer;font-weight:600;padding:6px 0">⚡ إعادة الإنتاج التلقائي من استعمالات الأقسام (متقدم — يحتاج اكتمال بيانات الأقسام)</summary><div id="genPanel"></div></details></div>
+<div id="ztab-gsched" class="ztab-content" style="display:none"><div class="section-title"><h2>استعمال الزمان الخاص بالأستاذ</h2></div><div class="card" style="margin-bottom:16px"><div class="form three"><div class="field"><label>المادة الأساسية للمعلم</label><select id="gsSubject"></select></div><div class="field" style="display:flex;align-items:flex-end"><button class="btn primary" id="gsSubjSave">حفظ المادة</button></div></div><p class="muted">كل خلية تمثّل حصة يدرّسها الأستاذ: <b>اختر القسم أولاً</b> من الأقسام التي يدرّسها، وتُحدَّد المادة تلقائيًا من مقرَّر القسم. «متفرغ» تعني فترة فراغ.</p></div><div class="card"><div class="section-title"><h2>🗓 لوحة استعمال زمان الأستاذ</h2></div><div class="tbmodes" id="tbModes"><button class="tbmode active" data-mv="fill" type="button">➕ ملء خانة</button><button class="tbmode" data-mv="off" type="button">🚫 لا أُدرّس هنا</button><button class="tbmode" data-mv="move" type="button">🔄 نقل وتبادل</button></div><p class="muted" id="tbHint"></p><div id="gsGrid"></div><p class="muted" id="gsSum"></p><div class="actions"><button class="btn info" id="tbFillAvail" type="button">🪄 توزيع المتاح</button><button class="btn" id="tbUndo" type="button">↶ تراجع</button><button class="btn" id="tbLock" type="button">📌 تثبيت العدد</button><button class="btn primary" id="gsSave" type="button">💾 حفظ اللوحة</button></div><p class="muted" style="font-size:12px">الأعمدة = أيام الأسبوع المفعّلة في «بنية الأسبوع»، والأسطر = حصص اليوم بأوقاتها (صباحية ثم مسائية). اللوحة تُعيد توزيع حصصك دون تغيير عددها، وشبكة القسم تُستعمل للتحقق فقط ولا تُعدَّل منها.</p></div></div>
 <div id="ztab-csched" class="ztab-content" style="display:none"><div class="section-title"><h2>استعمال الزمان الخاص بكل قسم</h2></div><div class="card"><div class="form"><div class="field"><label>القسم</label><select id="csClass"></select></div></div><div id="csGrid" style="margin-top:10px"></div><p class="muted" id="csSum"></p><div class="actions"><button class="btn primary" id="csSave">حفظ استعمال القسم</button></div></div></div>
 <div id="ztab-track" class="ztab-content" style="display:none"><div class="section-title"><h2>تتبع الحصص (منجزة / غير منجزة)</h2></div><div class="card"><div class="form two"><div class="field"><label>تاريخ اليوم</label><input id="trDate" type="date"></div></div><p class="muted" style="margin-bottom:10px">يُعرض برنامج الأستاذ تلقائيًا لليوم المختار (حسب استعمال الأستاذ) لتتبّع الحصص مباشرة بدل استعمال زمان التلاميذ.</p><p class="muted" id="trSum"></p><div class="tablewrap"><table class="table"><thead><tr><th>الفترة</th><th>القسم</th><th>المادة</th><th>الحالة</th><th>السبب / ملاحظة</th></tr></thead><tbody id="trRows"></tbody></table></div><div class="actions"><button class="btn primary" id="trSave">حفظ تتبع هذه الحصص</button></div></div>
 <div class="section-title"><h2>سجل الحصص</h2></div><div class="card"><div class="field"><label>فلترة بالقسم</label><select id="slFilter"></select></div><div class="tablewrap"><table class="table"><thead><tr><th>القسم</th><th>التاريخ</th><th>اليوم</th><th>الفترة</th><th>المادة</th><th>الحالة</th><th>السبب</th><th>إجراءات</th></tr></thead><tbody id="slLog"></tbody></table></div></div></div>
@@ -4397,7 +4397,6 @@ async function scSubjOpts(){return[{v:'',l:'— لا حصة'}].concat(scopeSubjA
 function resolveCell(v){if(!v)return{subjectId:'',classId:''};if(typeof v==='string')return{subjectId:'',classId:v};return (v&&typeof v==='object')?{subjectId:v.subjectId||'',classId:v.classId||''}:{subjectId:'',classId:''};}
 async function getTeacherSubject(){const t=await getTeacherSubjects();return t.activeId||'';}
 async function setTeacherSubject(sid){await setActiveSubject(sid||'');}
-function scTCell(d,p,raw,clsOpts){const cell=resolveCell(raw);const cid=cell.classId||'';const clsOpt='<option value="">— متفرغ (فراغ)</option>'+(clsOpts||[]).map(o=>{const lab=o.primaryName?(o.name+' — '+o.primaryName):o.name;return '<option value="'+esc(o.id)+'"'+(cid===o.id?' selected':'')+'>'+esc(lab)+'</option>';}).join('');return '<div style="display:flex;flex-direction:column;gap:3px;padding:4px 0;min-width:150px"><select class="slc gtc" id="gtc_'+d+'_'+p+'" style="width:100%;padding:4px;border:1px solid var(--l);border-radius:6px;font-size:12px">'+clsOpt+'</select><select class="slc gts" id="gts_'+d+'_'+p+'" style="width:100%;padding:4px;border:1px solid var(--l);border-radius:6px;font-size:12px;display:'+(cid?'block':'none')+'"></select>'+(raw&&raw.auto?'<div style="font-size:9px;color:#1B7F79;line-height:1.2">⚡ حصة مولدة تلقائيًا</div>':(raw&&raw.imp?'<div style="font-size:9px;color:#1B7F79;line-height:1.2">📥 من الورقة الرسمية</div>':''))+'</div>';}
 let _tClsCache={};let _tClsCacheSubj='';
 async function classSubjectsForTeacher(cid){const all=(SCN.subjects||[]);const t=await getTeacherSubjects();const cacheKey=(t.activeId||'')+':'+cid;if(_tClsCacheSubj===t.activeId&&_tClsCache[cacheKey])return _tClsCache[cacheKey];const tSet=new Set(t.ids||[]);const scoped=tSet.size>0;const g=await scGet('schedules',cid);const seen=new Set(),outS=[];for(let d=0;d<7;d++)for(let p=0;p<12;p++){const v=(g[d]||[])[p];if(!v)continue;const id=String((v&&v.id)||v);if(scoped&&!tSet.has(id))continue;if(seen.has(id))continue;seen.add(id);outS.push({id,name:(SCN.subjMap&&SCN.subjMap[id])||(all.find(s=>s.id===id)||{name:'—'}).name});}if(outS.length){_tClsCache[cacheKey]=outS;_tClsCacheSubj=t.activeId||'';return outS;}let subs=[];try{subs=await getClassScopeSubjects(cid,all);}catch(e){subs=[];}const legit=(subs||[]).filter(s=>s&&s.id);if(legit.length){const f=legit.filter(s=>!scoped||tSet.has(s.id));if(f.length){_tClsCache[cacheKey]=f;_tClsCacheSubj=t.activeId||'';return f;}if(!scoped){_tClsCache[cacheKey]=legit;_tClsCacheSubj=t.activeId||'';return legit;}}if(scoped){const f=all.filter(s=>tSet.has(s.id)).map(s=>({id:s.id,name:s.name}));_tClsCache[cacheKey]=f;_tClsCacheSubj=t.activeId||'';return f;}const f=all.map(s=>({id:s.id,name:s.name}));_tClsCache[cacheKey]=f;_tClsCacheSubj=t.activeId||'';return f;}
 async function scTeacherClassOptions(){const out=[];for(const c of (SCN.classes||[])){const subs=await classSubjectsForTeacher(c.id);const t=await getTeacherSubjects();const prim=subs.find(s=>s.id===t.activeId)||subs[0]||{id:'',name:''};out.push({id:c.id,name:c.name,primaryName:prim.name,primaryId:prim.id});}return out;}
@@ -4406,184 +4405,117 @@ function scCell(pref,d,p,val,opts){const av=String(val||'');return'<select class
 function scGridHead(w,right){let h=right;for(let d=0;d<7;d++){if(w.days.indexOf(d)>=0)h+='<th>'+WEEK_DAYS[d]+'</th>';}return h;}
 async function renderWeek(){const w=await scWeek();$('wkPeriods').value=w.periods;$('wkDays').innerHTML=WEEK_DAYS.map((n,i)=>'<label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="checkbox" id="wkd_'+i+'"'+(w.days.indexOf(i)>=0?' checked':'')+'> '+n+'</label>').join('');$('wkTimes').innerHTML=wkTimesRows(w.periods,w.times);$('wkHint').textContent='حدّد أيام الدراسة وعدد الحصص وأوقاتها (من–إلى) القابلة للتعديل؛ هذه البنية تحكم كل الجداول وتتبع الحصص.';}
 async function saveWeek(){const periods=Math.min(12,Math.max(1,parseInt($('wkPeriods').value)||8));const days=[];for(let i=0;i<7;i++){if($('wkd_'+i)&&$('wkd_'+i).checked)days.push(i);}if(!days.length)return toast('فعّل يومًا واحدًا على الأقل');const times=[];for(let i=0;i<periods;i++){const a=$('wkTa_'+i)?$('wkTa_'+i).value:'';const b=$('wkTb_'+i)?$('wkTb_'+i).value:'';if(!a||!b){toast('حدّد من وإلى للفترة '+(i+1));return;}if(a>=b){toast('نهاية الفترة '+(i+1)+' يجب أن تكون بعد بدايتها');return;}times.push({a,b});}await scSetWeek({periods,days,times});toast('حُفظت بنية الأسبوع بأوقاتها');renderWeek();renderGSched();renderCSched();renderTrack();renderSessions();renderCCatch();}
-async function renderGSched(){const w=await scWeek();const g=await scGet('teacherSchedules','plan');const clsOpts=await scTeacherClassOptions();let rows='';for(let p=0;p<w.periods;p++){rows+='<tr><td style="white-space:nowrap">'+scTT(w,p)+'</td>';for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;rows+='<td style="min-width:150px">'+scTCell(d,p,(g[d]||[])[p],clsOpts)+'</td>';}rows+='</tr>';}$('gsGrid').innerHTML='<div class="tablewrap" style="overflow-x:auto"><table class="table sgrid"><thead>'+scGridHead(w,'<tr><th>التوقيت</th>')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';const cnt=w.days.reduce((n,d)=>n+(g[d]||[]).slice(0,w.periods).filter(v=>{const c=resolveCell(v);return !!(c.classId);}).length,0);$('gsSum').textContent='إجمالي حصص الأستاذ الأسبوعية: '+cnt+' حصة';if($('gsSave'))$('gsSave').onclick=saveGSched;const gtc=document.querySelectorAll('.gtc');for(let i=0;i<gtc.length;i++){const raw=gtc[i].id.split('_');const dd=parseInt(raw[1],10),pp=parseInt(raw[2],10);gtc[i].onchange=()=>{scSyncTeacherSubjects(dd,pp);};}for(let i=0;i<gtc.length;i++){const raw=gtc[i].id.split('_');const dd=parseInt(raw[1],10),pp=parseInt(raw[2],10);const saved=(g[dd]&&g[dd][pp])?resolveCell(g[dd][pp]).subjectId:'';await scSyncTeacherSubjects(dd,pp,saved);}renderGenPanel(w);}
-async function saveGSched(){const w=await scWeek();const prev=await scGet('teacherSchedules','plan');const g=scEmpty();for(let d=0;d<7;d++)for(let p=0;p<w.periods;p++){if(w.days.indexOf(d)<0)continue;const ss=$('gts_'+d+'_'+p),cs=$('gtc_'+d+'_'+p);const sid=ss?ss.value:'';const cid=cs?cs.value:'';const pr=prev[d][p],po=resolveCell(pr),same=po.classId===cid&&po.subjectId===sid;g[d][p]=(sid||cid)?{subjectId:sid,classId:cid,...(same?cellSrc(pr):{})}:null;}await DB.put('teacherSchedules',{id:'plan',days:g,updatedAt:now()});toast('حُفظ استعمال زمان الأستاذ');renderGSched();}
+/* ==== المرحلة 9: لوحة استعمال زمان الأستاذ — ملء / منع / نقل (بدل محركات التوليد) ==== */
+let _tb={g:null,w:null,mode:'fill',sel:null,cands:null,edit:null,undo:[],quota:null,grids:{},clsOpts:[],drawn:false};
+function cellOff(v){return !!(v&&typeof v==='object'&&v.off);}
+function cellWant(v){return !!(v&&typeof v==='object'&&v.want);}
+function tbRaw(d,p){return ((_tb.g&&_tb.g[d])||[])[p];}
+function tbEmpty(d,p){const r=resolveCell(tbRaw(d,p));return !(r.classId||r.subjectId);}
+function tbClsSlot(cid,d,p){const cg=_tb.grids[String(cid)]||[];return classCellSub((cg[d]||[])[p])||'';}
+function tbClsOk(cid,d,p,sid){const s=tbClsSlot(cid,d,p);return !s||String(s)===String(sid||'');}
+function tbClsName(cid){const o=(_tb.clsOpts||[]).find(x=>String(x.id)===String(cid));return o?o.name:(String(cid)||'—');}
+function tbSubName(sid){return (SCN.subjMap&&SCN.subjMap[sid])||sid||'—';}
+function tbCands(cid,d0,p0,sid){const w=_tb.w,out=[];if(!w)return out;for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;for(let p=0;p<w.periods;p++){if(d===d0&&p===p0)continue;if(cellOff(tbRaw(d,p)))continue;if(!tbEmpty(d,p))continue;if(!tbClsOk(cid,d,p,sid))continue;out.push([d,p]);}}return out;}
+function tbPush(){try{_tb.undo.push(JSON.stringify(_tb.g||[]));}catch(e){_tb.undo.push('[]');}if(_tb.undo.length>25)_tb.undo.shift();}
+function tbCounts(){const w=_tb.w,per={};let tot=0,offs=0,wants=0,conf=0;if(!w)return{per:per,tot:0,offs:0,wants:0,conf:0};
+ for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;for(let p=0;p<w.periods;p++){const raw=tbRaw(d,p);if(cellOff(raw)){offs++;continue;}const r=resolveCell(raw);if(!r.classId)continue;tot++;const k=String(r.classId);per[k]=(per[k]||0)+1;if(cellWant(raw))wants++;if(!tbClsOk(r.classId,d,p,r.subjectId))conf++;}}
+ return{per:per,tot:tot,offs:offs,wants:wants,conf:conf};}
+async function tbLoad(){const w=await scWeek();_tb.w=w;_tb.g=await scGet('teacherSchedules','plan');_tb.clsOpts=await scTeacherClassOptions();const gr={};for(const c of (SCN.classes||[]))gr[String(c.id)]=await scGet('schedules',String(c.id));_tb.grids=gr;_tb.sel=null;_tb.cands=null;_tb.edit=null;}
+function tbEditorHTML(d,p,raw){const r=resolveCell(raw);
+ const clsOpt='<option value="">— متفرغ (فراغ)</option>'+(_tb.clsOpts||[]).map(o=>'<option value="'+esc(o.id)+'"'+(String(r.classId)===String(o.id)?' selected':'')+'>'+esc(o.primaryName?(o.name+' — '+o.primaryName):o.name)+'</option>').join('');
+ return '<div class="tb-edit"><select class="slc gtc" id="gtc_'+d+'_'+p+'">'+clsOpt+'</select><select class="slc gts" id="gts_'+d+'_'+p+'" style="'+(r.classId?'':'display:none')+'"></select><div class="tb-editbtns"><button class="btn" type="button" id="tbOk_'+d+'_'+p+'">✓ تم</button><button class="btn danger" type="button" id="tbClr_'+d+'_'+p+'">🧹 إفراغ</button></div></div>';}
+function tbCellHTML(d,p){const raw=tbRaw(d,p),r=resolveCell(raw);
+ if(_tb.edit&&_tb.edit.d===d&&_tb.edit.p===p)return tbEditorHTML(d,p,raw);
+ if(cellOff(raw))return '<div class="tb-off">🚫</div>';
+ if(r.classId){const isSel=_tb.sel&&_tb.sel.d===d&&_tb.sel.p===p;const bad=!tbClsOk(r.classId,d,p,r.subjectId);
+  return '<div class="tb-lesson'+(cellWant(raw)?' tb-want':'')+(isSel?' tb-sel':'')+(bad?' tb-conf':'')+'"><b>'+esc(tbClsName(r.classId))+'</b><span>'+esc(tbSubName(r.subjectId))+'</span>'+(bad?'<em>⚠️ القسم مشغول</em>':'')+(cellWant(raw)?'<em>🟧 مطلوب للنقل</em>':'')+'</div>';}
+ const cand=!!(_tb.cands&&_tb.cands.some(c=>c[0]===d&&c[1]===p));
+ return '<div class="tb-empty'+(cand?' tb-cand':'')+'">'+(cand?'⬇':'+')+'</div>';}
+function tbDraw(){const w=_tb.w;if(!w||!$('gsGrid'))return;
+ const nd=w.days.length;let h='<div class="tablewrap" style="overflow-x:auto"><table class="table sgrid tbGrid"><thead><tr><th class="tb-time">التوقيت</th>';
+ for(let d=0;d<7;d++){if(w.days.indexOf(d)>=0)h+='<th>'+WEEK_DAYS[d]+'</th>';}
+ h+='</tr></thead><tbody>';
+ const mid=Math.ceil(w.periods/2);
+ for(let p=0;p<w.periods;p++){
+  if(p===mid&&w.periods>2)h+='<tr class="tb-part"><td class="tb-time"></td><td colspan="'+nd+'">☀️ الفترة الصباحية ↕ 🌙 الفترة المسائية</td></tr>';
+  h+='<tr><td class="tb-time"><b>'+scTT(w,p)+'</b><br><small class="muted">حصة '+(p+1)+'</small></td>';
+  for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;h+='<td id="td_'+d+'_'+p+'" class="tb-td">'+tbCellHTML(d,p)+'</td>';}
+  h+='</tr>';}
+ h+='</tbody></table></div>';
+ $('gsGrid').innerHTML=h;
+ const c=tbCounts(),q=_tb.quota;let drift='';
+ if(q){const dd=[];for(const k in c.per){if(q[k]!==c.per[k])dd.push(tbClsName(k)+': '+(q[k]||0)+' ← '+c.per[k]);}for(const k in q){if(!c.per[k])dd.push(tbClsName(k)+': '+q[k]+' ← 0');}
+  const qt=Object.keys(q).reduce((a,k)=>a+q[k],0);drift=' | <b>العدد المثبّت '+qt+'</b> '+(dd.length?'<span class="fail">⚠️ انحراف: '+esc(dd.join('، '))+' — اضغط 📌 لاعتماد الجديد</span>':'<span class="pass">✅ مطابق</span>');}
+ $('gsSum').innerHTML='إجمالي حصصك: <b>'+c.tot+'</b>'+(Object.keys(c.per).length?' — '+Object.keys(c.per).map(k=>esc(tbClsName(k))+' <b>'+c.per[k]+'</b>').join(' · '):'')
+  +(c.offs?' <span class="muted">| 🚫 '+c.offs+' خانة مرفوضة</span>':'')
+  +(c.wants?' <span style="color:var(--w)">| 🟧 '+c.wants+' معلّمة للنقل</span>':'')
+  +(c.conf?' <span class="fail">| ⚠️ '+c.conf+' خانة مخالفة لاستعمال القسم</span>':'')+drift;
+ if($('tbUndo'))$('tbUndo').disabled=!_tb.undo.length;
+ if($('tbFillAvail'))$('tbFillAvail').disabled=!(c.wants||c.conf);
+ const hints={fill:'انقر أي خانة لملئها: اختر القسم ثم المادة (تُعرض موادك في ذلك القسم). «🧹 إفراغ» يخليها.',off:'انقر خانة فارغة لتمنع التدريس فيها (🚫). وانقر خانة فيها حصة لتعليمها 🟧 ثم اضغط «🪄 توزيع المتاح» لنقلها إلى أول خانة مسموحة.',move:'انقر حصة لاختيارها، فتُظلَّل الخانات الممكنة (فارغة عندك، غير ممنوعة، وفارغة في استعمال القسم). انقر المظللة للنقل، أو انقر حصة أخرى للتبادل.'};
+ $('tbHint').textContent=hints[_tb.mode]||'';
+ for(let d=0;d<7;d++)for(let p=0;p<w.periods;p++){const td=$('td_'+d+'_'+p);if(!td)continue;td.onclick=()=>tbClick(d,p);}
+ if(_tb.edit){const dd=_tb.edit.d,pp=_tb.edit.p;scSyncTeacherSubjects(dd,pp,resolveCell(tbRaw(dd,pp)).subjectId);const cs=$('gtc_'+dd+'_'+pp),ss=$('gts_'+dd+'_'+pp);
+  if(cs)cs.onchange=()=>{scSyncTeacherSubjects(dd,pp);};
+  if($('tbOk_'+dd+'_'+pp))$('tbOk_'+dd+'_'+pp).onclick=async e=>{e.stopPropagation();const cid=cs?cs.value:'',sid=ss?ss.value:'';tbPush();_tb.g[dd][pp]=(cid||sid)?{classId:cid,subjectId:sid}:null;_tb.edit=null;tbDraw();};
+  if($('tbClr_'+dd+'_'+pp))$('tbClr_'+dd+'_'+pp).onclick=async e=>{e.stopPropagation();tbPush();_tb.g[dd][pp]=null;_tb.edit=null;tbDraw();};}
+ _tb.drawn=true;}
+function tbStop(){_tb.sel=null;_tb.cands=null;_tb.edit=null;}
+function tbClick(d,p){const raw=tbRaw(d,p),r=resolveCell(raw);
+ if(_tb.mode==='fill'){_tb.edit=(_tb.edit&&_tb.edit.d===d&&_tb.edit.p===p)?null:{d:d,p:p};_tb.sel=null;_tb.cands=null;return tbDraw();}
+ if(_tb.mode==='off'){tbPush();tbStop();
+  if(r.classId||r.subjectId){_tb.g[d][p]={classId:r.classId,subjectId:r.subjectId,want:!cellWant(raw)};toast(cellWant(_tb.g[d][p])?'🟧 عُلّمت هذه الحصة للنقل — اضغط «🪄 توزيع المتاح»':'أُلغي تعليم النقل');}
+  else if(cellOff(raw)){_tb.g[d][p]=null;toast('رُفع المنع عن الخانة');}
+  else{_tb.g[d][p]={off:true};toast('🚫 الخانة ممنوعة الآن');}
+  return tbDraw();}
+ /* mode === 'move' */
+ if(_tb.sel){const s=_tb.sel;const src=resolveCell(_tb.g[s.d][s.p]);
+  if(s.d===d&&s.p===p){tbStop();return tbDraw();}
+  if(!src.classId){tbStop();return tbDraw();}
+  if(r.classId){const okA=tbClsOk(src.classId,d,p,src.subjectId),okB=tbClsOk(r.classId,s.d,s.p,r.subjectId);
+   if(!okA||!okB){toast('⚠️ لا يمكن التبادل: أحد القسمين مشغول في الخانة الأخرى');return tbDraw();}
+   tbPush();tbStop();const tmp=_tb.g[d][p];_tb.g[d][p]=_tb.g[s.d][s.p];_tb.g[s.d][s.p]=tmp;toast('🔄 تبادلت الحصتان');return tbDraw();}
+  if(cellOff(raw)){toast('🚫 هذه الخانة ممنوعة لديك — ارفع المنع بالنقر عليها في وضع «🚫 منع»');return tbDraw();}
+  if(!tbEmpty(d,p)){toast('لا يمكن النقل إلى خانة فيها حصة: استخدم التبادل بالنقر على الحصة الأخرى');return tbDraw();}
+  if(!tbClsOk(src.classId,d,p,src.subjectId)){toast('⚠️ القسم '+tbClsName(src.classId)+' مشغول في هذه الخانة حسب جدوله');return tbDraw();}
+  tbPush();tbStop();_tb.g[d][p]={classId:src.classId,subjectId:src.subjectId};_tb.g[s.d][s.p]=null;toast('✔️ نُقلت الحصة إلى '+WEEK_DAYS[d]+' '+scTT(_tb.w,p));return tbDraw();}
+ if(r.classId){_tb.sel={d:d,p:p,cid:r.classId,sid:r.subjectId};_tb.cands=tbCands(r.classId,d,p,r.subjectId);if(!_tb.cands.length)toast('لا توجد خانة ممكنة لهذا القسم: جرّب يومًا آخر أو أفرغ خانة أو ارفع 🚫');return tbDraw();}
+ toast('الخانة فارغة — استعمل «➕ ملء خانة» لإضافة حصة');return tbDraw();}
+async function tbFillAvail(){const w=_tb.w;if(!w)return;const pend=[];
+ for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;for(let p=0;p<w.periods;p++){const raw=tbRaw(d,p),r=resolveCell(raw);if(!r.classId)continue;if(cellWant(raw)||!tbClsOk(r.classId,d,p,r.subjectId))pend.push({d:d,p:p,classId:r.classId,subjectId:r.subjectId,why:cellWant(raw)?'معلّمة':'تعارض مع القسم'});}}
+ if(!pend.length)return toast('لا شيء ينقل: لا حصص معلّمة 🟧 ولا تعارض ⚠️');
+ tbPush();let moved=0;const stuck=[];
+ for(const it of pend){_tb.g[it.d][it.p]=null;const c=tbCands(it.classId,it.d,it.p,it.subjectId)[0];
+  if(!c){_tb.g[it.d][it.p]={classId:it.classId,subjectId:it.subjectId};stuck.push(it);continue;}
+  _tb.g[c[0]][c[1]]={classId:it.classId,subjectId:it.subjectId};moved++;}
+ tbDraw();
+ if(stuck.length){openDrawer('🪄 توزيع المتاح',('<p class="muted">نُقلت '+moved+' حصة إلى أول خانة مسموحة (فارغة عندك وغير ممنوعة وفارغة في استعمال القسم).</p><div class="section-title"><h2>حصص لم تجد خانة ('+stuck.length+')</h2></div><div class="tablewrap"><table class="table"><thead><tr><th>اليوم</th><th>الحصة</th><th>القسم</th><th>المادة</th><th>السبب</th></tr></thead><tbody>'+stuck.map(x=>'<tr><td>'+WEEK_DAYS[x.d]+'</td><td>'+scTT(w,x.p)+'</td><td>'+esc(tbClsName(x.classId))+'</td><td>'+esc(tbSubName(x.subjectId))+'</td><td>كل الخانات الممكنة ممتلئة</td></tr>').join('')+'</tbody></table></div><p class="muted">ارفع 🚫 عن بعض الخانات أو أفرغ خانة ثم أعد المحاولة، أو ارجع «↶ تراجع».</p><div class="actions"><button class="btn" id="tbStuckClose" type="button">إغلاق</button></div>'));
+  if($('tbStuckClose'))$('tbStuckClose').onclick=closeDrawer;}
+ else toast('✔️ نُقلت '+moved+' حصة إلى الخانات المتاحة، وعدد الحصص لم يتغيّر');}
+function tbWire(){if($('tbModes'))[].slice.call($('tbModes').querySelectorAll('.tbmode')).forEach(b=>{b.onclick=()=>{_tb.mode=b.dataset.mv;tbStop();[].slice.call($('tbModes').querySelectorAll('.tbmode')).forEach(x=>x.classList.toggle('active',x===b));tbDraw();};});
+ if($('tbFillAvail'))$('tbFillAvail').onclick=tbFillAvail;
+ if($('tbUndo'))$('tbUndo').onclick=()=>{if(!_tb.undo.length)return;tbStop();_tb.g=JSON.parse(_tb.undo.pop());tbDraw();toast('↶ رجعنا خطوة');};
+ if($('tbLock'))$('tbLock').onclick=()=>{const c=tbCounts();_tb.quota=c.per;tbDraw();toast('📌 ثُبّت العدد: '+c.tot+' حصة');};
+ if($('gsSave'))$('gsSave').onclick=saveGSched;
+ if(!_tb.keys){_tb.keys=1;document.addEventListener('keydown',e=>{if(e.key==='Escape'&&(_tb.sel||_tb.edit)){tbStop();tbDraw();}});}}
+async function renderGSched(){try{await tbLoad();}catch(e){return;}tbWire();tbDraw();}
+async function saveGSched(){const w=_tb.w||await scWeek();const list=[];
+ for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;for(let p=0;p<w.periods;p++){const raw=tbRaw(d,p),r=resolveCell(raw);if(!r.classId)continue;if(!tbClsOk(r.classId,d,p,r.subjectId))list.push({d:d,p:p,classId:r.classId,subjectId:r.subjectId});}}
+ const doIt=async()=>{const g=scEmpty();for(let d=0;d<7;d++){if(!Array.isArray(g[d]))g[d]=[];for(let p=0;p<12;p++){const raw=(_tb.g[d]||[])[p];if(!raw)continue;if(cellOff(raw)){g[d][p]={off:true};continue;}const r=resolveCell(raw);if(r.classId||r.subjectId)g[d][p]={classId:r.classId,subjectId:r.subjectId};}}
+  await DB.put('teacherSchedules',{id:'plan',days:g,updatedAt:now()});_tb.g=g;_tb.undo=[];tbDraw();try{renderTrack();renderSessions();}catch(e){}toast('💾 حُفظ استعمال زمان الأستاذ');};
+ if(list.length){openDrawer('⚠️ تعارض مع استعمال القسم','<p class="muted">هذه الحصص موضوعة في خانات يرى استعمال القسم أنها مشغولة. إن كان جدول القسم هو الصحيح فالأفضل «إلغاء» ونقل الحصة؛ وإن كان جدول القسم أنقص من الواقع فاحفظ رغم ذلك.</p><div class="tablewrap"><table class="table"><thead><tr><th>اليوم</th><th>الحصة</th><th>القسم</th><th>المادة</th></tr></thead><tbody>'+list.map(x=>'<tr><td>'+WEEK_DAYS[x.d]+'</td><td>'+scTT(w,x.p)+'</td><td>'+esc(tbClsName(x.classId))+'</td><td>'+esc(tbSubName(x.subjectId))+'</td></tr>').join('')+'</tbody></table></div><div class="actions"><button class="btn primary" id="tbSaveForce" type="button">حفظ رغم التعارض</button><button class="btn" id="tbSaveCancel" type="button">إلغاء</button></div>');
+  if($('tbSaveForce'))$('tbSaveForce').onclick=async()=>{closeDrawer();await doIt();};
+  if($('tbSaveCancel'))$('tbSaveCancel').onclick=closeDrawer;return;}
+ await doIt();}
 function classCellSub(v){if(!v)return'';if(typeof v==='object')return String(v.id||v.subjectId||'');return String(v);}
-function cellAuto(v){return !!(v&&typeof v==='object'&&v.auto);}
-let _genCfg=null;
-function genCfgFresh(){return{blkD:[],blkP:[],cls:(SCN.classes||[]).map(c=>String(c.id)),key:(SCN.classes||[]).map(c=>c.id).join(','),mode:'full',keepManual:true,reassign:false,report:''};}
-function syncGenCfg(){const el=$('genPanel');if(!el||!_genCfg)return;const c=_genCfg;c.blkD=[].slice.call(el.querySelectorAll('.genblkD:checked')).map(e=>parseInt(e.value,10));c.blkP=[].slice.call(el.querySelectorAll('.genblkP:checked')).map(e=>parseInt(e.value,10));c.cls=[].slice.call(el.querySelectorAll('.gencls:checked')).map(e=>e.value);const rm=el.querySelector('input[name="genmode"]:checked');c.mode=rm?rm.value:'full';c.keepManual=!!($('genKeep')&&$('genKeep').checked);c.reassign=!!($('genRe')&&$('genRe').checked);}
-/* ==== المرحلة 8: استيراد استعمال زمان الأستاذ + تدقيق وإصلاح موضعي ==== */
-var _tpRows=null,_tpFx=null;
-function cellSrc(v){if(!v||typeof v!=='object')return{};if(v.auto)return{auto:true};if(v.imp)return{imp:true};return{};}
-function tpWire(){var a=$('tpImportBtn');if(a&&!a._w){a._w=1;a.onclick=tpImportDialog;}var b=$('tpAuditBtn');if(b&&!b._w){b._w=1;b.onclick=tpAudit;}var c=$('tpTplBtn');if(c&&!c._w){c._w=1;c.onclick=tpTemplate;}}
-function tpNorm(s){return String(s==null?'':s).toLowerCase().replace(/[\u064B-\u0652\u0640\u0670]/g,'').replace(/[\u0625\u0623\u0622\u0671]/g,'\u0627').replace(/\u0649/g,'\u064A').replace(/\u0629/g,'\u0647').replace(/[^0-9a-z\u0621-\u064A]/g,'');}
-function tpDig(s){return String(s==null?'':s).replace(/[\u2013\u2014]/g,'-').replace(/[^0-9]/g,'');}
-function tpDayIdx(lab,w){var n=tpNorm(lab);if(!n)return -1;for(var i=0;i<7;i++){var d=tpNorm(WEEK_DAYS[i]);if(!d)continue;if(n===d||n.indexOf(d)>=0||(d.indexOf(n)>=0&&n.length>=3))return i;}var m=/(\d+)/.exec(String(lab));if(m){var k=parseInt(m[1],10)-1;if(k>=0&&k<7)return k;}return -1;}
-function tpPeriodIdx(lab,w){if(lab==null||String(lab).trim()==='')return -1;var n=tpDig(lab),raw=tpNorm(lab);var only=/^(\d+)$/.exec(String(lab).trim());if(only){var k=parseInt(only[1],10)-1;if(k>=0&&k<w.periods)return k;}
-if(/(\u062d\u0635|\u0641\u062a\u0631|\u0633\u0627\u0639)/.test(raw)){var mm=/(\d+)/.exec(raw);if(mm){var q=parseInt(mm[1],10)-1;if(q>=0&&q<w.periods)return q;}}
-for(var p=0;p<w.periods;p++){var t=(w.times&&w.times[p])||{};var a=tpDig(t.a),b=tpDig(t.b);if(!n)continue;if(a&&b&&n===a+b)return p;if(n===a||n===b)return p;if(a&&b&&n.length>=4&&(a+b).indexOf(n)>=0)return p;}return -1;}
-async function tpDict(){var classes=await DB.all('classes'),subs=await DB.all('subjects');var idx=[];
-for(var i=0;i<classes.length;i++){var c=classes[i],n=tpNorm(c.name);if(n)idx.push({id:c.id,name:c.name,n:n});}
-idx.sort(function(a,b){return b.n.length-a.n.length;});
-var sidx=[];for(var k=0;k<subs.length;k++){var s=subs[k],sn=tpNorm(s.name);if(sn)sidx.push({id:s.id,name:s.name,n:sn});}
-return{classes:classes,subs:subs,clsIdx:idx,subIdx:sidx};}
-function tpFind(text,D){var n=tpNorm(text),cls=null,sub=null,amb=0;if(!n)return{cls:null,sub:null,amb:0};
-for(var i=0;i<D.clsIdx.length;i++){var c=D.clsIdx[i];if(c.n.length<2)continue;if(n===c.n){cls=c;amb=1;break;}if(c.n.length>2&&n.indexOf(c.n)>=0){if(!cls){cls=c;amb=1;}else amb++;}}
-for(var k=0;k<D.subIdx.length;k++){var s=D.subIdx[k];if(s.n.length<3)continue;if(n===s.n||n.indexOf(s.n)>=0){sub=s;break;}}
-return{cls:cls,sub:sub,amb:amb};}
-async function tpParse(text){var w=await scWeek(),D=await tpDict();
-var lines=String(text||'').replace(/\r/g,'').split('\n').filter(function(l){return l.trim()!=='';});
-if(!lines.length)return{err:'لا يوجد شيء ملصوق بعد.'};
-var rows=lines.map(function(l){return l.split('\t');});
-if(rows.every(function(r){return r.length<=1;}))rows=lines.map(function(l){return l.split(/[,;]/);});
-var W=0;for(var i=0;i<rows.length;i++)W=Math.max(W,rows[i].length);
-if(W<2)return{err:'الملصوق عمود واحد فقط — انسخ الجدول كاملاً من Excel مع الترويسات، أو استعمل «نموذج للتعبئة».'};
-rows=rows.map(function(r){var x=r.map(function(c){return String(c==null?'':c).trim();});while(x.length<W)x.push('');return x;});
-function cnt(arr){var d=0,p=0;for(var i=0;i<arr.length;i++){if(tpDayIdx(arr[i],w)>=0)d++;if(tpPeriodIdx(arr[i],w)>=0)p++;}return{d:d,p:p};}
-var head=cnt(rows[0]),side=cnt(rows.map(function(r){return r[0];}));
-var o0=head.p+side.d,o1=head.d+side.p;
-if(!o0&&!o1)return{err:'لم أتعرف على ترويسة الأيام أو أوقات الحصص. تأكد أن أحد الطرفين يحمل الأيام (الاثنين، الثلاثاء…) والطرف الآخر التوقيت مثل '+scTT(w,0)+'.'};
-var orient=(o0>o1)?1:0,out=[],seen={};
-for(var r=1;r<rows.length;r++)for(var c=1;c<rows[r].length;c++){var cell=rows[r][c];if(!cell||/^[-\u2014.\u00b7\s]*$/.test(cell))continue;
-var rl=rows[r][0],cl=rows[0][c];
-var day=orient?tpDayIdx(rl,w):tpDayIdx(cl,w);
-var per=orient?tpPeriodIdx(cl,w):tpPeriodIdx(rl,w);
-if(day<0||per<0||per>=w.periods)continue;
-var key=day+'|'+per;if(seen[key]){seen[key].dup=true;continue;}
-var m=tpFind(cell,D);var st=m.cls?(m.sub?'ok':'nocls'):'none';
-if(!m.cls&&m.sub)st='nosub';
-seen[key]=out[out.push({d:day,p:per,cell:cell,cls:m.cls,sub:m.sub,st:(m.cls?'ok':(m.sub?'nosub':'none')),amb:m.amb>1,inWeek:w.days.indexOf(day)>=0})-1];}
-if(!out.length)return{err:'لم تُفهم أي خانة. اكتب في الخلية اسم القسم كما في التطبيق (مثال: '+(D.classes[0]?esc(D.classes[0].name):'قسم')+')، ويمكن إضافة اسم المادة.'};
-return{rows:out,w:w};}
-function tpRowsTable(list,w){var rows=list.map(function(x){var cn=x.cls?(x.cls.name||String(x.cls.id)):'\u2014';
-var sn=x.sub?(x.sub.name||''):((x.defSubName)||'\u2014');
-var badge=x.st==='ok'?'<span style="color:#1B7F79">✔ مطابق</span>':(x.st==='nosub'?'<span style="color:#B8860B">? بلا قسم (يُتجاهل)</span>':'<span style="color:#c0392b">✖ غير مفهوم</span>');
-if(x.dup)badge+=' <span style="color:#B8860B">تكرار خانة</span>';
-if(!x.inWeek)badge+=' <span style="color:#B8860B">خارج أيام الأسبوع</span>';
-return '<tr><td>'+esc(WEEK_DAYS[x.d])+'</td><td>'+esc(scTT(w,x.p))+'</td><td>'+esc(x.cell)+'</td><td>'+esc(cn)+'</td><td>'+esc(sn)+'</td><td>'+badge+'</td></tr>';}).join('');
-return '<div class="tablewrap"><table class="table"><thead><tr><th>اليوم</th><th>الحصة</th><th>الخلية كما لُصقت</th><th>القسم</th><th>المادة</th><th>الحالة</th></tr></thead><tbody>'+rows+'</tbody></table></div>';}
-function tpImportDialog(){openDrawer('📥 استيراد استعمال زمان الأستاذ من الورقة الرسمية','<p class="muted">انسخ جدول «استعمال الوقت» من Excel أو Google Sheets بترويساته والصقه هنا. يُقبل اسم القسم وحده أو المادة مع القسم، مثل: <strong>TCSF 6</strong> أو <strong>الاجتماعيات TCSF 6</strong>. لا يُحفظ شيء قبل المعاينة والتأكيد.</p><textarea id="tpText" dir="ltr" style="width:100%;min-height:170px;font-family:monospace;font-size:12px"></textarea><div class="form two" style="margin-top:8px"><div class="field"><label>عند التطبيق</label><label style="display:flex;gap:6px;align-items:center;font-weight:400;margin-top:6px"><input type="checkbox" id="tpReplace"> استبدال الخلايا المملوءة (افتراضيًا: تعبئة الفراغ فقط)</label></div><div class="field"><label>المادة إذا لم تُذكر في الخلية</label><select id="tpDefSub" style="margin-top:6px"></select></div></div><div id="tpPrev" style="margin-top:10px"></div><div class="actions" style="margin-top:12px"><button class="btn primary" id="tpAnalyze" type="button">🔍 تحليل ومعاينة</button><button class="btn" id="tpGo" type="button" disabled>\u2705 تطبيق الاستيراد</button><button class="btn" id="tpCancel" type="button">إلغاء</button></div>');
-var act='';try{act=(_teacherSubj&&_teacherSubj.activeId)||'';}catch(e){}
-DB.all('subjects').then(function(subs){var sel=$('tpDefSub');if(!sel)return;sel.innerHTML='<option value="">— تُؤخذ من استعمال القسم في نفس التوقيت —</option>'+subs.filter(function(s){return s.status!=='archived';}).map(function(s){return '<option value="'+esc(s.id)+'"'+(s.id===act?' selected':'')+'>'+esc(s.name)+'</option>';}).join('');});
-$('tpCancel').onclick=closeDrawer;
-$('tpAnalyze').onclick=async function(){var res=await tpParse($('tpText').value);
-if(res.err){$('tpPrev').innerHTML='<p class="muted">\u26a0 '+esc(res.err)+'</p>';$('tpGo').disabled=true;_tpRows=null;return;}
-_tpRows=res.rows;var w=res.w;
-var ok=res.rows.filter(function(x){return x.cls&&x.inWeek;}).length,bad=res.rows.filter(function(x){return !x.cls;}).length,off=res.rows.filter(function(x){return !x.inWeek;}).length;
-$('tpPrev').innerHTML='<p style="margin:0 0 8px"><b>النتيجة:</b> '+res.rows.length+' خانة مقروءة — <span style="color:#1B7F79">'+ok+' جاهزة للتطبيق</span>'+(bad?'، <span style="color:#c0392b">'+bad+' غير مفهومة</span>':'')+(off?'، <span style="color:#B8860B">'+off+' خارج أيام الأسبوع المضبوطة</span>':'')+'</p>'+tpRowsTable(res.rows,w)+'<p class="muted" style="font-size:11px">الخلايا غير المفهومة تُتجاهل عند التطبيق؛ عدّلها في النص وأعد التحليل إن أردتها.</p>';
-$('tpGo').disabled=!ok;toast('قُرئ الجدول: '+ok+' خانة جاهزة');};
-$('tpGo').onclick=async function(){if(!_tpRows||!_tpRows.length)return;
-var r=await tpApply(_tpRows,{replace:$('tpReplace').checked,defSub:($('tpDefSub')&&$('tpDefSub').value)||''});
-closeDrawer();toast('استُورد الاستعمال: '+r.put+' خانة'+(r.skip?('، وحُفظت '+r.skip+' خلية مملوءة'):''));await renderGSched();};}
-async function tpApply(list,opt){opt=opt||{};var g=await scGet('teacherSchedules','plan'),cache={},out={put:0,skip:0};
-async function gridOf(cid){if(!cache[cid])cache[cid]=await scGet('schedules',String(cid));return cache[cid];}
-for(var i=0;i<list.length;i++){var x=list[i];if(!x.cls||!x.inWeek)continue;
-var cur=resolveCell((g[x.d]||[])[x.p]);if(!opt.replace&&(cur.classId||cur.subjectId)){out.skip++;continue;}
-var sid=x.sub?String(x.sub.id):'';if(!sid&&opt.defSub)sid=String(opt.defSub);
-if(!sid)sid=classCellSub(((await gridOf(x.cls.id))[x.d]||[])[x.p])||'';
-if(!sid){try{var t=await getTeacherSubjects();sid=t.activeId||'';}catch(e){}}
-g[x.d][x.p]={classId:String(x.cls.id),subjectId:String(sid||''),imp:true};out.put++;}
-await DB.put('teacherSchedules',{id:'plan',days:g,updatedAt:now()});return out;}
-async function tpTemplate(){var w=await scWeek(),classes=await DB.all('classes');
-var head=['\u0627\u0644\u062a\u0648\u0642\u064a\u062a'].concat(w.days.map(function(d){return WEEK_DAYS[d];}));
-var body=[head.join('\t')];for(var p=0;p<w.periods;p++){var row=[scTT(w,p)];for(var q=0;q<w.days.length;q++)row.push('');body.push(row.join('\t'));}
-var txt=body.join('\n');
-openDrawer('📄 نموذج جاهز للتعبئة','<p class="muted">انسخ النموذج وألصقه في Excel، املأ كل خانة باسم القسم (ويمكن إضافة المادة)، ثم انسخ الجدول وعُد إلى «الاستيراد الرسمي» للصقه. الأيام والأوقات مأخوذة من ضبط الأسبوع عندك.</p><textarea id="tpTpl" dir="ltr" readonly style="width:100%;min-height:200px;font-family:monospace;font-size:12px">'+esc(txt)+'</textarea><div class="actions" style="margin-top:10px"><button class="btn primary" id="tpTplCopy" type="button">\u2398 نسخ النموذج</button><button class="btn" id="tpTplDown" type="button">\u2b07 تنزيل CSV</button><button class="btn" id="tpTplClose" type="button">إغلاق</button></div><p class="muted" style="font-size:11px;margin-top:8px">أقسامك المسجّلة: '+esc(classes.map(function(c){return c.name;}).join('، '))+'</p>');
-$('tpTplClose').onclick=closeDrawer;
-$('tpTplCopy').onclick=function(){var ta=$('tpTpl');try{ta.select();ta.setSelectionRange(0,99999);}catch(e){}
-try{navigator.clipboard.writeText(ta.value).then(function(){toast('نُسخ النموذج');},function(){try{document.execCommand('copy');}catch(e){}toast('نُسخ النموذج');});}catch(e){try{document.execCommand('copy');}catch(e2){}toast('نُسخ النموذج');}};
-$('tpTplDown').onclick=function(){var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent('\ufeff'+txt);a.download='sijil-emploi-du-temps.csv';document.body.appendChild(a);a.click();a.remove();};}
-async function tpAudit(){var w=await scWeek(),g=await scGet('teacherSchedules','plan'),t=await getTeacherSubjects();
-var classes=await DB.all('classes'),subs=await DB.all('subjects');
-var sbn={},cbn={};for(var i=0;i<subs.length;i++)sbn[subs[i].id]=subs[i].name;for(var k=0;k<classes.length;k++)cbn[String(classes[k].id)]=classes[k].name;
-var grids={};for(var c=0;c<classes.length;c++){var cid=String(classes[c].id);grids[cid]=await scGet('schedules',cid);}
-function inW(d){return w.days.indexOf(d)>=0;}
-function clsSubSlots(cid){var cg=grids[cid]||[],out=[];for(var d=0;d<7;d++){if(!inW(d))continue;for(var p=0;p<w.periods;p++){var s=classCellSub((cg[d]||[])[p]);if(!s)continue;if(t.ids.length&&t.ids.indexOf(s)<0)continue;out.push({d:d,p:p,sub:s});}}return out;}
-const gf={};function filled(cid){const k=String(cid);if(!(k in gf)){const cg=grids[k]||[];let any=false;for(let d9=0;d9<7&&!any;d9++){const row=cg[d9]||[];for(let p9=0;p9<w.periods;p9++){if(classCellSub(row[p9])){any=true;break;}}}gf[k]=any;}return gf[k];}
-var probs=[],fixes=[],fid=0,planByClass={};
-for(var d=0;d<7;d++)for(var p=0;p<w.periods;p++){var raw=(g[d]||[])[p],r=resolveCell(raw);if(!r.classId&&!r.subjectId)continue;
-if(!r.classId){probs.push('خانة بلا قسم يوم '+WEEK_DAYS[d]+' '+scTT(w,p));continue;}
-var cid2=String(r.classId);(planByClass[cid2]=planByClass[cid2]||[]).push({d:d,p:p,sub:r.subjectId});
-var gs=classCellSub(((grids[cid2]||[])[d]||[])[p]);
-if(t.ids.length&&r.subjectId&&t.ids.indexOf(r.subjectId)<0)probs.push((cbn[cid2]||cid2)+' '+WEEK_DAYS[d]+' '+scTT(w,p)+': المادة ليست من موادك المسجّلة ('+(sbn[r.subjectId]||r.subjectId)+')');
-if(!gs&&filled(cid2))probs.push((cbn[cid2]||cid2)+' '+WEEK_DAYS[d]+' '+scTT(w,p)+': لا حصة لهذا القسم هنا في استعمال القسم');
-else if(gs&&r.subjectId&&gs!==r.subjectId)probs.push((cbn[cid2]||cid2)+' '+WEEK_DAYS[d]+' '+scTT(w,p)+': عندك '+(sbn[r.subjectId]||'?')+' وفي استعمال القسم '+(sbn[gs]||'?'));}
-function empt(d,p){var r=resolveCell((g[d]||[])[p]);return !r.classId&&!r.subjectId;}
-for(var e=0;e<classes.length;e++){var cid3=String(classes[e].id),need=clsSubSlots(cid3),have=(planByClass[cid3]||[]).length;
-if(t.ids.length&&need.length>have){probs.push(classes[e].name+': استعمال القسم يعطي '+need.length+' حصة من موادك وفي استعمالك '+have+' — ناقص '+(need.length-have));
-for(var q=0;q<need.length;q++){var nd=need[q];if(!empt(nd.d,nd.p))continue;
-fixes.push({id:++fid,op:'add',d:nd.d,p:nd.p,cid:cid3,sub:nd.sub,txt:classes[e].name+' — '+(sbn[nd.sub]||nd.sub)+' — '+WEEK_DAYS[nd.d]+' '+scTT(w,nd.p)});break;}}}
-for(var d4=0;d4<7;d4++){if(!inW(d4))continue;var arr=[];for(var p4=0;p4<w.periods;p4++)arr.push(!!resolveCell((g[d4]||[])[p4]).classId);
-var first=arr.indexOf(true),last=-1;for(var z=0;z<arr.length;z++)if(arr[z])last=z;
-if(first<0){probs.push('يوم '+WEEK_DAYS[d4]+': بلا أي حصة');continue;}
-for(var p5=first+1;p5<last;p5++)if(!arr[p5])probs.push('ساعة فراغ يوم '+WEEK_DAYS[d4]+' على '+scTT(w,p5));}
-var noGrid=[];for(var c6=0;c6<classes.length;c6++){var cid6=String(classes[c6].id);if(!clsSubSlots(cid6).length)noGrid.push(classes[c6].name);}
-if(noGrid.length)probs.push('أقسام بلا حصص من موادك في استعمالات الأقسام ('+noGrid.length+'): '+noGrid.slice(0,6).join('، ')+(noGrid.length>6?' …':'')+' — لا يمكن اشتقاقها تلقائيًا؛ استعمل الاستيراد من الورقة الرسمية');
-var html='<p class="muted">التدقيق لا يغيّر شيئًا. الإصلاحات المقترحة تُشتق من استعمالات الأقسام نفسها، ولا يُمسّ أي خلية مملوءة، ولا تُطبَّق إلا البنود المعلَّمة بعد تأكيدك.</p>';
-html+='<ul class="list">'+(probs.length?probs.slice(0,26).map(function(x){return '<li>'+esc(x)+'</li>';}).join(''):'<li>لا ملاحظات: استعمالك يطابق استعمالات الأقسام ولا ساعة فراغ معزولة.</li>')+(probs.length>26?'<li>…و'+(probs.length-26)+' ملاحظة أخرى</li>':'')+'</ul>';
-html+='<p class="muted">موادك المسجّلة: '+(t.ids.length?esc(t.ids.map(function(s){return sbn[s]||s;}).join('، ')):'غير محددة — حدّدها من بطاقة «مواد المعلم» كي يكون التدقيق دقيقًا')+'</p>';
-if(!fixes.length)html+='<p class="muted">لا حركة تقترح الآن: إما أن استعمالك مطابق، أو أن استعمالات الأقسام ليست مكمّلة. الأكمل: استيراد ورقتك الرسمية.</p>';
-else html+='<div class="section-title"><h3>إصلاحات مقترحة ('+fixes.length+')</h3></div><div class="tablewrap"><table class="table"><thead><tr><th></th><th>إضافة حصة</th></tr></thead><tbody>'+fixes.map(function(x){return '<tr><td><input type="checkbox" class="tpfx" value="'+x.id+'" checked></td><td>\u2795 '+esc(x.txt)+'</td></tr>';}).join('')+'</tbody></table></div>';
-html+='<div class="actions" style="margin-top:12px">'+(fixes.length?'<button class="btn primary" id="tpFixGo" type="button">\u2705 تطبيق المحدد</button>':'')+'<button class="btn" id="tpAuditClose" type="button">إغلاق</button></div>';
-_tpFx=fixes;openDrawer('🔎 تدقيق استعمال زمان الأستاذ',html);
-$('tpAuditClose').onclick=closeDrawer;
-if($('tpFixGo'))$('tpFixGo').onclick=async function(){var ids=[].slice.call(document.querySelectorAll('.tpfx')).filter(function(c){return c.checked;}).map(function(c){return parseInt(c.value,10);});
-var gg=await scGet('teacherSchedules','plan'),done=0,sk=0;
-for(var i=0;i<_tpFx.length;i++){var x=_tpFx[i];if(ids.indexOf(x.id)<0)continue;var r=resolveCell((gg[x.d]||[])[x.p]);if(r.classId||r.subjectId){sk++;continue;}
-gg[x.d][x.p]={classId:String(x.cid),subjectId:String(x.sub)};done++;}
-await DB.put('teacherSchedules',{id:'plan',days:gg,updatedAt:now()});closeDrawer();
-toast(done?('أُضيفت '+done+' حصة'+(sk?('، وتُجوف '+sk+' لتعارض'):'')):'لم يُطبَّق شيء');await renderGSched();};}
-async function renderGenPanel(w){const el=$('genPanel');if(!el)return;w=w||await scWeek();if(!_genCfg||_genCfg.key!==(SCN.classes||[]).map(c=>c.id).join(','))_genCfg=genCfgFresh();const c=_genCfg;const cls=SCN.classes||[];let h='';
-h+='<p class="muted" style="margin-bottom:10px">يُعاد بناء استعمال زمان الأستاذ <b>تلقائيًا من استعمالات الأقسام</b>: كل حصة تدرّسها في قسم مشمول تُنسخ إلى مكانها في استعمالك مع تفادي التعارض (لا حصتان في نفس الفترة). الحصص المولدة تُوسم بـ⚡، وما تعدّله يدويًا يُصان إلا إذا اخترت غير ذلك.</p>';
-h+='<div class="field" style="margin:6px 0"><label>🚫 أيام مقيّدة (تُستثنى من التوليد)</label><div>'+WEEK_DAYS.map((n,i)=>w.days.indexOf(i)>=0?'<label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="checkbox" class="genblkD" value="'+i+'"'+(c.blkD.indexOf(i)>=0?' checked':'')+'> '+n+'</label>':'').join('')+'</div></div>';
-h+='<div class="field" style="margin:6px 0"><label>🚫 فترات (ساعات) مقيّدة</label><div>';for(let i=0;i<w.periods;i++){h+='<label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="checkbox" class="genblkP" value="'+i+'"'+(c.blkP.indexOf(i)>=0?' checked':'')+'> الفترة '+(i+1)+' ('+scTT(w,i)+')</label>';}h+='</div></div>';
-h+='<div class="field" style="margin:6px 0"><label>🏫 الأقسام المشمولة</label><div>'+cls.map(cl=>'<label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="checkbox" class="gencls" value="'+esc(String(cl.id))+'"'+(c.cls.indexOf(String(cl.id))>=0?' checked':'')+'> '+esc(cl.name)+'</label>').join('')+'</div><div style="display:flex;gap:8px;margin-top:4px"><button class="btn" id="genAllCls" style="padding:4px 10px;font-size:12px">كل الأقسام</button><button class="btn" id="genNoCls" style="padding:4px 10px;font-size:12px">بدون أي قسم</button></div></div>';
-h+='<div class="field" style="margin:6px 0"><label>نطاق إعادة الإنتاج</label><div><label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="radio" name="genmode" value="full"'+(c.mode==='full'?' checked':'')+'> توليد كامل — إعادة بناء الاستعمال كله من الأقسام المختارة</label><label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="radio" name="genmode" value="part"'+(c.mode==='part'?' checked':'')+'> تعديل جزئي — الأقسام المختارة فقط تُستبدل وباقي الاستعمال لا يُمسّ</label></div></div>';
-h+='<div class="field" style="margin:6px 0"><label>خيارات</label><div><label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="checkbox" id="genKeep"'+(c.keepManual?' checked':'')+'> 🛡️ صون الخلايا اليدوية في التوليد الكامل</label><label style="display:inline-flex;align-items:center;gap:4px;margin:4px 12px 4px 0;font-weight:400"><input type="checkbox" id="genRe"'+(c.reassign?' checked':'')+'> 🔁 حل تلقائي للتعارض: نقل الحصة إلى أقرب فتحة فارغة</label></div></div>';
-h+='<div class="actions"><button class="btn primary" id="genRun">⚡ إعادة الإنتاج التلقائي الآن</button></div>';
-h+='<div id="genReport" style="margin-top:10px">'+(c.report||'')+'</div>';
-el.innerHTML=h;
-el.onchange=syncGenCfg;
-$('genAllCls').onclick=()=>{el.querySelectorAll('.gencls').forEach(x=>{x.checked=true;});syncGenCfg();};
-$('genNoCls').onclick=()=>{el.querySelectorAll('.gencls').forEach(x=>{x.checked=false;});syncGenCfg();};
-$('genRun').onclick=genTeacherPlan;tpWire();}
-async function genTeacherPlan(){const el=$('genPanel');if(!el)return;syncGenCfg();const c=_genCfg;const w=await scWeek();const t=await getTeacherSubjects();const allIds=(SCN.classes||[]).map(x=>String(x.id));const regen=allIds.filter(id=>c.cls.indexOf(id)>=0);if(!regen.length)return toast('اختر قسمًا واحدًا على الأقل للتوليد');
-const g=await scGet('teacherSchedules','plan');
-const inWeek=d=>w.days.indexOf(d)>=0;
-const blocked=(d,p)=>c.blkD.indexOf(d)>=0||c.blkP.indexOf(p)>=0;
-let preN=0;
-for(let d=0;d<7;d++)for(let p=0;p<w.periods;p++){const raw=g[d][p];const r=resolveCell(raw);if(!(r.classId||r.subjectId)){g[d][p]='';continue;}const isRegen=r.classId&&regen.indexOf(String(r.classId))>=0;let clear;if(!isRegen)clear=false;else if(cellAuto(raw))clear=true;else clear=(c.mode==='part')||!c.keepManual;if(clear){if(isRegen)preN++;g[d][p]='';}}
-const cands=[];for(const cid of allIds){if(regen.indexOf(cid)<0)continue;const cg=await scGet('schedules',cid);for(let d=0;d<7;d++){if(!inWeek(d))continue;for(let p=0;p<w.periods;p++){const sub=classCellSub((cg[d]||[])[p]);if(!sub)continue;if(t.ids.length&&t.ids.indexOf(sub)<0)continue;cands.push({cid:cid,sub:sub,d:d,p:p});}}}
-const occ=x=>{const r=resolveCell(x);return !!(r.classId||r.subjectId);};
-const slots=[];for(let d=0;d<7;d++){if(!inWeek(d))continue;for(let p=0;p<w.periods;p++)slots.push([d,p]);}
-const unplaced=[];let placed=0,relocated=0;const perCls={};
-if(!cands.length){c.report='<p class="muted">لم يُعثر على أي حصة في استعمالات الأقسام المختارة — املأ أولاً «استعمال الأقسام» لكل قسم وحدّد موادك، ثم أعد التوليد. استعمل الأستاذ الحالي لم يُمسّ.</p>';toast('لا توجد حصص في الأقسام المختارة — الاستعمال لم يتغيّر');await renderGSched();return;}
-for(const k of cands){let at=null;
-if(!blocked(k.d,k.p)&&!occ(g[k.d][k.p]))at=[k.d,k.p];
-else if(c.reassign&&!blocked(k.d,k.p)){const si=slots.findIndex(s=>s[0]===k.d&&s[1]===k.p);for(let off=1;si>=0&&off<slots.length;off++){const s=slots[(si+off)%slots.length];if(!blocked(s[0],s[1])&&!occ(g[s[0]][s[1]])){at=s;break;}}}
-if(at){g[at[0]][at[1]]={classId:k.cid,subjectId:k.sub,auto:true};placed++;if(at[0]!==k.d||at[1]!==k.p)relocated++;perCls[k.cid]=(perCls[k.cid]||0)+1;}
-else unplaced.push({cid:k.cid,sub:k.sub,d:k.d,p:k.p,why:blocked(k.d,k.p)?'يوم/فترة مقيّدة':(c.reassign?'لا توجد أي فتحة فارغة':'تعارض مع حصة أخرى')});}
-await DB.put('teacherSchedules',{id:'plan',days:g,updatedAt:now()});
-const clm=SCN.clsMap||{},sbj=SCN.subjMap||{};
-const freeSlots=[];for(const s of slots){if(!blocked(s[0],s[1])&&!occ(g[s[0]][s[1]]))freeSlots.push(WEEK_DAYS[s[0]]+' '+scTT(w,s[1]));}
-let rep2='<div style="border:1px solid var(--l);border-radius:10px;padding:10px 12px;background:rgba(27,127,121,.05)">';
-rep2+='<p style="margin:0 0 6px"><b>✅ نتيجــة التوليد:</b> '+placed+' حصة موضوعة'+(relocated?(' ('+relocated+' انتقلت تلقائيًا لأقرب فتحة)'):'')+' — حسب الأقسام: '+(regen.map(id=>esc(clm[id]||id)+' ('+(perCls[id]||0)+')').join('، ')||'—')+'</p>';
-rep2+=unplaced.length?('<p style="margin:0 0 4px"><b>⚠️ حصص لم تُوضع ('+unplaced.length+'):</b></p><div class="tablewrap"><table class="table"><thead><tr><th>القسم</th><th>المادة</th><th>مكانها الأصلي</th><th>السبب</th></tr></thead><tbody>'+unplaced.map(u=>'<tr><td>'+esc(clm[u.cid]||'—')+'</td><td>'+esc(sbj[u.sub]||u.sub)+'</td><td>'+WEEK_DAYS[u.d]+' '+scTT(w,u.p)+'</td><td>'+esc(u.why)+'</td></tr>').join('')+'</tbody></table></div>'):'<p style="margin:0">كل حصص الأقسام المختارة وُضعت دون تعذر.</p>';
-if(freeSlots.length)rep2+='<p class="muted" style="margin:6px 0 0">فتحات تبقى فارغة عندك ('+freeSlots.length+'): '+esc(freeSlots.slice(0,10).join('، '))+(freeSlots.length>10?' …':'')+' — يمكنك استغلالها لدعم أو تعديل يدوي.</p>';
-if(preN>placed)rep2+='<p class="muted" style="margin:6px 0 0;color:#B8860B">كان في استعمالك لهذه الأقسام '+preN+' حصة ووضع المُولّد '+placed+' فقط — استعمالات الأقسام أنقص من شحنتك الحقيقية، لذلك لا يعتمد عليها وحدها. الأدق: «📥 استيراد الورقة الرسمية» ثم «🔎 التدقيق».</p>';
-if(!t.ids.length)rep2+='<p class="muted" style="margin:6px 0 0">لم تُحدَّد موادك الخاصة، لذلك اعتُبرت كل حصص الأقسام المختارة حصصًا لك؛ حدّد موادك من «المواد» لو أردت توليدًا مقتصرًا على ما تدرّسه أنت.</p>';
-rep2+='</div>';
-c.report=rep2;
-toast('أُعيد إنتاج استعمال زمان الأستاذ: '+placed+' حصة'+(unplaced.length?('، '+unplaced.length+' متعذرة'):''));
-await renderGSched();try{renderTrack();}catch(e){}}
 async function renderCSched(){const cs=$('csClass');if(!cs)return;const cid=cs.value;if(!cid){$('csGrid').innerHTML='<p class="muted">اختر قسمًا أولاً لعرض استعماله.</p>';return;}const w=await scWeek();const classSubjects=await classCurriculumSubjects(cid);const opts=[{v:'',l:'— لا حصة'}].concat(classSubjects.map(s=>({v:s.id,l:s.name})));const g=await scGet('schedules',cid);let rows='';for(let p=0;p<w.periods;p++){rows+='<tr><td>'+scTT(w,p)+'</td>';for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;rows+='<td>'+scCell('cz',d,p,(g[d]||[])[p],opts)+'</td>';}rows+='</tr>';}$('csGrid').innerHTML='<div class="tablewrap" style="overflow-x:auto"><table class="table sgrid"><thead>'+scGridHead(w,'<tr><th>التوقيت</th>')+'</tr></thead><tbody>'+rows+'</tbody></table></div>';const cnt=w.days.reduce((n,d)=>n+(g[d]||[]).slice(0,w.periods).filter(v=>v).length,0);$('csSum').textContent='عدد الحصص الأسبوعية لـ '+esc((SCN.clsMap||{})[cid]||'القسم')+': '+cnt;if($('csSave'))$('csSave').onclick=saveCSched;}
 async function saveCSched(){const w=await scWeek();const cid=$('csClass').value;if(!cid)return;const g=scEmpty();for(let d=0;d<7;d++)for(let p=0;p<w.periods;p++){if(w.days.indexOf(d)<0)continue;const el=$('cz_'+d+'_'+p);if(el)g[d][p]=el.value;}await DB.put('schedules',{id:String(cid),classId:String(cid),days:g,updatedAt:now()});toast('حُفظ استعمال زمان القسم');renderCSched();}
 function nextDayDate(targetDay){const t=new Date(today()+'T00:00:00');let diff=targetDay-t.getDay();if(diff<=0)diff+=7;t.setDate(t.getDate()+diff);return t.toISOString().slice(0,10);}
 async function renderTrack(){const dateEl=$('trDate');if(!dateEl)return;if(!dateEl.value)dateEl.value=today();const date=dateEl.value;const w=await scWeek();const day=new Date(date+'T00:00:00').getDay();const g=await scGet('teacherSchedules','plan');const sessions=await DB.all('scheduleSessions');const sbj=SCN.subjMap||{},clm=SCN.clsMap||{};const curMap={};sessions.forEach(s=>{if(s.date===date&&(s.status==='done'||s.status==='missed'))curMap[s.period]=s;});let rows='';let cnt=0,frees=0;for(let p=0;p<w.periods;p++){const ex=curMap[p];const pl=ex&&ex.plan&&ex.plan.length?ex.plan:null;const plC=ex&&ex.planClass&&ex.planClass.length?ex.planClass:null;const cell=resolveCell((g[day]||[])[p]);const cid=cell.classId||(plC&&plC[p])||'';const sub=cell.subjectId||(pl&&pl[p])||'';if(!cid&&!sub){frees++;rows+='<tr><td>'+scTT(w,p)+'</td><td colspan="2"><span class="muted">فراغ</span></td><td class="muted">—</td><td class="muted">—</td></tr>';continue;}cnt++;const locked=ex&&pl?' <span class="muted" title="مثبّت: تبقى هذه الحصة على ما سُجِّل ولو تغيّر الاستعمال لاحقاً">🔒</span>':'';rows+='<tr><td>'+scTT(w,p)+'</td><td>'+esc(clm[cid]||'—')+'</td><td>'+esc(sub?sbj[sub]||'—':'—')+locked+'</td><td><select class="slc tzstat" data-cls="'+esc(cid)+'" data-sub="'+esc(sub)+'" id="tz_'+p+'" style="width:100%;padding:6px;border:1px solid var(--l);border-radius:6px;"><option value="">—</option><option value="done"'+(ex&&ex.status==='done'?' selected':'')+'>منجزة</option><option value="missed"'+(ex&&ex.status==='missed'?' selected':'')+'>غير منجزة</option></select></td><td><input id="tzn_'+p+'" class="tznote" placeholder="سبب إن لم تُنجز" value="'+esc((ex&&ex.note)||'')+'" style="width:100%;padding:6px;border:1px solid var(--l);border-radius:6px;"></td></tr>';}$('trRows').innerHTML=rows.length?rows:'<tr><td colspan="5">لا توجد حصص للأستاذ هذا اليوم</td></tr>';$('trSum').textContent='يوم '+WEEK_DAYS[day]+' ('+date+'): '+cnt+' حصة للأستاذ'+(frees?' و'+frees+' فترة فراغ':'');}
 async function saveTrack(){const date=$('trDate').value;if(!date)return toast('اختر التاريخ');const w=await scWeek(),day=new Date(date+'T00:00:00').getDay();const g=await scGet('teacherSchedules','plan');const plan=[],planClass=[];for(let i=0;i<w.periods;i++){const cell=resolveCell((g[day]||[])[i]);plan[i]=cell.subjectId||'';planClass[i]=cell.classId||'';}const els=document.querySelectorAll('.tzstat');let n=0;for(const el of els){const p=parseInt(el.id.split('_')[1],10);const st=el.value;if(!st)continue;const cid=el.dataset.cls,sub=el.dataset.sub;if(!cid&&!sub)continue;const note=($('tzn_'+p)||{value:''}).value||'';const id='ss_'+cid+'_'+date+'_'+p;const old=await DB.get('scheduleSessions',id);await DB.put('scheduleSessions',{id,classId:cid,date,day,period:p,subjectId:sub,status:st,note,plan:plan.slice(),planClass:planClass.slice(),createdAt:old?old.createdAt:now(),updatedAt:now()});n++;}if(n)toast('سُجِّل تتبع '+n+' حصة من استعمال الأستاذ ومُثبِّت');else toast('لم تُحدَّث أي حصة');renderTrack();renderSessions();renderSugg();}
 async function renderSessions(){const sessions=await DB.all('scheduleSessions');$('slDone').textContent=sessions.filter(s=>s.status==='done').length;$('slMissed').textContent=sessions.filter(s=>s.status==='missed').length;$('slCatch').textContent=sessions.filter(s=>s.status==='catchup').length;$('slSupp').textContent=sessions.filter(s=>s.status==='support').length;const f=$('slFilter')?$('slFilter').value:'';const list=sessions.filter(s=>!f||s.classId===f).sort((a,b)=>(b.date||'').localeCompare(a.date||''));const sbj=SCN.subjMap||{},clm=SCN.clsMap||{};const w=await scWeek();const stl={done:'<span class="pass">منجزة</span>',missed:'<span class="fail">غير منجزة</span>',catchup:'<span style="color:var(--w)">تعويض</span>',support:'<span style="color:var(--s)">دعم</span>'};$('slLog').innerHTML=list.length?list.map(s=>'<tr><td>'+esc(clm[s.classId]||'—')+'</td><td>'+esc(s.date||'—')+'</td><td>'+WEEK_DAYS[s.day||0]+'</td><td>'+scTT(w,s.period)+'</td><td>'+esc(sbj[s.subjectId]||'—')+'</td><td>'+(stl[s.status]||esc(s.status||'—'))+'</td><td>'+esc(s.note||'—')+'</td><td><button class="btn" data-edit-sls="'+esc(s.id)+'">تعديل</button> <button class="btn danger" data-del-sls="'+esc(s.id)+'">حذف</button></td></tr>').join(''):'<tr><td colspan="8">لا توجد حصص مسجلة</td></tr>';document.querySelectorAll('[data-edit-sls]').forEach(b=>b.onclick=editSession);document.querySelectorAll('[data-del-sls]').forEach(b=>b.onclick=async()=>{const rec=await DB.get('scheduleSessions',b.dataset.delSls);if(rec&&rec.status==='catchup'&&!rec.compensated){const mid=linkedMissedId(rec);if(mid){const m=await DB.get('scheduleSessions',mid);if(m&&m.compensated)await DB.put('scheduleSessions',{...m,compensated:false,updatedAt:now()});}}await DB.remove('scheduleSessions',b.dataset.delSls);renderSessions();renderSugg();renderCCatch();toast('حُذفت الحصة');});}
-async function renderSugg(){const [sessions,g]=await Promise.all([DB.all('scheduleSessions'),scGet('teacherSchedules','plan')]);const w=await scWeek();const missed=sessions.filter(s=>s.status==='missed'&&!s.compensated);const sbj=SCN.subjMap||{},clm=SCN.clsMap||{};const classScheds={};for(const cid of (SCN.classes||[]).map(c=>c.id)){classScheds[cid]=await scGet('schedules',cid);}let missRows='';for(const m of missed){const candidates=[];for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;for(let p=0;p<w.periods;p++){const cg=(classScheds[m.classId]||[])[d]||[];const tCell=resolveCell((g[d]||[])[p]);if((cg[p])||(tCell.subjectId||tCell.classId))continue;candidates.push([d,p]);}}const candHtml=candidates.slice(0,6).map(c=>'<button class="btn" data-catch="'+esc(m.classId)+'|'+c[0]+'|'+c[1]+'|'+esc(m.id)+'|'+esc(m.subjectId)+'">'+WEEK_DAYS[c[0]]+' '+scTT(w,c[1])+'</button>').join(' ')||'<span class="muted">لا توجد فتحة ملائمة</span>';missRows+='<tr><td>'+esc(clm[m.classId]||'—')+'</td><td>'+esc(sbj[m.subjectId]||'—')+'</td><td>'+esc(m.date)+'<br><small class="muted">'+WEEK_DAYS[m.day||0]+' '+scTT(w,m.period)+'</small></td><td>'+candHtml+'</td></tr>';}$('sgMissed').innerHTML=missed.length?'<div class="tablewrap"><table class="table"><thead><tr><th>القسم</th><th>المادة</th><th>الحصة الناقصة</th><th>فتحات التعويض (حسب استعمال الأستاذ)</th></tr></thead><tbody>'+missRows+'</tbody></table></div>':'<p class="pass">لا توجد حصص غير منجزة بانتظار التعويض.</p>';document.querySelectorAll('[data-catch]').forEach(b=>b.onclick=catchLesson);}
+async function renderSugg(){const [sessions,g]=await Promise.all([DB.all('scheduleSessions'),scGet('teacherSchedules','plan')]);const w=await scWeek();const missed=sessions.filter(s=>s.status==='missed'&&!s.compensated);const sbj=SCN.subjMap||{},clm=SCN.clsMap||{};const classScheds={};for(const cid of (SCN.classes||[]).map(c=>c.id)){classScheds[cid]=await scGet('schedules',cid);}let missRows='';for(const m of missed){const candidates=[];for(let d=0;d<7;d++){if(w.days.indexOf(d)<0)continue;for(let p=0;p<w.periods;p++){const cg=(classScheds[m.classId]||[])[d]||[];const tCell=resolveCell((g[d]||[])[p]);if((cg[p])||(tCell.subjectId||tCell.classId)||cellOff((g[d]||[])[p]))continue;candidates.push([d,p]);}}const pick=[];const perDay={};for(const c of candidates){if((perDay[c[0]]||0)>=2)continue;perDay[c[0]]=(perDay[c[0]]||0)+1;pick.push(c);if(pick.length>=8)break;}
+const candHtml=pick.map(c=>'<button class="btn" data-catch="'+esc(m.classId)+'|'+c[0]+'|'+c[1]+'|'+esc(m.id)+'|'+esc(m.subjectId)+'">'+WEEK_DAYS[c[0]]+' '+scTT(w,c[1])+'</button>').join(' ')||'<span class="muted">لا توجد فتحة ملائمة</span>';missRows+='<tr><td>'+esc(clm[m.classId]||'—')+'</td><td>'+esc(sbj[m.subjectId]||'—')+'</td><td>'+esc(m.date)+'<br><small class="muted">'+WEEK_DAYS[m.day||0]+' '+scTT(w,m.period)+'</small></td><td>'+candHtml+'</td></tr>';}$('sgMissed').innerHTML=missed.length?'<div class="tablewrap"><table class="table"><thead><tr><th>القسم</th><th>المادة</th><th>الحصة الناقصة</th><th>فتحات التعويض (حسب استعمال الأستاذ)</th></tr></thead><tbody>'+missRows+'</tbody></table></div>':'<p class="pass">لا توجد حصص غير منجزة بانتظار التعويض.</p>';document.querySelectorAll('[data-catch]').forEach(b=>b.onclick=catchLesson);}
 let editSlsId='';let editSlsOld=null;
 function linkedMissedId(rec){if(!rec||!rec.note)return '';const i=rec.note.indexOf('تعويض عن ');return i>=0?rec.note.slice(i+'تعويض عن '.length):'';}
 async function fillElSubjects(cid,preferSid){const el=$('elSubject');if(!el)return;let subs=[];try{subs=await getClassScopeSubjects(cid,SCN.subjects||[]);}catch(e){subs=[];}if(!subs||!subs.length)subs=SCN.subjects||[];const cur=(preferSid&&subs.some(s=>s.id===preferSid))?preferSid:(subs[0]?subs[0].id:'');el.innerHTML='<option value="">— اختيار المادة</option>'+subs.map(s=>'<option value="'+esc(s.id)+'"'+(cur===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join('');}
@@ -5498,6 +5430,32 @@ html[data-design="glass2"] .lock-screen .lock-card .field input:focus{border-col
 html[data-layout="smart"] .page.active>.sec-group:has(#homeAlerts){grid-column:1/-1}
 .table .lg-head td{background:linear-gradient(90deg,rgba(79,124,255,.17),rgba(79,124,255,.02));font-weight:800;font-size:13px;padding:8px 10px;border-top:2px solid var(--l)}
 .table .lg-head .lv{font-weight:600;opacity:.85;font-size:12px}
+
+/* ==== لوحة استعمال زمان الأستاذ (المرحلة 9) ==== */
+.tbGrid{table-layout:auto}
+.tbGrid .tb-time{width:1%;white-space:nowrap;font-size:11px;text-align:center;background:rgba(79,124,255,.07)}
+.tbGrid .tb-td{min-width:106px;width:16%;padding:4px;vertical-align:top;cursor:pointer}
+.tbGrid .tb-td:hover{background:rgba(27,127,121,.08)}
+.tbGrid .tb-lesson{display:flex;flex-direction:column;gap:2px;padding:6px 7px;border-radius:9px;background:rgba(27,127,121,.14);border:1px solid rgba(27,127,121,.42);min-height:44px}
+.tbGrid .tb-lesson b{font-size:12px;line-height:1.25}
+.tbGrid .tb-lesson span{font-size:11px;opacity:.82;line-height:1.2}
+.tbGrid .tb-lesson em{font-size:9.5px;font-style:normal;color:var(--w);line-height:1.2}
+.tbGrid .tb-lesson.tb-conf{background:rgba(200,120,30,.16);border-color:rgba(200,120,30,.5)}
+.tbGrid .tb-lesson.tb-want{background:rgba(220,150,20,.2);border-color:#C8861E;border-style:dashed}
+.tbGrid .tb-lesson.tb-sel{outline:3px solid var(--a);outline-offset:1px}
+.tbGrid .tb-empty{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:9px;border:1px dashed var(--l);color:#8a94a6;font-size:15px}
+.tbGrid .tb-empty.tb-cand{border:2px dashed #1B7F79;background:rgba(27,127,121,.12);color:#1B7F79;font-weight:800;animation:tbPulse 1.4s ease-in-out infinite}
+@keyframes tbPulse{0%,100%{opacity:.6}50%{opacity:1}}
+.tbGrid .tb-off{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:9px;background:repeating-linear-gradient(45deg,rgba(200,60,60,.12),rgba(200,60,60,.12) 6px,transparent 6px,transparent 12px);font-size:14px}
+.tbGrid .tb-part td{background:rgba(79,124,255,.10);font-size:10.5px;font-weight:700;text-align:center;padding:3px}
+.tbGrid .tb-edit{display:flex;flex-direction:column;gap:4px}
+.tbGrid .tb-edit select{width:100%;max-width:170px;padding:4px;border:1px solid var(--l);border-radius:6px;font-size:11px}
+.tbGrid .tb-editbtns{display:flex;gap:4px}
+.tbGrid .tb-editbtns .btn{padding:2px 8px;font-size:10.5px}
+.tbmodes{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.tbmode{padding:8px 14px;border-radius:10px;border:1px solid var(--l);background:transparent;font-weight:700;font-size:13px;cursor:pointer;color:inherit}
+.tbmode.active{background:var(--a,#4f7cff);color:#fff;border-color:var(--a,#4f7cff)}
+@media(max-width:800px){.tbGrid .tb-td{min-width:86px;padding:3px}.tbGrid .tb-lesson{min-height:38px;padding:5px}.tbGrid .tb-lesson b{font-size:11px}.tbGrid .tb-lesson span{font-size:10px}.tbmode{padding:6px 10px;font-size:12px}}
 html[data-layout="smart"] #schedule.page.active>.sec-group:has(#gsGrid){grid-column:1/-1}
 html[data-layout="smart"] #schedule.page.active>.sec-group:has(#csGrid){grid-column:1/-1}
 html[data-layout="smart"] .page.active>.sec-group{min-width:0}
