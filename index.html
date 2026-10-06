@@ -3967,6 +3967,25 @@ async function portalRevokeQuiet(){
     return {ok:ok,swept:swept,warn:warn};
   }catch(e){return {ok:false,swept:0,warn:''};}
 }
+function proxyWhy(addr){return'الحاسب يمرّ عبر خادم وسيط (Proxy)'+(addr?(' «'+addr+'»'):'')+' لا يعمل — أوقفه من: إعدادات Windows ← الشبكة ← وكيل، ثم أعد النشر';}
+async function cloudWhy(e,c){
+  const m=String((e&&e.message)||e||'');
+  if(/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY_CONNECTION_FAILED/i.test(m))return proxyWhy('');
+  if(/ERR_INTERNET_DISCONNECTED|ERR_NETWORK_CHANGED|ERR_NETWORK_UNREACHABLE/i.test(m))return'لا يوجد اتصال بالإنترنت';
+  if(/ERR_NAME_NOT_RESOLVED|ERR_ADDRESS_UNREACHABLE/i.test(m))return'عنوان المشروع غير صحيح أو لا يمكن الوصول إليه';
+  if(/ERR_CERT|ERR_SSL/i.test(m))return'مشكلة في شهادة HTTPS لدى المشروع';
+  if(/ERR_BLOCKED_BY_CLIENT|ERR_CONNECTION/i.test(m))return'الاتصال مرفوض من الشبكة — تحقّق من الرابط والمفتاح';
+  /* متصفح/تطبيق الهاتف لا يحملان رمز الخطأ في نصه: اسأل الغلاف عن مسار الشبكة الفعلي */
+  try{
+    if(window.sijilAPI&&typeof sijilAPI.netDiag==='function'){
+      const d=await sijilAPI.netDiag((c&&c.url)||'https://api.github.com');
+      const p=String((d&&d.proxy)||'');
+      if(/^PROXY/i.test(p))return proxyWhy(p.replace(/^PROXY\s*/i,''));
+      if(/^DIRECT/i.test(p)&&/failed to fetch|networkerror|load failed|fetch failed/i.test(m))return'تعذّر الوصول إلى رابط المشروع — راجع الرابط والمفتاح (URL/Key) في بطاقة السحابة';
+    }
+  }catch(e2){}
+  return m?('خطأ: '+m.slice(0,70)):'خطأ غير معروف';
+}
 async function cloudPublish(data){
   const c=await loadCloud();
   if(!c.url||!c.key||!c.inst){toast('أكمل إعدادات السحابة أولاً');return{ok:false}}
@@ -4009,7 +4028,7 @@ async function cloudPublish(data){
     }
     else{const txt=(await r.text().catch(()=>''))||'';let msg='';try{const j=JSON.parse(txt);msg=j.message||j.error||'';}catch(e){msg=txt.slice(0,120);}if(st)st.textContent='فشل النشر ('+r.status+')';toast('فشل النشر '+r.status+(msg?(' — '+msg):''));}
     return{ok:ok,swept:swept,warn:warn};
-  }catch(e){if(st)st.textContent='خطأ في الاتصال بالسحابة';toast('تعذّر الاتصال بالسحابة');return{ok:false}}
+  }catch(e){const why=await cloudWhy(e,c);if(st)st.textContent='تعذّر الاتصال بالسحابة: '+why;toast('تعذّر الاتصال بالسحابة: '+why);return{ok:false}}
 }
 async function portalToggleCodes(){
   const el=$('portalCs');if(!el)return;
