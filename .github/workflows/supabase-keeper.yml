@@ -1,0 +1,52 @@
+name: Supabase Keeper — إبقاء مشروع السحابة نشطًا
+
+# الخطة المجانية في Supabase توقف المشروع بعد ~7 أيام بلا نشاط، فيتوقف بوابة
+# «مواكبتي» ويعطي التطبيق رسالة «تعذّر الاتصال بالسحابة». هذا السير يعمل كل 4 أيام
+# ويرسل طلبًا خفيفًا إلى جدول portal_students فيبقي المشروع نشطًا.
+
+on:
+  schedule:
+    - cron: '17 19 */4 * *'
+  workflow_dispatch: {}
+
+permissions: {}
+
+jobs:
+  ping:
+    name: طلب keep-alive إلى جدول البوابة
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Activity ping
+        env:
+          SB_URL: https://gnsfnqmnezmwxjkccpvp.supabase.co
+          SB_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -u
+          OUT=$(mktemp)
+          if [ -z "${SB_KEY:-}" ]; then
+            echo "::notice::لم يُضبط سرّ SUPABASE_ANON_KEY بعد — لا يمكن إرسال طلب موثّق."
+            exit 0
+          fi
+          code=$(curl -s -o "$OUT" -w '%{http_code}' -m 30 \
+            -H "apikey: ${SB_KEY}" -H "Authorization: Bearer ${SB_KEY}" \
+            "${SB_URL}/rest/v1/portal_students?select=rowkey&limit=1")
+          echo "HTTP $code"
+          case "$code" in
+            200|206)
+              echo "تم: المشروع نشط وسُجّل الطلب ك activity."
+              ;;
+            000)
+              echo "::notice::لا يمكن حلّ عنوان المشروع — هو موقوف (Paused) على الأرجح. استأنفه من لوحة Supabase (Settings → Resume project) ثم أعد تشغيل هذا السير."
+              ;;
+            401|403)
+              echo "::error::المفتاح مرفوض (HTTP $code): حدّث سرّ SUPABASE_ANON_KEY في إعدادات المستودع."
+              exit 1
+              ;;
+            *)
+              echo "::error::استجابة غير متوقعة (HTTP $code):"
+              head -c 300 "$OUT"
+              echo
+              exit 1
+              ;;
+          esac
