@@ -970,6 +970,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     </div>
     <div class="form three">
       <div class="field"><label>تفعيل المزامنة السحابية</label><label style="display:flex;align-items:center;gap:6px;font-weight:400;margin-top:4px"><input id="cloudOn" type="checkbox"> انشر تلقائيًا عند كل تحديث للبيانات</label></div>
+      <div class="field"><label>تنظيف الصفوف القديمة</label><label style="display:flex;align-items:center;gap:6px;font-weight:400;margin-top:4px"><input id="cloudSweep" type="checkbox" checked style="width:auto;flex:0 0 auto;margin:0"> احذف عند النشر كل صف لم يعد في قائمتك</label></div>
       <div class="field"><label>الحالة</label><div id="cloudStatus" class="muted">غير مفعّل</div></div>
     </div>
     <div class="actions"><button class="btn" id="cloudSave">حفظ الإعدادات</button><button class="btn primary" id="cloudPush">نشر الآن إلى السحابة</button></div>
@@ -2711,12 +2712,16 @@ async function finalizeRoster(ctx,opt){
   const sMap={};(await DB.all('students')).forEach(s=>{sMap[String(s.id)]=s;});
   const snapRows={};ord.forEach((id,i)=>{const s=sMap[id];if(!s)return;snapRows[id]={p:i+1,n:String(s.name||''),e:String(s.externalId||'').trim()};});
   await rosterSnapPut(ctx.classId,snapRows,ctx.fileName);
+  const rev=delIds.length?await portalRevokeQuiet():{ok:true,swept:0,warn:''};
   renderStudents();
   const bits=[];
   if(addedN)bits.push('أُضيف '+addedN);
   if(movedN)bits.push('نُقل '+movedN);
   if(dels.length)bits.push('حُذف '+dels.length+' ('+recN+' سجلًا في السلة)');
   if(reNum)bits.push('رُتِّب '+reNum);
+  if(!rev.ok)bits.push('تعذّر تحديث البوابة — اضغط «تحديث البيانات الآن»');
+  if(rev.swept)bits.push('أُزيل '+rev.swept+' صفًّا من السحابة');
+  if(rev.warn)bits.push(rev.warn);
   const elsN=(ctx.gone||[]).filter(g=>g.elsewhere).length;
   if(elsN)bits.push(elsN+' في لائحة قسم آخر يُنقلون عند تحيينها');
   if(failN)bits.push('تعذّر نقل '+failN);
@@ -3887,9 +3892,10 @@ async function renderPortal(){
   if($('cloudKey'))$('cloudKey').value=cc.key||'';
   if($('cloudInst'))$('cloudInst').value=cc.inst||'';
   if($('cloudOn'))$('cloudOn').checked=!!cc.enabled;
+  if($('cloudSweep'))$('cloudSweep').checked=cc.sweep!==false;
   if($('cloudPin'))$('cloudPin').value=cc.pin||'';
   if($('cloudStatus'))$('cloudStatus').textContent=cc.enabled?(cc.lastAt?('مفعّل — آخر نشر '+new Date(cc.lastAt).toLocaleString('ar')):'مفعّل — لم يُنشر بعد'):'غير مفعّل';
-  if($('cloudSave'))$('cloudSave').onclick=async()=>{const cur=await loadCloud();await saveCloud({url:$('cloudUrl').value.trim(),key:$('cloudKey').value.trim(),inst:$('cloudInst').value.trim(),enabled:!!$('cloudOn').checked,lastAt:cur.lastAt,lastOk:cur.lastOk});toast('حُفظت إعدادات السحابة');renderPortal()};
+  if($('cloudSave'))$('cloudSave').onclick=async()=>{const cur=await loadCloud();await saveCloud({url:$('cloudUrl').value.trim(),key:$('cloudKey').value.trim(),inst:$('cloudInst').value.trim(),enabled:!!$('cloudOn').checked,sweep:$('cloudSweep')?!!$('cloudSweep').checked:cur.sweep!==false,lastAt:cur.lastAt,lastOk:cur.lastOk});toast('حُفظت إعدادات السحابة');renderPortal()};
   if($('cloudPush'))$('cloudPush').onclick=async()=>{const d=await buildPortalSnapshot();await cloudPublish(d)};
   const contact=await loadContact();
   if($('portalWhats'))$('portalWhats').value=contact.whats||'';
@@ -3930,10 +3936,42 @@ async function saveCloud(v){const m=await DB.get('appMeta','syncCloud');await DB
 async function loadContact(){try{const m=await DB.get('appMeta','portalContact');return (m&&m.value)||{}}catch(e){return{}}}
 async function saveContact(v){const m=await DB.get('appMeta','portalContact');await DB.put('appMeta',{...(m||{}),id:'portalContact',value:v,updatedAt:now()})}
 async function sha256h(txt){txt=String(txt==null?'':txt);try{if(window.sijilAPI&&sijilAPI.sha256){const h=await sijilAPI.sha256(txt);if(h&&h.length===64)return h.toLowerCase();}}catch(e){}try{if(window.crypto&&crypto.subtle&&crypto.subtle.digest){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));const a=new Uint8Array(b);let s='';for(let i=0;i<a.length;i++){s+=(a[i]<16?'0':'')+a[i].toString(16);}if(s.length===64)return s;}}catch(e){}return '';}
+async function cloudCountStale(c,startedAt){
+  try{
+    const base=String(c.url).replace(/\/+$/,'');
+    const u=base+'/rest/v1/portal_students?select=rowkey&inst=eq.'+encodeURIComponent(c.inst)+'&updated_at=lt.'+encodeURIComponent(startedAt);
+    const r=await fetch(u,{headers:{apikey:c.key,Authorization:'Bearer '+c.key,'Prefer':'count=exact'},cache:'no-store'});
+    if(!r.ok)return -1;
+    const cr=r.headers.get('content-range')||'';const m=/\/(\d+)$/.exec(cr);
+    if(m)return Number(m[1]);
+    const j=await r.json().catch(()=>[]);return Array.isArray(j)?j.length:-1;
+  }catch(e){return -1;}
+}
+async function cloudSweepStale(c,startedAt){
+  const base=String(c.url).replace(/\/+$/,'');
+  const u=base+'/rest/v1/portal_students?inst=eq.'+encodeURIComponent(c.inst)+'&updated_at=lt.'+encodeURIComponent(startedAt);
+  const r=await fetch(u,{method:'DELETE',headers:{apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json','Prefer':'return=representation'}});
+  if(!r.ok)throw new Error('http'+r.status);
+  const j=await r.json().catch(()=>[]);
+  return Array.isArray(j)?j.length:0;
+}
+/* بعد حذف متعلمين: جدّد لقطة البوابة المحلية وأنشر للسحابة إن كانت مفعّلة، ليقطع الوصول فورًا. */
+async function portalRevokeQuiet(){
+  let ok=true,swept=0,warn='';
+  try{
+    const data=await buildPortalSnapshot();
+    if(window.sijilAPI&&typeof sijilAPI.portalPush==='function'){try{await sijilAPI.portalPush(data);}catch(e){ok=false;}}
+    const el=$('portalUpdated');if(el&&typeof portalNow==='function'){try{el.textContent=portalNow();}catch(e){}}
+    const c=await loadCloud();
+    if(c&&c.enabled&&c.url&&c.key&&c.inst){const r=await cloudPublish(data);if(!r||r.ok===false)ok=false;swept=r?(+r.swept||0):0;warn=(r&&r.warn)||'';}
+    return {ok:ok,swept:swept,warn:warn};
+  }catch(e){return {ok:false,swept:0,warn:''};}
+}
 async function cloudPublish(data){
   const c=await loadCloud();
   if(!c.url||!c.key||!c.inst){toast('أكمل إعدادات السحابة أولاً');return{ok:false}}
   const st=$('cloudStatus');if(st)st.textContent='جارٍ النشر…';
+  const startedAt=new Date().toISOString();
   const studs=(data&&data.studs)||[];
   const byRowkey={};const collisions={};
   try{
@@ -3959,9 +3997,18 @@ async function cloudPublish(data){
     const r=await fetch(base+'/rest/v1/portal_students?on_conflict=rowkey',{method:'POST',headers:{apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify(rows)});
     const ok=r.ok||r.status===201;
     await saveCloud({...c,lastAt:Date.now(),lastOk:ok});
-    if(ok){if(st)st.textContent='تم نشر '+rows.length+' تلميذًا — '+portalNow();toast('تم نشر البيانات إلى السحابة');}
+    let swept=0,warn='';
+    if(ok){
+      if(c.sweep!==false){
+        const pending=await cloudCountStale(c,startedAt);
+        try{swept=await cloudSweepStale(c,startedAt);}catch(e){warn='تعذّر حذف الصفوف القديمة';}
+        if(!warn&&pending>0&&swept===0)warn='لم يُحذف أي صف قديم ('+pending+') — اسمح بالحذف في سياسات RLS لجدول portal_students';
+      }
+      if(st)st.textContent='تم نشر '+rows.length+' تلميذًا'+(swept?(' — أُزيل '+swept+' صفًّا قديمًا'):'')+' — '+portalNow();
+      toast(warn?(warn+' — نُشر '+rows.length+' تلميذًا'):('تم نشر البيانات إلى السحابة'+(swept?('، وأُزيل '+swept+' صفًا لم يعد في قائمتك'):'')));
+    }
     else{const txt=(await r.text().catch(()=>''))||'';let msg='';try{const j=JSON.parse(txt);msg=j.message||j.error||'';}catch(e){msg=txt.slice(0,120);}if(st)st.textContent='فشل النشر ('+r.status+')';toast('فشل النشر '+r.status+(msg?(' — '+msg):''));}
-    return{ok:ok};
+    return{ok:ok,swept:swept,warn:warn};
   }catch(e){if(st)st.textContent='خطأ في الاتصال بالسحابة';toast('تعذّر الاتصال بالسحابة');return{ok:false}}
 }
 async function portalToggleCodes(){
