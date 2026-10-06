@@ -3,6 +3,7 @@ const path=require('path');
 const fs=require('fs');
 const http=require('http');
 const os=require('os');
+const dnsP=require('dns').promises;
 const crypto=require('crypto');
 const {execFile}=require('child_process');
 
@@ -320,7 +321,14 @@ ipcMain.handle('portal-stop',()=>{portalStopSync();return{ok:true,running:false}
 ipcMain.handle('portal-push',(e,payload)=>{try{portalData=payload||null}catch(eo){}return{ok:true,running:!!portalSrv};});
 ipcMain.handle('portal-status',()=>{const port=portalSrv?(portalSrv.address()&&portalSrv.address().port):0;return{running:!!portalSrv,port:port||0,urls:portalSrv?portalUrls(port||8050):[]};});
 ipcMain.handle('sha256',(e,txt)=>sha256HexNode(txt));
-ipcMain.handle('net-diag',async(e,u)=>{try{const p=await session.defaultSession.resolveProxy(String(u||'https://api.github.com'));return{ok:true,proxy:p};}catch(err){return{ok:false,error:String(err&&err.message||err)};}});
+ipcMain.handle('net-diag',async(e,u)=>{try{
+  const target=String(u||'https://api.github.com');
+  let host='';try{host=new URL(target).hostname;}catch(x){host=target.replace(/^https?:\/\//,'').split('/')[0].split(':')[0];}
+  const p=await session.defaultSession.resolveProxy(target);
+  let dnsState='unknown';
+  if(host){try{await dnsP.lookup(host,{ttl:false});dnsState='ok';}catch(x){dnsState='fail';}}
+  return{ok:true,proxy:p,dns:dnsState,host:host};
+}catch(err){return{ok:false,error:String(err&&err.message||err)};}});
 
 
 async function rendererSnapshot(){if(!win||!win.webContents||win.webContents.isDestroyed())return null;try{return await win.webContents.executeJavaScript('(typeof window.__syncSnapshot==="function")?window.__syncSnapshot():Promise.resolve(null)');}catch(e){return null;}}

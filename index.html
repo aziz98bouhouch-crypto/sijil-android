@@ -3968,6 +3968,7 @@ async function portalRevokeQuiet(){
   }catch(e){return {ok:false,swept:0,warn:''};}
 }
 function proxyWhy(addr){return'الحاسب يمرّ عبر خادم وسيط (Proxy)'+(addr?(' «'+addr+'»'):'')+' لا يعمل — أوقفه من: إعدادات Windows ← الشبكة ← وكيل، ثم أعد النشر';}
+function hostGone(h){return'عنوان المشروع'+(h?(' «'+h+'»'):'')+' غير موجود على الإنترنت — مشروع Supabase موقوف (Paused) أو محذوف؛ استأنفه من لوحة Supabase ثم أعد النشر';}
 async function cloudWhy(e,c){
   const m=String((e&&e.message)||e||'');
   if(/ERR_TUNNEL_CONNECTION_FAILED|ERR_PROXY_CONNECTION_FAILED/i.test(m))return proxyWhy('');
@@ -3981,6 +3982,7 @@ async function cloudWhy(e,c){
       const d=await sijilAPI.netDiag((c&&c.url)||'https://api.github.com');
       const p=String((d&&d.proxy)||'');
       if(/^PROXY/i.test(p))return proxyWhy(p.replace(/^PROXY\s*/i,''));
+      if(d&&d.dns==='fail')return hostGone(String(d.host||''));
       if(/^DIRECT/i.test(p)&&/failed to fetch|networkerror|load failed|fetch failed/i.test(m))return'تعذّر الوصول إلى رابط المشروع — راجع الرابط والمفتاح (URL/Key) في بطاقة السحابة';
     }
   }catch(e2){}
