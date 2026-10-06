@@ -2646,36 +2646,131 @@ function wireRejectedCsv(rejected){
   if(!rejected||!rejected.length)return;const b=$('dlRejectedCsv');if(!b)return;
   b.onclick=()=>exportCsvFile('أسطر_مرفوضة_'+today()+'.csv',['السطر','الاسم','رقم المسار','الهاتف','السبب'],rejected.map(r=>[r.row,r.name,r.externalId,r.phone,r.why]));
 }
-async function openTransferProposal(moves,rejected,clsName,filePos){
-  const rows=[];let sumMove=0,sumDel=0;
-  for(let i=0;i<moves.length;i++){
-    const m=moves[i];const pl=await planStudentTransfer(m.st,m.toClassId);m.plan=pl;sumMove+=pl.moved;sumDel+=pl.delScores+pl.delSubs;
+/* ===== المرحلة 13: تحيين لائحة المتعلمين — حذف المغادرين + ترتيب فوري عند التحميل ===== */
+var RO_COVER=0.6;
+async function rosterSnapGet(){try{const m=await DB.get('appMeta','rosterSnap');return (m&&m.value&&m.value.classes)||{};}catch(e){return {};}}
+async function rosterSnapPut(classId,rows,fileName){
+  const m=(await DB.get('appMeta','rosterSnap'))||{},v=Object.assign({classes:{}},m.value||{}),cls=Object.assign({},v.classes);
+  cls[String(classId)]={at:now(),file:String(fileName||'').slice(0,120),n:Object.keys(rows||{}).length,rows:rows||{}};
+  v.classes=cls;await DB.put('appMeta',Object.assign({},m,{id:'rosterSnap',value:v,updatedAt:now()}));
+}
+async function rosterSnapPurge(ids){
+  const set=new Set((ids||[]).map(String)),snap=await rosterSnapGet(),cls={};let hit=0;
+  for(const cid of Object.keys(snap)){const rows=(snap[cid]&&snap[cid].rows)||{},keep={};
+    for(const id of Object.keys(rows)){if(set.has(String(id))){hit++;continue;}keep[id]=rows[id];}
+    cls[cid]=Object.assign({},snap[cid],{rows:keep,n:Object.keys(keep).length});}
+  if(!hit)return 0;
+  const m=(await DB.get('appMeta','rosterSnap'))||{};
+  await DB.put('appMeta',Object.assign({},m,{id:'rosterSnap',value:{classes:cls},updatedAt:now()}));
+  return hit;
+}
+function snapWhereElse(snap,classId,st,allSt){
+  if(!st)return null;
+  const nm=normStudName(st.name),ex=String(st.externalId||'').trim();
+  for(const cid of Object.keys(snap||{})){
+    if(String(cid)===String(classId))continue;
+    const rows=(snap[cid]&&snap[cid].rows)||{};
+    if(rows[String(st.id)])return {cid:cid,how:'بنفس السجل',list:true};
+    for(const id of Object.keys(rows)){const r=rows[id]||{},re=String(r.e||'').trim();
+      if(ex&&re&&re===ex)return {cid:cid,how:'برقم المسار',list:true};
+      if(nm&&r.n&&normStudName(r.n)===nm)return {cid:cid,how:'بالاسم',list:true};}
+  }
+  for(const o of (allSt||[])){
+    if(!o||String(o.classId)===String(classId)||String(o.id)===String(st.id)||o.status==='archived')continue;
+    const oe=String(o.externalId||'').trim();
+    if(ex&&oe&&oe===ex)return {cid:String(o.classId),how:'مسجَّل فعلًا',live:true};
+    if(nm&&normStudName(o.name)===nm)return {cid:String(o.classId),how:'مسجَّل فعلًا',live:true};
+  }
+  return null;
+}
+async function removeRosterStudent(id){
+  let n=0;const sid=String(id);
+  for(const store of CORE.stores){
+    if(store==='trash'||store==='appMeta'||store==='classes')continue;
+    let recs;try{recs=await DB.all(store);}catch(e){continue;}
+    for(const r of recs){
+      if(!r)continue;
+      const own=(store==='students'||store==='studentProfiles')?String(r.id)===sid:String(r.studentId)===sid;
+      if(own){await DB.remove(store,r.id);n++;}
+    }
+  }
+  return n;
+}
+function roChecked(sel){return [...document.querySelectorAll(sel)].filter(c=>c.checked).map(c=>+c.dataset.i);}
+async function finalizeRoster(ctx,opt){
+  opt=opt||{};const moves=opt.moves||[],dels=opt.dels||[];
+  const idByKey={};let addedN=0;
+  for(const a of (ctx.adds||[])){const nid=await storeStudentForImport(a.name,a.externalId,a.phone,ctx.classId,ctx.c,a.seq);if(nid)idByKey[a.key]=nid;addedN++;}
+  let movedN=0,failN=0;
+  for(const m of moves){try{await applyStudentTransfer(m.st,m.toClassId,{name:m.name,phone:m.phone});movedN++;}catch(e){failN++;}}
+  let recN=0;const delIds=[];
+  for(const g of dels){recN+=await removeRosterStudent(g.st.id);delIds.push(String(g.st.id));}
+  if(delIds.length)await rosterSnapPurge(delIds);
+  const ord=[];(ctx.order||[]).forEach(o=>{const id=o.ex?o.ex.id:idByKey[o.key];if(id&&ord.indexOf(String(id))<0)ord.push(String(id));});
+  const reNum=opt.order?await applyRosterOrder(ctx.classId,ord):0;
+  const sMap={};(await DB.all('students')).forEach(s=>{sMap[String(s.id)]=s;});
+  const snapRows={};ord.forEach((id,i)=>{const s=sMap[id];if(!s)return;snapRows[id]={p:i+1,n:String(s.name||''),e:String(s.externalId||'').trim()};});
+  await rosterSnapPut(ctx.classId,snapRows,ctx.fileName);
+  renderStudents();
+  const bits=[];
+  if(addedN)bits.push('أُضيف '+addedN);
+  if(movedN)bits.push('نُقل '+movedN);
+  if(dels.length)bits.push('حُذف '+dels.length+' ('+recN+' سجلًا في السلة)');
+  if(reNum)bits.push('رُتِّب '+reNum);
+  const elsN=(ctx.gone||[]).filter(g=>g.elsewhere).length;
+  if(elsN)bits.push(elsN+' في لائحة قسم آخر يُنقلون عند تحيينها');
+  if(failN)bits.push('تعذّر نقل '+failN);
+  toast('تم تحيين لائحة «'+(ctx.clsName[ctx.classId]||'القسم')+'» — '+(bits.length?bits.join('، '):'لا تغيير'));
+  return {addedN,movedN,delN:dels.length,recN,reNum};
+}
+async function openRosterReview(ctx){
+  const active=ctx.active||[],gone=ctx.gone||[],moves=ctx.moves||[],cover=active.length?(ctx.keptN/active.length):1;
+  const roRow='style="display:flex;align-items:flex-start;gap:10px;padding:10px 2px;border-bottom:1px dashed var(--l);cursor:pointer"';
+  const mRows=[];let sumMove=0,sumDel=0;
+  for(let i=0;i<moves.length;i++){const m=moves[i],pl=await planStudentTransfer(m.st,m.toClassId);m.plan=pl;sumMove+=pl.moved;sumDel+=pl.delScores+pl.delSubs;
     const diffs=[];
     if(m.name&&normStudName(m.name)!==normStudName(m.st.name))diffs.push('الاسم: <b>'+esc(m.st.name)+'</b> ← <b>'+esc(m.name)+'</b>');
     if(m.phone&&m.phone!==String(m.st.phone||'').trim())diffs.push('الهاتف: <b>'+esc(m.st.phone||'—')+'</b> ← <b>'+esc(m.phone)+'</b>');
-    rows.push('<tr><td>'+m.row+'</td><td><b>'+esc(m.st.name)+'</b></td><td>'+esc(m.externalId||'—')+'</td><td>'+esc(clsName[m.st.classId]||'—')+'</td><td><b>'+esc(clsName[m.toClassId]||'—')+'</b></td><td>'+(m.by==='name'?'بالاسم':'برقم المسار')+'</td><td>'+pl.moved+'</td><td>'+(pl.delScores+pl.delSubs)+'</td><td>'+(diffs.length?diffs.map(x=>'<div class="muted">'+x+'</div>').join(''):'<span class="muted">لا شيء</span>')+'</td><td><input type="checkbox" class="mvChk" data-i="'+i+'" checked></td></tr>');
-  }
-  const rep='<div class="section-title"><h2>اقتراح نقل بين الأقسام ('+moves.length+')</h2></div><p class="muted">رُصد متعلمون في اللائحة المرفوعة مسجَّلون حاليًا في أقسام أخرى. عند التأكيد تُنقل <b>كل</b> سجلاتهم إلى القسم الجديد وتُحذف من القسم القديم — والنقط والتسليمات المرتبطة بتقييمات القسم القديم تُنقل إلى <b>السلة</b> ويمكن استعادتها.</p><div class="card tablewrap"><table class="table"><thead><tr><th>السطر</th><th>الاسم</th><th>رقم المسار</th><th>من القسم</th><th>إلى القسم</th><th>المطابقة</th><th>سجلات تُنقل</th><th>سجلات تُحذف</th><th>تغييرات</th><th>نقل</th></tr></thead><tbody>'+rows.join('')+'</tbody></table></div><div class="hint-list"><div class="row"><span>مجموع السجلات المنقولة</span><b>'+sumMove+'</b></div><div class="row"><span>سجلات تُحذف من القديم (إلى السلة)</span><b>'+sumDel+'</b></div></div><div class="actions"><button class="btn danger" id="mvApply">تأكيد نقل المحدد</button><button class="btn" id="mvIgnore">تجاهل الكل</button>'+(rejected&&rejected.length?'':'')+'</div>'+rejectedTableHtml(rejected);
-  openDrawer('مراجعة الاستيراد',rep);wireRejectedCsv(rejected);
-  const ig=$('mvIgnore');if(ig)ig.onclick=()=>{closeDrawer();toast('تم تجاهل اقتراح النقل — لم تُنقل أي بيانات');};
+    mRows.push('<label '+roRow+'><input type="checkbox" class="mvChk" data-i="'+i+'" checked style="margin-top:4px;flex:0 0 auto;width:auto;min-width:0">'
+      +'<div style="flex:1 1 auto;min-width:0"><b>'+esc(m.st.name)+'</b> <span class="muted" style="font-size:12px">سطر '+m.row+' · رقم المسار '+esc(m.externalId||'—')+' · مطابقة '+(m.by==='name'?'بالاسم':'برقم المسار')+'</span>'
+      +'<div style="font-size:13px;margin-top:2px">من «'+esc(ctx.clsName[m.st.classId]||'—')+'» <b>⟵</b> إلى «<b>'+esc(ctx.clsName[m.toClassId]||'—')+'</b>»</div>'
+      +'<div class="muted" style="font-size:12px">تُنقل '+pl.moved+' سجلًا · '+((pl.delScores+pl.delSubs)?((pl.delScores+pl.delSubs)+' من نقط القسم القديم إلى السلة'):'لا نقط في القسم القديم')+'</div>'
+      +(diffs.length?diffs.map(x=>'<div style="font-size:12px;color:var(--pill-w-fg,#b45309)">'+x+'</div>').join(''):'')
+      +'</div></label>');}
+  const gRows=[];let depN=0;
+  for(let i=0;i<gone.length;i++){const g=gone[i];
+    const meta='رقم المسار '+esc(g.st.externalId||'—')+(String(g.st.phone||'').trim()?(' · هاتف '+esc(String(g.st.phone).trim())):'');
+    if(g.elsewhere){gRows.push('<div '+roRow+'><span class="pill info" style="flex:0 0 auto;font-size:11px">لا يُحذف</span><div style="flex:1 1 auto;min-width:0"><b>'+esc(g.st.name)+'</b> <span class="muted" style="font-size:12px">'+meta+'</span><div class="muted" style="font-size:12px">ورد في لائحة «'+esc(ctx.clsName[g.elsewhere.cid]||'قسم آخر')+'» ('+g.elsewhere.how+') — يُنقل عند تحيين لائحة ذلك القسم</div></div></div>');continue;}
+    depN++;const on=cover>=RO_COVER?' checked':'';
+    gRows.push('<label '+roRow+'><input type="checkbox" class="delChk" data-i="'+i+'"'+on+' style="margin-top:4px;flex:0 0 auto;width:auto;min-width:0"><span class="pill danger" style="flex:0 0 auto;font-size:11px">حذف</span><div style="flex:1 1 auto;min-width:0"><b>'+esc(g.st.name)+'</b> <span class="muted" style="font-size:12px">'+meta+'</span><div class="muted" style="font-size:12px">لم يظهر في أي لائحة — يُحذف هو وكل سجلاته إلى السلة (قابل للاستعادة)</div></div></label>');}  const parts=['<div class="section-title"><h2>مراجعة تحيين لائحة «'+esc(ctx.clsName[ctx.classId]||'القسم')+'»</h2></div>',
+    '<p class="muted">ملف: <b>'+esc(ctx.fileName||'—')+'</b>. لم تُحفظ أي بيانات بعد — كل ما يلي يُنفَّذ فقط عند التأكيد.</p>',
+    '<div class="hint-list"><div class="row"><span>المسجَّلون في القسم</span><b>'+active.length+'</b></div>'+
+    '<div class="row"><span>أسطر اللائحة الجديدة</span><b>'+((ctx.pairsN||0))+'</b></div>'+
+    '<div class="row"><span>باقون في اللائحة</span><b>'+ctx.keptN+'</b></div>'+
+    '<div class="row"><span>جُدد يُضافون</span><b>'+(ctx.adds||[]).length+'</b></div>'+
+    '<div class="row"><span>مقترح نقلهم من أقسام أخرى</span><b>'+moves.length+'</b></div>'+
+    '<div class="row"><span>لم يرد ذكرهم في اللائحة</span><b>'+gone.length+' (مغادرون محتملون '+depN+')</b></div></div>'];
+  if(cover<RO_COVER)parts.push('<p class="warn" style="color:var(--pill-d-fg);font-weight:700">اللائحة المرفوعة تغطّي '+Math.round(cover*100)+'٪ من مسجَّلي القسم فقط — إن كان الملف جزئيًا فإلغاء كل العمليات أدناه هو الاختيار الآمن (التجاهل لا يغيّر أي بيانات).</p>');
+  if(moves.length)parts.push('<div class="section-title"><h3>اقتراح نقل بين الأقسام ('+moves.length+')</h3></div><p class="muted">عند التأكيد تُنقل <b>كل</b> سجلاتهم إلى القسم الجديد، وتُحذف النقط والتسليمات المرتبطة بقسمهم القديم إلى <b>السلة</b> ويمكن استعادتها. الإجمالي: '+sumMove+' سجلًا منتقلًا، '+sumDel+' إلى السلة.</p><div class="card">'+mRows.join('')+'</div>');
+  if(gone.length)parts.push('<div class="section-title"><h3>لم يرد ذكرهم في اللائحة الجديدة ('+gone.length+')</h3></div><p class="muted">من لم يظهر في لائحة هذا القسم <b>ولا</b> في اللوائح المحمّلة للأقسام الأخرى يُعدّ مغادرًا، والحذف يكون إلى <b>السلة</b> (قابل للاستعادة مع كل سجلاته). ومن ظهر في لائحة قسم آخر يُنقل عند تحيين لائحة ذلك القسم ولا يُحذف.</p><div class="card">'+gRows.join('')+'</div>');
+  parts.push('<div class="actions"><label style="display:flex;align-items:flex-start;gap:8px"><input type="checkbox" id="roOrder" style="width:auto;flex:0 0 auto;margin-top:3px"'+(cover>=RO_COVER?' checked':'')+'> إعادة ترتيب المتعلمين حسب ترتيب اللائحة الجديدة (يُطبَّق على لوائح المتابعة والمناداة والتقارير)</label></div>',
+    '<div class="actions"><button class="btn danger" id="mvApply">تأكيد التحيين</button><button class="btn" id="mvIgnore">تجاهل الكل — لا تُعدَّل البيانات</button></div>'+rejectedTableHtml(ctx.rejected));
+  openDrawer('مراجعة التحيين',parts.join(''));wireRejectedCsv(ctx.rejected);
+  const ig=$('mvIgnore');if(ig)ig.onclick=()=>{closeDrawer();toast('تم تجاهل التحيين — لم تُحفظ أي بيانات','warn');};
   const ap=$('mvApply');if(!ap)return;
   ap.onclick=async()=>{
-    const idx=[...document.querySelectorAll('.mvChk')].filter(c=>c.checked).map(c=>+c.dataset.i);
-    if(!idx.length)return toast('اختر متعلمًا واحدًا على الأقل');
-    const sel=idx.map(i=>moves[i]);
-    let dTot=0,mTot=0;sel.forEach(m=>{if(m.plan){mTot+=m.plan.moved;dTot+=m.plan.delScores+m.plan.delSubs;}});
-    trashConfirm('سيتم نقل <b>'+sel.length+'</b> متعلمًا مع <b>'+mTot+'</b> سجلًا إلى القسم الجديد، وحذف <b>'+dTot+'</b> من نقطهم وتسليماتهم القديمة (تُحفظ في السلة). هل تريد التنفيذ؟','تأكيد التنفيذ',async()=>{
-      let ok=0,fail=0;
-      for(const m of sel){try{await applyStudentTransfer(m.st,m.toClassId,{name:m.name,phone:m.phone});ok++;}catch(e){fail++;}}let reNum=0;{const tset=[...new Set(sel.map(m=>m.toClassId))];for(const tc of tset){reNum+=await resequenceClassFromFile(tc,filePos||{});}}
-      closeDrawer();renderStudents();
-      toast('نُقل '+ok+' متعلمًا إلى القسم الجديد'+(dTot?'، وحُذف '+dTot+' سجلًا من القديم (في السلة)':'')+(reNum?'، وحُدِّث ترتيب لائحة القسم':'')+(fail?' — تعذّر نقل '+fail:''));
-    });
+    const selM=roChecked('.mvChk').map(i=>moves[i]),selD=roChecked('.delChk').map(i=>gone[i]);
+    const useOrder=!!($('roOrder')&&$('roOrder').checked);
+    if(!selM.length&&!selD.length&&!(ctx.adds||[]).length&&!useOrder)return toast('اختر عملية واحدة على الأقل أو فعّل إعادة الترتيب');
+    let mv=0,dl=0;selM.forEach(m=>{if(m.plan){mv+=m.plan.moved;dl+=m.plan.delScores+m.plan.delSubs;}});
+    const msg='سيتم: '+(ctx.adds||[]).length+' إضافة، '+selM.length+' نقلًا ('+mv+' سجلًا منتقلًا، '+dl+' إلى السلة)، '+selD.length+' حذفًا إلى السلة'+(useOrder?'، وإعادة ترتيب حسب اللائحة':'')+'. هل تريد التنفيذ؟';
+    trashConfirm(msg,'تأكيد التحيين',async()=>{await finalizeRoster(ctx,{moves:selM,dels:selD,order:useOrder});});
   };
 }
 async function importStudentsCsv(){
   const classId=$('importClass').value,file=$('studentCsv').files[0];
   if(!classId||!file)return toast('اختر القسم وملف الاستيراد');
-  const d=await studentData(), c=d.classes.find(x=>x.id===classId); if(!c)return toast('القسم غير موجود');
+  const d=await studentData(),c=d.classes.find(x=>x.id===classId);if(!c)return toast('القسم غير موجود');
   let pairs;
   try{pairs=await studentsFromFile(file);}
   catch(e){return toast('تعذّرت قراءة الملف — تأكد أنه ملف CSV أو Excel سليم');}
@@ -2685,7 +2780,7 @@ async function importStudentsCsv(){
   d.students.forEach(s=>{const e=String(s.externalId||'').trim();if(e){if(!extMap.has(e))extMap.set(e,[]);extMap.get(e).push(s);}const n=normStudName(s.name);if(n&&!nameMap.has(n))nameMap.set(n,s);});
   const nums=d.students.map(s=>parseInt(s.externalId)).filter(v=>!isNaN(v));let next=nums.length?(Math.max(...nums)+1):(d.students.length+1);
   const seqs=d.students.map(s=>s.seq).filter(v=>typeof v==='number'&&!isNaN(v));let nextSeq=seqs.length?Math.max(...seqs)+1:1;
-  let added=0;const rejected=[],moves=[];const taken=new Set(),newIds=new Set();const filePos={};let fPos=0;
+  const rejected=[],moves=[],adds=[],order=[],kept=[];const taken=new Set(),newIds=new Set();
   pairs.forEach((p,idx)=>{
     const[ex0,name,phone]=p;const rawExt=String(ex0==null?'':ex0).trim();
     let externalId=secCell(ex0),safeName=secCell(name);
@@ -2695,22 +2790,31 @@ async function importStudentsCsv(){
     else{const n=normStudName(safeName);if(nameMap.has(n)){ex=nameMap.get(n);by='name';}}
     if(ex){
       if(taken.has(ex.id)){rejected.push({row:idx+1,name:safeName,externalId:rawExt,phone:String(phone||'').trim(),why:'مكرر داخل الملف'});return;}
-      taken.add(ex.id);fPos++;filePos[ex.id]=fPos;
-      if(String(ex.classId)===String(classId)){rejected.push({row:idx+1,name:safeName,externalId:rawExt,phone:String(phone||'').trim(),why:'مسجَّل في نفس القسم'});return;}
+      taken.add(ex.id);order.push({row:idx+1,ex:ex});
+      if(String(ex.classId)===String(classId)){kept.push({row:idx+1,st:ex});return;}
       moves.push({row:idx+1,st:ex,toClassId:classId,externalId:rawExt||String(ex.externalId||''),name:safeName,phone:String(phone||'').trim(),by});
       return;
     }
     if(!externalId){while(extMap.has(String(next))||newIds.has(String(next)))next++;externalId=String(next++);}
     if(newIds.has(String(externalId).trim())){rejected.push({row:idx+1,name:safeName,externalId:externalId,phone:String(phone||'').trim(),why:'مكرر داخل الملف'});return;}
     newIds.add(String(externalId).trim());
-    added++;const nid=storeStudentForImport(safeName,externalId,phone,classId,c,nextSeq++);fPos++;if(nid)filePos[nid]=fPos;
+    const key='n'+idx;adds.push({key,row:idx+1,name:safeName,externalId:externalId,phone:String(phone||'').trim(),seq:nextSeq++});order.push({row:idx+1,key:key});
   });
-  const reNum=await resequenceClassFromFile(classId,filePos);$('studentCsv').value='';
-  if(moves.length){await openTransferProposal(moves,rejected,clsName,filePos);renderStudents();return;}
-  if(rejected.length){openDrawer('تقرير الاستيراد','<p class="muted">لم تُضف أي بيانات جديدة.</p>'+rejectedTableHtml(rejected));wireRejectedCsv(rejected);const cl=$('closeRejectedReport');if(cl)cl.onclick=closeDrawer;renderStudents();return;}
-  toast('تمت إضافة '+added+' متعلمًا بنجاح'+(reNum?' — وحُدِّث ترتيب اللائحة':''));renderStudents();
+  $('studentCsv').value='';
+  const active=d.students.filter(s=>String(s.classId)===String(classId)&&s.status!=='archived');
+  const inFile=new Set(order.filter(o=>o.ex).map(o=>String(o.ex.id)));
+  const snap=await rosterSnapGet();
+  const gone=active.filter(s=>!inFile.has(String(s.id))).map(s=>({st:s,elsewhere:snapWhereElse(snap,classId,s,d.students)}));
+  const ctx={classId,c:c,clsName:clsName,fileName:file.name,pairsN:pairs.length,adds:adds,kept:kept,keptN:kept.length,gone:gone,moves:moves,rejected:rejected,order:order,active:active};
+  const departed=gone.filter(g=>!g.elsewhere).length;
+  if(!moves.length&&!departed){
+    await finalizeRoster(ctx,{moves:[],dels:[],order:true});
+    if((rejected||[]).length){openDrawer('تقرير الاستيراد','<p class="muted">حُفظت اللائحة، وهناك أسطر لم تُقبل.</p>'+rejectedTableHtml(rejected));wireRejectedCsv(rejected);}
+    return;
+  }
+  await openRosterReview(ctx);
 }
-function storeStudentForImport(name,externalId,phone,classId,c,seq){const rec={id:uid('student'),externalId,name,classId,levelId:c.levelId,branchId:c.branchId,trackId:c.trackId,phone:phone||'',portalSecret:genPortalSecret(),status:'active',seq,createdAt:now()};DB.put('students',rec);return rec.id;}
+async function storeStudentForImport(name,externalId,phone,classId,c,seq){const rec={id:uid('student'),externalId,name,classId,levelId:c.levelId,branchId:c.branchId,trackId:c.trackId,phone:phone||'',portalSecret:genPortalSecret(),status:'active',seq,createdAt:now()};await DB.put('students',rec);return rec.id;}
 async function studentsFromFile(file){
   const head=new Uint8Array(await file.slice(0,2).arrayBuffer());
   if(head[0]===0x50&&head[1]===0x4b)return studentsFromRows(await parseXlsxRows(file));
@@ -3166,13 +3270,15 @@ function rosterRankMap(list){const byCls={},m={};(list||[]).forEach(s=>{if(!s||s
 function rankChip(r){return '<span class="rk">'+(r?r:'—')+'.</span>';}
 function stuCellR(rk,id,name,bold){return rankChip(rk&&rk[id])+stuCell(id,name,bold);}
 function logRankThenDate(rk){return (a,b)=>{const x=(rk&&rk[a.studentId])||1e9,y=(rk&&rk[b.studentId])||1e9;return x-y||new Date(b.date||0)-new Date(a.date||0);};}
-async function resequenceClassFromFile(classId,filePos){
+/* ===== المرحلة 13: ترتيب اللائحة من الملف المرفوع — الصفوف المرفوعة أولًا ثم مَن لم يَرِد ذكره ===== */
+async function applyRosterOrder(classId,orderedIds){
   const all=await DB.all('students');
-  const cls=all.filter(s=>String(s.classId)===String(classId)&&s.status!=='archived');
-  if(!cls.length||!filePos)return 0;
-  const inF=cls.filter(s=>filePos[s.id]);
-  if(inF.length!==cls.length)return 0;
-  const ord=inF.slice().sort((a,b)=>filePos[a.id]-filePos[b.id]);
+  const cur=all.filter(s=>String(s.classId)===String(classId)&&s.status!=='archived');
+  if(!cur.length)return 0;
+  const byId={};cur.forEach(s=>{byId[String(s.id)]=s;});
+  const seen={},ord=[];
+  (orderedIds||[]).forEach(id=>{const s=byId[String(id)];if(s&&!seen[s.id]){seen[s.id]=1;ord.push(s);}});
+  cur.forEach(s=>{if(!seen[s.id])ord.push(s);});
   let n=0;
   for(let i=0;i<ord.length;i++){const s=ord[i];if(s.seq!==i+1){await DB.put('students',Object.assign({},s,{seq:i+1}));n++;}}
   return n;
