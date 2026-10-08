@@ -327,7 +327,7 @@ ipcMain.handle('net-diag',async(e,u)=>{try{
   const p=await session.defaultSession.resolveProxy(target);
   let dnsState='unknown';
   if(host){try{await dnsP.lookup(host,{ttl:false});dnsState='ok';}catch(x){dnsState='fail';}}
-  return{ok:true,proxy:p,dns:dnsState,host:host};
+  return{ok:true,proxy:p,dns:dnsState,host:host,healed:proxyHealed,note:proxyHealNote};
 }catch(err){return{ok:false,error:String(err&&err.message||err)};}});
 
 
@@ -440,6 +440,33 @@ function setupAutoUpdater(){
 ipcMain.handle('updater:check',async()=>{ try{ if(!__upd) return {ok:false,dev:true}; const r=await __upd.checkForUpdates(); return {ok:true,state:__updState,version:r&&r.updateInfo&&r.updateInfo.version}; }catch(e){ return {ok:false,error:String(e&&e.message||e)}; } });
 ipcMain.handle('updater:install',async()=>{ try{ if(__upd){ quitRequested=true; setImmediate(()=>{ try{ __upd.quitAndInstall(false,true); }catch(e){ app.quit(); } }); } return {ok:true}; }catch(e){ return {ok:false,error:String(e&&e.message||e)}; } });
 ipcMain.handle('updater:state',()=>__updState);
+
+// ===== تجاوز الوكيل المعطوب عند الحاجة: يفحص وصول العنوان الحالي، ويحوّل للمباشرة إن عطّلها الوكيل =====
+let proxyHealed=false, proxyHealNote='';
+async function proxyHeal(target){
+  const out={ok:false,changed:false,proxy:'',viaProxy:'',viaDirect:''};
+  try{
+    const ses=session.defaultSession;
+    const url=String(target||'https://api.github.com');
+    let p=''; try{ p=String(await ses.resolveProxy(url)||''); }catch(e){ return out; }
+    out.proxy=p;
+    const m=/^PROXY\s+([\w.-]+):(\d+)/i.exec(p.trim());
+    try{ const r=await ses.fetch(url,{method:'GET',cache:'no-store'}); out.viaProxy='http '+((r&&r.status)||0); }
+    catch(e){ out.viaProxy=String(e&&e.message||e); }
+    if(!m){ out.ok=/^http /.test(out.viaProxy); return out; }
+    if(/^net::ERR_(PROXY_|TUNNEL_|CONNECTION_|SOCKS|ADDRESS_)/i.test(out.viaProxy)===false){ out.ok=true; return out; }
+    try{
+      await ses.setProxy({mode:'direct'});
+      try{ await ses.forceReloadProxyConfig(); }catch(e){}
+      proxyHealed=true; proxyHealNote='وكيل النظام «'+m[1]+':'+m[2]+'»';
+      out.changed=true;
+    }catch(e){ out.error=String(e&&e.message||e); return out; }
+    try{ const r2=await ses.fetch(url,{method:'GET',cache:'no-store'}); out.viaDirect='http '+((r2&&r2.status)||0); out.ok=true; }
+    catch(e2){ out.viaDirect=String(e2&&e2.message||e2); }
+    return out;
+  }catch(err){ out.error=String(err&&err.message||err); return out; }
+}
+ipcMain.handle('proxy-heal',(e,u)=>proxyHeal(u));
 
 app.whenReady().then(async()=>{
   if(!gotTheLock) return;

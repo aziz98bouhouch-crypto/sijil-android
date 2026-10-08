@@ -93,10 +93,11 @@ nav.tabs button.on{color:#0f766e}
   <label>رقم دخولك</label><input id="code" type="text" placeholder="مثال: 2025/01" autocomplete="off">
   <div class="row2"><button onclick="S.login()"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>دخول</button><button class="secondary" onclick="S.scan()" title="مسح رمز الربط"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></button></div>
   <div class="err" id="err"></div>
+  <div class="row2" style="margin-top:4px"><button class="secondary" style="font-size:12px;padding:9px" onclick="S.diag()">فحص الاتصال</button><button class="secondary" style="font-size:12px;padding:9px" onclick="S.forget()">إعادة الربط</button></div>
 </div>
 <div id="appWrap" style="display:none">
   <div class="card">
-    <div class="headrow"><div class="nm"><img class="logo" src="logo.png" alt="شعار مواكبتي" onerror="this.style.display='none'"/><span id="vname"></span></div><div style="display:flex;gap:6px"><button class="secondary" id="refreshBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.refresh()" title="جلب آخر البيانات من الأستاذ"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>تحديث</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>خروج</button></div></div>
+    <div class="headrow"><div class="nm"><img class="logo" src="logo.png" alt="شعار مواكبتي" onerror="this.style.display='none'"/><span id="vname"></span></div><div style="display:flex;gap:6px"><button class="secondary" id="refreshBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.refresh()" title="جلب آخر البيانات من الأستاذ"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>تحديث</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.diag()" title="فحص الاتصال"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg>فحص</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>خروج</button></div></div>
     <div class="meta" id="vmeta"></div>
   </div>
   <div class="page on" id="pg-grades">
@@ -116,6 +117,7 @@ nav.tabs button.on{color:#0f766e}
   <div class="page" id="pg-contact"><div class="card"><h3>التواصل مع الأستاذ</h3><div id="contactHint" style="font-size:12px;color:#64748b;margin-bottom:10px"></div><div id="contactForm"><label style="font-size:12px;color:#334155">نص رسالتك</label><textarea id="msgBody" placeholder="اكتب سؤالك أو طلبك للأستاذ هنا…" style="width:100%;min-height:120px;margin:6px 0 12px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font:inherit;font-size:14px;line-height:1.6;resize:vertical;box-sizing:border-box"></textarea><button onclick="S.sendMsg()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>إرسال عبر واتساب</button><div style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">ستُفتح رسالة واتساب لدى أستاذك تتضمّن اسمك ورقم مسارك وقسمك مع نص رسالتك.</div></div></div></div>
 </div>
 <div style="text-align:center;margin:6px 0"><span class="lock" style="color:#64748b"><svg viewBox="0 0 24 24" style="stroke:#64748b"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>تطبيق محمي — عرض بياناتك أنت فقط</span></div>
+<div id="diagBox" style="display:none"></div>
 </div>
 <nav class="tabs" id="tabs" style="display:none">
   <button data-pg="grades" class="on"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="11" width="3" height="6" rx="1"/><rect x="12" y="7" width="3" height="10" rx="1"/><rect x="17" y="13" width="3" height="4" rx="1"/></svg>نقطتي</button>
@@ -128,7 +130,7 @@ nav.tabs button.on{color:#0f766e}
 <script>
 var S={};
 var D=null,META=null,CFG=null;
-var LS='sjc_cfg',LSD='sjc_data',LSS='sjc_session';
+var LS='sjc_cfg',LSD='sjc_data',LSS='sjc_session',LSE='sjc_ep';
 function $x(id){return document.getElementById(id)}
 function esc(s){return String(s==null?'':s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function showErr(m){var e=$x("err");e.textContent=m;e.style.display="block"}
@@ -142,20 +144,157 @@ function readCache(code){try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");v
 function writeCache(code,obj){try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");m[String(code).toLowerCase()]=obj;localStorage.setItem(LSD,JSON.stringify(m))}catch(e){}}
 function sha256hex(txt){txt=String(txt==null?"":txt);if(window.crypto&&crypto.subtle&&crypto.subtle.digest){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt)).then(function(b){var a=new Uint8Array(b),s="";for(var i=0;i<a.length;i++){s+=(a[i]<16?"0":"")+a[i].toString(16)}return s})}return Promise.resolve("")}
 function lanBase(){var b=(CFG.lan||"").trim();if(!b)return "";b=b.replace(/\\/+$/,"");return b}
-function viewUrl(code,pin){var b=lanBase();var q=(b?b+"/":"")+"api/view?code="+encodeURIComponent(code);if(pin)q+="&sec="+encodeURIComponent(pin);return q}
-function tryLan(code,pin){var u=viewUrl(code,pin);return fetch(u,{cache:"no-store"}).then(function(r){return r.json().then(function(j){return {status:r.status,j:j}})})}
-function tryCloud(code,pin){if(!CFG.su||!CFG.sk||!CFG.inst)return Promise.reject("nocloud");return sha256hex(String(code)+"::"+String(pin||"")+"::"+String(CFG.inst)).then(function(rk){var u=CFG.su.replace(/\\/+$/,"")+"/rest/v1/portal_students?select=payload,meta&rowkey=eq."+encodeURIComponent(rk)+"&inst=eq."+encodeURIComponent(CFG.inst);return fetch(u,{headers:{apikey:CFG.sk,Authorization:"Bearer "+CFG.sk,"Content-Type":"application/json"},cache:"no-store"})}).then(function(r){if(!r.ok)throw "http"+r.status;return r.json()}).then(function(rows){if(!rows||!rows.length)throw "notfound";var row=rows[0]||{};return {status:200,j:{meta:row.meta,student:row.payload}}})}
-function fetchData(code,pin){var mode=CFG.mode||"auto";if(mode==="cloud")return tryCloud(code,pin);if(mode==="lan")return tryLan(code,pin);return tryLan(code,pin).catch(function(){return tryCloud(code,pin)})}
+function cloudBase(){return String(CFG.su||"").replace(/\\/+$/,"").trim()}
+function cloudReady(){return !!(cloudBase()&&CFG.sk&&CFG.inst)}
+function hostOf(u){try{return new URL(u).host}catch(e){var t=String(u||""),i=t.indexOf("://");if(i>=0)t=t.slice(i+3);return t.replace(/\\/+$/,"").split("/")[0]}}
+var LAN_MS=3500,CLOUD_MS=9000,DEADLAN={net:1,timeout:1,badhost:1};
+var WHY={
+offline:"لا يوجد اتصال بالإنترنت الآن — ستُعرض آخر بيانات محفوظة",
+nohost:"لم يكتمل الربط بعد — امسح رمز QR الذي أعطاك إياه الأستاذ",
+nocloud:"لم يكتمل الربط السحابي — امسح رمز QR الخاص بك",
+nocrypto:"متصفح هذا الهاتف لا يحسب البصمة الآمنة — استخدم الربط المحلي مع الأستاذ",
+timeout:"الخادم لم يرد خلال المهلة — الشبكة ضعيفة، أعد المحاولة",
+net:"تعذّر الوصول إلى الخادم — تحقّق من الاتصال ثم أعد المحاولة",
+busy:"خادم الأستاذ رفض الطلب (كثرة المحاولات) — انتظر قليلًا ثم أعد المحاولة",
+badsec:"الرمز الخاص غير مطابق — امسح رمز QR الخاص بك أو راجع أستاذك",
+nodata:"لا توجد بيانات لرقم دخولك عند الأستاذ — راجعه معه",
+notfound:"لا توجد بيانات منشورة لرقمك ورمزك — إمّا أن الأستاذ غيّر رمزك أو لم ينشر بعد",
+key:"مفتاح السحابة مرفوض — على الأستاذ إعادة النشر من حسابه",
+table:"جدول بيانات البوابة غير موجود لدى الأستاذ — على الأستاذ نشر البيانات",
+srv:"خادم السحابة أعطى خطأ مؤقتًا — أعد المحاولة بعد قليل",
+http:"خادم الأستاذ أعطى خطأ غير متوقع — أعد المحاولة"};
+function readLS(k,d){try{var v=JSON.parse(localStorage.getItem(k)||"null");return (v&&typeof v==="object")?v:d}catch(e){return d}}
+function writeLS(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function epState(){var s=readLS(LSE,{});s.good=(s.good==="lan"||s.good==="cloud")?s.good:"";s.lanFail=+s.lanFail||0;s.cloudFail=+s.cloudFail||0;s.note=s.note||"";return s}
+function jsonOf(t){try{return JSON.parse(t)}catch(e){return null}}
+function timed(u,ms,opt){return new Promise(function(res,rej){
+  var ctl=null;try{if(window.AbortController)ctl=new AbortController()}catch(e){}
+  var o=opt||{};if(ctl)o.signal=ctl.signal;var settled=false;
+  var tmr=setTimeout(function(){if(settled)return;settled=true;try{if(ctl)ctl.abort()}catch(e){}rej("timeout")},ms);
+  var hit=function(r){if(settled)return;r.text().then(function(txt){if(settled)return;settled=true;clearTimeout(tmr);res({r:r,txt:txt})},function(){if(settled)return;settled=true;clearTimeout(tmr);rej(navigator.onLine===false?"offline":"net")})};
+  var miss=function(){if(settled)return;settled=true;clearTimeout(tmr);rej(navigator.onLine===false?"offline":"net")};
+  try{fetch(u,o).then(hit,miss)}catch(e){if(!settled){settled=true;clearTimeout(tmr);rej("badhost")}}
+})}
+function attemptLan(code,pin){
+  var b=lanBase();if(!b)return Promise.resolve({ok:false,which:"lan",kind:"nohost"});
+  var u=b+"/api/view?code="+encodeURIComponent(code)+(pin?("&sec="+encodeURIComponent(pin)):"");
+  return timed(u,LAN_MS,{cache:"no-store"}).then(function(x){
+    var j=jsonOf(x.txt)||{};
+    if(x.r.status===429)return {ok:false,which:"lan",kind:"busy",http:429};
+    if(!x.r.ok){
+      if(x.r.status===404)return {ok:false,which:"lan",kind:(String(j.error||"").indexOf("الرمز")>=0?"badsec":"nodata"),http:404};
+      return {ok:false,which:"lan",kind:"http",http:x.r.status}
+    }
+    if(!j||!j.student)return {ok:false,which:"lan",kind:"nodata"};
+    return {ok:true,which:"lan",j:{meta:j.meta,student:j.student}}
+  },function(k){return {ok:false,which:"lan",kind:String(k||"net")}})
+}
+function attemptCloud(code,pin){
+  if(!cloudReady())return Promise.resolve({ok:false,which:"cloud",kind:"nocloud"});
+  return sha256hex(String(code)+"::"+String(pin||"")+"::"+String(CFG.inst)).then(function(rk){
+    if(!rk)throw "nocrypto";
+    var u=cloudBase()+"/rest/v1/portal_students?select=payload,meta&rowkey=eq."+encodeURIComponent(rk)+"&inst=eq."+encodeURIComponent(CFG.inst);
+    return timed(u,CLOUD_MS,{headers:{apikey:CFG.sk,Authorization:"Bearer "+CFG.sk,"Content-Type":"application/json"},cache:"no-store"}).then(function(x){
+      if(x.r.status===401||x.r.status===403)throw "key";
+      if(x.r.status===404)throw "table";
+      if(x.r.status>=500)throw "srv";
+      if(!x.r.ok)throw "http"+x.r.status;
+      var rows=jsonOf(x.txt);
+      if(!rows||!rows.length||!rows[0].payload)throw "notfound";
+      return {ok:true,which:"cloud",j:{meta:rows[0].meta,student:rows[0].payload}}
+    })
+  }).catch(function(k){var s=String(k&&k.message?k.message:k);if(s==="offline"||s==="timeout"||s==="net"||s==="badhost")return {ok:false,which:"cloud",kind:s};if(s.indexOf("TypeError")===0)return {ok:false,which:"cloud",kind:"net"};if(String(s).indexOf("http")===0)return {ok:false,which:"cloud",kind:"srv"};return {ok:false,which:"cloud",kind:(s||"net")}})
+}
+function useEnd(r){var s=epState();s.good=r.which;s.cloudFail=0;s.at=nowIso();writeLS(LSE,s);return {status:200,j:r.j,via:r.which}}
+function lanTally(l){if(!l||l.which!=="lan")return;var s=epState();
+  if(l.ok){if(s.lanFail||s.note){s.lanFail=0;s.note="";writeLS(LSE,s)}return}
+  if(DEADLAN[l.kind])s.lanFail=(s.lanFail||0)+1;else s.lanFail=0;
+  if(s.lanFail>=3&&cloudReady()&&CFG.lan){CFG.lan="";saveCfg();s.lanFail=0;s.note="حُذف عنوان الشبكة الداخلية المعطّل — الاعتماد على السحابة حتى تمسح رمز ربط جديدًا"}
+  writeLS(LSE,s)}
+function giveUp(a,b){
+  var s=epState(),by={},lan=(a.which==="lan"?a:b),cloud=(a.which==="cloud"?a:b);
+  by[lan.which]=lan.kind;by[cloud.which]=cloud.kind;
+  s.at=nowIso();writeLS(LSE,s);
+  var off=(navigator.onLine===false)||lan.kind==="offline"||cloud.kind==="offline";
+  return Promise.reject({by:by,offline:!!off,lan:lan.kind,cloud:cloud.kind})
+}
+function fetchData(code,pin){
+  var s=epState(),aL=attemptLan(code,pin),aC=attemptCloud(code,pin);
+  var first=(s.good==="cloud")?aC:aL,second=(s.good==="cloud")?aL:aC;
+  return first.then(function(a){
+    if(a.ok){lanTally(a);second.then(lanTally,function(){});return useEnd(a)}
+    return second.then(function(b){lanTally(a);lanTally(b);if(b.ok)return useEnd(b);return giveUp(a,b)},function(){return giveUp(a,{ok:false,which:"cloud",kind:"net"})})
+  })
+}
+var PREF=["badsec","key","table","busy","notfound","nocrypto","nodata","nocloud","nohost","offline","timeout","net","srv"];
+function why(err){
+  if(!err)return WHY.net;
+  var b=(err&&err.by)||{},k="";
+  if(err.offline&&!b.cloud)return WHY.offline;
+  for(var i=0;i<PREF.length;i++){if(b.lan===PREF[i]||b.cloud===PREF[i]){k=PREF[i];break}}
+  if(!k)k=b.cloud||b.lan||"";
+  if(String(k).indexOf("http")===0)k="srv";
+  var m=WHY[k]||WHY.net;
+  if(b.cloud==="nocloud"&&b.lan==="nohost")m=WHY.nohost;
+  else if(b.cloud==="notfound"&&b.lan==="nodata")m=WHY.notfound+" — وتأكد أن الأستاذ ضغط «تحديث البيانات الآن»";
+  else if(b.cloud==="nocloud"&&b.lan==="nodata")m=WHY.nodata;
+  else if(b.cloud==="timeout"&&b.lan==="nodata")m=WHY.nodata;
+  var nt=epState().note;if(nt)m=m+" ("+nt+")";
+  return m
+}
+function probeLan(){var b=lanBase();if(!b)return Promise.resolve({kind:"nohost",ms:0});var t0=Date.now();
+  return timed(b+"/manifest.webmanifest",2500,{cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":"http"),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}})
+}
+function probeCloud(){if(!cloudReady())return Promise.resolve({kind:"nocloud",ms:0});var t0=Date.now();
+  return timed(cloudBase()+"/rest/v1/portal_students?select=rowkey&limit=1",4000,{headers:{apikey:CFG.sk,Authorization:"Bearer "+CFG.sk},cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":(x.r.status===401||x.r.status===403?"key":(x.r.status===404?"table":"srv"))),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}})
+}
+function verdict(r){if(!r)return "—";if(r.kind==="ok")return "يعمل ("+(r.ms||0)+"ms)";return (WHY[r.kind]||r.kind)+(r.http?(" — HTTP "+r.http):"")}
+S.diag=function(){
+  var box=$x("diagBox");
+  if(!box){box=document.createElement("div");box.id="diagBox";(document.querySelector(".wrap")||document.body).appendChild(box)}
+  box.style.display="block";box.className="card";box.innerHTML="<h3>فحص الاتصال</h3><div style='font-size:12px;color:#64748b'>جارٍ الفحص…</div>";
+  Promise.all([probeLan(),probeCloud()]).then(function(rs){
+    var s=epState(),c=currentCode(),cache=readCache(c);
+    var rows=[["الشبكة الداخلية (خادم الأستاذ)",lanBase()?hostOf(lanBase()):"غير مُعَدّ",verdict(rs[0])],
+      ["السحابة",cloudReady()?hostOf(cloudBase()):"غير مُعَدّ",verdict(rs[1])],
+      ["المسار المعتمد",s.good||"لم يُحدَّد بعد","المفتاح السرّي محفوظ ولا يُعرض"],
+      ["آخر بيانات محفوظة",cache?String(cache.at||"").slice(0,16).replace("T"," "):"لا يوجد","اضغط «تحديث» عند توفر الشبكة"]];
+    var h="<h3>فحص الاتصال</h3>";
+    rows.forEach(function(r){h+="<div class='slotrow' style='border-bottom:1px solid #eef2f7;padding:8px 0'><span style='font-size:12px'>"+esc(r[0])+"<br><b style='font-size:12px'>"+esc(r[1])+"</b></span><span style='font-size:11px;color:#475569;text-align:right;max-width:56%'>"+esc(r[2])+"</span></div>"});
+    if(s.note)h+="<div style='font-size:11px;color:#92400e;margin-top:6px'>"+esc(s.note)+"</div>";
+    h+="<div class='row2' style='margin-top:8px'><button class='secondary' onclick='S.diag()'>إعادة الفحص</button><button class='secondary' onclick='S.forget()'>إعادة الربط</button></div>";
+    h+="<div style='font-size:10.5px;color:#94a3b8;margin-top:8px'>إن ظهرت «غير مُعَدّ» في السحابة فامسح رمز QR الخاص بك من تطبيق أستاذك؛ وإن فشل المسارَان فانتظر نشر الأستاذ لبياناته أو اتصالًا أفضل.</div>";
+    box.innerHTML=h
+  })
+};
+S.forget=function(){
+  var box=$x("diagBox");var t=box?box:document.body;
+  if(box){box.style.display="block";box.className="card";box.innerHTML="<h3>إعادة الربط</h3><div style='font-size:12px;color:#475569'>سيُحذف عنوان الشبكة ومفتاح السحابة ورمز دخولك المحفوظ من هذا الهاتف. لن تُحذف أي بيانات عند أستاذك.</div><div class='row2' style='margin-top:10px'><button onclick='S.forgetGo()'>تأكيد المسح</button><button class='secondary' onclick='S.diag()'>تراجع</button></div>"}
+};
+S.forgetGo=function(){try{localStorage.removeItem(LS);localStorage.removeItem(LSE);localStorage.removeItem(LSS)}catch(e){}CFG={mode:"auto"};saveCfg();banner("");S.logout();toast("مُسِحت إعدادات الربط — امسح رمز QR الخاص بك من جديد")};
+function quietRefresh(silent){var c=currentCode();if(!c)return Promise.resolve(null);
+  return fetchData(c,currentPin()).then(function(x){
+    if(!x||x.status!==200||!x.j||!x.j.student)return null;
+    var old=JSON.stringify(D);D=x.j.student;META=x.j.meta;
+    writeCache(c,{sig:sig(D),meta:META,student:D,at:nowIso()});
+    renderGrades();renderHw();renderSched();renderEvo();renderLessons();renderContact();paintMeta();
+    if(!silent){banner("");if(JSON.stringify(D)!==old){$x("dot-hw").style.display="inline-block";toast("تم — وصلت بيانات جديدة من أستاذك")}else toast("أنت على آخر تحديث — لا توجد مستجدات")}
+    else if(JSON.stringify(D)!==old){$x("dot-hw").style.display="inline-block";notify("تحديث جديد","أضاف الأستاذ مستجدات إلى بوابة نقطتي")}
+    return JSON.stringify(D)!==old
+  }).catch(function(e){if(!silent){banner("");toast(why(e))}return null})
+}
+function paintMeta(){$x("vmeta").textContent=((D.cls||"")+((D.br||D.lv)?(" — "+(D.br||"")+((D.lv?(" / "+D.lv):""))):""))+(META&&META.updatedAt?(" · حُدِّثت "+String(META.updatedAt).slice(0,16).replace("T"," ")):"")}
 S.login=function(){var c=$x("code").value.trim();if(!c){showErr("أدخل رقم دخولك");return}
+  banner("جارٍ تحميل بياناتك…");
   fetchData(c,$x("pin").value.trim()).then(function(x){
-    if(!x||x.status!==200||(x.j&&x.j.error)){return Promise.reject((x&&x.j&&x.j.error)||"لم يتم العثور على بياناتك")}
+    if(!x||x.status!==200||!x.j||!x.j.student){return Promise.reject({by:{lan:"nodata",cloud:"notfound"}})}
     META=x.j.meta;D=x.j.student;banner("");hideErr();
     var prev=readCache(c);var changed=prev&&prev.sig&&sig(D)!==prev.sig;
     writeCache(c,{sig:sig(D),meta:META,student:D,at:nowIso()});
     try{localStorage.setItem(LSS,JSON.stringify({code:c,pin:$x("pin").value.trim(),mode:CFG.mode}))}catch(e){}
     show(changed,prev);
   }).catch(function(err){
-    var msg=err==="badpin"?"الرمز غير صحيح":(err==="nocloud"?"لم يكتمل الربط — امسح رمز QR الخاص بك الذي أعطاك إياه الأستاذ":(err==="notfound"?"لا توجد بيانات لرقمك أو رمزك — راجعهما مع أستاذك":(String(err).indexOf("http")===0?"تعذّر الاتصال بالخادم ("+err+")":(err||"تعذّر الاتصال — تحقّق من الشبكة ثم أعد المحاولة"))));
+    var msg=why(err);
     var cached=readCache(c);
     if(cached&&cached.student){D=cached.student;META=cached.meta;banner("⚠ وضع عدم الاتصال — بيانات محفوظة من "+(cached.at||"").slice(0,16).replace("T"," "));try{localStorage.setItem(LSS,JSON.stringify({code:c,pin:$x("pin").value.trim(),mode:CFG.mode}))}catch(e){}show(false,cached);showErr(msg+" — عُرضت آخر بيانات محفوظة")}
     else{showErr(msg)}
@@ -235,17 +374,12 @@ S.refresh=function(){var c=currentCode()||$x("code").value.trim();if(!c){toast("
   if(_refreshing)return;_refreshing=true;
   var btn=$x("refreshBtn");if(btn)btn.classList.add("spin");
   banner("جارٍ التحديث من الأستاذ…");
-  fetchData(c,currentPin()).then(function(x){
-    if(!x||x.status!==200||!x.j||!x.j.student)throw "nofetch";
-    var old=JSON.stringify(D);
-    D=x.j.student;META=x.j.meta;
-    writeCache(c,{sig:sig(D),meta:META,student:D,at:nowIso()});
-    renderGrades();renderHw();renderSched();renderEvo();renderLessons();renderContact();
-    $x("vmeta").textContent=((D.cls||"")+((D.br||D.lv)?(" — "+(D.br||"")+((D.lv?(" / "+D.lv):""))):""))+(META&&META.updatedAt?(" · حُدِّثت "+String(META.updatedAt).slice(0,16).replace("T"," ")):"");
+  quietRefresh(true).then(function(ch){
     banner("");
-    if(JSON.stringify(D)!==old){$x("dot-hw").style.display="inline-block";toast("تم — وصلت بيانات جديدة من أستاذك")}else{toast("أنت على آخر تحديث — لا توجد مستجدات")}
-    startPoll();
-  }).catch(function(){banner("");toast("تعذّر التحديث — تحقّق من الاتصال ثم أعد المحاولة")})
+    if(ch===null)toast("تعذّر التحديث — اضغط «فحص الاتصال» لمعرفة السبب");
+    else if(ch){$x("dot-hw").style.display="inline-block";toast("تم — وصلت بيانات جديدة من أستاذك")}
+    else toast("أنت على آخر تحديث — لا توجد مستجدات")
+  }).catch(function(){banner("");toast("تعذّر التحديث — اضغط «فحص الاتصال»")})
   .then(function(){_refreshing=false;if(btn)btn.classList.remove("spin")});
 }
 function applyScan(raw){raw=String(raw||"").trim();if(!raw){toast("لم يُعثر على رمز صالح");return}
@@ -256,9 +390,9 @@ function applyScan(raw){raw=String(raw||"").trim();if(!raw){toast("لم يُعث
   if(/^(https?):\\/\\//i.test(host)&&host!==cloudHost)CFG.lan=host.replace(/\\/+$/,"");else if(cloudHost)CFG.lan="";
   if(su)CFG.su=su;if(sk)CFG.sk=sk;if(inst)CFG.inst=inst;
   if(!CFG.mode||CFG.mode==="auto")CFG.mode="auto";
-  saveCfg();
-  if(code&&!$x("code").value.trim())$x("code").value=code;
-  if(sec&&!$x("pin").value.trim())$x("pin").value=sec;
+  saveCfg();try{localStorage.removeItem(LSE)}catch(e){}
+  if(code)$x("code").value=code;
+  if(sec)$x("pin").value=sec;
   toast("تم الربط — جارٍ تحميل بياناتك…");
   if($x("code").value.trim())S.login();
 }
@@ -269,11 +403,13 @@ S.scan=function(){
 };
 function scanCam(){var v=document.createElement("video");v.setAttribute("playsinline","");v.style.cssText="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:9998";document.body.appendChild(v);var st=document.createElement("button");st.textContent="إلغاء المسح";st.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;width:auto;padding:11px 20px;border-radius:12px;background:#dc2626;color:#fff";document.body.appendChild(st);var stream,track,timer,dead=false;function done(){dead=true;try{if(stream)stream.getTracks().forEach(function(t){t.stop()})}catch(e){}v.remove();st.remove()}st.onclick=done;var det=new window.BarcodeDetector({formats:["qr_code"]});navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(function(s){stream=s;v.srcObject=s;track=s.getVideoTracks()[0];v.play();function tick(){if(dead)return;det.detect(v).then(function(c){if(c&&c.length){done();applyScan(c[0].rawValue);return}}).catch(function(){});timer=setTimeout(tick,350)}tick()}).catch(function(){done();toast("تعذّر فتح الكاميرا — أدخل العنوان يدويًا")})}
 function toast(m){var t=document.createElement("div");t.textContent=m;t.style.cssText="position:fixed;bottom:calc(100px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:10000;max-width:90%;text-align:center";document.body.appendChild(t);setTimeout(function(){t.remove()},2400)}
-var pollT=null;
-function startPoll(){if(pollT)clearInterval(pollT);var c=currentCode()||$x("code").value.trim();if(!c)return;pollT=setInterval(function(){if(document.hidden)return;fetchData(c,currentPin()).then(function(x){if(x&&x.status===200&&x.j&&x.j.student){var s=JSON.stringify(x.j.student);var old=JSON.stringify(D);if(s!==old){D=x.j.student;META=x.j.meta;writeCache(c,{sig:sig(D),meta:META,student:D,at:nowIso()});renderGrades();renderHw();renderSched();renderEvo();renderLessons();renderContact();$x("dot-hw").style.display="inline-block";notify("تحديث جديد","أضاف الأستاذ مستجدات إلى بوابة نقطتي")}}}).catch(function(){})},120000)}
+var pollT=null,POLL_VIS=120000,POLL_BG=600000;
+function startPoll(){if(pollT)clearInterval(pollT);if(!currentCode())return;pollT=setInterval(function(){if(navigator.onLine===false)return;quietRefresh(true)},document.hidden?POLL_BG:POLL_VIS)}
 function currentCode(){try{return (JSON.parse(localStorage.getItem(LSS)||"{}").code)||""}catch(e){return ""}}
 function currentPin(){try{return (JSON.parse(localStorage.getItem(LSS)||"{}").pin)||""}catch(e){return ""}}
-document.addEventListener("visibilitychange",function(){if(!document.hidden&&D){startPoll()}});
+document.addEventListener("visibilitychange",function(){startPoll();if(!document.hidden&&D)quietRefresh(true)});
+window.addEventListener("online",function(){if(D){banner("");quietRefresh(true)}});
+window.addEventListener("offline",function(){if(D)banner("⚠ لا اتصال — المعروض آخر بيانات محفوظة")});
 (function harden(){try{document.addEventListener("contextmenu",function(e){e.preventDefault()});document.addEventListener("keydown",function(e){var k=(e.key||"").toLowerCase();if(e.key==="F12"||(e.ctrlKey&&e.shiftKey&&["i","j","c","k"].indexOf(k)>=0)||(e.ctrlKey&&k==="u")||(e.metaKey&&e.altKey&&["i","j","c"].indexOf(k)>=0)){e.preventDefault();return false}});document.addEventListener("selectstart",function(e){var t=e.target&&e.target.tagName;if(t!=="INPUT"&&t!=="TEXTAREA")e.preventDefault()});}catch(e){}})();
 loadCfg();
 (function boot(){
@@ -284,7 +420,7 @@ loadCfg();
     else if(code0&&!$x("code").value.trim())$x("code").value=code0;
   }catch(e){}
   var ses=null;try{ses=JSON.parse(localStorage.getItem(LSS)||"null")}catch(e){}
-  if(ses&&ses.code){$x("code").value=ses.code;if(ses.pin)$x("pin").value=ses.pin;var cached=readCache(ses.code);if(cached&&cached.student){D=cached.student;META=cached.meta;$x("auth").style.display="none";$x("appWrap").style.display="block";$x("tabs").style.display="flex";show(false,cached);banner("جارٍ التحديث من الخادم…");fetchData(ses.code,ses.pin).then(function(x){if(x&&x.status===200&&x.j&&x.j.student){D=x.j.student;META=x.j.meta;writeCache(ses.code,{sig:sig(D),meta:META,student:D,at:nowIso()});banner("");renderGrades();renderHw();renderSched();renderEvo();renderLessons()}else{banner("تعذّر التحديث — عُرضت البيانات المحفوظة")}}).catch(function(){banner("⚠ غير متصل — بيانات محفوظة من "+((cached.at||"").slice(0,16).replace("T"," ")))})}}
+  if(ses&&ses.code){$x("code").value=ses.code;if(ses.pin)$x("pin").value=ses.pin;var cached=readCache(ses.code);if(cached&&cached.student){D=cached.student;META=cached.meta;$x("auth").style.display="none";$x("appWrap").style.display="block";$x("tabs").style.display="flex";show(false,cached);banner("جارٍ التحديث من الخادم…");fetchData(ses.code,ses.pin).then(function(x){if(x&&x.status===200&&x.j&&x.j.student){D=x.j.student;META=x.j.meta;writeCache(ses.code,{sig:sig(D),meta:META,student:D,at:nowIso()});banner("");renderGrades();renderHw();renderSched();renderEvo();renderLessons()}else{banner("تعذّر التحديث — عُرضت البيانات المحفوظة")}}).catch(function(e){banner("⚠ "+why(e)+" — عُرضت بيانات محفوظة من "+((cached.at||"").slice(0,16).replace("T"," ")))})}}
   $x("code").addEventListener("keyup",function(e){if(e.key==="Enter")S.login()});
 })();
 try{(function(){var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;setTimeout(function(){try{var s=$x("splash");if(!s)return;s.classList.add("gone");setTimeout(function(){try{if(s&&s.parentNode)s.parentNode.removeChild(s)}catch(e){}},600)}catch(e){}},rm?350:1250)})()}catch(e){}

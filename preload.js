@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('sijilAPI',{
   portalStatus:()=>ipcRenderer.invoke('portal-status'),
   sha256:(txt)=>ipcRenderer.invoke('sha256',txt),
   netDiag:(u)=>ipcRenderer.invoke('net-diag',u),
+  proxyHeal:(u)=>ipcRenderer.invoke('proxy-heal',u),
   portalFirewallCheck:()=>ipcRenderer.invoke('portal-fw-check'),
   portalFirewallAllow:()=>ipcRenderer.invoke('portal-fw-allow'),
   updaterCheck:()=>ipcRenderer.invoke('updater:check'),
