@@ -321,6 +321,25 @@ ipcMain.handle('portal-stop',()=>{portalStopSync();return{ok:true,running:false}
 ipcMain.handle('portal-push',(e,payload)=>{try{portalData=payload||null}catch(eo){}return{ok:true,running:!!portalSrv};});
 ipcMain.handle('portal-status',()=>{const port=portalSrv?(portalSrv.address()&&portalSrv.address().port):0;return{running:!!portalSrv,port:port||0,urls:portalSrv?portalUrls(port||8050):[]};});
 ipcMain.handle('sha256',(e,txt)=>sha256HexNode(txt));
+// ===== تشفير حمولة البوابة لكل متعلم (AES-256-GCM + PBKDF2) =====
+const ENC_ITER=150000,ENC_MIN=5000,ENC_MAX=600000;
+function encB64Buf(buf){return Buffer.from(buf).toString('base64')}
+ipcMain.handle('enc-portal',async(e,job)=>{
+  try{
+    const pass=String((job&&job.pass)||'');
+    if(!pass||pass.length<8)return{error:'nokey'};
+    const plain=JSON.stringify((job&&job.plain!=null)?job.plain:null);
+    if(!plain||plain.length>4000000)return{error:'tosslarge'};
+    let iter=parseInt((job&&job.iter)||ENC_ITER,10);if(!isFinite(iter))iter=ENC_ITER;
+    iter=Math.max(ENC_MIN,Math.min(ENC_MAX,iter));
+    const salt=crypto.randomBytes(16),iv=crypto.randomBytes(12);
+    const key=await new Promise((res,rej)=>crypto.pbkdf2(pass,salt,iter,32,'sha256',(er,k)=>er?rej(er):res(k)));
+    if(!key||key.length!==32)return{error:'kdf'};
+    const ci=crypto.createCipheriv('aes-256-gcm',key,iv);
+    const ct=Buffer.concat([ci.update(plain,'utf8'),ci.final(),ci.getAuthTag()]);
+    return{alg:'A256GCM',iter:iter,salt:encB64Buf(salt),iv:encB64Buf(iv),ct:encB64Buf(ct)};
+  }catch(x){return{error:String((x&&x.message)||x).slice(0,80)}}
+});
 ipcMain.handle('net-diag',async(e,u)=>{try{
   const target=String(u||'https://api.github.com');
   let host='';try{host=new URL(target).hostname;}catch(x){host=target.replace(/^https?:\/\//,'').split('/')[0].split(':')[0];}

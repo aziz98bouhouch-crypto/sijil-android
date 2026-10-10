@@ -145,7 +145,18 @@ function writeCache(code,obj){try{var m=JSON.parse(localStorage.getItem(LSD)||"{
 function sha256hex(txt){txt=String(txt==null?"":txt);if(window.crypto&&crypto.subtle&&crypto.subtle.digest){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt)).then(function(b){var a=new Uint8Array(b),s="";for(var i=0;i<a.length;i++){s+=(a[i]<16?"0":"")+a[i].toString(16)}return s})}return Promise.resolve("")}
 function lanBase(){var b=(CFG.lan||"").trim();if(!b)return "";b=b.replace(/\\/+$/,"");return b}
 function cloudBase(){return String(CFG.su||"").replace(/\\/+$/,"").trim()}
-function cloudReady(){return !!(cloudBase()&&CFG.sk&&CFG.inst)}
+function trimEnd(u){var t=String(u||"").trim();while(t.length&&t.charAt(t.length-1)==="/"){t=t.slice(0,t.length-1)}return t}
+var PRIV={"u":"","k":""};
+function privBase(){return trimEnd(CFG.pu||PRIV.u)}
+function privKey(){return String(CFG.pk||PRIV.k||"")}
+function privUrlOk(u){u=String(u||"");var i=u.indexOf("://");if(i<0)return false;var p=u.slice(0,i);if(p==="https")return true;if(p!=="http")return false;var h=u.slice(i+3).split("/")[0].split(":")[0];return h==="127.0.0.1"||h==="localhost"||h.slice(0,3)==="10."||h.slice(0,8)==="192.168."}
+function adoptPriv(m){var p=m&&m.priv;if(!p||typeof p!=="object")return false;var u=trimEnd(p.u),k=String(p.k||"");
+  if(!u||!privUrlOk(u)||k.length<20)return false;
+  if(CFG.pu&&hostOf(CFG.pu)!==hostOf(u))return false;
+  if(CFG.pu===u&&CFG.pk===k)return false;
+  CFG.pu=u;CFG.pk=k;saveCfg();return true}
+function cloudEps(){var out=[];var pb=privBase(),pk=privKey();if(pb&&pk)out.push({u:pb,k:pk,n:"المستودع الخاص"});var sb=trimEnd(CFG.su);if(sb&&CFG.sk)out.push({u:sb,k:String(CFG.sk),n:"سحابة الأستاذ"});return out}
+function cloudReady(){return cloudEps().length>0}
 function hostOf(u){try{return new URL(u).host}catch(e){var t=String(u||""),i=t.indexOf("://");if(i>=0)t=t.slice(i+3);return t.replace(/\\/+$/,"").split("/")[0]}}
 var LAN_MS=3500,CLOUD_MS=9000,DEADLAN={net:1,timeout:1,badhost:1};
 var WHY={
@@ -157,6 +168,7 @@ timeout:"الخادم لم يرد خلال المهلة — الشبكة ضعي�
 net:"تعذّر الوصول إلى الخادم — تحقّق من الاتصال ثم أعد المحاولة",
 busy:"خادم الأستاذ رفض الطلب (كثرة المحاولات) — انتظر قليلًا ثم أعد المحاولة",
 badsec:"الرمز الخاص غير مطابق — امسح رمز QR الخاص بك أو راجع أستاذك",
+noenc:"هذا النشر مُشفَّر وهاتفك لا يدعم فكّ التشفير — اطلب من أستاذك نسخة «مواكبتي» المحدَّثة",
 nodata:"لا توجد بيانات لرقم دخولك عند الأستاذ — راجعه معه",
 notfound:"لا توجد بيانات منشورة لرقمك ورمزك — إمّا أن الأستاذ غيّر رمزك أو لم ينشر بعد",
 key:"مفتاح السحابة مرفوض — على الأستاذ إعادة النشر من حسابه",
@@ -189,23 +201,50 @@ function attemptLan(code,pin){
     return {ok:true,which:"lan",j:{meta:j.meta,student:j.student}}
   },function(k){return {ok:false,which:"lan",kind:String(k||"net")}})
 }
-function attemptCloud(code,pin){
-  if(!cloudReady())return Promise.resolve({ok:false,which:"cloud",kind:"nocloud"});
+var _dk=null,_dkSig="";
+function b64ToU8(t){try{var str=atob(String(t||"")),u=new Uint8Array(str.length);for(var i=0;i<str.length;i++)u[i]=str.charCodeAt(i);return u}catch(e){return null}}
+function encReady(){return !!(window.crypto&&crypto.subtle&&crypto.subtle.deriveBits&&crypto.subtle.decrypt&&window.TextDecoder&&window.atob)}
+function unwrapPayload(pl,code,pin){
+  if(!pl||pl.e!==1)return Promise.resolve(pl);
+  if(!encReady())return Promise.reject("noenc");
+  var salt=b64ToU8(pl.salt),iv=b64ToU8(pl.iv),ct=b64ToU8(pl.ct),iter=parseInt(pl.iter,10)||150000;
+  if(!salt||!iv||!ct||salt.length<8||iv.length<8||iter<1000||iter>600000)return Promise.reject("noenc");
+  var pass=String(code)+"::"+String(pin||"")+"::"+String(CFG.inst)+"::v1",sig=pass+"|"+String(pl.salt)+"|"+iter;
+  var key=_dk&&_dkSig===sig?Promise.resolve(_dk):crypto.subtle.importKey("raw",new TextEncoder().encode(pass),"PBKDF2",false,["deriveKey"]).then(function(km){
+    return crypto.subtle.deriveKey({name:"PBKDF2",salt:salt,iterations:iter,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"])
+  }).then(function(k){_dk=k;_dkSig=sig;return k});
+  return key.then(function(k){return crypto.subtle.decrypt({name:"AES-GCM",iv:iv},k,ct)}).then(function(buf){
+    var o=jsonOf(new TextDecoder().decode(buf));if(!o||typeof o!=="object")throw "notfound";return o
+  },function(){throw "badsec"})
+}
+function attemptCloud(code,pin,ep){
+  if(!ep)return Promise.resolve({ok:false,which:"cloud",kind:"nocloud"});
   return sha256hex(String(code)+"::"+String(pin||"")+"::"+String(CFG.inst)).then(function(rk){
     if(!rk)throw "nocrypto";
-    var u=cloudBase()+"/rest/v1/portal_students?select=payload,meta&rowkey=eq."+encodeURIComponent(rk)+"&inst=eq."+encodeURIComponent(CFG.inst);
-    return timed(u,CLOUD_MS,{headers:{apikey:CFG.sk,Authorization:"Bearer "+CFG.sk,"Content-Type":"application/json"},cache:"no-store"}).then(function(x){
+    var u=ep.u+"/rest/v1/portal_students?select=payload,meta&rowkey=eq."+encodeURIComponent(rk)+"&inst=eq."+encodeURIComponent(CFG.inst);
+    return timed(u,CLOUD_MS,{headers:{apikey:ep.k,Authorization:"Bearer "+ep.k,"Content-Type":"application/json"},cache:"no-store"}).then(function(x){
       if(x.r.status===401||x.r.status===403)throw "key";
       if(x.r.status===404)throw "table";
       if(x.r.status>=500)throw "srv";
       if(!x.r.ok)throw "http"+x.r.status;
       var rows=jsonOf(x.txt);
       if(!rows||!rows.length||!rows[0].payload)throw "notfound";
-      return {ok:true,which:"cloud",j:{meta:rows[0].meta,student:rows[0].payload}}
+      return unwrapPayload(rows[0].payload,code,pin).then(function(st){if(!st||typeof st!=="object")throw "notfound";return {ok:true,which:"cloud",ep:ep.n,j:{meta:rows[0].meta,student:st}}})
     })
   }).catch(function(k){var s=String(k&&k.message?k.message:k);if(s==="offline"||s==="timeout"||s==="net"||s==="badhost")return {ok:false,which:"cloud",kind:s};if(s.indexOf("TypeError")===0)return {ok:false,which:"cloud",kind:"net"};if(String(s).indexOf("http")===0)return {ok:false,which:"cloud",kind:"srv"};return {ok:false,which:"cloud",kind:(s||"net")}})
 }
-function useEnd(r){var s=epState();s.good=r.which;s.cloudFail=0;s.at=nowIso();writeLS(LSE,s);return {status:200,j:r.j,via:r.which}}
+function prefRank(k){var i=PREF.indexOf(String(k||""));return i<0?PREF.length:i}
+function attemptCloudAll(code,pin){
+  var eps=cloudEps();
+  if(!eps.length)return Promise.resolve({ok:false,which:"cloud",kind:"nocloud"});
+  if(eps.length===1)return attemptCloud(code,pin,eps[0]);
+  return Promise.all(eps.map(function(e){return attemptCloud(code,pin,e)})).then(function(rs){
+    for(var i=0;i<rs.length;i++){if(rs[i].ok)return rs[i]}
+    var w=rs[0];for(var j=1;j<rs.length;j++){if(prefRank(rs[j].kind)<prefRank(w.kind))w=rs[j]}
+    return w
+  })
+}
+function useEnd(r){var s=epState();if(r.which==="cloud"){try{adoptPriv(r.j&&r.j.meta)}catch(e){}}s.good=r.which;if(r.ep)s.ep=r.ep;s.cloudFail=0;s.at=nowIso();writeLS(LSE,s);return {status:200,j:r.j,via:r.which}}
 function lanTally(l){if(!l||l.which!=="lan")return;var s=epState();
   if(l.ok){if(s.lanFail||s.note){s.lanFail=0;s.note="";writeLS(LSE,s)}return}
   if(DEADLAN[l.kind])s.lanFail=(s.lanFail||0)+1;else s.lanFail=0;
@@ -219,14 +258,14 @@ function giveUp(a,b){
   return Promise.reject({by:by,offline:!!off,lan:lan.kind,cloud:cloud.kind})
 }
 function fetchData(code,pin){
-  var s=epState(),aL=attemptLan(code,pin),aC=attemptCloud(code,pin);
+  var s=epState(),aL=attemptLan(code,pin),aC=attemptCloudAll(code,pin);
   var first=(s.good==="cloud")?aC:aL,second=(s.good==="cloud")?aL:aC;
   return first.then(function(a){
     if(a.ok){lanTally(a);second.then(lanTally,function(){});return useEnd(a)}
     return second.then(function(b){lanTally(a);lanTally(b);if(b.ok)return useEnd(b);return giveUp(a,b)},function(){return giveUp(a,{ok:false,which:"cloud",kind:"net"})})
   })
 }
-var PREF=["badsec","key","table","busy","notfound","nocrypto","nodata","nocloud","nohost","offline","timeout","net","srv"];
+var PREF=["badsec","noenc","key","table","busy","notfound","nocrypto","nodata","nocloud","nohost","offline","timeout","net","srv"];
 function why(err){
   if(!err)return WHY.net;
   var b=(err&&err.by)||{},k="";
@@ -245,19 +284,21 @@ function why(err){
 function probeLan(){var b=lanBase();if(!b)return Promise.resolve({kind:"nohost",ms:0});var t0=Date.now();
   return timed(b+"/manifest.webmanifest",2500,{cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":"http"),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}})
 }
-function probeCloud(){if(!cloudReady())return Promise.resolve({kind:"nocloud",ms:0});var t0=Date.now();
-  return timed(cloudBase()+"/rest/v1/portal_students?select=rowkey&limit=1",4000,{headers:{apikey:CFG.sk,Authorization:"Bearer "+CFG.sk},cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":(x.r.status===401||x.r.status===403?"key":(x.r.status===404?"table":"srv"))),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}})
+function probeCloud(ep){if(!ep)return Promise.resolve({kind:"nocloud",ms:0});var t0=Date.now();
+  return timed(ep.u+"/rest/v1/portal_students?select=payload&rowkey=eq."+Array(65).join("0"),4000,{headers:{apikey:ep.k,Authorization:"Bearer "+ep.k},cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":(x.r.status===401||x.r.status===403?"key":(x.r.status===404?"table":"srv"))),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}})
 }
+function probeCloudAll(){var eps=cloudEps();if(!eps.length)return Promise.resolve([{kind:"nocloud",ms:0}]);return Promise.all(eps.map(probeCloud))}
 function verdict(r){if(!r)return "—";if(r.kind==="ok")return "يعمل ("+(r.ms||0)+"ms)";return (WHY[r.kind]||r.kind)+(r.http?(" — HTTP "+r.http):"")}
 S.diag=function(){
   var box=$x("diagBox");
   if(!box){box=document.createElement("div");box.id="diagBox";(document.querySelector(".wrap")||document.body).appendChild(box)}
   box.style.display="block";box.className="card";box.innerHTML="<h3>فحص الاتصال</h3><div style='font-size:12px;color:#64748b'>جارٍ الفحص…</div>";
-  Promise.all([probeLan(),probeCloud()]).then(function(rs){
+  var ceps=cloudEps();
+  Promise.all([probeLan(),probeCloudAll()]).then(function(rs){
     var s=epState(),c=currentCode(),cache=readCache(c);
     var rows=[["الشبكة الداخلية (خادم الأستاذ)",lanBase()?hostOf(lanBase()):"غير مُعَدّ",verdict(rs[0])],
-      ["السحابة",cloudReady()?hostOf(cloudBase()):"غير مُعَدّ",verdict(rs[1])],
-      ["المسار المعتمد",s.good||"لم يُحدَّد بعد","المفتاح السرّي محفوظ ولا يُعرض"],
+      ...rs[1].map(function(r,i){var e=ceps[i]||{};return [e.n||"السحابة",e.u?hostOf(e.u):"غير مُعَدّ",verdict(r)]}),
+      ["المسار المعتمد",s.good||"لم يُحدَّد بعد",s.ep?("آخر بيانات وصلت من «"+s.ep+"»"):"المفتاح السرّي محفوظ ولا يُعرض"],
       ["آخر بيانات محفوظة",cache?String(cache.at||"").slice(0,16).replace("T"," "):"لا يوجد","اضغط «تحديث» عند توفر الشبكة"]];
     var h="<h3>فحص الاتصال</h3>";
     rows.forEach(function(r){h+="<div class='slotrow' style='border-bottom:1px solid #eef2f7;padding:8px 0'><span style='font-size:12px'>"+esc(r[0])+"<br><b style='font-size:12px'>"+esc(r[1])+"</b></span><span style='font-size:11px;color:#475569;text-align:right;max-width:56%'>"+esc(r[2])+"</span></div>"});
@@ -368,7 +409,7 @@ S.tab=function(pg){
   if(pg==="evo")renderEvo();
 };
 document.querySelectorAll("nav.tabs button").forEach(function(b){b.onclick=function(){S.tab(b.getAttribute("data-pg"))}});
-S.logout=function(){try{localStorage.removeItem(LSS)}catch(e){};D=null;$x("appWrap").style.display="none";$x("tabs").style.display="none";$x("auth").style.display="block";banner("")};
+S.logout=function(){_dk=null;_dkSig="";try{localStorage.removeItem(LSS)}catch(e){};D=null;$x("appWrap").style.display="none";$x("tabs").style.display="none";$x("auth").style.display="block";banner("")};
 var _refreshing=false;
 S.refresh=function(){var c=currentCode()||$x("code").value.trim();if(!c){toast("أدخل رقم دخولك أولاً");return}
   if(_refreshing)return;_refreshing=true;
@@ -383,12 +424,13 @@ S.refresh=function(){var c=currentCode()||$x("code").value.trim();if(!c){toast("
   .then(function(){_refreshing=false;if(btn)btn.classList.remove("spin")});
 }
 function applyScan(raw){raw=String(raw||"").trim();if(!raw){toast("لم يُعثر على رمز صالح");return}
-  var su="",sk="",inst="",code="",sec="",host="";
-  try{var u=new URL(raw);host=u.protocol+"//"+u.host;var p=u.searchParams;code=p.get("c")||p.get("code")||"";sec=p.get("s")||p.get("pin")||"";su=p.get("su")||"";sk=p.get("sk")||"";inst=p.get("in")||p.get("inst")||"";}
+  var su="",sk="",inst="",code="",sec="",host="",pu="",pk="";
+  try{var u=new URL(raw);host=u.protocol+"//"+u.host;var p=u.searchParams;code=p.get("c")||p.get("code")||"";sec=p.get("s")||p.get("pin")||"";su=p.get("su")||"";sk=p.get("sk")||"";inst=p.get("in")||p.get("inst")||"";pu=p.get("pu")||"";pk=p.get("pk")||"";}
   catch(e){host=raw.replace(/\\/+$/,"");code="";sec=""}
   var cloudHost="";if(su){try{var cu=new URL(su);cloudHost=cu.protocol+"//"+cu.host}catch(e){}}
   if(/^(https?):\\/\\//i.test(host)&&host!==cloudHost)CFG.lan=host.replace(/\\/+$/,"");else if(cloudHost)CFG.lan="";
   if(su)CFG.su=su;if(sk)CFG.sk=sk;if(inst)CFG.inst=inst;
+  if(pu&&privUrlOk(pu))CFG.pu=trimEnd(pu);if(pk&&String(pk).length>=20)CFG.pk=String(pk);
   if(!CFG.mode||CFG.mode==="auto")CFG.mode="auto";
   saveCfg();try{localStorage.removeItem(LSE)}catch(e){}
   if(code)$x("code").value=code;
