@@ -1046,7 +1046,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <!-- SETTINGS -->
 <div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="section-title"><h2>المظهر والواجهة</h2></div><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
 <div class="card"><div class="section-title"><h2>عتبات الأوسمة</h2></div><div class="form"><div class="field"><label>عتبة وسام «المتفوق» /20</label><input id="badgeTop" type="number" min="0" max="20" step="0.5" value="16"></div><div class="field"><label>عتبة وسام «المجتهد» /20</label><input id="badgeDil" type="number" min="0" max="20" step="0.5" value="14"></div></div><p class="muted">تُطبَّق على منح أوسمة التحفيز في كل الحاسبات والتقارير: وسام «المتفوق» لمن بلغ معدله العام العتبة الأولى فما فوق، و«المجتهد» لمن بلغ العتبة الثانية. تُحفظ تلقائيًا وتنعكس على صفحة التحفيز والتنبيهات.</p><div class="actions"><button class="btn primary" id="saveBadgeWeights">حفظ عتبات الأوسمة</button></div></div><div class="card"><div class="section-title"><h2>شعار المؤسسة</h2></div><p class="muted">يظهر الشعار أعلى رأس كل بطاقة وتقرير رسمي (بطاقة المتعلم، ولي الأمر، الأكشفة، الشهادات...).</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><img id="logoPreview" alt="الشعار" style="height:64px;max-width:200px;object-fit:contain;display:none;border:1px solid var(--l);border-radius:8px;padding:6px;background:#fff"><div style="display:flex;flex-direction:column;gap:8px"><input id="logoInput" type="file" accept="image/*"><button class="btn danger" id="logoRemoveBtn">إزالة الشعار</button></div></div></div><div class="card"><div class="section-title"><h2>أوزان المواد</h2></div><p class="muted">تحديد وزن «النشاط» و«الفرض» لكل مادة على حدة عند تركيب معدلها في البطاقات والنتائج والأكشفة. مؤشر «عام» يعني الاعتماد على الأوزان العامة الموضوعة في صفحة التقويم.</p><div id="subjectWeightsList"></div><div class="actions"><button class="btn primary" id="saveSubjectWeights">حفظ أوزان المواد</button></div></div>
-<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.42</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
+<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.43</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
 
 <!-- TRASH -->
 <div id="trash" class="page"><div class="hero"><span class="badge">TRASH</span><h1>السلة</h1><p>ما حُذف عبر أزرار «حذف» يبقى هنا قابلاً للاستعادة في أي وقت، حتى تحذفه نهائيًا.</p></div>
@@ -4651,7 +4651,17 @@ async function renderPortal(){
   if($('privAk'))$('privAk').value=cc.privAk||'';
   if($('privStatus'))$('privStatus').textContent=cc.privOn?((cc.privRk&&String(cc.privRk).length>=20)?(cc.privLastAt?('مفعّل — آخر نشر '+new Date(cc.privLastAt).toLocaleString('ar')):'مفعّل — لم يُنشر بعد'):'مفعّل — لكن بلا مفتاح قراءة: التلاميذ لن يتوصّلوا إليه'):'غير مفعّل';
   if($('cloudStatus'))$('cloudStatus').textContent=cc.enabled?(cc.lastAt?('مفعّل — آخر نشر '+new Date(cc.lastAt).toLocaleString('ar')):'مفعّل — لم يُنشر بعد'):'غير مفعّل';
-  if($('cloudSave'))$('cloudSave').onclick=async()=>{const cur=await loadCloud();await saveCloud({url:$('cloudUrl').value.trim(),key:$('cloudKey').value.trim(),inst:$('cloudInst').value.trim(),enabled:!!$('cloudOn').checked,sweep:$('cloudSweep')?!!$('cloudSweep').checked:cur.sweep!==false,lastAt:cur.lastAt,lastOk:cur.lastOk,privOn:!!($('privOn')&&$('privOn').checked),privUrl:($('privUrl')?$('privUrl').value.trim():''),privRk:($('privRk')?$('privRk').value.trim():''),privAk:($('privAk')?$('privAk').value.trim():''),privLastAt:cur.privLastAt,privLastOk:cur.privLastOk,enc:!!($('encOn')&&$('encOn').checked)});toast('حُفظت إعدادات السحابة');renderPortal()};
+  if($('cloudSave'))$('cloudSave').onclick=async()=>{const cur=await loadCloud();
+  const nv=(id,fn)=>{const el=$(id);return el?fn(el.value):''};
+  const url=nv('cloudUrl',cloudCleanUrl),key=nv('cloudKey',cloudCleanKey),inst=nv('cloudInst',(x)=>String(x||'').trim());
+  const privUrl=nv('privUrl',cloudCleanUrl),privAk=nv('privAk',cloudCleanKey),privRk=nv('privRk',cloudCleanKey);
+  const why=cloudUrlWhy(url)||cloudUrlWhy(privUrl);if(why){toast(why);return}
+  if(/^rd_/i.test(privAk)){toast('في خانة مفتاح النشر ضع المفتاح الذي يبدأ بـ ad_');return}
+  if(/^ad_/i.test(privRk)){toast('لا تضع مفتاح النشر في خانة القراءة: التلاميذ سيملكون حق الكتابة والحذف');return}
+  if($('cloudUrl'))$('cloudUrl').value=url;if($('cloudKey'))$('cloudKey').value=key;if($('cloudInst'))$('cloudInst').value=inst;
+  if($('privUrl'))$('privUrl').value=privUrl;if($('privAk'))$('privAk').value=privAk;if($('privRk'))$('privRk').value=privRk;
+  await saveCloud({url:url,key:key,inst:inst,enabled:!!$('cloudOn').checked,sweep:$('cloudSweep')?!!$('cloudSweep').checked:cur.sweep!==false,lastAt:cur.lastAt,lastOk:cur.lastOk,privOn:!!($('privOn')&&$('privOn').checked),privUrl:privUrl,privRk:privRk,privAk:privAk,privLastAt:cur.privLastAt,privLastOk:cur.privLastOk,enc:!!($('encOn')&&$('encOn').checked)});
+  toast('حُفظت إعدادات السحابة');renderPortal()};
   if($('cloudPush'))$('cloudPush').onclick=async()=>{const d=await buildPortalSnapshot();await cloudPublish(d)};
   if($('privProbe'))$('privProbe').onclick=()=>cloudProbePriv();
   const contact=await loadContact();
@@ -4757,16 +4767,35 @@ async function cloudWhy(e,c){
   }catch(e2){}
   return m?('خطأ: '+m.slice(0,70)):'خطأ غير معروف';
 }
-function privPair(c){if(c&&c.privOn&&c.privUrl&&c.privRk&&String(c.privRk).length>=20)return {u:String(c.privUrl).replace(/\/+$/,''),k:String(c.privRk)};return null}
-function cloudTargets(c){const out=[];if(c&&c.enabled&&c.url&&c.key&&c.inst)out.push({n:'سحابة الأستاذ',url:c.url,key:c.key,inst:c.inst,sweep:c.sweep!==false});if(c&&c.privOn&&c.privUrl&&c.privAk&&c.inst)out.push({n:'المستودع الخاص',url:c.privUrl,key:c.privAk,inst:c.inst,sweep:true});return out}
+function cloudCleanKey(v){let s=String(v==null?'':v).replace(/[\u200b-\u200f\u202a-\u202e]/g,'');
+  s=s.replace(/^\s*(?:Bearer\b|SIJIL_[A-Z0-9_]+\b|apikey\b|api_key\b|access_token\b|token\b|key\b)\s*[:=]?\s*/i,'');
+  s=s.replace(/["'`]/g,'').trim();return s.replace(/[,;\s]+$/,'')}
+  function cloudCleanUrl(v){let s=String(v==null?'':v).replace(/[\u200b-\u200f\u202a-\u202e]/g,'').trim().replace(/^["']+|["']+$/g,'');s=s.replace(/\/rest\/v1.*$/i,'').replace(/\s*\/\s*/g,'/').replace(/\s+/g,'');if(s&&!/^https?:\/\//i.test(s))s='https://'+s.replace(/^\/+|\s/g,'');return s.replace(/\/+$/,'')}
+  function cloudUrlWhy(u){const l=String(u||'').toLowerCase();if(!l)return'';if(l.indexOf('github.com')>=0)return'الرابط الذي أدخلته صفحة على GitHub وليس مستودع مواكبتي — أدخل رابط المستودع (مثال: https://…ts.net)';if(/\.apk($|\?)/.test(l))return'الرابط الذي أدخلته ملف تثبيت (APK) وليس رابط المستودع';return''}
+  function pubWhy(status,body){const b=String(body==null?'':body);if(b.charAt(0)==='<'||/<\s*(?:!doctype|html)/i.test(b))return'الرابط الذي أدخلته ليس مستودع مواكبتي (أرجع صفحة ويب بدلاً من البيانات)';if(status===401)return'مفتاح النشر غير صحيح أو لم يُحفظ — انسخ مفتاح النشر كاملاً (يبدأ بـ ad_) ثم اضغط «حفظ الإعدادات»';if(status===403)return'المفتاح مرفوض للكتابة: استعمل مفتاح النشر (ad_) لا مفتاح القراءة (rd_)';if(status===404)return'لا يوجد مسار portal_students في هذا الرابط — تحقق من رابط المستودع';if(status===429)return'المستودع وقف مؤقتًا حدّ الطلبات — انتظر دقيقة ثم أعد النشر';if(status>=500)return'المستودع أعطّل مؤقتًا ('+status+') — تحقق من خدمة المستودع ثم أعد النشر';return'فشل النشر '+(status||'?')+(b?(' — '+b.slice(0,120)):'')}
+  function cloudLive(c){const o=Object.assign({},c||{});const v=(id)=>{const el=$(id);return el?String(el.value==null?'':el.value).trim():''};const b=(id)=>{const el=$(id);return el?!!el.checked:null};
+    if(v('cloudUrl'))o.url=v('cloudUrl');if(v('cloudKey'))o.key=v('cloudKey');if(v('cloudInst'))o.inst=v('cloudInst');
+    if(v('privUrl'))o.privUrl=v('privUrl');if(v('privAk'))o.privAk=v('privAk');if(v('privRk'))o.privRk=v('privRk');
+    const e1=b('cloudOn');if(e1!==null)o.enabled=e1;const e2=b('privOn');if(e2!==null)o.privOn=e2;const e3=b('encOn');if(e3!==null)o.enc=e3;
+    o.url=cloudCleanUrl(o.url);o.privUrl=cloudCleanUrl(o.privUrl);o.key=cloudCleanKey(o.key);o.privAk=cloudCleanKey(o.privAk);o.privRk=cloudCleanKey(o.privRk);return o}
+  function cloudLiveDiff(sv,l){const d=[];for(const f of ['url','key','inst','privUrl','privAk','privRk']){if(String(sv[f]||'')!==String(l[f]||''))d.push(f)}for(const f of ['enabled','privOn','enc']){if(!!sv[f]!==!!l[f])d.push(f)}return d}
+  function privPair(c){if(c&&c.privOn&&c.privUrl&&c.privRk&&String(c.privRk).length>=20)return {u:cloudCleanUrl(c.privUrl),k:cloudCleanKey(c.privRk)};return null}
+function cloudTargets(c){const out=[],bad=[];const uw=(u,n)=>{const w=cloudUrlWhy(u);if(w)bad.push({n:n,why:w});return!w};
+  if(c&&c.enabled&&c.url&&c.key&&c.inst){const u=cloudCleanUrl(c.url);if(uw(u,'سحابة الأستاذ'))out.push({n:'سحابة الأستاذ',url:u,key:cloudCleanKey(c.key),inst:String(c.inst).trim(),sweep:c.sweep!==false});}
+  if(c&&c.privOn&&c.privUrl&&c.privAk&&c.inst){const u=cloudCleanUrl(c.privUrl);if(uw(u,'المستودع الخاص'))out.push({n:'المستودع الخاص',url:u,key:cloudCleanKey(c.privAk),inst:String(c.inst).trim(),sweep:true});}
+  out.bad=bad;return out}
 async function cloudProbePriv(){
   const c=await loadCloud();
-  const u=(($('privUrl')&&$('privUrl').value.trim())||c.privUrl||'').replace(/\/+$/,'');
-  const ak=(($('privAk')&&$('privAk').value.trim())||c.privAk||'');
-  const rk=(($('privRk')&&$('privRk').value.trim())||c.privRk||'');
+  const u=cloudCleanUrl((($('privUrl')&&$('privUrl').value)||c.privUrl||''));
+  const ak=cloudCleanKey((($('privAk')&&$('privAk').value)||c.privAk||''));
+  const rk=cloudCleanKey((($('privRk')&&$('privRk').value)||c.privRk||''));
   const st=$('privStatus');
   if(!u||!ak){toast('أدخل رابط المستودع الخاص ومفتاح النشر ثم احفظ الإعدادات');return}
   if(u.indexOf('https://')!==0&&u.indexOf('http://')!==0){toast('الرابط يجب أن يبدأ بـ https://');return}
+  const uw=cloudUrlWhy(u);if(uw){if(st)st.textContent=uw;toast(uw);return}
+  if(/^rd_/i.test(ak)){toast('هذا مفتاح قراءة (rd_) في خانة النشر — انسخ مفتاح النشر الذي يبدأ بـ ad_');return}
+  if(/^ad_/i.test(rk)){toast('لا تضع مفتاح النشر (ad_) في خانة القراءة: التلاميذ سيقدرون على تعديل بيانات غيرهم');return}
+  if(ak&&rk&&ak===rk){toast('مفتاح النشر ومفتاح القراءة متطابقان — انسخ كلًّا في خانته');return}
   if(!rk){toast('أدخل مفتاح القراءة الذي سيُمنح للتلاميذ');return}
   const inst='probe-'+String(c.inst||'default');
   const rk2=await sha256h('sijil-probe::'+inst);
@@ -4775,7 +4804,7 @@ async function cloudProbePriv(){
   try{
     if(st)st.textContent='جارٍ الفحص…';
     const p=await cloudPostRows(t,u,[{inst:inst,rowkey:rk2,payload:{probe:1},meta:{probe:1},updated_at:new Date().toISOString()}]);
-    if(!(p.ok||p.status===201)){const txt=(await p.text().catch(()=>''))||'';throw new Error('تعذّر النشر ('+p.status+')'+(txt?(' '+String(txt).slice(0,90)):''))}
+    if(!(p.ok||p.status===201)){const txt=(await p.text().catch(()=>''))||'';throw new Error(pubWhy(p.status,txt));}
     const g=await fetch(u+'/rest/v1/portal_students?select=payload&rowkey=eq.'+rk2+'&inst=eq.'+encodeURIComponent(inst),{headers:{apikey:rk,Authorization:'Bearer '+rk},cache:'no-store'});
     if(g.status===401||g.status===403)throw new Error('مفتاح القراءة مرفوض — تحقق منه ومن أنه مفتاح القراءة لا مفتاح النشر');
     if(!g.ok)throw new Error('تعذّرت القراءة من المستودع ('+g.status+')');
@@ -4808,9 +4837,9 @@ async function encPortalPayload(plain,code,sec,inst){
   }catch(e){return null}
 }
 async function cloudPublish(data){
-  const c=await loadCloud();
-  const targets=cloudTargets(c);
-  if(!targets.length){toast('أكمل إعدادات السحابة أو المستودع الخاص أولًا');return{ok:false}}
+  const sv=await loadCloud();const c=cloudLive(sv);
+  const targets=cloudTargets(c);const dd=cloudLiveDiff(sv,c);if(dd.length)toast('استعملنا القيم الظاهرة على الشاشة ('+dd.length+' مختلفة عمّا هو محفوظ) — اضغط «حفظ الإعدادات» لترسيخها');
+  if(!targets.length){const bw=(targets.bad&&targets.bad[0])?targets.bad[0].why:'';const st0=$('cloudStatus');if(st0&&bw)st0.textContent=bw;toast(bw||'أكمل إعدادات السحابة أو المستودع الخاص أولًا');return{ok:false}}
   const pp=privPair(c);
   const st=$('cloudStatus');if(st)st.textContent='جارٍ النشر…';
   const startedAt=new Date().toISOString();
@@ -4847,7 +4876,7 @@ async function cloudPublish(data){
       try{
         const r=await cloudPostRows(t,String(t.url).replace(/\/+$/,''),rows);
         ok=r.ok||r.status===201;status=r.status;
-        if(!ok){const txt=(await r.text().catch(()=>''))||'';let msg='';try{const j=JSON.parse(txt);msg=j.message||j.error||'';}catch(e){msg=String(txt).slice(0,120);}w='فشل النشر '+status+(msg?(' — '+msg):'');}
+        if(!ok){const txt=(await r.text().catch(()=>''))||'';w=pubWhy(status,txt);}
         else if(t.sweep){
           const pending=await cloudCountStale(t,startedAt);
           try{sw=await cloudSweepStale(t,startedAt);}catch(e){w='تعذّر حذف الصفوف القديمة';}
@@ -4865,7 +4894,7 @@ async function cloudPublish(data){
     await saveCloud(upd);
     const anyOk=res.some(x=>x.ok);
     const tail=res.map(x=>x.n+': '+(x.ok?'تم'+(x.swept?(' (أزال '+x.swept+')'):''):'فشل')).join(' | ');
-    if(st)st.textContent=anyOk?('نُشر '+rows.length+' تلميذًا — '+tail+(swept?(' — أُزيل '+swept+' صفًّا قديمًا'):'')+' — '+portalNow()):('فشل النشر: '+tail);
+    if(st)st.textContent=anyOk?('نُشر '+rows.length+' تلميذًا — '+tail+(swept?(' — أُزيل '+swept+' صفًّا قديمًا'):'')+(c.enc===true?' — التشفير مفعّل: يلزم «مواكبتي» محدّثة':'')+' — '+portalNow()):('فشل النشر: '+tail);
     toast(anyOk?(warn?('نُشر '+rows.length+' تلميذًا — '+warn):('تم نشر البيانات'+(swept?('، وأُزيل '+swept+' صفًا لم يعد في قائمتك'):''))):('تعذّر النشر إلى أي هدف'+(warn?(': '+warn):'')));
     return{ok:anyOk,swept:swept,warn:warn};
   }catch(e){const why=await cloudWhy(e,c);if(st)st.textContent='تعذّر الاتصال بالسحابة: '+why;toast('تعذّر الاتصال بالسحابة: '+why);return{ok:false}}
