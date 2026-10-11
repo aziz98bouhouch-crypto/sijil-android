@@ -579,8 +579,8 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
 <!-- STUDENTS -->
 <div id="students" class="page"><div class="hero"><span class="badge">PHASE 3</span><h1>ملف المتعلم المتكامل</h1></div><div class="grid"><div class="card stat"><span class="muted">إجمالي المتعلمين</span><strong id="pStudents">0</strong></div><div class="card stat"><span class="muted">النشطون</span><strong id="pActive">0</strong></div><div class="card stat"><span class="muted">المؤرشفون</span><strong id="pArchived">0</strong></div><div class="card stat"><span class="muted">نتائج البحث</span><strong id="pFound">0</strong></div></div>
 <div class="card"><div class="form"><div class="field"><label>بحث</label><input id="studentSearch" placeholder="الاسم أو رقم مسار أو القسم"></div><div class="field"><label>القسم</label><select id="studentClassFilter"><option value="">كل الأقسام</option></select></div><div class="field"><label>الحالة</label><select id="studentStatusFilter"><option value="">الكل</option><option value="active">النشطون</option><option value="archived">المؤرشفون</option></select></div></div></div>
-<div class="section-title"><h2>إضافة أو استيراد المتعلمين</h2></div><div class="card"><div class="form"><div class="field"><label>القسم المستهدف للاستيراد</label><select id="importClass"></select></div><div class="field"><label>ملف CSV أو Excel (مسار)</label><input id="studentCsv" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></div></div><p class="muted">يقبل ملفات مسار (لائحة تلاميذ / نقط المراقبة المستمرة)، وملفات CSV بصيغة «رقم مسار،الاسم الكامل»، أو قائمة أسماء فقط — تُحفظ بنفس الترتيب، وأرقام المسار المستفادة تلقائيًا (توليد إذا غابت)</p><div class="actions"><button class="btn primary" id="importStudents">استيراد المتعلمين</button><button class="btn" id="exportStudents">تصدير المتعلمين CSV</button><button class="btn" id="exportFiltered">تصدير اللائحة الحالية Excel</button><button class="btn" id="exportTemplate">تصدير نموذج فارغ</button></div></div>
-<div class="section-title"><h2>سجل المتعلمين — حسب القسم (الصنف)</h2></div><div id="studentsGroups"></div></div>
+<div class="section-title"><h2>إضافة أو استيراد المتعلمين</h2></div><div class="card"><div class="form"><div class="field"><label>القسم المستهدف للاستيراد</label><select id="importClass"></select></div><div class="field"><label>ملف CSV أو Excel (مسار)</label><input id="studentCsv" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></div></div><p class="muted">يقبل ملفات مسار (لائحة تلاميذ / نقط المراقبة المستمرة)، وملفات CSV بصيغة «رقم مسار،الاسم الكامل»، أو قائمة أسماء فقط — تُحفظ بنفس الترتيب، وأرقام المسار المستفادة تلقائيًا (توليد إذا غابت)</p><div class="actions"><button class="btn primary" id="importStudents">استيراد المتعلمين</button><button class="btn" id="exportStudents">تصدير المتعلمين CSV</button><button class="btn" id="exportFiltered">تصدير اللائحة الحالية Excel</button><button class="btn" id="exportTemplate">تصدير نموذج فارغ</button><button class="btn" id="dupeToggle">فحص تكرارات المتعلمين</button></div></div>
+<div class="card" id="dupeCard" style="display:none"></div><div class="section-title"><h2>سجل المتعلمين — حسب القسم (الصنف)</h2></div><div id="studentsGroups"></div></div>
 
 <!-- STUDENT PROFILE -->
 <div id="studentProfile" class="page"><div class="pf-hero"><div class="pf-ava" id="pfAvatar">؟</div><div class="pf-hero-txt"><span class="badge">سجل المتعلم</span><h1 id="profileTitle">ملف المتعلم</h1><p id="profileMeta">اختر متعلمًا من السجل.</p></div></div>
@@ -1046,7 +1046,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <!-- SETTINGS -->
 <div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="section-title"><h2>المظهر والواجهة</h2></div><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
 <div class="card"><div class="section-title"><h2>عتبات الأوسمة</h2></div><div class="form"><div class="field"><label>عتبة وسام «المتفوق» /20</label><input id="badgeTop" type="number" min="0" max="20" step="0.5" value="16"></div><div class="field"><label>عتبة وسام «المجتهد» /20</label><input id="badgeDil" type="number" min="0" max="20" step="0.5" value="14"></div></div><p class="muted">تُطبَّق على منح أوسمة التحفيز في كل الحاسبات والتقارير: وسام «المتفوق» لمن بلغ معدله العام العتبة الأولى فما فوق، و«المجتهد» لمن بلغ العتبة الثانية. تُحفظ تلقائيًا وتنعكس على صفحة التحفيز والتنبيهات.</p><div class="actions"><button class="btn primary" id="saveBadgeWeights">حفظ عتبات الأوسمة</button></div></div><div class="card"><div class="section-title"><h2>شعار المؤسسة</h2></div><p class="muted">يظهر الشعار أعلى رأس كل بطاقة وتقرير رسمي (بطاقة المتعلم، ولي الأمر، الأكشفة، الشهادات...).</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><img id="logoPreview" alt="الشعار" style="height:64px;max-width:200px;object-fit:contain;display:none;border:1px solid var(--l);border-radius:8px;padding:6px;background:#fff"><div style="display:flex;flex-direction:column;gap:8px"><input id="logoInput" type="file" accept="image/*"><button class="btn danger" id="logoRemoveBtn">إزالة الشعار</button></div></div></div><div class="card"><div class="section-title"><h2>أوزان المواد</h2></div><p class="muted">تحديد وزن «النشاط» و«الفرض» لكل مادة على حدة عند تركيب معدلها في البطاقات والنتائج والأكشفة. مؤشر «عام» يعني الاعتماد على الأوزان العامة الموضوعة في صفحة التقويم.</p><div id="subjectWeightsList"></div><div class="actions"><button class="btn primary" id="saveSubjectWeights">حفظ أوزان المواد</button></div></div>
-<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.41</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
+<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.42</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
 
 <!-- TRASH -->
 <div id="trash" class="page"><div class="hero"><span class="badge">TRASH</span><h1>السلة</h1><p>ما حُذف عبر أزرار «حذف» يبقى هنا قابلاً للاستعادة في أي وقت، حتى تحذفه نهائيًا.</p></div>
@@ -2523,6 +2523,7 @@ async function renderStudents(){
   $('studentsGroups').innerHTML=html||'<div class="empty">لا توجد نتائج مطابقة — جرّب توسيع البحث أو تغيير التصفية.</div>';
   document.querySelectorAll('[data-open-student]').forEach(b=>b.onclick=()=>openStudentProfile(b.dataset.openStudent));
   document.querySelectorAll('[data-wa-student]').forEach(b=>b.onclick=()=>waStudent(b.dataset.waStudent));
+  renderDupePanel();
   updateHeaderChip();
 }
 async function openStudentProfile(id){selectedStudentId=id;Router.go('studentProfile')}
@@ -2545,7 +2546,7 @@ async function saveStudentProfile(){
  const name=$('pfName').value.trim(), code=$('pfCode').value.trim(), classId=$('pfClass').value, status=$('pfStatus').value, phone=($('pfPhone')?.value||'').trim();
  let secret=($('pfSecret')?$('pfSecret').value.trim():'')||s.portalSecret||'';if(!secret){secret=genPortalSecret();if($('pfSecret'))$('pfSecret').value=secret;}
  if(!name||!code||!classId)return toast('أكمل البيانات');
- if(students.some(x=>x.id!==s.id&&x.externalId===code))return toast('رقم مسار مستعمل');
+ if(students.some(x=>x.id!==s.id&&normExt(x.externalId)===normExt(code)))return toast('رقم المسار مستعمل لمتعلم آخر — ادمج السجلين من لوحة «تكرارات المتعلمين»');
  const c=d.classes.find(x=>x.id===classId); if(!c)return toast('القسم غير موجود');
  Object.assign(s,{name,externalId:code,classId,levelId:c.levelId,branchId:c.branchId,trackId:c.trackId,phone,portalSecret:secret,status,updatedAt:now()});
  await DB.put('students',s);await profilePut({id:s.id,studentId:s.id,notes:$('pfNotes').value.trim(),updatedAt:now()});
@@ -2704,6 +2705,136 @@ function snapWhereElse(snap,classId,st,allSt){
   }
   return null;
 }
+/* ===== المرحلة 30: تكرارات المتعلمين — كشف ودمج (لوحة تجريبية مخفية افتراضيًا) ===== */
+function normExt(v){return String(v==null?'':v).replace(/^\uFEFF/,'').replace(/^["']+|["']+$/g,'').replace(/\s+/g,'').trim();}
+async function dupeFlagGet(){try{const m=await DB.get('appMeta','dupePanel');return !!(m&&m.value&&m.value.on===true);}catch(e){return false;}}
+async function dupeFlagSet(on){const m=(await DB.get('appMeta','dupePanel'))||{};await DB.put('appMeta',Object.assign({},m,{id:'dupePanel',value:{on:!!on},updatedAt:now()}));}
+let __dupeOpen=false,__dupeCases=[];
+async function dupeVisible(){return __dupeOpen||await dupeFlagGet();}
+async function studentRowCounts(ids){
+  const set=new Set((ids||[]).map(String)),out={};set.forEach(id=>{out[id]=0;});
+  for(const s of transferStores()){let rows;try{rows=await DB.all(s);}catch(e){continue;}
+    for(const r of rows){if(r&&set.has(String(r.studentId)))out[String(r.studentId)]=(out[String(r.studentId)]||0)+1;}}
+  return out;
+}
+async function findDuplicateStudents(){
+  const all=await DB.all('students',{inactive:true});
+  const live=all.filter(s=>s&&(s.status||'active')!=='archived');
+  const byExt=new Map(),byName=new Map();
+  live.forEach(s=>{const e=normExt(s.externalId);if(e){if(!byExt.has(e))byExt.set(e,[]);byExt.get(e).push(s);}const n=normStudName(s.name);if(n){const k=n+'@@'+String(s.classId||'');if(!byName.has(k))byName.set(k,[]);byName.get(k).push(s);}});
+  const cases=[];
+  byExt.forEach((arr,e)=>{if(arr.length>1)cases.push({kind:'externalId',key:e,why:'رقم مسار مكرّر',recs:arr.slice()});});
+  const covered=new Set();cases.forEach(c=>c.recs.forEach(s=>{covered.add(String(s.id));}));
+  byName.forEach((arr,k)=>{if(arr.length<2)return;const fresh=arr.filter(s=>!covered.has(String(s.id)));if(fresh.length>1)cases.push({kind:'name',key:k,why:'اسم مكرّر في نفس القسم',recs:fresh.slice()});});
+  const ids=[];cases.forEach(c=>c.recs.forEach(s=>{if(ids.indexOf(String(s.id))<0)ids.push(String(s.id));}));
+  const counts=await studentRowCounts(ids),snap=await rosterSnapGet();
+  for(const c of cases){
+    c.recs.forEach(s=>{s.__rows=counts[String(s.id)]||0;s.__snap=!!((((snap||{})[String(s.classId||'')]||{}).rows||{})[String(s.id)]);});
+    c.recs.sort((a,b)=>(String(a.createdAt||'')<String(b.createdAt||'')?-1:(String(a.createdAt||'')>String(b.createdAt||'')?1:0))||((b.portalSecret?1:0)-(a.portalSecret?1:0))||((b.__snap?1:0)-(a.__snap?1:0))||(b.__rows-a.__rows));
+    c.keep=c.recs[0].id;
+  }
+  __dupeCases=cases;return cases;
+}
+async function mergeDuplicateStudents(keepId,dropId,opt){
+  opt=opt||{};const out={ok:true,kid:String(keepId),did:String(dropId),rows:0,marks:0,droppedMarks:0,profiles:0,recN:0};
+  const keep=await DB.get('students',keepId),drop=await DB.get('students',dropId);
+  if(!keep||!drop)return {ok:false,why:'أحد السجلين لم يعد موجودًا'};
+  if(String(keepId)===String(dropId))return {ok:false,why:'لا يمكن دمج السجل مع نفسه'};
+  for(const store of transferStores()){
+    if(store==='studentProfiles'||store==='motivation'||store==='scores'||store==='homeworkSubmissions')continue;
+    const rows=await DB.all(store);
+    for(const r of rows){
+      if(!r||String(r.studentId)!==String(dropId))continue;
+      if(store==='badges'&&rows.some(o=>String(o.studentId)===String(keepId)&&String(o.badgeId)===String(r.badgeId))){await DB.remove(store,r.id);continue;}
+      await DB.put(store,Object.assign({},r,{studentId:keepId}));out.rows++;
+    }
+  }
+  const [sc,sub,cls]=await Promise.all([DB.all('scores'),DB.all('homeworkSubmissions'),DB.all('classes')]);
+  const cn={};cls.forEach(c=>{cn[String(c.id)]=c.name||'';});
+  const keepAs=new Set(sc.filter(x=>String(x.studentId)===String(keepId)).map(x=>String(x.assessmentId||'')));
+  const keepHw=new Set(sub.filter(x=>String(x.studentId)===String(keepId)).map(x=>String(x.homeworkId||'')));
+  const note='بقايا قسم قديم ('+(cn[String(drop.classId)]||'—')+')';
+  for(const x of sc){
+    if(String(x.studentId)!==String(dropId))continue;
+    if(keepAs.has(String(x.assessmentId||''))){await DB.remove('scores',x.id);out.droppedMarks++;continue;}
+    await DB.put('scores',Object.assign({},x,{studentId:keepId,legacy:true,legacyClassId:String(x.classId||drop.classId||''),legacyNote:note}));out.marks++;
+  }
+  for(const x of sub){
+    if(String(x.studentId)!==String(dropId))continue;
+    if(keepHw.has(String(x.homeworkId||''))){await DB.remove('homeworkSubmissions',x.id);out.droppedMarks++;continue;}
+    await DB.put('homeworkSubmissions',Object.assign({},x,{studentId:keepId,legacy:true,legacyClassId:String(x.classId||drop.classId||''),legacyNote:note}));out.marks++;
+  }
+  const profD=await DB.get('studentProfiles',dropId);
+  if(profD){
+    const profK=await DB.get('studentProfiles',keepId);
+    let target=Object.assign({},profD,{id:keepId});
+    if(profK){target=Object.assign({},profK,{id:keepId});['notes','guardian','address','absentNotes'].forEach(f=>{if(!String(target[f]||'').trim()&&String(profD[f]||'').trim())target[f]=profD[f];});}
+    await DB.put('studentProfiles',target);await DB.remove('studentProfiles',dropId);out.profiles++;
+  }
+  const motD=await DB.get('motivation',dropId);
+  if(motD){
+    const motK=await DB.get('motivation',keepId),base=motK||{totalXp:0};
+    await DB.put('motivation',Object.assign({},base,{id:keepId,totalXp:(+base.totalXp||0)+(+motD.totalXp||0)}));await DB.remove('motivation',dropId);out.rows++;
+  }
+  const up=Object.assign({},keep,{externalId:normExt(keep.externalId)||String(drop.externalId||'').trim()});
+  if(!up.portalSecret&&drop.portalSecret)up.portalSecret=drop.portalSecret;
+  if(!String(up.phone||'').trim()&&String(drop.phone||'').trim())up.phone=String(drop.phone).trim();
+  await DB.put('students',up);
+  out.recN=await removeRosterStudent(dropId);
+  await rosterSnapPurge([dropId]);
+  if(!opt.silent){const rev=await portalRevokeQuiet();out.swept=rev.swept||0;out.warn=rev.warn||'';renderStudents();}
+  return out;
+}
+async function mergeDupeCase(i,keepId){
+  const c=__dupeCases[i];if(!c)return null;
+  const drops=c.recs.filter(s=>String(s.id)!==String(keepId)).map(s=>s.id);
+  const r={rows:0,marks:0,droppedMarks:0,drops:drops.length};
+  for(const did of drops){const x=await mergeDuplicateStudents(keepId,did,{silent:true});if(x&&x.ok){r.rows+=x.rows;r.marks+=x.marks;r.droppedMarks+=x.droppedMarks;}}
+  return r;
+}
+async function runDupeMerge(i,keepId,all){
+  const msg=all?'سيُدمج كل سجل مكرر في السجل المُقترح للإبقاء عليه: تُنقل النقط والسجلات إليه بعلامة «بقايا قسم قديم»، ويُحذف السجل الزائد إلى السلة (قابل للاستعادة). هل تريد المتابعة؟':'سيُنقل ما للسجل الزائد من نقط وسجلات إلى السجل المحدّد، ثم يُحذف الزائد إلى السلة (قابل للاستعادة). هل تريد المتابعة؟';
+  trashConfirm(msg,all?'دمج الكل':'دمج السجلات',async()=>{
+    let rows=0,marks=0,dm=0,n=0;
+    if(all){for(let k=0;k<__dupeCases.length;k++){const r=await mergeDupeCase(k,__dupeCases[k].keep);if(r){rows+=r.rows;marks+=r.marks;dm+=r.droppedMarks;n+=r.drops;}}}
+    else{const r=await mergeDupeCase(i,keepId);if(!r)return toast('تغيّرت اللوحة — أعد الفحص');rows=r.rows;marks=r.marks;dm=r.droppedMarks;n=r.drops;}
+    const rev=await portalRevokeQuiet();renderStudents();
+    toast('تم الدمج — '+n+' سجلًا زائدًا أُزيل، '+rows+' سجلًا منقولًا، '+marks+' نقطة بعلامة بقايا'+(dm?('، '+dm+' متعارضة إلى السلة'):'')+(rev&&rev.swept?('، أُزيل '+rev.swept+' صفًّا من السحابة'):''));
+    renderDupePanel();
+  });
+}
+async function renderDupePanel(){
+  const card=$('dupeCard');if(!card)return;
+  const show=await dupeVisible();card.style.display=show?'':'none';if(!show){card.innerHTML='';return;}
+  const cases=await findDuplicateStudents(),d=await studentData(),cn={};d.classes.forEach(c=>{cn[String(c.id)]=c.name||'قسم بدون اسم';});
+  const persisted=await dupeFlagGet();
+  const head='<div class="section-title"><h3>تكرارات المتعلمين ('+cases.length+')</h3></div>'
+    +'<p class="muted">التكرار = متعلم له <b>سجلّان</b> بنفس رقم المسار أو الاسم، لذلك يظهر في لائحتين. الدمج ينقل نقطه وسجلاته إلى السجل المُبقى عليه ويُبقي <b>رمزه الخاص كما هو</b> (لا تُعاد طباعة بطاقته)، والنقطة التي تعارض نقطة قائمة في القسم الجديد تُحذف إلى <b>السلة</b>.</p>';
+  const foot='<div class="actions"><label style="display:flex;align-items:center;gap:8px;font-weight:400"><input type="checkbox" id="dupeKeepOn" style="width:auto;margin:0"'+(persisted?' checked':'')+'> إبقاء هذه اللوحة ظاهرة بعد إعادة الفتح</label><button class="btn" id="dupeHide">إخفاء اللوحة</button>'+(cases.length?'<button class="btn primary" id="dupeAll">دمج الكل كما هو مقترح</button>':'')+'</div>';
+  if(!cases.length){card.innerHTML=head+'<div class="empty">لا تكرارات — كل متعلم له سجل واحد في التطبيق.</div>'+foot;wireDupePanel();return;}
+  const row=(c,i)=>{
+    const opts=c.recs.map(s=>'<option value="'+esc(s.id)+'"'+(String(s.id)===String(c.keep)?' selected':'')+'>'+esc(cn[String(s.classId)]||'بدون قسم')+' · '+esc(s.name||'—')+' · '+(+s.__rows||0)+' سجلًا مرتبطًا'+(s.__snap?' · واردة في لائحة قسمها':'')+(s.portalSecret?' · له رمز خاص':'')+(s.createdAt?' · أُنشئ '+esc(String(s.createdAt).slice(0,10)):'')+'</option>').join('');
+    const doomed=c.recs.filter(s=>String(s.id)!==String(c.keep)).map(s=>esc(cn[String(s.classId)]||'—')+' (…'+esc(String(s.id).slice(-6))+')').join('، ');
+    return '<div style="padding:10px 0;border-bottom:1px dashed var(--l)"><b>'+esc(c.recs[0].name||'—')+'</b> <span class="pill danger">'+esc(c.why)+'</span>'
+      +'<div class="muted" style="font-size:12px">رقم المسار: '+esc(c.recs[0].externalId||'—')+'</div>'
+      +'<div style="margin-top:6px;font-size:13px">الإبقاء على: <select id="dupeSel_'+i+'" style="min-width:260px">'+opts+'</select> <button class="btn" data-merge="'+i+'">دمج</button></div>'
+      +'<div class="muted" style="font-size:12px;margin-top:4px">يُدمج ويُحذف: '+(doomed||'—')+'</div></div>';
+  };
+  card.innerHTML=head+'<div class="card">'+cases.map(row).join('')+'</div>'+foot;
+  wireDupePanel();
+}
+function wireDupePanel(){
+  const keep=$('dupeKeepOn');if(keep)keep.onchange=async()=>{await dupeFlagSet(!!keep.checked);toast(keep.checked?'ستبقى لوحة التكرارات ظاهرة':'لن تبقى اللوحة ظاهرة بعد إعادة الفتح');};
+  const hide=$('dupeHide');if(hide)hide.onclick=async()=>{__dupeOpen=false;await dupeFlagSet(false);renderDupePanel();};
+  const all=$('dupeAll');if(all)all.onclick=()=>runDupeMerge(0,'',true);
+  document.querySelectorAll('[data-merge]').forEach(b=>b.onclick=()=>{const i=+b.dataset.merge,sel=$('dupeSel_'+i);runDupeMerge(i,sel?sel.value:(__dupeCases[i]&&__dupeCases[i].keep),false);});
+}
+window.__dupeApi={findDuplicateStudents,mergeDuplicateStudents,renderDupePanel,dupeToggleClick,dupeFlagSet,dupeFlagGet,normExt,storeStudentForImport};
+async function dupeToggleClick(){
+  __dupeOpen=!__dupeOpen;
+  if(__dupeOpen){await renderDupePanel();toast('لوحة تكرارات المتعلمين مفتوحة — البيانات لا تتغير إلا عند تأكيد الدمج');}
+  else{await dupeFlagSet(false);renderDupePanel();}
+}
 async function removeRosterStudent(id){
   let n=0;const sid=String(id);
   for(const store of CORE.stores){
@@ -2726,7 +2857,8 @@ async function finalizeRoster(ctx,opt){
   for(const m of moves){try{await applyStudentTransfer(m.st,m.toClassId,{name:m.name,phone:m.phone});movedN++;}catch(e){failN++;}}
   let recN=0;const delIds=[];
   for(const g of dels){recN+=await removeRosterStudent(g.st.id);delIds.push(String(g.st.id));}
-  if(delIds.length)await rosterSnapPurge(delIds);
+  const mvIds=moves.filter(m=>m&&m.st).map(m=>String(m.st.id));
+  if(mvIds.length||delIds.length)await rosterSnapPurge(mvIds.concat(delIds));
   const ord=[];(ctx.order||[]).forEach(o=>{const id=o.ex?o.ex.id:idByKey[o.key];if(id&&ord.indexOf(String(id))<0)ord.push(String(id));});
   const reNum=opt.order?await applyRosterOrder(ctx.classId,ord):0;
   const sMap={};(await DB.all('students')).forEach(s=>{sMap[String(s.id)]=s;});
@@ -2742,6 +2874,7 @@ async function finalizeRoster(ctx,opt){
   if(!rev.ok)bits.push('تعذّر تحديث البوابة — اضغط «تحديث البيانات الآن»');
   if(rev.swept)bits.push('أُزيل '+rev.swept+' صفًّا من السحابة');
   if(rev.warn)bits.push(rev.warn);
+  if((ctx.dupWarn||[]).length)bits.push(ctx.dupWarn.length+' سطرًا يقابله أكثر من سجل — ادمجها من لوحة «تكرارات المتعلمين»');
   const elsN=(ctx.gone||[]).filter(g=>g.elsewhere).length;
   if(elsN)bits.push(elsN+' في لائحة قسم آخر يُنقلون عند تحيينها');
   if(failN)bits.push('تعذّر نقل '+failN);
@@ -2802,16 +2935,16 @@ async function importStudentsCsv(){
   if(!pairs.length)return toast('لم يُعثر على متعلمين في الملف');
   const clsName={};d.classes.forEach(x=>clsName[x.id]=x.name);
   const extMap=new Map(),nameMap=new Map();
-  d.students.forEach(s=>{const e=String(s.externalId||'').trim();if(e){if(!extMap.has(e))extMap.set(e,[]);extMap.get(e).push(s);}const n=normStudName(s.name);if(n&&!nameMap.has(n))nameMap.set(n,s);});
+  d.students.forEach(s=>{const e=normExt(s.externalId);if(e){if(!extMap.has(e))extMap.set(e,[]);extMap.get(e).push(s);}const n=normStudName(s.name);if(n&&!nameMap.has(n))nameMap.set(n,s);});
   const nums=d.students.map(s=>parseInt(s.externalId)).filter(v=>!isNaN(v));let next=nums.length?(Math.max(...nums)+1):(d.students.length+1);
   const seqs=d.students.map(s=>s.seq).filter(v=>typeof v==='number'&&!isNaN(v));let nextSeq=seqs.length?Math.max(...seqs)+1:1;
-  const rejected=[],moves=[],adds=[],order=[],kept=[];const taken=new Set(),newIds=new Set();
+  const rejected=[],moves=[],adds=[],order=[],kept=[],dupWarn=[];const taken=new Set(),newIds=new Set();
   pairs.forEach((p,idx)=>{
     const[ex0,name,phone]=p;const rawExt=String(ex0==null?'':ex0).trim();
     let externalId=secCell(ex0),safeName=secCell(name);
     if(!safeName){rejected.push({row:idx+1,name:'',externalId:rawExt,phone:String(phone||'').trim(),why:'اسم فارغ'});return;}
     let ex=null,by='';
-    if(rawExt){const arr=extMap.get(rawExt);if(arr&&arr.length){ex=arr.find(s=>normStudName(s.name)===normStudName(safeName))||arr[0];by='externalId';}}
+    if(rawExt){const arr=extMap.get(normExt(rawExt));if(arr&&arr.length){ex=arr.find(s=>normStudName(s.name)===normStudName(safeName))||arr.find(s=>String(s.classId)===String(classId)&&(s.status||'active')!=='archived')||arr.find(s=>(s.status||'active')!=='archived')||arr[0];by='externalId';if(arr.length>1)dupWarn.push({row:idx+1,name:safeName,externalId:rawExt,phone:'',why:'له '+arr.length+' سجلات برقم المسار نفسه'});}}
     else{const n=normStudName(safeName);if(nameMap.has(n)){ex=nameMap.get(n);by='name';}}
     if(ex){
       if(taken.has(ex.id)){rejected.push({row:idx+1,name:safeName,externalId:rawExt,phone:String(phone||'').trim(),why:'مكرر داخل الملف'});return;}
@@ -2830,7 +2963,7 @@ async function importStudentsCsv(){
   const inFile=new Set(order.filter(o=>o.ex).map(o=>String(o.ex.id)));
   const snap=await rosterSnapGet();
   const gone=active.filter(s=>!inFile.has(String(s.id))).map(s=>({st:s,elsewhere:snapWhereElse(snap,classId,s,d.students)}));
-  const ctx={classId,c:c,clsName:clsName,fileName:file.name,pairsN:pairs.length,adds:adds,kept:kept,keptN:kept.length,gone:gone,moves:moves,rejected:rejected,order:order,active:active};
+  const ctx={classId,c:c,clsName:clsName,fileName:file.name,pairsN:pairs.length,adds:adds,kept:kept,keptN:kept.length,gone:gone,moves:moves,rejected:rejected,order:order,active:active,dupWarn:dupWarn};
   const departed=gone.filter(g=>!g.elsewhere).length;
   if(!moves.length&&!departed){
     await finalizeRoster(ctx,{moves:[],dels:[],order:true});
@@ -2839,7 +2972,18 @@ async function importStudentsCsv(){
   }
   await openRosterReview(ctx);
 }
-async function storeStudentForImport(name,externalId,phone,classId,c,seq){const rec={id:uid('student'),externalId,name,classId,levelId:c.levelId,branchId:c.branchId,trackId:c.trackId,phone:phone||'',portalSecret:genPortalSecret(),status:'active',seq,createdAt:now()};await DB.put('students',rec);return rec.id;}
+async function storeStudentForImport(name,externalId,phone,classId,c,seq){
+  const ext=normExt(externalId);
+  if(ext){
+    const twin=(await DB.all('students',{inactive:true})).find(s=>s&&(s.status||'active')!=='archived'&&normExt(s.externalId)===ext);
+    if(twin){
+      if(String(twin.classId)!==String(classId)){await applyStudentTransfer(twin,classId,{name:name,phone:phone||''});return twin.id;}
+      if(!twin.portalSecret)await DB.put('students',Object.assign({},twin,{portalSecret:genPortalSecret()}));
+      return twin.id;
+    }
+  }
+  const rec={id:uid('student'),externalId:ext||String(externalId||'').trim(),name,classId,levelId:c.levelId,branchId:c.branchId,trackId:c.trackId,phone:phone||'',portalSecret:genPortalSecret(),status:'active',seq,createdAt:now()};await DB.put('students',rec);return rec.id;
+}
 async function studentsFromFile(file){
   const head=new Uint8Array(await file.slice(0,2).arrayBuffer());
   if(head[0]===0x50&&head[1]===0x4b)return studentsFromRows(await parseXlsxRows(file));
@@ -5329,7 +5473,7 @@ $('exPdfBtn').onclick=async()=>{exReadHeader();exRenderPaper(true);
 $('save').onclick=saveContext;$('ids').onclick=()=>{$('code').value=[uid('level'),uid('branch'),uid('track')].join(' / ')};
 $('openAddClass').onclick=openAddClassForm;$('refreshManagement').onclick=renderManagement;$('openAddStudent').onclick=openAddStudentForm;$('drawerClose').onclick=closeDrawer;$('drawerBack').onclick=closeDrawer;bindPalette();$('paletteBtn').onclick=openPalette;$('printView').onclick=()=>{if(isLocked())return;window.print();};document.addEventListener('keydown',e=>{if(isLocked())return;if(e.key==='Escape'){var __so=$('syncScanOverlay');if(__so&&__so.style.display&&__so.style.display!=='none'){try{scanClose()}catch(err){}return;}if($('palette').classList.contains('open'))closePalette();else closeDrawer();}else if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.code==='KeyK')){e.preventDefault();openPalette();}else if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='s'){const ap=document.querySelector('.page.active');if(ap&&ap.id==='assessment'){e.preventDefault();if(scoreDirty){if($('scoreMultiMode').checked)saveScoresMulti();else saveScores();}}}});$('delClassGo').onclick=deleteClassGo;$('delClassCancel').onclick=deleteClassCancel;$('delLevelGo').onclick=delLevelGo;$('delLevelCancel').onclick=delLevelCancel;
 $('studentSearch').oninput=renderStudents;$('studentClassFilter').onchange=renderStudents;$('studentStatusFilter').onchange=renderStudents;
-$('importStudents').onclick=importStudentsCsv;$('exportStudents').onclick=exportStudentsCsv;$('exportFiltered').onclick=exportFilteredStudentsXls;$('exportTemplate').onclick=exportTemplate;$('saveProfile').onclick=saveStudentProfile;$('archiveProfile').onclick=toggleStudentArchive;if($('deleteProfile'))$('deleteProfile').onclick=deleteStudentProfile;if($('genComprehensiveReport'))$('genComprehensiveReport').onclick=genComprehensiveReport;$('backStudents').onclick=()=>Router.go('students');
+$('importStudents').onclick=importStudentsCsv;$('exportStudents').onclick=exportStudentsCsv;$('exportFiltered').onclick=exportFilteredStudentsXls;$('exportTemplate').onclick=exportTemplate;$('saveProfile').onclick=saveStudentProfile;$('archiveProfile').onclick=toggleStudentArchive;if($('deleteProfile'))$('deleteProfile').onclick=deleteStudentProfile;if($('genComprehensiveReport'))$('genComprehensiveReport').onclick=genComprehensiveReport;$('backStudents').onclick=()=>Router.go('students');if($('dupeToggle'))$('dupeToggle').onclick=dupeToggleClick;
 if($('addSubject'))$('addSubject').onclick=addSubject;$('addAssessment').onclick=addAssessment;$('saveScores').onclick=()=>{$('scoreMultiMode').checked?saveScoresMulti():saveScores()};$('showReport').onclick=showReport;$('importScores').onclick=importScoresCsv;$('importScoresBoth').onclick=importScoresBothCsv;$('exportScoreTemplate').onclick=exportScoreTemplate;if($('saveWeights'))$('saveWeights').onclick=saveWeights;
 $('addDiagDomain').onclick=addDiagDomain;$('syncMatrixToCompetencies').onclick=syncMatrixToCompetencies;$('runClassDiagnosis').onclick=runClassDiagnosis;$('createSupportFromClassification').onclick=createSupportFromClassification;$('fillMatrixFromSource').onclick=fillMatrixFromSource;$('downloadMatrixTemplate').onclick=downloadMatrixTemplate;$('importMatrixScores').onclick=importMatrixScores;$('saveMatrixScores').onclick=saveMatrixScores;$('matrixGrid').oninput=matrixGridInput;
 $('saveAttendance').onclick=saveAttendance;if($('attApplyLegacy'))$('attApplyLegacy').onclick=attApplyRulesToLegacy;['attDate','attSession','attCycle'].forEach(rId=>{const rEl=$(rId);if(rEl)rEl.onchange=()=>renderAttRoll();});if($('attAllPresent'))$('attAllPresent').onclick=()=>attRollSetAll('present');$('saveBehavior').onclick=saveBehavior;$('saveHomework').onclick=saveHomework;$('showTrackingReport').onclick=showTrackingReport;
