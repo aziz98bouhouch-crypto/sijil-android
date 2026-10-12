@@ -105,7 +105,18 @@ function lanIPv4(){
   }catch(e){}
   return out;
 }
-function portalUrls(port){const urls=['http://127.0.0.1:'+port];lanIPv4().forEach(a=>urls.push('http://'+a+':'+port));return urls;}
+function lanRank(ip){
+  const o=String(ip||'').split('.').map(Number);
+  if(o.length!==4||o.some(x=>!(x>=0&&x<=255)))return 4;
+  if(o[0]===169&&o[1]===254)return 3;
+  if(o[0]===100&&o[1]>=64&&o[1]<=127)return 2;
+  if(o[0]===10)return 0;
+  if(o[0]===192&&o[1]===168)return 0;
+  if(o[0]===172&&o[1]>=16&&o[1]<=31)return 0;
+  return 1;
+}
+function lanIPv4Sorted(){return lanIPv4().slice().sort((a,b)=>lanRank(a)-lanRank(b));}
+function portalUrls(port){const urls=['http://127.0.0.1:'+port];lanIPv4Sorted().forEach(a=>urls.push('http://'+a+':'+port));return urls;}
 
 const PORTAL_HTML=require("./portal-html.js");
 
