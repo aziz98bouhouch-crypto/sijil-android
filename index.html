@@ -141,6 +141,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .student-qr svg{width:92px;height:92px;display:inline-block;margin-top:4px;background:#fff}
 .student-qr{display:inline-block;border:1px solid var(--l);border-radius:10px;padding:6px}
 @media print{.student-qr svg{width:70px;height:70px}}
+.applink-box{display:inline-block;border:1px solid var(--l);border-radius:14px;padding:10px;background:#fff;line-height:0}
+.applink-box svg{width:172px;height:172px;display:block}
+.applink-grid{display:grid;grid-template-columns:210px 1fr;gap:18px;align-items:start}
+@media(max-width:640px){.applink-grid{grid-template-columns:1fr;justify-items:center;gap:12px}.applink-grid>div{min-width:0;width:100%}.applink-grid>div:first-child{width:auto}}
+@media print{.applink-box svg{width:120px;height:120px}}
 @page{size:A4;margin:12mm}
 @media print{
 html,body{background:#fff!important;min-height:0!important}
@@ -933,6 +938,25 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
 
 <!-- PORTAL -->
   <div id="portal" class="page"><div class="hero"><span class="badge">PORTAL</span><h1>بوابة المتعلمين عن بعد</h1><p>يطلّع التلاميذ على نقطهم وواجباتهم المنزلية عبر شبكة محلية أو هوتسبوت — دون أي إنترنت.</p></div>
+  <div class="card" id="appLinkCard"><div class="section-title"><h2>رابط تطبيق «مواكبتي» للتلاميذ — رمز QR</h2></div>
+    <div class="applink-grid">
+      <div style="text-align:center">
+        <div id="appLinkQr" title=""><span class="muted" style="font-size:12px">جارٍ توليد الرمز…</span></div>
+        <div class="muted" style="font-size:12px;margin-top:6px">امسح الرمز للدخول فورًا</div>
+      </div>
+      <div>
+        <p class="muted">ركّز كاميرا الهاتف على الرمز فيفتح تطبيق «مواكبتي» في المتصفح مباشرة، ويعمل عبر الإنترنت من أي شبكة — دون كتابة أي عنوان. ويمكنك طباعة الرمز وتعليقه في القسم ليستعمله التلاميذ جميعًا.</p>
+        <div class="form"><div class="field"><label>رابط التطبيق</label><input id="appLinkUrl" dir="ltr" autocomplete="off" style="text-align:left;direction:ltr" placeholder="https://…/app"></div></div>
+        <div class="actions">
+          <button class="btn primary" id="appLinkPrint">طباعة ملصق QR (PDF)</button>
+          <button class="btn" id="appLinkCopy">نسخ الرابط</button>
+          <button class="btn" id="appLinkOpen">فتح الرابط</button>
+          <button class="btn" id="appLinkReset">استعادة الرابط الافتراضي</button>
+        </div>
+        <p class="muted" style="font-size:12px;margin-top:6px">دون إنترنت: شغّل الخادم المحلي أدناه، ثم استعمل رمز «وصول التلاميذ» الظاهر في بطاقة البوابة بعد التشغيل.</p>
+      </div>
+    </div>
+  </div>
   <div class="card"><div class="section-title"><h2>الخادم المحلي</h2></div><div class="form three">
     <div class="field"><label>ميناء الخدمة</label><input id="portalPort" type="number" value="8050" min="1024" max="65535"></div>
     <div class="field"><label>الحالة</label><div id="portalStatus" class="muted">غير مفعل</div></div>
@@ -1047,7 +1071,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <!-- SETTINGS -->
 <div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="section-title"><h2>المظهر والواجهة</h2></div><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
 <div class="card"><div class="section-title"><h2>عتبات الأوسمة</h2></div><div class="form"><div class="field"><label>عتبة وسام «المتفوق» /20</label><input id="badgeTop" type="number" min="0" max="20" step="0.5" value="16"></div><div class="field"><label>عتبة وسام «المجتهد» /20</label><input id="badgeDil" type="number" min="0" max="20" step="0.5" value="14"></div></div><p class="muted">تُطبَّق على منح أوسمة التحفيز في كل الحاسبات والتقارير: وسام «المتفوق» لمن بلغ معدله العام العتبة الأولى فما فوق، و«المجتهد» لمن بلغ العتبة الثانية. تُحفظ تلقائيًا وتنعكس على صفحة التحفيز والتنبيهات.</p><div class="actions"><button class="btn primary" id="saveBadgeWeights">حفظ عتبات الأوسمة</button></div></div><div class="card"><div class="section-title"><h2>شعار المؤسسة</h2></div><p class="muted">يظهر الشعار أعلى رأس كل بطاقة وتقرير رسمي (بطاقة المتعلم، ولي الأمر، الأكشفة، الشهادات...).</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><img id="logoPreview" alt="الشعار" style="height:64px;max-width:200px;object-fit:contain;display:none;border:1px solid var(--l);border-radius:8px;padding:6px;background:#fff"><div style="display:flex;flex-direction:column;gap:8px"><input id="logoInput" type="file" accept="image/*"><button class="btn danger" id="logoRemoveBtn">إزالة الشعار</button></div></div></div><div class="card"><div class="section-title"><h2>أوزان المواد</h2></div><p class="muted">تحديد وزن «النشاط» و«الفرض» لكل مادة على حدة عند تركيب معدلها في البطاقات والنتائج والأكشفة. مؤشر «عام» يعني الاعتماد على الأوزان العامة الموضوعة في صفحة التقويم.</p><div id="subjectWeightsList"></div><div class="actions"><button class="btn primary" id="saveSubjectWeights">حفظ أوزان المواد</button></div></div>
-<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.48</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
+<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.49</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
 
 <!-- TRASH -->
 <div id="trash" class="page"><div class="hero"><span class="badge">TRASH</span><h1>السلة</h1><p>ما حُذف عبر أزرار «حذف» يبقى هنا قابلاً للاستعادة في أي وقت، حتى تحذفه نهائيًا.</p></div>
@@ -4569,6 +4593,81 @@ function portalShowUrls(urls){const el=$('portalUrls');if(!el)return;el.innerHTM
 function studentPortalQr(st,cloud){try{if(typeof qrcode!=='function')return '<span class="muted" style="font-size:11px">—</span>';if(!st||!st.code||!st.sec)return '<span class="muted" style="font-size:11px">—</span>';const base=(window.__portalBase||'').replace(/\/+$/,'');const hasCloud=cloud&&cloud.url&&cloud.key&&cloud.inst;const hasPriv=!!(cloud&&cloud.privOn&&cloud.privUrl&&cloud.privRk);const host=base||(hasCloud?String(cloud.url).replace(/\/+$/,''):(hasPriv?String(cloud.privUrl).replace(/\/+$/,''):''));if(!host)return '<span class="muted" style="font-size:11px" title="شغّل البوابة أو فعّل السحابة">—</span>';let link=host+'/?m=1&c='+encodeURIComponent(st.code)+'&s='+encodeURIComponent(st.sec);if(hasCloud)link+='&su='+encodeURIComponent(cloud.url)+'&sk='+encodeURIComponent(cloud.key)+'&in='+encodeURIComponent(cloud.inst);if(hasPriv)link+='&pu='+encodeURIComponent(String(cloud.privUrl).replace(/\/+$/,''))+'&pk='+encodeURIComponent(cloud.privRk);qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];const qr=qrcode(0,'M');qr.addData(link);qr.make();return '<span class="student-qr" style="display:inline-block;width:72px;line-height:0">'+qr.createSvgTag({cellSize:2,margin:1,scalable:true})+'</span>';}catch(e){return '<span class="muted" style="font-size:11px">—</span>';}}
 function portalQr(url){const el=$('portalQr');if(!el)return;el.innerHTML='';if(!url){el.innerHTML='<p class="muted">لا يوجد عنوان متاح</p>';return;}window.__portalBase=String(url).replace(/\/+$/,'');try{if(typeof qrcode!=='function'){el.innerHTML='<p class="muted">مكتبة الرموز غير متوفرة</p>';return;}qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];const qr=qrcode(0,'M');qr.addData(url);qr.make();el.innerHTML='<div style="text-align:center"><span class="student-qr">'+qr.createSvgTag({cellSize:3,margin:2,scalable:true})+'</span><div class="muted" style="font-size:11px;margin-top:4px">امسح الرمز لفتح البوابة</div></div>';}catch(e){el.innerHTML='<p class="muted">تعذّر توليد الرمز</p>';}}
 async function sha256Hex(txt){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(txt==null?'':txt)));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return '';}}
+const APP_LINK_DEFAULT='https://geography.tailc3969e.ts.net/app';
+function appLinkUrl(){try{const v=String(localStorage.getItem('appLinkUrl')||'').trim();if(/^https?:\/\/\S+$/i.test(v))return v;}catch(e){}return APP_LINK_DEFAULT;}
+function appLinkSvg(url,cell,margin){if(typeof qrcode!=='function')return '';qrcode.stringToBytes=qrcode.stringToBytesFuncs['UTF-8'];const q=qrcode(0,'M');q.addData(url);q.make();return q.createSvgTag({cellSize:cell||5,margin:margin==null?2:margin,scalable:true});}
+function renderAppLinkQr(){const el=$('appLinkQr');if(!el)return;const url=appLinkUrl();try{const svg=appLinkSvg(url,5,2);el.innerHTML=svg?('<span class="applink-box">'+svg+'</span>'):'<span class="muted" style="font-size:12px">مكتبة الرموز غير متوفرة</span>';el.title=url;}catch(e){el.innerHTML='<span class="muted" style="font-size:12px;direction:ltr">'+esc(url)+'</span>';}}
+function appLinkPoster(url,inst){
+  const svg=appLinkSvg(url,8,4)||'';
+  return '<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>رمز الدخول إلى مواكبتي</title><style>'
+    +'@page{size:A4;margin:0}html,body{margin:0;padding:0}'
+    +'body{font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:#0b1020;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    +'.sheet{width:210mm;min-height:295mm;box-sizing:border-box;padding:18mm 16mm 14mm;display:flex;flex-direction:column;align-items:center;text-align:center}'
+    +'.brand{font-size:30pt;font-weight:800;letter-spacing:-1px;color:#0b3b82}'
+    +'.sub{font-size:12pt;color:#5b6478;margin-top:2mm}'
+    +'.ttl{font-size:22pt;font-weight:800;margin-top:12mm}'
+    +'.qr{width:118mm;height:118mm;margin:9mm auto 4mm;padding:4mm;border:2px solid #d7deea;border-radius:6mm;background:#fff;box-sizing:border-box}'
+    +'.qr svg{width:100%;height:100%;display:block}'
+    +'.url{direction:ltr;font-size:11pt;color:#33415c;word-break:break-all;margin-top:2mm}'
+    +'.steps{margin-top:9mm;font-size:13pt;line-height:2;text-align:right;width:150mm}'
+    +'.steps b{display:inline-block;min-width:9mm}'
+    +'.foot{margin-top:auto;padding-top:6mm;font-size:10pt;color:#6b7589}'
+    +'</style></head><body><div class="sheet">'
+    +'<div class="brand">مواكبتي</div><div class="sub">سجل التقييم PRO · المواكبة التربوية الذكية</div>'
+    +'<div class="ttl">ادخل إلى تطبيق «مواكبتي»</div>'
+    +'<div class="qr">'+svg+'</div>'
+    +'<div class="url">'+esc(url)+'</div>'
+    +'<div class="steps"><div><b>١)</b> افتح كاميرا الهاتف وركّزها على الرمز أعلاه.</div><div><b>٢)</b> اضغط الرابط الذي يظهر على شاشة الهاتف.</div><div><b>٣)</b> أضف التطبيق إلى الشاشة الرئيسية ليعمل كتطبيق مستقل.</div><div><b>٤)</b> أدخل رقم مسارك ورمزك الخاص لتظهر نقطك وواجباتك.</div></div>'
+    +'<div class="foot">'+(inst?esc(inst)+' — ':'')+'الرابط يُعدَّل من تطبيق الأستاذ، والرمز يتجدد معه تلقائيًا.</div>'
+    +'</div></body></html>';
+}
+function wireAppLink(){
+  const inp=$('appLinkUrl');
+  if(inp){
+    if(document.activeElement!==inp)inp.value=appLinkUrl();
+    if(!inp.__wired){
+      inp.__wired=true;
+      inp.addEventListener('input',function(){const v=this.value.trim();if(/^https?:\/\/\S+$/i.test(v)){try{localStorage.setItem('appLinkUrl',v);}catch(e){}renderAppLinkQr();}});
+      inp.addEventListener('change',function(){const v=this.value.trim();if(!/^https?:\/\/\S+$/i.test(v)){this.value=appLinkUrl();toast('أدخل رابطًا صحيحًا يبدأ بـ http أو https');return;}try{localStorage.setItem('appLinkUrl',v);}catch(e){}renderAppLinkQr();toast('حُفظ رابط التطبيق');});
+    }
+  }
+  const bp=$('appLinkPrint');
+  if(bp)bp.onclick=async function(){
+    const url=appLinkUrl();bp.disabled=true;
+    try{
+      let inst='';
+      try{const r=await DB.get('appMeta','context');inst=((r&&r.value)||{}).inst||'';}catch(e){}
+      const html=appLinkPoster(url,inst);
+      if(typeof sijilAPI!=='undefined'&&sijilAPI&&typeof sijilAPI.printPdf==='function'){
+        const res=await sijilAPI.printPdf(html,'ملصق_رمز_مواكبتي.pdf');
+        if(res&&res.ok)toast('حُفظ الملصق — افتحه واطبعه');
+        else if(res&&res.error)toast('تعذّر التصدير: '+res.error);
+      }else if(window.__sijilNative&&window.__sijilNative.isAndroid()&&typeof window.__nativePdfFromHtml==='function'){
+        toast('جارٍ تجهيز الملصق (PDF)…');
+        const r=await window.__nativePdfFromHtml(html,'ملصق_رمز_مواكبتي');
+        if(r&&r.ok)toast('تم إنشاء الملصق — شاركه أو اطبعه');
+        else if(r&&!r.cancelled)toast('تعذّر التصدير');
+      }else{
+        const w=window.open('','_blank');
+        if(!w){toast('افتح النوافذ المنبثقة ثم أعد المحاولة');return;}
+        w.document.write(html+'<'+'script>window.onload=function(){window.print()}<'+'/script>');
+        w.document.close();
+      }
+    }catch(e){toast('تعذّر التصدير');}
+    finally{bp.disabled=false;}
+  };
+  const bc=$('appLinkCopy');
+  if(bc)bc.onclick=function(){
+    const url=appLinkUrl();
+    const fallback=function(){const t=document.createElement('textarea');t.value=url;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');toast('نُسخ الرابط');}catch(e){toast('انسخ الرابط يدويًا: '+url);}t.remove();};
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>toast('نُسخ الرابط'),fallback);return;}}catch(e){}
+    fallback();
+  };
+  const bo=$('appLinkOpen');
+  if(bo)bo.onclick=function(){try{window.open(appLinkUrl(),'_blank','noopener');}catch(e){}};
+  const br=$('appLinkReset');
+  if(br)br.onclick=function(){try{localStorage.removeItem('appLinkUrl');}catch(e){}if(inp)inp.value=appLinkUrl();renderAppLinkQr();toast('أُعيد الرابط الافتراضي');};
+}
 async function portalLoadPin(){
   try{
     const r=await DB.get('appMeta','portal');
@@ -4694,6 +4793,7 @@ async function buildPortalSnapshot(){
   return {meta:{inst:inst.name||ctx.inst||'',updatedAt:new Date().toISOString(),days:30,whats,act:{i:actSid,n:actName},tdays:TR_DAYS},auth,studs};
 }
 async function renderPortal(){
+  wireAppLink();renderAppLinkQr();
   const st=await sijilAPI.portalStatus();
   if($('portalStatus'))$('portalStatus').textContent=st.running?('يعمل — المنفذ '+st.port):'غير مفعل';
   const conn=$('portalConnect');if(conn)conn.style.display=st.running?'block':'none';
