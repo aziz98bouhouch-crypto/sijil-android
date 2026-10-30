@@ -143,6 +143,7 @@ nav.tabs button.on{color:#0f766e}
   <label>رقم دخولك</label><input id="code" type="text" placeholder="مثال: 2025/01" autocomplete="off">
   <div class="row2"><button onclick="S.login()"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>دخول</button><button class="secondary" onclick="S.scan()" title="مسح رمز الربط"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></button></div>
   <div class="err" id="err"></div>
+  <div class="evnote" id="landHint" style="display:none;margin-top:8px"></div>
   <div class="row2" style="margin-top:4px"><button class="secondary" style="font-size:12px;padding:9px" onclick="S.diag()">فحص الاتصال</button><button class="secondary" style="font-size:12px;padding:9px" onclick="S.forget()">إعادة الربط</button></div>
 </div>
 <div id="appWrap" style="display:none">
@@ -195,17 +196,25 @@ function applyBoot(){try{var b=window.__SIJILBOOT;if(!b||typeof b!=="object")ret
   var bare=u.replace(/^https?:\\/\\//i,"").toLowerCase();var here=String(location.href).replace(/^https?:\\/\\//i,"").replace(/[?#].*$/,"").replace(/\\/+$/,"").toLowerCase();
   if(!bare||here!==bare&&here.indexOf(bare+"/")!==0)return;
   var ch=false;
-  if(!CFG.lan&&u.slice(0,8)==="https://"){CFG.lan=u;ch=true}
+  if(u.slice(0,8)==="https://"){
+    if(CFG.pub!==u){CFG.pub=u;ch=true}
+    if(CFG.lan!==u){CFG.lan=u;ch=true}
+  }else if(!CFG.lan){CFG.lan=u;ch=true}
   if(!CFG.inst&&b.i){CFG.inst=String(b.i);ch=true}
   if(ch){CFG.bootAt=Date.now();saveCfg()}
 }catch(e){}}
 function banner(t){var b=$x("banner");if(t){b.textContent=t;b.className="banner off";}else{b.className="banner"}}
+function paintLandHint(){try{var el=$x("landHint");if(!el)return;var t="";
+  if(pubBase())t="الرابط وحده لا يحمل رمزك: لعرض نقطك امسح <b>رمز QR الشخصي</b> المطبوع في بطاقتك بزر المسح أعلاه.";
+  else if(!lanBase())t="لم يُضبط الربط بعد: امسح رمز QR الذي أعطاك إياه الأستاذ.";
+  if(t){el.innerHTML=t;el.style.display="block"}else{el.innerHTML="";el.style.display="none"}}catch(e){}}
 function nowIso(){return new Date().toISOString()}
 function sig(d){if(!d)return "";return [d.avg,d.g,(d.subs||[]).length,(d.hw||[]).filter(function(h){return !h.sub}).length,(d.lessons||[]).length,(d.evo||[]).map(function(e){return e.c+":"+e.a}).join("|"),(d.beh?((+d.beh.neg||0)+"/"+((+d.beh.pos||0))):"-"),(d.tr||[]).map(function(x){return x.d+":"+x.v}).join("|"),(d.sup||[]).length].join("_")}
 function readCache(code){try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");var r=m[String(code).toLowerCase()];return r||null}catch(e){return null}}
 function writeCache(code,obj){try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");m[String(code).toLowerCase()]=obj;localStorage.setItem(LSD,JSON.stringify(m))}catch(e){}}
 function sha256hex(txt){txt=String(txt==null?"":txt);if(window.crypto&&crypto.subtle&&crypto.subtle.digest){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt)).then(function(b){var a=new Uint8Array(b),s="";for(var i=0;i<a.length;i++){s+=(a[i]<16?"0":"")+a[i].toString(16)}return s})}return Promise.resolve("")}
 function lanBase(){var b=(CFG.lan||"").trim();if(!b)return "";b=b.replace(/\\/+$/,"");return b}
+function pubBase(){return trimEnd(CFG.pub||"")}
 function lanLabel(){return lanBase().slice(0,8)==="https://"?"المستودع المركزي للأستاذ":"خادم الأستاذ على الشبكة المحلية"}
 function lanShort(){return lanBase().slice(0,8)==="https://"?"المستودع المركزي":"شبكة الأستاذ"}
 function cloudBase(){return String(CFG.su||"").replace(/\\/+$/,"").trim()}
@@ -316,7 +325,7 @@ function useEnd(r){var s=epState();if(r.which==="cloud"){try{adoptPriv(r.j&&r.j.
 function lanTally(l){if(!l||l.which!=="lan")return;var s=epState();
   if(l.ok){if(s.lanFail||s.note){s.lanFail=0;s.note="";writeLS(LSE,s)}return}
   if(DEADLAN[l.kind])s.lanFail=(s.lanFail||0)+1;else s.lanFail=0;
-  if(s.lanFail>=3&&cloudReady()&&CFG.lan){CFG.lan="";saveCfg();s.lanFail=0;s.note="حُذف عنوان الشبكة الداخلية المعطّل — الاعتماد على السحابة حتى تمسح رمز ربط جديدًا"}
+  if(s.lanFail>=3&&cloudReady()&&CFG.lan&&!pubBase()){CFG.lan="";saveCfg();s.lanFail=0;s.note="حُذف عنوان الشبكة الداخلية المعطّل — الاعتماد على السحابة حتى تمسح رمز ربط جديدًا"}
   writeLS(LSE,s)}
 function giveUp(a,b){
   var s=epState(),by={},lan=(a.which==="lan"?a:b),cloud=(a.which==="cloud"?a:b);
@@ -372,7 +381,8 @@ S.diag=function(){
     h+=line("المسار الذي يعرض بياناتك",s.good==="lan"?lanShort():(s.good==="cloud"?"السحابة":"لم يُحدَّد بعد"));
     h+=line("آخر بيانات محفوظة لديك",cache?("من "+String(cache.at||"").slice(0,16).replace("T"," ")):"لا توجد نسخة بعد");
     if(s.note)h+="<div class='evnote' style='color:#92400e'>"+esc(s.note)+"</div>";
-    h+="<div class='evnote'>لا تحتاج إلى أي رابط أو عنوان خادم: وصولك مضبوط مسبقًا برمزك الخاص. جرّب زر «تحديث» أولًا؛ وإن بقيت كل الأسطر غير متاحة فقرب هاتفك من شبكة الأستاذ أو انتظر نشره لبياناته، ثم أعد الربط بمسح رمز QR الخاص بك من جديد. لا تشارك رقم دخولك ولا رمزك السرّي مع أي شخص.</div>";
+    if(pubBase())h+="<div class='evnote'>أنت متصل بالمستودع المركزي للأستاذ عبر رابط التطبيق، فلا حاجة إلى أي عنوان أو شبكة. لعرض نقطك امسح رمز QR الشخصي المطبوع في بطاقتك بزر المسح أعلى النموذج؛ فإن لم تظهر بياناتك فاضغط «تحديث» ثم اطلب من أستاذك أن ينشر بياناته. لا تشارك رقم دخولك ولا رمزك السرّي مع أي شخص.</div>";
+    else h+="<div class='evnote'>لا تحتاج إلى أي رابط أو عنوان خادم: وصولك مضبوط مسبقًا برمزك الخاص. جرّب زر «تحديث» أولًا؛ وإن بقيت كل الأسطر غير متاحة فقرب هاتفك من شبكة الأستاذ أو انتظر نشره لبياناته، ثم أعد الربط بمسح رمز QR الخاص بك من جديد. لا تشارك رقم دخولك ولا رمزك السرّي مع أي شخص.</div>";
     h+="<div class='row2' style='margin-top:8px'><button class='secondary' onclick='S.diag()'>إعادة الفحص</button><button class='secondary' onclick='S.forget()'>إعادة الربط</button></div>";
     h+="<button class='secondary copybtn' onclick='S.copyHelp()'><svg viewBox='0 0 24 24'><rect x='9' y='9' width='12' height='12' rx='2'/><path d='M5 15V5a2 2 0 0 1 2-2h10'/></svg>نسخ رسالة الإصلاح</button>";
     box.innerHTML=h
@@ -382,8 +392,8 @@ S.forget=function(){
   var box=$x("diagBox");var t=box?box:document.body;
   if(box){box.style.display="block";box.className="card";box.innerHTML="<h3>إعادة الربط</h3><div style='font-size:12px;color:#475569'>سيُحذف عنوان الشبكة ومفتاح السحابة ورمز دخولك المحفوظ من هذا الهاتف. لن تُحذف أي بيانات عند أستاذك.</div><div class='row2' style='margin-top:10px'><button onclick='S.forgetGo()'>تأكيد المسح</button><button class='secondary' onclick='S.diag()'>تراجع</button></div>"}
 };
-S.forgetGo=function(){try{localStorage.removeItem(LS);localStorage.removeItem(LSE);localStorage.removeItem(LSS)}catch(e){}CFG={mode:"auto"};saveCfg();banner("");S.logout();toast("مُسِحت إعدادات الربط — امسح رمز QR الخاص بك من جديد")};
-var HELP_MSG="مشكلة في تطبيق مواكبتي (بوابة التلميذ):\\n1) اضغط زر «تحديث» في أعلى الصفحة وانتظر بضع ثوانٍ.\\n2) تأكد أن هاتفك متصل بالإنترنت أو بشبكة الأستاذ.\\n3) إن بقيت البيانات قديمة فأبلغ أستاذك ليضغط «تحديث البيانات الآن» في برنامجه.\\n4) لإعادة الربط امسح رمز QR الخاص بك من دفترك، ولا تشارك رقم دخولك ولا رمزك السرّي مع أي شخص.\\nلا يحتاج التطبيق أي رابط أو عنوان خادم — وصولك مضبوط برمزك الخاص.";
+S.forgetGo=function(){try{localStorage.removeItem(LS);localStorage.removeItem(LSE);localStorage.removeItem(LSS)}catch(e){}CFG={mode:"auto"};saveCfg();banner("");S.logout();paintLandHint();toast("مُسِحت إعدادات الربط — امسح رمز QR الخاص بك من جديد")};
+var HELP_MSG="مشكلة في تطبيق مواكبتي (بوابة التلميذ):\\n1) اضغط زر «تحديث» في أعلى الصفحة وانتظر بضع ثوانٍ.\\n2) تأكد أن هاتفك متصل بالإنترنت.\\n3) امسح رمز QR الشخصي المطبوع في بطاقتك من زر المسح؛ فهو وحده يحمل رقم دخولك ورمزك السرّي.\\n4) إن بقيت البيانات قديمة فأبلغ أستاذك ليضغط «تحديث البيانات الآن» في برنامجه ثم ينشرها.\\nلا تحتاج إلى شبكة الأستاذ ولا إلى أي عنوان خادم — الرابط العام يكفي. ولا تشارك رقم دخولك ولا رمزك السرّي مع أي شخص.";
 S.copyHelp=function(){
  function done(){toast("نُسخت رسالة الإصلاح — أرسلها لوليّك أو لأستاذك")}
  function manual(){try{var ta=document.createElement("textarea");ta.value=HELP_MSG;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;left:8px;right:8px;top:8px;height:160px;z-index:10001;font-size:12px;padding:10px;border-radius:10px;border:1px solid #cbd5e1";document.body.appendChild(ta);ta.focus();ta.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}if(ok){ta.remove();done();return}toast("اختر النص من المربع ثم انسخه")}catch(e){toast("تعذّر النسخ — انسخ النص يدويًا")}}
@@ -411,7 +421,7 @@ function renderFresh(){
   var base=loc||pub;if(!base){el.className="fresh";el.textContent="";return}
   var oldH=loc?(Date.now()-Date.parse(loc))/3600000:0;
   var txt="آخر تحديث لبياناتك "+fmt16(base)+" ("+agoTxt(base)+")";
-  if(oldH>=24){el.className="fresh on warn";el.textContent=txt+" — البيانات أقدم من يوم: اضغط «تحديث» أو اقترب من شبكة الأستاذ"}
+  if(oldH>=24){el.className="fresh on warn";el.textContent=txt+" — البيانات أقدم من يوم: اضغط «تحديث»"}
   else{el.className="fresh on";el.textContent=txt}
 }
 function renderAtt(){
@@ -600,7 +610,12 @@ function applyScan(raw){raw=String(raw||"").trim();if(!raw){toast("لم يُعث
   try{var u=new URL(raw);host=u.protocol+"//"+u.host;var p=u.searchParams;code=p.get("c")||p.get("code")||"";sec=p.get("s")||p.get("pin")||"";su=p.get("su")||"";sk=p.get("sk")||"";inst=p.get("in")||p.get("inst")||"";pu=p.get("pu")||"";pk=p.get("pk")||"";}
   catch(e){host=raw.replace(/\\/+$/,"");code="";sec=""}
   var cloudHost="";if(su){try{var cu=new URL(su);cloudHost=cu.protocol+"//"+cu.host}catch(e){}}
-  if(/^(https?):\\/\\//i.test(host)&&host!==cloudHost)CFG.lan=host.replace(/\\/+$/,"");else if(cloudHost)CFG.lan="";
+  var pb=pubBase();
+  if(/^https:\\/\\//i.test(host)){
+    if(host!==cloudHost)CFG.lan=host.replace(/\\/+$/,"");else if(!pb)CFG.lan="";
+  }else if(/^http:\\/\\//i.test(host)&&host!==cloudHost){
+    if(!pb)CFG.lan=host.replace(/\\/+$/,"");
+  }else if(cloudHost&&!pb)CFG.lan="";
   if(su)CFG.su=su;if(sk)CFG.sk=sk;if(inst)CFG.inst=inst;
   if(pu&&privUrlOk(pu))CFG.pu=trimEnd(pu);if(pk&&String(pk).length>=20)CFG.pk=String(pk);
   if(!CFG.mode||CFG.mode==="auto")CFG.mode="auto";
@@ -634,6 +649,7 @@ applyBoot();
     if(su0||sk0||in0||sp.get("m")||sec0){applyScan(location.href);}
     else if(code0&&!$x("code").value.trim())$x("code").value=code0;
   }catch(e){}
+  try{paintLandHint()}catch(e){}
   var ses=null;try{ses=JSON.parse(localStorage.getItem(LSS)||"null")}catch(e){}
   if(ses&&ses.code){$x("code").value=ses.code;if(ses.pin)$x("pin").value=ses.pin;var cached=readCache(ses.code);if(cached&&cached.student){D=cached.student;META=cached.meta;$x("auth").style.display="none";$x("appWrap").style.display="block";$x("tabs").style.display="flex";show(false,cached);banner("جارٍ التحديث من الخادم…");fetchData(ses.code,ses.pin).then(function(x){if(x&&x.status===200&&x.j&&x.j.student){D=x.j.student;META=x.j.meta;writeCache(ses.code,{sig:sig(D),meta:META,student:D,at:nowIso()});banner("");renderGrades();renderHw();renderSched();renderSup();renderEvo();renderLessons()}else{banner("تعذّر التحديث — عُرضت البيانات المحفوظة")}}).catch(function(e){banner("⚠ "+why(e)+" — عُرضت بيانات محفوظة من "+((cached.at||"").slice(0,16).replace("T"," ")))})}}
   $x("code").addEventListener("keyup",function(e){if(e.key==="Enter")S.login()});
