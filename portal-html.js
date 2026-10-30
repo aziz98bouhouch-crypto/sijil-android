@@ -220,6 +220,7 @@ function lanShort(){return lanBase().slice(0,8)==="https://"?"المستودع �
 function cloudBase(){return String(CFG.su||"").replace(/\\/+$/,"").trim()}
 function trimEnd(u){var t=String(u||"").trim();while(t.length&&t.charAt(t.length-1)==="/"){t=t.slice(0,t.length-1)}return t}
 var PRIV={"u":"","k":""};
+var MIRROR_BASE="";
 function privBase(){return trimEnd(CFG.pu||PRIV.u)}
 function privKey(){return String(CFG.pk||PRIV.k||"")}
 function privUrlOk(u){u=String(u||"");var i=u.indexOf("://");if(i<0)return false;var p=u.slice(0,i);if(p==="https")return true;if(p!=="http")return false;var h=u.slice(i+3).split("/")[0].split(":")[0];return h==="127.0.0.1"||h==="localhost"||h.slice(0,3)==="10."||h.slice(0,8)==="192.168."}
@@ -228,10 +229,10 @@ function adoptPriv(m){var p=m&&m.priv;if(!p||typeof p!=="object")return false;va
   if(CFG.pu&&hostOf(CFG.pu)!==hostOf(u))return false;
   if(CFG.pu===u&&CFG.pk===k)return false;
   CFG.pu=u;CFG.pk=k;saveCfg();return true}
-function cloudEps(){var out=[];var pb=privBase(),pk=privKey();if(pb&&pk)out.push({u:pb,k:pk,n:"المستودع الخاص"});var sb=trimEnd(CFG.su);if(sb&&CFG.sk)out.push({u:sb,k:String(CFG.sk),n:"سحابة الأستاذ"});return out}
+function cloudEps(){var out=[];var pb=privBase(),pk=privKey();if(pb&&pk)out.push({u:pb,k:pk,n:"المستودع الخاص"});var sb=trimEnd(CFG.su);if(sb&&CFG.sk)out.push({u:sb,k:String(CFG.sk),n:"سحابة الأستاذ"});var mb=trimEnd(MIRROR_BASE);if(mb)out.push({u:mb,k:"",n:"النسخة الدائمة",m:1});return out}
 function cloudReady(){return cloudEps().length>0}
 function hostOf(u){try{return new URL(u).host}catch(e){var t=String(u||""),i=t.indexOf("://");if(i>=0)t=t.slice(i+3);return t.replace(/\\/+$/,"").split("/")[0]}}
-var LAN_MS=3500,CLOUD_MS=9000,DEADLAN={net:1,timeout:1,badhost:1};
+var LAN_MS=3500,CLOUD_MS=9000,MIRROR_MS=8000,DEADLAN={net:1,timeout:1,badhost:1};
 var WHY={
 offline:"لا يوجد اتصال بالإنترنت الآن — ستُعرض آخر بيانات محفوظة",
 nohost:"لم يكتمل الربط بعد — امسح رمز QR الذي أعطاك إياه الأستاذ",
@@ -298,6 +299,17 @@ function attemptCloud(code,pin,ep){
   if(!ep)return Promise.resolve({ok:false,which:"cloud",kind:"nocloud"});
   return sha256hex(String(code)+"::"+String(pin||"")+"::"+String(CFG.inst)).then(function(rk){
     if(!rk)throw "nocrypto";
+    if(ep.m){
+      var mu=ep.u+"/d/"+rk+".json";
+      return timed(mu,MIRROR_MS,{cache:"no-store"}).then(function(x){
+        if(x.r.status===404)throw "notfound";
+        if(!x.r.ok)throw "srv";
+        var o=jsonOf(x.txt);if(!o||!o.p)throw "notfound";
+        var pl=o.p;if(typeof pl==="string")pl=jsonOf(pl);
+        if(!pl)throw "notfound";
+        return unwrapPayload(pl,code,pin).then(function(st){if(!st||typeof st!=="object")throw "notfound";return {ok:true,which:"cloud",ep:ep.n,j:{meta:o.m||null,student:st}}})
+      })
+    }
     var u=ep.u+"/rest/v1/portal_students?select=payload,meta&rowkey=eq."+encodeURIComponent(rk)+"&inst=eq."+encodeURIComponent(CFG.inst);
     return timed(u,CLOUD_MS,{headers:{apikey:ep.k,Authorization:"Bearer "+ep.k,"Content-Type":"application/json"},cache:"no-store"}).then(function(x){
       if(x.r.status===401||x.r.status===403)throw "key";
@@ -362,6 +374,7 @@ function probeLan(){var b=lanBase();if(!b)return Promise.resolve({kind:"nohost",
   return timed(b+"/manifest.webmanifest",2500,{cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":"http"),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}})
 }
 function probeCloud(ep){if(!ep)return Promise.resolve({kind:"nocloud",ms:0});var t0=Date.now();
+  if(ep.m)return timed(ep.u+"/ping.json",4000,{cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":"srv"),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}});
   return timed(ep.u+"/rest/v1/portal_students?select=payload&rowkey=eq."+Array(65).join("0"),4000,{headers:{apikey:ep.k,Authorization:"Bearer "+ep.k},cache:"no-store"}).then(function(x){return {kind:(x.r.ok?"ok":(x.r.status===401||x.r.status===403?"key":(x.r.status===404?"table":"srv"))),http:x.r.status,ms:Date.now()-t0}},function(k){return {kind:String(k),ms:Date.now()-t0}})
 }
 function probeCloudAll(){var eps=cloudEps();if(!eps.length)return Promise.resolve([{kind:"nocloud",ms:0}]);return Promise.all(eps.map(probeCloud))}
