@@ -1075,7 +1075,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <!-- SETTINGS -->
 <div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="section-title"><h2>المظهر والواجهة</h2></div><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
 <div class="card"><div class="section-title"><h2>عتبات الأوسمة</h2></div><div class="form"><div class="field"><label>عتبة وسام «المتفوق» /20</label><input id="badgeTop" type="number" min="0" max="20" step="0.5" value="16"></div><div class="field"><label>عتبة وسام «المجتهد» /20</label><input id="badgeDil" type="number" min="0" max="20" step="0.5" value="14"></div></div><p class="muted">تُطبَّق على منح أوسمة التحفيز في كل الحاسبات والتقارير: وسام «المتفوق» لمن بلغ معدله العام العتبة الأولى فما فوق، و«المجتهد» لمن بلغ العتبة الثانية. تُحفظ تلقائيًا وتنعكس على صفحة التحفيز والتنبيهات.</p><div class="actions"><button class="btn primary" id="saveBadgeWeights">حفظ عتبات الأوسمة</button></div></div><div class="card"><div class="section-title"><h2>شعار المؤسسة</h2></div><p class="muted">يظهر الشعار أعلى رأس كل بطاقة وتقرير رسمي (بطاقة المتعلم، ولي الأمر، الأكشفة، الشهادات...).</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><img id="logoPreview" alt="الشعار" style="height:64px;max-width:200px;object-fit:contain;display:none;border:1px solid var(--l);border-radius:8px;padding:6px;background:#fff"><div style="display:flex;flex-direction:column;gap:8px"><input id="logoInput" type="file" accept="image/*"><button class="btn danger" id="logoRemoveBtn">إزالة الشعار</button></div></div></div><div class="card"><div class="section-title"><h2>أوزان المواد</h2></div><p class="muted">تحديد وزن «النشاط» و«الفرض» لكل مادة على حدة عند تركيب معدلها في البطاقات والنتائج والأكشفة. مؤشر «عام» يعني الاعتماد على الأوزان العامة الموضوعة في صفحة التقويم.</p><div id="subjectWeightsList"></div><div class="actions"><button class="btn primary" id="saveSubjectWeights">حفظ أوزان المواد</button></div></div>
-<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.54</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
+<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.55</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
 
 <!-- TRASH -->
 <div id="trash" class="page"><div class="hero"><span class="badge">TRASH</span><h1>السلة</h1><p>ما حُذف عبر أزرار «حذف» يبقى هنا قابلاً للاستعادة في أي وقت، حتى تحذفه نهائيًا.</p></div>
@@ -4038,7 +4038,7 @@ function stripSheetHtml(){
   let s='';for(let i=0;i<STRIP_GEO.perPage;i++)s+=stripOneHtml();
   return '<div class="strip-sheet">'
     +'<div class="strip-head"><b>شريط النقطة الممسوح — علامة الفرض /20</b><span>يُطبع مرة واحدة ثم يُستنسخ بعدد أوراق التحرير</span></div>'
-    +'<p class="strip-tip">١) اطبع هذه الورقة مرة واحدة، ثم صوّرها بعدد أوراق التلاميذ. ٢) اقصص الشرائط وألصق شريطًا واحدًا أعلى كل ورقة قرب ملصق رمز المتعلم — دون تغطية رمز QR ولا الشريطين الأسودين في الطرفين. ٣) بعد التصحيح اشطب <b>داخل</b> خانة العشرات (0–20)، ثم داخل خانة الربع: علامة 12.25 = خانة «12» + خانة «.25». وإن كانت العلامة صحيحة بلا أرباع فاكتفِ بخانة العدد فقط. ٤) اشطب بخط عريض (✗) يغطي وسط الخانة، وخانةً واحدة فقط في كل صف. ٥) في البرنامج: «إدخال النقاط بالمسح» ثم صوّر الورقة كاملة من أعلى تحت ضوء كافٍ.</p>'
+    +'<p class="strip-tip">١) اطبع هذه الورقة مرة واحدة، ثم صوّرها بعدد أوراق التلاميذ. ٢) اقصص الشرائط وألصق شريطًا واحدًا أعلى كل ورقة قرب ملصق رمز المتعلم — دون تغطية رمز QR ولا الشريطين الأسودين في الطرفين. ٣) بعد التصحيح اشطب <b>داخل</b> خانة العشرات (0–20)، ثم داخل خانة الربع: علامة 12.25 = خانة «12» + خانة «.25». وإن كانت العلامة صحيحة بلا أرباع فاكتفِ بخانة العدد فقط. ٤) اشطب بخط عريض (✗) يغطي وسط الخانة، وخانةً واحدة فقط في كل صف. ٥) في البرنامج: «إدخال النقاط بالمسح»، ثم امسح <b>أولًا</b> رمز QR الشخصي للمتعلم من قريب، ثم امسح شريط النقطة وحده من قريب في نفس النافذة — لا حاجة لتصوير الورقة كاملة.</p>'
     +'<div class="strip-page">'+s+'</div>'
     +'</div>';
 }
@@ -6709,6 +6709,7 @@ document.addEventListener('click',function(e){
   if(k==='torch'){try{scanTorchToggle();}catch(err){}return;}
   if(k==='close'){scanClose();return;}
   if(k==='sc_yes'||k==='sc_no'){try{if(window.__scoreScanAct)window.__scoreScanAct(k);}catch(err){}return;}
+  if(k==='sc_next'){try{if(window.__scoreScanNext)window.__scoreScanNext();}catch(err){}return;}
   if(k==='retry'){scanActs([]);try{openScanner(__scanLastOpts||{});}catch(err){}}
 });
 async function openScanner(opts){opts=opts||{};__scanLastOpts=opts;var ov=document.getElementById('syncScanOverlay'),vid=document.getElementById('syncScanVideo');if(!ov||!vid)return;if(ov.parentNode!==document.body){try{document.body.appendChild(ov)}catch(e){}}var hasBD=(typeof BarcodeDetector!=='undefined');var hasJSQR=(typeof window.jsQR==='function');if(!hasBD&&!hasJSQR){scanShow('قارئ الرموز غير متاح في هذه البيئة.');scanActs([]);return;}if(!window.isSecureContext&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){scanShow('يحتاج الكاميرا اتصالًا آمنًا (HTTPS). استعمل تطبيق أندرويد أو localhost.');scanActs([]);return;}if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){toast('الكاميرا غير متاحة في هذه البيئة');return;}__scanOnText=opts.onText||null;__scanFrameHook=opts.frameHook||null;__scanOnClose=opts.onClose||null;
@@ -7051,19 +7052,14 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     SS.saved[stu.id]=val;SS.count=(SS.count||0)+1;
     refreshRow(stu.id,val);
   }
-  async function hit(value){
-    if(!SS)return;
+  async function hit(stu,value){
+    if(!SS||!stu)return;
     var t=Date.now();
+    if(SS.hintTimer){clearTimeout(SS.hintTimer);SS.hintTimer=0;}
     if(t-SS.busyAt<700)return;
     SS.busyAt=t;
-    var txt=SS.lastQr;
-    if(!txt){scanMsg('قرأتُ العلامة '+fmt(value)+' — لكن رمز المتعلم غير ظاهر في الصورة');return;}
-    var stu=SS.qrCache[txt];
-    if(stu===undefined){try{stu=await findStudentByQr(txt);}catch(e){stu=null;}SS.qrCache[txt]=stu;}
-    if(!stu){scanMsg('هذا الرمز ليس لِمتعلّم معروف في البرنامج — تأكد من ملصق رمز المتعلم');return;}
-    if(String(stu.classId)!==String(SS.ass.classId)){scanMsg('التلميذ '+String(stu.name||'')+' ليس في قسم هذا الفرض');return;}
     var max=parseFloat(SS.ass.maxScore)||20;
-    if(value>max){scanMsg('العلامة الممسوحة '+fmt(value)+' تتجاوز القصوى ('+max+') — أعد تصوير الورقة');return;}
+    if(value>max){scanMsg('العلامة الممسوحة '+fmt(value)+' تتجاوز القصوى ('+max+') — أعد مسح الشريط');return;}
     if(SS.lastId===stu.id&&SS.lastValue===value&&t-SS.lastAt<4000)return;
     var prev=SS.saved[stu.id];
     if(prev!==undefined&&Number(prev)!==Number(value)){
@@ -7074,24 +7070,42 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     }
     if(prev!==undefined){
       scanMsg('✔ '+String(stu.name||'')+' — '+fmt(value)+' (محفوظة سابقًا)');
-      SS.lastId=stu.id;SS.lastValue=value;SS.lastAt=t;return;
+      SS.lastId=stu.id;SS.lastValue=value;SS.lastAt=t;
+      afterSave();
+      return;
     }
     await save(stu,value);
     SS.lastId=stu.id;SS.lastValue=value;SS.lastAt=t;
     scanMsg('✔ '+String(stu.name||'')+' — '+fmt(value)+' / '+max+'   ·   المُدخلة: '+(SS.count||1));
+    afterSave();
   }
+  /* بعد حفظ العلامة: عودة تلقائية إلى مسح رمز المتعلم التالي */
+  function afterSave(){
+    if(!SS)return;
+    if(SS.advanceTimer)clearTimeout(SS.advanceTimer);
+    SS.advanceTimer=setTimeout(function(){
+      if(!SS)return;
+      SS.advanceTimer=0;
+      SS.advance=true;SS.pending=null;
+      scanClose();
+    },1400);
+  }
+  window.__scoreScanNext=function(){
+    try{if(!SS)return;SS.advance=true;SS.pending=null;if(SS.advanceTimer){clearTimeout(SS.advanceTimer);SS.advanceTimer=0;}scanClose();}catch(e){}
+  };
   window.__scoreScanAct=function(k){
     try{
       scanActs([]);
       var p=SS&&SS.pending;if(SS)SS.pending=null;
       if(!p)return;
       if(k==='sc_yes'){
-        save(p.stu,p.val).then(function(){scanMsg('✔ '+String(p.stu.name||'')+' — '+fmt(p.val)+' (استُبدلت)');}).catch(function(){scanMsg('تعذّر حفظ العلامة — أعد المحاولة');});
-      }else scanMsg('احتُفظ بالعلامة الأولى لـ '+String(p.stu.name||''));
+        save(p.stu,p.val).then(function(){scanMsg('✔ '+String(p.stu.name||'')+' — '+fmt(p.val)+' (استُبدلت)');afterSave();}).catch(function(){scanMsg('تعذّر حفظ العلامة — أعد المحاولة');});
+      }else{scanMsg('احتُفظ بالعلامة الأولى لـ '+String(p.stu.name||''));afterSave();}
     }catch(e){}
   };
-  function frame(fr){
-    if(!SS)return false;
+  /* الخطوة ٢: شريط النقطة وحده — قراءة قريبة لا تحتاج رمز المتعلم */
+  function stripFrame(fr){
+    if(!SS||!SS.stu)return false;
     var t=Date.now();
     if(t-SS.tickAt<420)return true;
     SS.tickAt=t;
@@ -7101,15 +7115,60 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
       if(r&&r.reason==='edges'){scanMsg('الشريط مقطوع من حدود الصورة — أبعد الكاميرا قليلًا');SS.msgAt=t;}
       else if(r&&r.reason==='multiple'){scanMsg('خانتان مؤشرتان في الشريط — أعد الشطب داخل خانة واحدة أو صحّح الورقة');SS.msgAt=t;}
       else if(r&&r.reason==='none'||r&&r.reason==='shadow'){scanMsg('لم أتبيّن شطبة واضحة داخل شريط النقطة — اشطب بخط عريض داخل الخانة');SS.msgAt=t;}
-      else{scanMsg(SS.lastQr?'لم أجد شريط النقطة في الصورة — أظهر الورقة كاملة':'وجّه الكاميرا إلى الورقة: رمز المتعلم وشريط النقطة معًا');SS.msgAt=t;}
+      else{scanMsg('قرّب الكاميرا من شريط النقطة حتى يمتلئ الإطار');SS.msgAt=t;}
       return true;
     }
-    if(!SS.lastQr||t-SS.lastQrAt>2500){
-      if(!SS.msgAt||t-SS.msgAt>2600){scanMsg('قرأتُ العلامة '+fmt(r.value)+' — أظهر رمز المتعلم مع الشريط في الصورة');SS.msgAt=t;}
-      return true;
-    }
-    hit(r.value);
+    hit(SS.stu,r.value);
     return true;
+  }
+  function openStripStep(){
+    if(!SS)return;
+    var stu=SS.stu;
+    openScanner({
+      title:'٢) امسح شريط النقطة — '+String((stu&&stu.name)||''),
+      guide:'strip',
+      video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},
+      onText:function(){return true;},
+      frameHook:stripFrame,
+      onClose:function(){
+        if(!SS)return;
+        var sd=SS;SS=null;
+        if(sd.advanceTimer){clearTimeout(sd.advanceTimer);sd.advanceTimer=0;}
+        if(sd.hintTimer){clearTimeout(sd.hintTimer);sd.hintTimer=0;}
+        if(sd.advance){sd.advance=false;openIdStep(sd);}
+        else try{window.__scoreScanRefresh(sd.ass.id);}catch(e){}
+      }
+    });
+    scanActs([{k:'sc_next',t:'متعلم آخر'}]);
+    if(SS.hintTimer)clearTimeout(SS.hintTimer);
+    SS.hintTimer=setTimeout(function(){if(SS&&SS.stu===stu)scanMsg('التلميذ '+String((stu&&stu.name)||'')+' — قرّب الكاميرا من شريط النقطة وحده');},1200);
+  }
+  /* الخطوة ١: رمز QR للمتعلم (مقربة) ثم ننتقل لشريط النقطة */
+  function openIdStep(session){
+    if(session)SS=session;
+    if(!SS)return;
+    SS.stu=null;SS.pending=null;SS.lastQr='';SS.lastQrAt=0;
+    openScanner({
+      title:'١) امسح رمز QR للمتعلم',
+      guide:'qr',
+      video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},
+      onText:async function(txt){
+        if(!SS)return false;
+        var stu=SS.qrCache[txt];
+        if(stu===undefined){try{stu=await findStudentByQr(txt);}catch(e){stu=null;}SS.qrCache[txt]=stu;}
+        if(!stu){scanMsg('هذا الرمز ليس لِمتعلّم معروف في البرنامج — قرّب الكاميرا من ملصق رمز المتعلم');return true;}
+        if(String(stu.classId)!==String(SS.ass.classId)){scanMsg('التلميذ '+String(stu.name||'')+' ليس في قسم هذا الفرض');return true;}
+        SS.stu=stu;SS.lastId='';SS.lastValue=null;
+        return false;
+      },
+      onClose:function(){
+        if(!SS)return;
+        if(SS.stu){openStripStep();return;}
+        var sd=SS;SS=null;
+        try{window.__scoreScanRefresh(sd.ass.id);}catch(e){}
+      }
+    });
+    setTimeout(function(){if(SS&&!SS.stu)scanMsg('١) قرّب الكاميرا من رمز QR الشخصي للمتعلم ثم انتقل إلى شريط النقطة');},1200);
   }
   window.scoreScanOpen=async function(){
     try{
@@ -7121,19 +7180,12 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
       var mx=parseFloat(ass.maxScore)||20;
       if(Math.abs(mx-20)>0.001)return toast('شريط النقطة مطبوع على 20 — الفرض الحالي على '+mx+'. اختر فرضًا من 20 أو أدخل النقاط يدويًا');
       if(typeof openScanner!=='function')return toast('الماسح غير متاح في هذه النسخة');
-      SS={ass:ass,lastQr:'',lastQrAt:0,lastId:'',lastValue:null,lastAt:0,saved:{},qrCache:{},pending:null,count:0,tickAt:0,msgAt:0,busyAt:0};
+      var session={ass:ass,lastQr:'',lastQrAt:0,lastId:'',lastValue:null,lastAt:0,saved:{},qrCache:{},pending:null,count:0,tickAt:0,msgAt:0,busyAt:0,stu:null,advanceTimer:0};
       try{
         var rows=await DB.all('scores');
-        rows.forEach(function(r){if(r.assessmentId===ass.id)SS.saved[r.studentId]=r.value;});
+        rows.forEach(function(r){if(r.assessmentId===ass.id)session.saved[r.studentId]=r.value;});
       }catch(e){}
-      openScanner({
-        title:'صوّر الورقة: رمز المتعلم + شريط النقطة',
-        guide:'strip',
-        video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},
-        onText:function(txt){if(txt&&SS){SS.lastQr=txt;SS.lastQrAt=Date.now();}return true;},
-        frameHook:frame,
-        onClose:function(){SS=null;try{window.__scoreScanRefresh(assId);}catch(e){}}
-      });
+      openIdStep(session);
     }catch(e){try{toast('تعذّر بدء المسح: '+String((e&&e.message)||e));}catch(e2){}}
   };
 })();
