@@ -211,6 +211,19 @@ self.addEventListener('fetch',function(e){
   }
 });`;
 
+let portalBuilding=null;
+async function portalDataOrBuild(){
+  if(portalData&&portalData.studs&&portalData.studs.length)return portalData;
+  if(!win||!win.webContents||win.webContents.isDestroyed())return portalData;
+  if(!portalBuilding){
+    portalBuilding=win.webContents.executeJavaScript('(typeof buildPortalSnapshot==="function")?buildPortalSnapshot():null')
+      .then(d=>{if(d&&d.studs&&d.studs.length)portalData=d;return d;})
+      .catch(()=>null)
+      .then(d=>{portalBuilding=null;return d;});
+  }
+  await portalBuilding;
+  return portalData;
+}
 async function portalHandler(req,res){
   const u=(req.url||'/').split('?')[0];
   const ip=(req.socket&&req.socket.remoteAddress)||'?';
@@ -253,7 +266,8 @@ async function portalHandler(req,res){
     if(!nc){res.writeHead(400,cors);res.end(JSON.stringify({error:'need_code',message:'أدخل رقم دخولك أولًا'}));return;}
     if(!ns){res.writeHead(400,cors);res.end(JSON.stringify({error:'missing_sec',message:'أدخل الرمز السرّي المطبوع في بطاقتك'}));return;}
     if(ns.length<4){res.writeHead(400,cors);res.end(JSON.stringify({error:'short_sec',message:'الرمز السرّي قصير — هو ١٢ رقمًا في البطاقة'}));return;}
-    const list=(portalData&&portalData.studs)?(portalData.studs||[]):[];
+    const pd=await portalDataOrBuild();
+    const list=(pd&&pd.studs)?(pd.studs||[]):[];
     const st=list.find(x=>x.code&&nCode(x.code)===nc);
     if(!st){
       portalDeny(res,ip);await sleepMs(THROT_MS);
@@ -266,7 +280,7 @@ async function portalHandler(req,res){
     portalClear(ip);
     const safe=Object.assign({},st);delete safe.sec;
     res.writeHead(200,cors);
-    res.end(JSON.stringify({meta:portalData&&portalData.meta?portalData.meta:null,student:safe}));
+    res.end(JSON.stringify({meta:pd&&pd.meta?pd.meta:null,student:safe}));
     return;
   }
   if(u.indexOf('/vendor/')===0||u.indexOf('/app/vendor/')===0){if(serveVendor(res,u))return;}

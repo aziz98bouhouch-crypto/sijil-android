@@ -375,11 +375,21 @@ function fetchPair(code,pin){
     return second.then(function(b){lanTally(a);lanTally(b);if(b.ok)return useEnd(b);return giveUp(a,b)},function(){return giveUp(a,{ok:false,which:"cloud",kind:"net"})})
   })
 }
-/* tries the typed value first, then its normalised twin — so a code the teacher wrote
-   with a space or capitals keeps working while phone-typed ٢٠٢٥/٩٩ starts matching. */
-function variants(code,pin){
-  var out=[{c:code,p:pin}],nc=nzCode(code),np=nzPin(pin);
-  if(nc&&(nc!==String(code)||np!==String(pin)))out.push({c:nc,p:np});
+/* المحاولات بالترتيب: كما كُتب، ثم بلا فراغات، ثم بحروف كبيرة، ثم المطبَّع كاملًا.
+   أرقام الدخول تُنشر بحروفها الكبيرة كما هي في البطاقة، ولوحة مفاتيح الهاتف تكتبها صغيرة
+   وتكتب ٢٠٢٥ بدل 2025 — وكل شكل يبصم صفًّا مختلفًا. تجربة الأشكال الأربعة تجعل الإدخال اليدوي
+   والمسح بالصورة يعملان بلا إعادة نشر ولا إعادة طباعة للبطاقات المطبوعة. */function variants(code,pin){
+  var ps=[nzPin(pin),String(pin==null?"":pin)],p2=[],seenP={};
+  for(var q=0;q<ps.length;q++){var pv=ps[q];if(pv&&!seenP[pv]){seenP[pv]=1;p2.push(pv)}}
+  var raw=String(code==null?"":code),sf=soft(raw);
+  var ns=sf.replace(/ /g,"").replace(/　/g,"");
+  var cs=[raw,sf,ns,ns.toUpperCase(),nzCode(raw)],cf=[],seenC={};
+  for(var w=0;w<cs.length;w++){var cv=cs[w];if(cv&&cv.trim()&&!seenC[cv]){seenC[cv]=1;cf.push(cv)}}
+  var out=[];
+  for(var k=0;k<p2.length&&out.length<8;k++){
+    for(var i=0;i<cf.length&&out.length<8;i++){out.push({c:cf[i],p:p2[k]})}
+  }
+  if(!out.length)out.push({c:raw,p:String(pin==null?"":pin)});
   return out
 }
 function fetchData(code,pin){
