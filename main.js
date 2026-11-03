@@ -244,15 +244,24 @@ async function portalHandler(req,res){
     if(portalLocked(ip)){res.writeHead(429,cors);res.end(JSON.stringify({error:'محاولات كثيرة — حاول بعد قليل'}));return;}
     let code='',sec='';
     try{const sp=new URL(req.url,'http://x').searchParams;code=sp.get('code')||'';sec=sp.get('sec')||sp.get('pin')||'';}catch(e){}
+    /* لوحات المفاتيح العربية على الهواتف تكتب الأرقام المشرقية وعلامات اتجاه مخفية: تُطبَّع الخانتان قبل المطابقة */
+    const lat=s=>String(s).replace(/[\u0660-\u0669\u06F0-\u06F9\uFF10-\uFF19]/g,c=>{const o=c.charCodeAt(0);return String(o-(o>=0xFF10?0xFF10:(o>=0x06F0?0x06F0:0x0660)))}).replace(/[\uFBF1-\uFBF9]/g,c=>String(c.charCodeAt(0)-0xFBF0));
+    const unbidi=s=>String(s).replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u206F\u061C\uFEFF]/g,'');
+    const nCode=v=>lat(unbidi(v)).replace(/\uFF0F/g,'/').replace(/\s+/g,'').toLowerCase();
+    const nSec=v=>lat(unbidi(v)).replace(/[\s\-\u005F.\u00B7\u060C,\u2010-\u2015]/g,'');
+    const nc=nCode(code),ns=nSec(sec);
+    if(!nc){res.writeHead(400,cors);res.end(JSON.stringify({error:'need_code',message:'أدخل رقم دخولك أولًا'}));return;}
+    if(!ns){res.writeHead(400,cors);res.end(JSON.stringify({error:'missing_sec',message:'أدخل الرمز السرّي المطبوع في بطاقتك'}));return;}
+    if(ns.length<4){res.writeHead(400,cors);res.end(JSON.stringify({error:'short_sec',message:'الرمز السرّي قصير — هو ١٢ رقمًا في البطاقة'}));return;}
     const list=(portalData&&portalData.studs)?(portalData.studs||[]):[];
-    const st=list.find(x=>x.code&&String(x.code).toLowerCase()===String(code).toLowerCase());
+    const st=list.find(x=>x.code&&nCode(x.code)===nc);
     if(!st){
       portalDeny(res,ip);await sleepMs(THROT_MS);
-      res.writeHead(404,cors);res.end(JSON.stringify({error:'رمز الدخول غير صحيح'}));return;
+      res.writeHead(404,cors);res.end(JSON.stringify({error:'not_published',message:'رمز الدخول غير صحيح'}));return;
     }
-    if(!st.sec||!ctEq(String(sec),String(st.sec))){
+    if(!st.sec||!ctEq(ns,nSec(String(st.sec)))){
       portalDeny(res,ip);await sleepMs(THROT_MS);
-      res.writeHead(404,cors);res.end(JSON.stringify({error:'الرمز غير صحيح'}));return;
+      res.writeHead(404,cors);res.end(JSON.stringify({error:'bad_sec',message:'الرمز غير صحيح'}));return;
     }
     portalClear(ip);
     const safe=Object.assign({},st);delete safe.sec;
@@ -266,6 +275,7 @@ async function portalHandler(req,res){
   if(u==='/sw.js'){res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'no-store','Service-Worker-Allowed':'/'});res.end(SW_JS);return;}
   if(u==='/icon-192.png'||u==='/icon-512.png'){const size=u.indexOf('192')>=0?192:512;const b=appIcon(size);if(b){res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=86400'});res.end(b);}else{res.writeHead(404,{'Content-Type':'text/plain'});res.end('no icon');}return;}
   if(u==='/logo.png'){try{const fp=path.join(__dirname,'build','icon.png');if(fs.existsSync(fp)){res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=86400','Access-Control-Allow-Origin':'*'});res.end(fs.readFileSync(fp));return;}}catch(e){}res.writeHead(404,{'Content-Type':'text/plain'});res.end('no logo');return;}
+  if(u==='/jsqr.js'||u==='/vendor/jsqr.js'){try{const fp=path.join(__dirname,'vendor','jsqr.js');if(fs.existsSync(fp)){res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'public, max-age=86400','Access-Control-Allow-Origin':'*'});res.end(fs.readFileSync(fp));return;}}catch(e){}res.writeHead(404,{'Content-Type':'text/plain'});res.end('no jsqr');return;}
   if(u.indexOf('/build/')===0){
     try{
       const base=path.join(__dirname,'build');

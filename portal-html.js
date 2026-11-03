@@ -139,8 +139,8 @@ nav.tabs button.on{color:#0f766e}
 <div class="brand"><img class="logo" src="logo.png" alt="شعار مواكبتي" onerror="this.style.display='none'"/><div class="btext"><div class="bname">مواكبتي</div><small>سجل التقييم PRO</small></div></div>
 <div class="banner" id="banner"></div>
 <div class="card" id="auth">
-  <label>الرمز الخاص بك</label><input id="pin" type="password" placeholder="رمزك السرّي — لا تشاركه" autocomplete="off">
-  <label>رقم دخولك</label><input id="code" type="text" placeholder="مثال: 2025/01" autocomplete="off">
+  <label>الرمز الخاص بك</label><input id="pin" type="password" inputmode="numeric" autocomplete="one-time-code" autocorrect="off" spellcheck="false" dir="ltr" placeholder="الأرقام الاثنا عشر المطبوعة في بطاقتك">
+  <label>رقم دخولك</label><input id="code" type="text" inputmode="latin" autocomplete="username" autocorrect="off" autocapitalize="off" spellcheck="false" dir="ltr" placeholder="مثال: 2025/01">
   <div class="row2"><button onclick="S.login()"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>دخول</button><button class="secondary" onclick="S.scan()" title="مسح رمز الربط"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></button></div>
   <div class="err" id="err"></div>
   <div class="evnote" id="landHint" style="display:none;margin-top:8px"></div>
@@ -212,6 +212,14 @@ function nowIso(){return new Date().toISOString()}
 function sig(d){if(!d)return "";return [d.avg,d.g,(d.subs||[]).length,(d.hw||[]).filter(function(h){return !h.sub}).length,(d.lessons||[]).length,(d.evo||[]).map(function(e){return e.c+":"+e.a}).join("|"),(d.beh?((+d.beh.neg||0)+"/"+((+d.beh.pos||0))):"-"),(d.tr||[]).map(function(x){return x.d+":"+x.v}).join("|"),(d.sup||[]).length].join("_")}
 function readCache(code){try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");var r=m[String(code).toLowerCase()];return r||null}catch(e){return null}}
 function writeCache(code,obj){try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");m[String(code).toLowerCase()]=obj;localStorage.setItem(LSD,JSON.stringify(m))}catch(e){}}
+/* لوحات المفاتيح العربية تكتب ٤٨٢٩ و۴۸۲۹ وfullwidth مع علامات اتجاه مخفية: تُطبَّع الخانتان
+   كما يطبّعهما المستودع، وإلا اختلفت بصمة rowkey عن المنشورة رغم صحة الرمز عند التلميذ. */
+var BIDIo=/[\\u200B-\\u200F\\u202A-\\u202E\\u2060-\\u2064\\u2066-\\u2069\\u206F\\u061C\\uFEFF]/g;
+function latDigits(t){return String(t).replace(/[\\u0660-\\u0669\\u06F0-\\u06F9\\uFF10-\\uFF19]/g,function(c){var o=c.charCodeAt(0);return String(o-(o>=0xFF10?0xFF10:(o>=0x06F0?0x06F0:0x0660)))}).replace(/[\\uFBF1-\\uFBF9]/g,function(c){return String(c.charCodeAt(0)-0xFBF0)})}
+function soft(t){return latDigits(String(t).replace(BIDIo,"")).replace(/\\uFF0F/g,"/")}
+function nzCode(t){return soft(t).replace(/\\s+/g,"").toLowerCase()}
+function nzPin(t){return soft(t).replace(/[\\s\\u002D\\u005F\\u002E\\u00B7\\u060C,\\u2010-\\u2015]/g,"")}
+function cleanFields(){try{var p=$x("pin"),c=$x("code");if(p){var n=nzPin(p.value);if(n!==p.value)p.value=n}if(c){var m=soft(c.value);if(m!==c.value)c.value=m}}catch(e){}}
 function sha256hex(txt){txt=String(txt==null?"":txt);if(window.crypto&&crypto.subtle&&crypto.subtle.digest){return crypto.subtle.digest("SHA-256",new TextEncoder().encode(txt)).then(function(b){var a=new Uint8Array(b),s="";for(var i=0;i<a.length;i++){s+=(a[i]<16?"0":"")+a[i].toString(16)}return s})}return Promise.resolve("")}
 function lanBase(){var b=(CFG.lan||"").trim();if(!b)return "";b=b.replace(/\\/+$/,"");return b}
 function pubBase(){return trimEnd(CFG.pub||"")}
@@ -242,6 +250,8 @@ timeout:"الخادم لم يرد خلال المهلة — الشبكة ضعي�
 net:"تعذّر الوصول إلى الخادم — تحقّق من الاتصال ثم أعد المحاولة",
 busy:"خادم الأستاذ رفض الطلب (كثرة المحاولات) — انتظر قليلًا ثم أعد المحاولة",
 badsec:"الرمز الخاص غير مطابق — امسح رمز QR الخاص بك أو راجع أستاذك",
+nocode:"أدخل رقم دخولك أولًا — تجده في أعلى بطاقة الرقم التي أعطاك إياها الأستاذ",
+nosec:"أدخل الرمز السرّي المكوّن من ١٢ رقمًا والمطبوع في بطاقتك، ثم اضغط دخول",
 noenc:"هذا النشر مُشفَّر وهاتفك لا يدعم فكّ التشفير — اطلب من أستاذك نسخة «مواكبتي» المحدَّثة",
 nodata:"لا توجد بيانات لرقم دخولك عند الأستاذ — راجعه معه",
 notfound:"لا توجد بيانات منشورة لرقمك ورمزك — إمّا أن الأستاذ غيّر رمزك أو لم ينشر بعد",
@@ -261,6 +271,16 @@ function timed(u,ms,opt){return new Promise(function(res,rej){
   var miss=function(){if(settled)return;settled=true;clearTimeout(tmr);rej(navigator.onLine===false?"offline":"net")};
   try{fetch(u,o).then(hit,miss)}catch(e){if(!settled){settled=true;clearTimeout(tmr);rej("badhost")}}
 })}
+/* تصنيف خطأ /api/view: المستودع الجديد يعطي error صريحًا، وخادم شبكة الأستاذ يعطي
+   رسائل عربية — تُقرأ كلها ليحصل التلميذ على السبب الحقيقي بدل «لا توجد بيانات». */
+var LANERR={bad_sec:"badsec",not_published:"notfound",missing_sec:"nosec",short_sec:"nosec",need_code:"nocode"};
+function lanErrKind(j){
+  var e=String((j&&j.error)||""),m=String((j&&j.message)||"");
+  if(LANERR[e])return LANERR[e];
+  if(e.indexOf("الرمز")>=0||m.indexOf("الرمز")>=0)return "badsec";
+  if(e.indexOf("رمز الدخول غير")>=0||m.indexOf("رمز الدخول غير")>=0)return "notfound";
+  return "nodata"
+}
 function attemptLan(code,pin){
   var b=lanBase();if(!b)return Promise.resolve({ok:false,which:"lan",kind:"nohost"});
   var u=b+"/api/view?code="+encodeURIComponent(code)+(pin?("&sec="+encodeURIComponent(pin)):"");
@@ -268,10 +288,11 @@ function attemptLan(code,pin){
     var j=jsonOf(x.txt)||{};
     if(x.r.status===429)return {ok:false,which:"lan",kind:"busy",http:429};
     if(!x.r.ok){
-      if(x.r.status===404)return {ok:false,which:"lan",kind:(String(j.error||"").indexOf("الرمز")>=0?"badsec":"nodata"),http:404};
+      if(x.r.status===404||x.r.status===400)return {ok:false,which:"lan",kind:lanErrKind(j),http:x.r.status};
       return {ok:false,which:"lan",kind:"http",http:x.r.status}
     }
     if(!j||!(j.student||j.payload))return {ok:false,which:"lan",kind:"nodata"};
+    if(j.inst&&!CFG.inst){CFG.inst=String(j.inst).slice(0,200);saveCfg()}
     if(j.student)return {ok:true,which:"lan",j:{meta:j.meta,student:j.student}};
     return unwrapPayload(j.payload,code,pin).then(function(st){
       if(!st||typeof st!=="object")return {ok:false,which:"lan",kind:"notfound"};
@@ -346,7 +367,7 @@ function giveUp(a,b){
   var off=(navigator.onLine===false)||lan.kind==="offline"||cloud.kind==="offline";
   return Promise.reject({by:by,offline:!!off,lan:lan.kind,cloud:cloud.kind})
 }
-function fetchData(code,pin){
+function fetchPair(code,pin){
   var s=epState(),aL=attemptLan(code,pin),aC=attemptCloudAll(code,pin);
   var first=(s.good==="cloud")?aC:aL,second=(s.good==="cloud")?aL:aC;
   return first.then(function(a){
@@ -354,7 +375,25 @@ function fetchData(code,pin){
     return second.then(function(b){lanTally(a);lanTally(b);if(b.ok)return useEnd(b);return giveUp(a,b)},function(){return giveUp(a,{ok:false,which:"cloud",kind:"net"})})
   })
 }
-var PREF=["badsec","noenc","key","table","busy","notfound","nocrypto","nodata","nocloud","nohost","offline","timeout","net","srv"];
+/* tries the typed value first, then its normalised twin — so a code the teacher wrote
+   with a space or capitals keeps working while phone-typed ٢٠٢٥/٩٩ starts matching. */
+function variants(code,pin){
+  var out=[{c:code,p:pin}],nc=nzCode(code),np=nzPin(pin);
+  if(nc&&(nc!==String(code)||np!==String(pin)))out.push({c:nc,p:np});
+  return out
+}
+function fetchData(code,pin){
+  var vs=variants(code,pin),err=null;
+  function step(i){
+    if(i>=vs.length)return Promise.reject(err||{by:{lan:"nodata",cloud:"notfound"}});
+    return fetchPair(vs[i].c,vs[i].p).then(function(r){
+      if(i>0){try{$x("code").value=vs[i].c;if(vs[i].p)$x("pin").value=vs[i].p}catch(e){}}
+      return r
+    },function(e){err=e;return step(i+1)})
+  }
+  return step(0)
+}
+var PREF=["nocode","nosec","badsec","noenc","key","table","busy","notfound","nocrypto","nodata","nocloud","nohost","offline","timeout","net","srv"];
 function why(err){
   if(!err)return WHY.net;
   var b=(err&&err.by)||{},k="";
@@ -455,7 +494,8 @@ function renderAtt(){
   nt.textContent="خط لآخر "+arCount(tr.length,"يوم","أيام")+" مسجّلة: "+day+sess+(ab?(". مجموع حصص الغياب في المدة: "+arCount(ab,"حصة","حصص")):"");
 }
 function paintMeta(){$x("vmeta").textContent=((D.cls||"")+((D.br||D.lv)?(" — "+(D.br||"")+((D.lv?(" / "+D.lv):""))):""))+(META&&META.updatedAt?(" · حُدِّثت "+fmt16(META.updatedAt)):"");renderFresh()}
-S.login=function(){var c=$x("code").value.trim();if(!c){showErr("أدخل رقم دخولك");return}
+S.login=function(){cleanFields();var c=$x("code").value.trim();if(!c){showErr(WHY.nocode);return}
+  if(!$x("pin").value.trim()){showErr(WHY.nosec);return}
   banner("جارٍ تحميل بياناتك…");
   fetchData(c,$x("pin").value.trim()).then(function(x){
     if(!x||x.status!==200||!x.j||!x.j.student){return Promise.reject({by:{lan:"nodata",cloud:"notfound"}})}
@@ -640,10 +680,67 @@ function applyScan(raw){raw=String(raw||"").trim();if(!raw){toast("لم يُعث
 }
 S.scan=function(){
   try{var C=window.Capacitor;if(C&&C.Plugins&&C.Plugins.BarcodeScanner){var BS=C.Plugins.BarcodeScanner;var rp=BS.checkPermissions?BS.checkPermissions():Promise.resolve({camera:"granted"});rp.then(function(p){return (p&&p.camera==="granted")?Promise.resolve():BS.requestPermissions()}).then(function(){return BS.startScan({formats:["qr_code"]})}).then(function(res){applyScan(res&&res.barcode&&res.barcode.rawValue||"")}).catch(function(){toast("أُلغي المسح أو تعذّر")});return}}catch(e){}
-  if(("BarcodeDetector" in window)&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){scanCam();return}
-  toast("امسح رمز QR بهاتفك — استخدم زر المسح أعلى هذا التطبيق");
+  /* Safari/iPhone لا يعرف BarcodeDetector إطلاقًا: بلا احتياط jsQR يبقى الزر صامتًا. */
+  var live=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&(window.isSecureContext!==false));
+  if(live){if(detector()){scanCam();return}jsqrReady().then(function(){scanCam()});return}
+  if(detector()){S.scanPhoto();return}
+  jsqrReady().then(function(ok){if(ok)S.scanPhoto();else toast("تعذّر فتح الكاميرا على هذا الهاتف — أدخل رقم دخولك ورمزك السرّي في الخانتين")});
 };
-function scanCam(){var v=document.createElement("video");v.setAttribute("playsinline","");v.style.cssText="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:9998";document.body.appendChild(v);var st=document.createElement("button");st.textContent="إلغاء المسح";st.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;width:auto;padding:11px 20px;border-radius:12px;background:#dc2626;color:#fff";document.body.appendChild(st);var stream,track,timer,dead=false;function done(){dead=true;try{if(stream)stream.getTracks().forEach(function(t){t.stop()})}catch(e){}v.remove();st.remove()}st.onclick=done;var det=new window.BarcodeDetector({formats:["qr_code"]});navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(function(s){stream=s;v.srcObject=s;track=s.getVideoTracks()[0];v.play();function tick(){if(dead)return;det.detect(v).then(function(c){if(c&&c.length){done();applyScan(c[0].rawValue);return}}).catch(function(){});timer=setTimeout(tick,350)}tick()}).catch(function(){done();toast("تعذّر فتح الكاميرا — أدخل العنوان يدويًا")})}
+var JSQR_SRC=["/jsqr.js","/vendor/jsqr.js","jsqr.js"],_jsqr=null,_det=null;
+function detector(){if(_det!==null)return _det;_det=false;try{if(window.BarcodeDetector)_det=new window.BarcodeDetector({formats:["qr_code"]})}catch(e){_det=false}return _det||null}
+function loadJsqr(i){i=i||0;if(window.jsQR)return Promise.resolve(true);if(i>=JSQR_SRC.length)return Promise.resolve(false);
+  return new Promise(function(res){var s=document.createElement("script");s.src=JSQR_SRC[i];s.async=true;
+    s.onload=function(){res(!!window.jsQR)};s.onerror=function(){loadJsqr(i+1).then(res)};document.head.appendChild(s)})}
+function jsqrReady(){if(window.jsQR)return Promise.resolve(true);if(_jsqr)return _jsqr;
+  _jsqr=loadJsqr(0).then(function(ok){if(!ok)_jsqr=null;return ok});return _jsqr}
+function qrFromSource(src){
+  var d=detector(),W=src.width||src.naturalWidth||0,H=src.height||src.naturalHeight||0;
+  if(!W||!H)return Promise.resolve("");
+  var sc=Math.min(1,720/Math.max(W,H)),w=Math.max(1,Math.round(W*sc)),h=Math.max(1,Math.round(H*sc));
+  var cv=document.createElement("canvas");cv.width=w;cv.height=h;
+  var ctx=cv.getContext("2d",{willReadFrequently:true});try{ctx.drawImage(src,0,0,w,h)}catch(e){return Promise.resolve("")}
+  var viaImg=d?d.detect(src).then(function(c){return (c&&c.length)?String(c[0].rawValue||""):""}).catch(function(){return ""}):Promise.resolve("");
+  return viaImg.then(function(found){
+    if(found)return found;
+    if(!window.jsQR){return jsqrReady().then(function(ok){if(!ok)return "";return pixels(cv,ctx)})}
+    return pixels(cv,ctx)
+  })
+}
+function pixels(cv,ctx){
+  try{var im=ctx.getImageData(0,0,cv.width,cv.height);var r=window.jsQR(im.data,cv.width,cv.height);return (r&&r.data)?String(r.data||""):""}catch(e){return ""}
+}
+function scanCam(){
+  var v=document.createElement("video");v.setAttribute("playsinline","");v.style.cssText="position:fixed;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:9998";document.body.appendChild(v);
+  var bar=document.createElement("div");bar.style.cssText="position:fixed;bottom:24px;left:0;right:0;display:flex;gap:10px;justify-content:center;z-index:9999";
+  var st=document.createElement("button");st.textContent="إلغاء المسح";st.style.cssText="width:auto;padding:11px 20px;border-radius:12px;background:#dc2626;color:#fff";
+  var ph=document.createElement("button");ph.textContent="التقاط صورة";ph.style.cssText="width:auto;padding:11px 20px;border-radius:12px;background:#0f172a;color:#fff";
+  bar.appendChild(ph);bar.appendChild(st);document.body.appendChild(bar);
+  var stream,timer,dead=false,busy=false;
+  function done(){dead=true;try{if(stream)stream.getTracks().forEach(function(t){t.stop()})}catch(e){}try{if(timer)clearTimeout(timer)}catch(e){}v.remove();bar.remove()}
+  st.onclick=done;
+  ph.onclick=function(){done();S.scanPhoto()};
+  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(function(s){
+    stream=s;v.srcObject=s;v.play();
+    function tick(){if(dead)return;
+      if(v.readyState>=2&&!busy){busy=true;qrFromSource(v,"cam").then(function(txt){busy=false;if(dead)return;if(txt){done();applyScan(txt)}})}
+      timer=setTimeout(tick,320)}
+    tick()
+  }).catch(function(){done();toast("تعذّر فتح الكاميرا — ستُقرأ البطاقة من صورة");S.scanPhoto()})
+}
+S.scanPhoto=function(){
+  var inp=document.createElement("input");inp.type="file";inp.accept="image/*";try{inp.setAttribute("capture","environment")}catch(e){}
+  inp.style.cssText="position:fixed;left:-9999px;top:0";document.body.appendChild(inp);
+  inp.onchange=function(){
+    var f=inp.files&&inp.files[0];if(!f){toast("لم تُختر صورة");inp.remove();return}
+    toast("جارٍ قراءة الصورة…");
+    var url=URL.createObjectURL(f),im=new Image();
+    im.onload=function(){qrFromSource(im,"photo").then(function(txt){URL.revokeObjectURL(url);try{inp.remove()}catch(e){}
+      if(txt)applyScan(txt);else toast("لم تُقرأ البطاقة من الصورة — قرّب الهاتف وأعد المحاولة أو اكتب الرمزين يدويًا")})};
+    im.onerror=function(){URL.revokeObjectURL(url);try{inp.remove()}catch(e){}toast("تعذّر فتح الصورة")};
+    im.src=url
+  };
+  inp.click()
+};
 function toast(m){var t=document.createElement("div");t.textContent=m;t.style.cssText="position:fixed;bottom:calc(100px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#0f172a;color:#fff;padding:10px 16px;border-radius:12px;font-size:13px;z-index:10000;max-width:90%;text-align:center";document.body.appendChild(t);setTimeout(function(){t.remove()},2400)}
 var pollT=null,POLL_VIS=120000,POLL_BG=600000;
 function startPoll(){if(pollT)clearInterval(pollT);if(!currentCode())return;pollT=setInterval(function(){if(navigator.onLine===false)return;quietRefresh(true)},document.hidden?POLL_BG:POLL_VIS)}
@@ -653,6 +750,7 @@ document.addEventListener("visibilitychange",function(){startPoll();if(!document
 window.addEventListener("online",function(){if(D){banner("");quietRefresh(true)}});
 window.addEventListener("offline",function(){if(D)banner("⚠ لا اتصال — المعروض آخر بيانات محفوظة")});
 (function harden(){try{document.addEventListener("contextmenu",function(e){e.preventDefault()});document.addEventListener("keydown",function(e){var k=(e.key||"").toLowerCase();if(e.key==="F12"||(e.ctrlKey&&e.shiftKey&&["i","j","c","k"].indexOf(k)>=0)||(e.ctrlKey&&k==="u")||(e.metaKey&&e.altKey&&["i","j","c"].indexOf(k)>=0)){e.preventDefault();return false}});document.addEventListener("selectstart",function(e){var t=e.target&&e.target.tagName;if(t!=="INPUT"&&t!=="TEXTAREA")e.preventDefault()});}catch(e){}})();
+(function tidyInputs(){try{["pin","code"].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener("input",cleanFields)})}catch(e){}})();
 loadCfg();
 applyBoot();
 (function boot(){

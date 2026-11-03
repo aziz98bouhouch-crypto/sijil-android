@@ -24,3 +24,12 @@ if (fs.existsSync(icon)) {
 } else {
   console.warn('warning: build/icon.png not found, header logo will hide');
 }
+
+// jsQR: iPhone Safari has no BarcodeDetector, so the SPA lazy-loads this for scanning.
+const jsqr = path.join(root, 'vendor', 'jsqr.js');
+if (fs.existsSync(jsqr)) {
+  fs.copyFileSync(jsqr, path.join(dstDir, 'jsqr.js'));
+  console.log('copied vendor/jsqr.js -> www/jsqr.js');
+} else {
+  console.warn('warning: vendor/jsqr.js not found, QR scanning will fall back to photo capture only');
+}
