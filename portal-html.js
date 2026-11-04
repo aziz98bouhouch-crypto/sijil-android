@@ -703,17 +703,31 @@ function loadJsqr(i){i=i||0;if(window.jsQR)return Promise.resolve(true);if(i>=JS
     s.onload=function(){res(!!window.jsQR)};s.onerror=function(){loadJsqr(i+1).then(res)};document.head.appendChild(s)})}
 function jsqrReady(){if(window.jsQR)return Promise.resolve(true);if(_jsqr)return _jsqr;
   _jsqr=loadJsqr(0).then(function(ok){if(!ok)_jsqr=null;return ok});return _jsqr}
-function qrFromSource(src){
-  var d=detector(),W=src.width||src.naturalWidth||0,H=src.height||src.naturalHeight||0;
-  if(!W||!H)return Promise.resolve("");
-  var sc=Math.min(1,720/Math.max(W,H)),w=Math.max(1,Math.round(W*sc)),h=Math.max(1,Math.round(H*sc));
+function srcSize(src){return [src.videoWidth||src.naturalWidth||src.width||0,src.videoHeight||src.naturalHeight||src.height||0]}
+function frameCanvas(src,sx,sy,sw,sh,cap){
+  var sc=Math.min(1,cap/Math.max(sw,sh)),w=Math.max(1,Math.round(sw*sc)),h=Math.max(1,Math.round(sh*sc));
   var cv=document.createElement("canvas");cv.width=w;cv.height=h;
-  var ctx=cv.getContext("2d",{willReadFrequently:true});try{ctx.drawImage(src,0,0,w,h)}catch(e){return Promise.resolve("")}
+  var ctx=cv.getContext("2d",{willReadFrequently:true});try{ctx.drawImage(src,sx,sy,sw,sh,0,0,w,h)}catch(e){return null}
+  return {cv:cv,ctx:ctx}
+}
+function qrFromSource(src){
+  /* الفيديو لا يملك naturalWidth ولا width معبّأ: قراءتهما كانت تعطي 0 فتخرج الدالة قبل أي محاولة فكّ — لهذا كان المسح الحيّ صامتًا دائمًا ولا ينجح إلا التقاط الصورة. */
+  var d=detector(),sz=srcSize(src),W=sz[0],H=sz[1];
+  if(!W||!H)return Promise.resolve("");
+  var full=frameCanvas(src,0,0,W,H,720);
+  if(!full)return Promise.resolve("");
   var viaImg=d?d.detect(src).then(function(c){return (c&&c.length)?String(c[0].rawValue||""):""}).catch(function(){return ""}):Promise.resolve("");
   return viaImg.then(function(found){
     if(found)return found;
-    if(!window.jsQR){return jsqrReady().then(function(ok){if(!ok)return "";return pixels(cv,ctx)})}
-    return pixels(cv,ctx)
+    function sweep(){
+      var list=[full],cw=Math.round(W*0.55),ch=Math.round(H*0.55);
+      var cr=cw>60&&ch>60?frameCanvas(src,Math.round((W-cw)/2),Math.round((H-ch)/2),cw,ch,900):null;
+      if(cr)list.push(cr);
+      for(var i=0;i<list.length;i++){var t=pixels(list[i].cv,list[i].ctx);if(t)return t}
+      return ""
+    }
+    if(window.jsQR)return sweep();
+    return jsqrReady().then(function(ok){return ok?sweep():""})
   })
 }
 function pixels(cv,ctx){
@@ -729,8 +743,8 @@ function scanCam(){
   function done(){dead=true;try{if(stream)stream.getTracks().forEach(function(t){t.stop()})}catch(e){}try{if(timer)clearTimeout(timer)}catch(e){}v.remove();bar.remove()}
   st.onclick=done;
   ph.onclick=function(){done();S.scanPhoto()};
-  navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).then(function(s){
-    stream=s;v.srcObject=s;v.play();
+  navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}}}).then(function(s){
+    stream=s;v.srcObject=s;var pl=v.play();if(pl&&pl.catch)pl.catch(function(){done();toast("تعذّر تشغيل المعاينة — ستُقرأ البطاقة من صورة");S.scanPhoto()});
     function tick(){if(dead)return;
       if(v.readyState>=2&&!busy){busy=true;qrFromSource(v,"cam").then(function(txt){busy=false;if(dead)return;if(txt){done();applyScan(txt)}})}
       timer=setTimeout(tick,320)}
