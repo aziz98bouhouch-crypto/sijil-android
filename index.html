@@ -938,6 +938,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
 <div class="card"><div class="section-title"><h2>إغلاق السنة الدراسية (أرشفة)</h2></div><p class="muted">يُحفظ نسخة كاملة من جميع البيانات الحالية، ثم تُمسح بيانات المتعلمين والتقييمات والمتابعات مع الإبقاء على الهوية الأكاديمية والمواد والأقسام والكفاءات والدروس والموارد.</p><div class="actions"><button class="btn warning" id="previewArchive">معاينة تقرير الإغلاق (PDF)</button><button class="btn danger" id="archiveYear">إغلاق السنة وأرشفتها</button></div></div>
 <div class="card"><div class="section-title"><h2>نسخ احتياطي مبرمج</h2></div><p class="muted">يُحفظ تلقائيًا لقطة كاملة للبيانات داخل التطبيق كل مدة محددة — تظهر في قائمة الأرشيف أدناه ويمكن استرجاعها. تُحتفظ بآخر 5 لقطات. ويمكن أيضًا تصدير كل لقطة إلى ملف JSON على القرص مع الإبقاء على آخر 10 ملفات.</p><div class="actions"><select id="autoBackupInterval" style="max-width:210px"><option value="0">إيقاف</option><option value="15">كل 15 دقيقة</option><option value="30" selected>كل 30 دقيقة</option><option value="60">كل ساعة</option><option value="180">كل 3 ساعات</option><option value="1440">يوميًا</option></select><button class="btn primary" id="autoBackupToggle">تفعيل النسخ التلقائي</button><button class="btn" id="autoBackupNow">لقطة فورية الآن</button></div><div class="form" style="margin-top:12px"><div class="field opt"><label class="opt"><input type="checkbox" id="autoBackupFileEnabled"> تصدير كل لقطة إلى ملف JSON على القرص</label></div><div class="field"><label>مجلد الحفظ</label><input id="autoBackupFileDir" placeholder="لم يُحدد بعد — اضغط «اختيار المجلد»" readonly style="font-size:12px"><span style="flex:1"></span><button class="btn" id="autoBackupFilePick">اختيار المجلد</button></div></div></div>
 <div class="card"><div class="section-title"><h2>استرجاع أرشيف سابق</h2></div><div class="field"><label>اختر الأرشيف</label><select id="archiveList"></select></div><div class="actions"><button class="btn warning" id="restoreArchive">استرجاع الأرشيف (استبدال البيانات)</button></div></div>
+<div class="card"><div class="section-title"><h2>النسخ المشفّرة على هذا الجهاز</h2></div><p class="muted">ينشئها التطبيق من تلقاء نفسه عند كل تشغيل وماديا كل ست ساعات، ويُبقي آخر أربع عشرة نسخة في مجلد بياناتك، مشفّرة بمفتاح خاص لا يُعرض ولا يُطبع. الاسترجاع يستبدل كل البيانات الحالية بحالتها وقت النسخة، لذا يُنشئ نسخة أمان من الحالة الحالية قبل أن يمسّ شيئا.</p><div id="encBackupBox"><p class="muted">جارٍ فحص مجلد النسخ…</p></div><div class="actions"><button class="btn primary" id="encBackupNow">نسخة مشفّرة الآن</button> <button class="btn" id="encBackupRefresh">تحديث القائمة</button> <button class="btn" id="encBackupOpen">فتح المجلد</button></div></div>
 <div class="card"><div class="section-title"><h2>الأرشيفات المحفوظة</h2></div><div id="archiveItems">لا توجد أرشيفات بعد.</div></div></div>
 
 <!-- PORTAL -->
@@ -4458,7 +4459,7 @@ async function snapshotList(){
   box.innerHTML=arcs.map(a=>{const cnt=Object.values(a.stores||{}).reduce((n,l)=>n+l.length,0);return '<div class="row"><span><b>'+esc(a.label)+'</b> <small class="muted">'+new Date(a.exportedAt).toLocaleString('ar-MA')+' — '+cnt+' سجل</small></span><button class="btn danger" data-del-arc="'+a.id+'" data-ask="سيُحذف هذا الأرشيف نهائيًا ولا يمكن التراجع عنه. هل تريد المتابعة؟">حذف</button></div>';}).join('');
   box.querySelectorAll('[data-del-arc]').forEach(b=>b.onclick=async()=>{await DB.remove('appMeta',b.dataset.delArc);snapshotList();toast('تم حذف الأرشيف')});
 }
-async function renderBackup(){await snapshotList();await renderAutoBackupFileUI();}
+async function renderBackup(){await snapshotList();await renderAutoBackupFileUI();try{await renderEncBackups()}catch(e){console.error('enc backups',e)}}
 async function previewArchive(){
   const counts=[];let totals=0;
   for(const s of ARCHIVE_KEEP){try{counts.push([s,(await DB.all(s)).length,'يُبقى']);}catch(e){}}
@@ -5329,6 +5330,96 @@ $('autoBackupToggle').onclick=toggleAutoBackup;
 $('autoBackupNow').onclick=async()=>{if(typeof isLocked==='function'&&isLocked())return;const note=await saveAutoBackup();toast('تم حفظ اللقطة'+(note||''));};
 $('autoBackupFileEnabled')&&($('autoBackupFileEnabled').onchange=async()=>{const cfg=await getAutoBackupFileCfg();cfg.enabled=$('autoBackupFileEnabled').checked;if(cfg.enabled&&!cfg.dir){$('autoBackupFilePick').click();cfg.dir=$('autoBackupFileDir').value;if(!cfg.dir){cfg.enabled=false;$('autoBackupFileEnabled').checked=false;}}await setAutoBackupFileCfg(cfg);toast(cfg.enabled?'تم تفعيل التصدير إلى الملف':'تم إيقاف التصدير إلى الملف');renderAutoBackupFileUI();});
 $('autoBackupFilePick')&&($('autoBackupFilePick').onclick=async()=>{if(!window.sijilAPI||!window.sijilAPI.pickBackupDir)return toast('اختيار المجلد متاح فقط في الإصدار المثبّت');const cfg=await getAutoBackupFileCfg();const r=await window.sijilAPI.pickBackupDir();if(!r||!r.ok)return;cfg.dir=r.path;if($('autoBackupFileDir'))$('autoBackupFileDir').value=r.path;await setAutoBackupFileCfg(cfg);toast('تم تحديد المجلد: '+r.path);renderAutoBackupFileUI();await snapshotList();});
+
+// ============ ENC BACKUPS: قائمة/معاينة/استرجاع النسخ المشفّرة على الجهاز (مرحلة 41) ============
+let encBusy=false;
+const encApi=()=>window.sijilAPI&&window.sijilAPI.encBackupList?window.sijilAPI:null;
+function encSize(b){return b>=1048576?(b/1048576).toFixed(2)+' ميغا':b>=1024?Math.round(b/1024)+' كيلو':b+' بايت';}
+function encReason(r){return r==='startup'?'عند التشغيل':r==='scheduled'?'مجدولة':r==='manual'?'يدوية':r==='pre-restore'?'قبل استرجاع':esc(String(r||'غير مذكور'));}
+async function renderEncBackups(){
+  const box=$('encBackupBox'); if(!box)return;
+  const api=encApi();
+  if(!api){box.innerHTML='<p class="muted">النسخ المجدولة المشفّرة تخصّ نسخة الحاسوب المثبّتة فقط.</p>';return;}
+  const L=await api.encBackupList();
+  if(!L||!L.ok){box.innerHTML='<p class="muted">تعذّر قراءة مجلد النسخ'+(L&&L.error?(' — '+esc(String(L.error).slice(0,90))):'')+'</p>';return;}
+  let h='';
+  if(!L.hasKey)h+='<p style="color:#c62828;font-size:13px">⚠ مفتاح التشفير غير موجود على هذا الجهاز، فلا يمكن فتح أي نسخة. إن كنت قد نقلت النسخ إلى جهاز آخر فانقل معه ملف <code>backup.key</code> من مجلد البيانات.</p>';
+  if(!L.items.length)h+='<p class="muted">لم تُحفظ أي نسخة مشفّرة بعد — اضغط «نسخة مشفّرة الآن».</p>';
+  else{
+    h+='<div class="tablewrap"><table class="table"><thead><tr><th>الوقت</th><th>النوع</th><th>الحجم</th><th>السجلات</th><th></th></tr></thead><tbody>';
+    for(const it of L.items){
+      h+='<tr><td>'+esc(new Date(it.mtime).toLocaleString('ar-MA'))+'</td><td><span data-rb="'+esc(it.name)+'">—</span></td><td>'+encSize(it.size||0)+'</td><td data-c="'+esc(it.name)+'">—</td><td><button class="btn btn-sm" data-enc-open="'+esc(it.name)+'">معاينة</button> <button class="btn danger" data-enc-restore="'+esc(it.name)+'">استرجاع هذه النسخة</button></td></tr>';
+    }
+    h+='</tbody></table></div><p class="muted" style="font-size:12px">التاريخ في العمود هو وقت كتابة الملف؛ والنوع يظهر «مجدولة» أو «يدوية» بعد المعاينة، لأن نوع النسخة محفوظ داخلها المشفّرة.</p>';
+  }
+  box.innerHTML=h;
+  box.querySelectorAll('[data-enc-open]').forEach(b=>b.onclick=()=>encPeek(b.dataset.encOpen));
+  box.querySelectorAll('[data-enc-restore]').forEach(b=>b.onclick=()=>encRestore(b.dataset.encRestore));
+}
+async function encPeek(name){
+  const api=encApi(); if(!api)return;
+  const p=await api.encBackupPeek(name);
+  if(!p||!p.ok)return toast('تعذّر فتح النسخة: '+esc(String((p&&p.error)||'خطأ غير معروف').slice(0,90)),'err');
+  const AR=Object.assign({participation:'مشاركة',notebookCare:'عناية بالدفتر',trash:'سلة',appMeta:'إعدادات'},typeof TRASH_LABELS==='object'?TRASH_LABELS:{});
+  const top=Object.keys(p.stores).filter(k=>p.stores[k]>0).sort((a,b)=>p.stores[b]-p.stores[a]).slice(0,5).map(k=>(AR[k]||k)+' '+p.stores[k]).join(' · ');
+  for(const el of Array.from(document.querySelectorAll('[data-c]'))){if(el.getAttribute('data-c')===name)el.textContent=String(p.total);}
+  for(const el of Array.from(document.querySelectorAll('[data-rb]'))){if(el.getAttribute('data-rb')===name)el.innerHTML=encReason(p.reason)+' <span class="muted" style="font-size:11px">('+(p.createdAt?esc(new Date(p.createdAt).toLocaleString('ar-MA')):'—')+')</span>';}
+  toast('نسخة '+p.total+' سجلًا'+(top?(' — '+top):''));
+}
+function encAsk(msg,okText){return new Promise(res=>{
+  openDrawer('استرجاع نسخة مشفّرة','<p style="font-size:14px;line-height:1.9;margin:4px 0 14px">'+msg+'</p><div class="actions"><button class="btn danger" id="encOk">'+esc(okText||'متابعة')+'</button><button class="btn" id="encNo">إلغاء</button></div>');
+  const ok=$('encOk'),no=$('encNo'),dr=$('drawer');
+  if(!ok||!no){closeDrawer();res(false);return;}
+  let done=false,mo=null;const fin=v=>{if(done)return;done=true;if(mo){try{mo.disconnect()}catch(e){}}res(v)};
+  if(typeof MutationObserver==='function'&&dr){mo=new MutationObserver(()=>{if(!dr.classList.contains('open'))fin(false)});mo.observe(dr,{attributes:true,attributeFilter:['class']});}
+  ok.onclick=()=>{fin(true);closeDrawer();};no.onclick=()=>{fin(false);closeDrawer();};
+});}
+function encTypeAsk(word,msg){return new Promise(res=>{
+  openDrawer('تأكيد أخير','<p style="font-size:14px;line-height:1.9;margin:4px 0 12px">'+msg+'</p><div class="field"><label>اكتب <b>'+esc(word)+'</b> للمتابعة</label><input id="encWord" autocomplete="off" placeholder="'+esc(word)+'"></div><div class="actions"><button class="btn danger" id="encGo" disabled>استرجاع واستبدال كل البيانات</button><button class="btn" id="encCancel">إلغاء</button></div>');
+  const inp=$('encWord'),go=$('encGo'),cancel=$('encCancel'),dr=$('drawer');
+  if(!inp||!go){closeDrawer();res(false);return;}
+  let done=false,mo=null;const fin=v=>{if(done)return;done=true;if(mo){try{mo.disconnect()}catch(e){}}res(v)};
+  if(typeof MutationObserver==='function'&&dr){mo=new MutationObserver(()=>{if(!dr.classList.contains('open'))fin(false)});mo.observe(dr,{attributes:true,attributeFilter:['class']});}
+  inp.oninput=()=>{go.disabled=inp.value.trim()!==word;};
+  inp.onkeydown=e=>{if(e.key==='Enter'&&!go.disabled)fin(true);};
+  go.onclick=()=>{fin(true);closeDrawer();};cancel.onclick=()=>{fin(false);closeDrawer();};
+  setTimeout(()=>{try{inp.focus()}catch(e){}},120);
+});}
+async function encRestore(name){
+  if(encBusy)return toast('عملية استرجاع أخرى جارية','warn');
+  if(typeof isLocked==='function'&&isLocked())return;
+  const api=encApi(); if(!api)return;
+  encBusy=true;
+  try{
+    const p=await api.encBackupPeek(name);
+    if(!p||!p.ok)return toast('تعذّر فتح النسخة: '+esc(String((p&&p.error)||'خطأ غير معروف').slice(0,90)),'err');
+    const nowN=await DB.counts();
+    const when=esc(new Date(p.createdAt||name).toLocaleString('ar-MA'));
+    const ok1=await encAsk('النسخة: <b>'+when+'</b><br>تحتوي <b>'+p.total+'</b> سجلًا.<br><br>الاسترجاع <b>يستبدل</b> كل ما هو موجود الآن (<b>'+nowN+'</b> سجلًا) بحالة ذلك الوقت، فيمحو كل عمل أُضيف بعده على هذا الجهاز.<br><br>قبل التنفيذ تُحفظ نسخة أمان من حالتك الحالية في نفس المجلد، مشفّرة بمفتاح هذا الجهاز.<br><br>إن كنت تشكّ في علامات بعينها فالمسار الأنجع هو السلة أو «استرجاع انتقائي» من ملف JSON، لا هذه العملية.', 'متابعة الاسترجاع');
+    if(!ok1)return toast('تم إلغاء الاسترجاع');
+    const ok2=await encTypeAsk('استرجاع','اكتب الكلمة للتأكيد النهائي: سيُستبدل جميع البيانات بهذه النسخة ('+p.total+' سجلًا بدل '+nowN+').');
+    if(!ok2)return toast('تم إلغاء الاسترجاع');
+    if(nowN>0){
+      const mk=await api.encBackupCreate('pre-restore');
+      if(!mk||!mk.ok)return toast('توقّف الاسترجاع: تعذّر حفظ نسخة أمان من حالتك الحالية'+(mk&&mk.error?(' — '+esc(String(mk.error).slice(0,70))):''),'err');
+    }
+    const rd=await api.encBackupRead(name);
+    if(!rd||!rd.ok||!rd.data)return toast('تعذّر قراءة بيانات النسخة'+(rd&&rd.error?(' — '+esc(String(rd.error).slice(0,90))):''),'err');
+    let inTotal=0;for(const s of CORE.stores){if(Array.isArray(rd.data[s]))inTotal+=rd.data[s].length;}
+    if(inTotal===0)return toast('النسخة لا تحتوي أي سجل صالح — لم يُمسّ من بياناتك شيء','err');
+    let put=0,bad=0;
+    await DB.clear();
+    for(const s of CORE.stores){const rows=rd.data[s];if(!Array.isArray(rows))continue;for(const r of rows){if(safeImportRecord(r)){try{await DB.put(s,r);put++}catch(e){bad++}}else bad++;}}
+    toast('تم الاسترجاع من نسخة '+when+' — '+put+' سجلًا'+(bad?('، وتُجاوز '+bad+' غير صالحة'):'')+'. أعد نشر بوابة المتعلمين ومزامنة الهاتف.');
+    const renders=[renderHome,renderAcademic,renderCurriculum,renderManagement,renderStudents,renderAssessment,renderTracking,renderDiagnosis,renderMotivation,renderResources,renderReports,renderBackup];
+    for(const f of renders){try{await f()}catch(e){console.error('render fail',f&&f.name,e)}}
+  }catch(e){
+    toast('تعذّر الاسترجاع: '+esc(String((e&&e.message)||e).slice(0,90)),'err');
+  }finally{ encBusy=false; }
+}
+$('encBackupNow')&&($('encBackupNow').onclick=async()=>{const api=encApi();if(!api)return toast('متاح في نسخة الحاسوب المثبّتة','warn');const r=await api.encBackupCreate('manual');if(r&&r.ok){toast('تم حفظ نسخة مشفّرة: '+(r.name||''));await renderEncBackups();}else toast('تعذّر إنشاء النسخة'+(r&&r.error?(' — '+esc(String(r.error).slice(0,80))):''),'err');});
+$('encBackupRefresh')&&($('encBackupRefresh').onclick=()=>renderEncBackups());
+$('encBackupOpen')&&($('encBackupOpen').onclick=async()=>{const api=encApi();if(!api)return toast('متاح في نسخة الحاسوب المثبّتة','warn');await api.encBackupOpenDir();});
 
 // ============ BULK KASHF (كشف نقط القسم للطباعة والتصدير) ============
 async function genKashfReport(){

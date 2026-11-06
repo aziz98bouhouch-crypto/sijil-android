@@ -415,6 +415,12 @@ function pruneBackups(dir,keep){
     for(let i=keep;i<files.length;i++){ try{ fs.unlinkSync(path.join(dir,files[i].f)); }catch(e){} }
   }catch(e){}
 }
+// طابع الدقيقة وحده لا يكفي: نسختان في نفس الدقيقة كانتا تكتبان فوق بعضهما
+function backupFilePath(dir,stamp){
+  let fp=path.join(dir,'sijil-backup_'+stamp+'.enc.json');
+  for(let n=2;n<100&&fs.existsSync(fp);n++) fp=path.join(dir,'sijil-backup_'+stamp+'-'+n+'.enc.json');
+  return fp;
+}
 async function doEncryptedBackup(reason){
   try{
     const key=getBackupKey(); if(!key) return {ok:false,error:'no-key'};
@@ -423,7 +429,7 @@ async function doEncryptedBackup(reason){
     const ts=new Date();
     const stamp=ts.getFullYear()+'-'+pad2(ts.getMonth()+1)+'-'+pad2(ts.getDate())+'_'+pad2(ts.getHours())+'-'+pad2(ts.getMinutes());
     const payload=encryptString(key,JSON.stringify({createdAt:ts.toISOString(),reason:reason||'scheduled',app:'sijil-taqyim-pro',data}));
-    const fp=path.join(dir,'sijil-backup_'+stamp+'.enc.json');
+    const fp=backupFilePath(dir,stamp);
     fs.writeFileSync(fp,payload,{mode:0o600});
     pruneBackups(dir,BACKUP_KEEP);
     lastBackupAt=Date.now();
@@ -438,8 +444,62 @@ function newestBackupAgeHours(){
     return (Date.now()-Math.max.apply(null,ms))/3600000;
   }catch(e){ return 1e9; }
 }
-function startBackupScheduler(){
-  (async()=>{ try{ if(newestBackupAgeHours()>BACKUP_MAX_AGE_H){ const r=await doEncryptedBackup('startup'); if(r&&r.ok) notify('نسخة احتياطية مشفّرة','أُنشئت نسخة عند التشغيل'); } }catch(e){} })();
+// ===== دفعة 41 (#246): واجهة الاسترجاع داخل التطبيق =====
+const ENC_BACKUP_RE=/^sijil-backup_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(-[0-9]{1,2})?\.enc\.json$/;
+function isEncBackupName(n){ return typeof n==='string' && ENC_BACKUP_RE.test(n) && n.indexOf('/')<0 && n.indexOf('\\')<0 && n.indexOf('..')<0; }
+function hasBackupKey(){
+  try{ const kp=path.join(app.getPath('userData'),'backup.key'); if(!fs.existsSync(kp)) return false;
+    const s=fs.readFileSync(kp,'utf8').trim(); return !!s && s.length>=44; }catch(e){ return false; }
+}
+function decryptString(keyB64,boxJson){
+  const box=JSON.parse(boxJson);
+  if(!box||box.alg!=='aes-256-gcm'||!box.iv||!box.tag||!box.data) throw new Error('ملف ليس بصيغة نسخة مشفّرة معروفة');
+  const d=crypto.createDecipheriv('aes-256-gcm',Buffer.from(keyB64,'base64'),Buffer.from(box.iv,'base64'));
+  d.setAuthTag(Buffer.from(box.tag,'base64'));
+  return Buffer.concat([d.update(Buffer.from(box.data,'base64')),d.final()]).toString('utf8');
+}
+function readEncBackup(name){
+  if(!isEncBackupName(name)) throw new Error('اسم ملف غير صالح');
+  if(!hasBackupKey()) throw new Error('لا يوجد مفتاح تشفير على هذا الجهاز — النسخ لا تُفتح بدونه');
+  const fp=path.join(backupsDir(),name);
+  if(!fs.existsSync(fp)) throw new Error('ملف النسخة غير موجود');
+  let box;
+  try{ box=JSON.parse(decryptString(getBackupKey(),fs.readFileSync(fp,'utf8'))); }
+  catch(x){ const m=String((x&&x.message)||x);
+    throw new Error(x instanceof SyntaxError?'ملف ليس بصيغة نسخة مشفّرة معروفة':
+      (/Unsupported state|unable to authenticate|tag mismatch|bad decrypt/i.test(m)
+        ?'تعذّر فكّ التشفير: النسخة تالفة أو كُتبت بمفتاح جهاز آخر — انقل معها ملف backup.key أو استعمل الجهاز الذي أُنشئت عليه'
+        :'تعذّر فكّ التشفير: '+m.slice(0,60))); }
+  if(!box||!box.data||typeof box.data!=='object'||Array.isArray(box.data)) throw new Error('النسخة لا تحتوي بيانات');
+  return {name:name,path:fp,createdAt:box.createdAt||'',reason:box.reason||'',app:box.app||'',data:box.data};
+}
+function encBackupCounts(data){
+  const out={}; let total=0;
+  for(const k of Object.keys(data)){ const v=data[k]; if(Array.isArray(v)){ out[k]=v.length; total+=v.length; } }
+  return {stores:out,total:total};
+}
+ipcMain.handle('backup-list',()=>{ try{
+  const dir=backupsDir();
+  const items=fs.existsSync(dir)?fs.readdirSync(dir).filter(isEncBackupName).map(f=>{
+    try{ const s=fs.statSync(path.join(dir,f)); return{name:f,size:s.size,mtime:s.mtimeMs}; }catch(e){ return{name:f,size:0,mtime:0}; }
+  }).sort((a,b)=>b.mtime-a.mtime):[];
+  return{ok:true,items:items,hasKey:hasBackupKey(),dir:dir};
+}catch(e){ return{ok:false,error:String((e&&e.message)||e)}; } });
+ipcMain.handle('backup-peek',(e,name)=>{ try{
+  const b=readEncBackup(name); const c=encBackupCounts(b.data);
+  return{ok:true,name:name,createdAt:b.createdAt,reason:b.reason,app:b.app,stores:c.stores,total:c.total};
+}catch(x){ return{ok:false,error:String((x&&x.message)||x)}; } });
+ipcMain.handle('backup-read',(e,name)=>{ try{
+  const b=readEncBackup(name);
+  return{ok:true,name:name,createdAt:b.createdAt,reason:b.reason,data:b.data};
+}catch(x){ return{ok:false,error:String((x&&x.message)||x)}; } });
+ipcMain.handle('backup-create',async(e,reason)=>{ try{
+  const r=await doEncryptedBackup(String(reason||'manual').slice(0,32));
+  return r&&r.ok?{ok:true,name:path.basename(r.file)}:(r&&r.skipped?{ok:false,error:'لا توجد بيانات محفوظة بعد'}:{ok:false,error:(r&&r.error)||'تعذّر إنشاء النسخة'});
+}catch(x){ return{ok:false,error:String((x&&x.message)||x)}; } });
+ipcMain.handle('backup-open-dir',()=>{ try{ fs.mkdirSync(backupsDir(),{recursive:true}); shell.openPath(backupsDir()); return{ok:true}; }catch(e){ return{ok:false,error:String((e&&e.message)||e)}; } });
+
+function startBackupScheduler(){  (async()=>{ try{ if(newestBackupAgeHours()>BACKUP_MAX_AGE_H){ const r=await doEncryptedBackup('startup'); if(r&&r.ok) notify('نسخة احتياطية مشفّرة','أُنشئت نسخة عند التشغيل'); } }catch(e){} })();
   if(backupTimer) clearInterval(backupTimer);
   backupTimer=setInterval(()=>{ doEncryptedBackup('scheduled'); },BACKUP_INTERVAL_MS);
 }
