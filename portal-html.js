@@ -610,7 +610,14 @@ window.addEventListener('afterprint',function(){applyTheme()});
 function paintPrintHead(){var el=$x('printHead');if(!el)return;if(!D){el.innerHTML='';return}var inst=(META&&META.inst)?String(META.inst):'';var dt=new Date().toLocaleDateString('ar');el.innerHTML="<div class='ph-inst'>"+esc(inst)+"</div><div class='ph-title'>كشف النقط الدراسي</div><div class='ph-name'>"+esc(D.name||'')+"</div><div class='ph-meta'>"+esc(D.cls||'')+(D.lv?(' — '+esc(D.lv)):'')+(D.br?(' / '+esc(D.br)):'')+" · "+esc(dt)+"</div>"}
 function paintRank(){var el=$x('vrank');if(!el)return;if(D&&D.rank&&D.rankOf){el.innerHTML="<span class='trend flat'>رتبتك في القسم: <b>"+D.rank+"</b> من "+D.rankOf+"</span>";el.style.display='block'}else{el.innerHTML='';el.style.display='none'}}
 function paintPartNb(){var el=$x('vpartnb');if(!el)return;if(D&&(D.part!=null||D.nb!=null)){el.innerHTML="<div><b class='pos'>"+((+D.part)||0)+"</b><span>مشاركاتي المسجّلة</span></div><div><b class='pos'>"+((+D.nb)||0)+"</b><span>العناية بالدفتر</span></div>"}else{el.innerHTML=''}}
-function paintNote(){var el=$x('vnote');if(!el)return;var n=(META&&META.note)?String(META.note).trim():'';if(n){el.innerHTML="<h3>إعلان الأستاذ</h3><div style='font-size:13px;line-height:1.8'>"+esc(n)+"</div>";el.style.display='block'}else{el.innerHTML='';el.style.display='none'}}
+function paintNote(){var el=$x('vnote');if(!el)return;var list=[];
+if(D&&Object.prototype.toString.call(D.note)==='[object Array]'){for(var i=0;i<D.note.length;i++){var nn=D.note[i];if(nn&&nn.t)list.push({t:String(nn.t),sc:nn.sc||'all'});}}
+if(!list.length&&META&&META.note){var lt=String(META.note).trim();if(lt)list.push({t:lt,sc:'all'});}
+if(!list.length){el.innerHTML='';el.style.display='none';return;}
+var scName={all:'إعلان عام',level:'إعلان المستوى','class':'إعلان القسم'};
+var h="<h3>إعلانات الأستاذ</h3>";
+for(var j=0;j<list.length;j++){h+="<div style='margin-top:"+(j?"8":"4")+"px'><div style='font-size:11px;font-weight:700;opacity:.75'>"+esc(scName[list[j].sc]||scName.all)+"</div><div style='font-size:13px;line-height:1.8'>"+esc(list[j].t)+"</div></div>";}
+el.innerHTML=h;el.style.display='block';}
 function hwPend(){return ((D&&D.hw)||[]).filter(function(h){return !h.sub})}
 function paintHwDot(){var dot=$x('dot-hw');if(!dot)return;var n=hwPend().length;if(n){dot.textContent=n>9?'9+':String(n);dot.style.display='inline-flex'}else{dot.textContent='';dot.style.display='none'}}
 var PDAY=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];

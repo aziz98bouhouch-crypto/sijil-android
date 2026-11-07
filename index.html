@@ -976,10 +976,15 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <div class="form three"><div class="field"><label>رقم واتساب الأستاذ</label><input id="portalWhats" placeholder="2126xxxxxxxx" autocomplete="off" dir="ltr" inputmode="tel"></div></div>
     <div class="actions"><button class="btn" id="portalWhatsSave">حفظ رقم التواصل</button></div>
   </div>
-  <div class="card"><div class="section-title"><h2>إعلان إلى التلاميذ</h2></div>
-    <p class="muted" style="font-size:12px">اكتب إعلانًا قصيرًا (تذكير بفرض، إحضار أداة، موعد دعم…). يظهر لكل التلاميذ في أعلى بوابتهم بعد «تحديث البيانات الآن» أو «نشر الآن إلى السحابة». اتركه فارغًا لإخفائه.</p>
-    <div class="field"><label>نص الإعلان</label><textarea id="portalNote" rows="3" maxlength="500" placeholder="مثال: فرض التاريخ والجغرافيا يوم الخميس القادم — أحضروا كراساتكم." style="width:100%;padding:10px;border:1px solid var(--l);border-radius:8px;font:inherit;resize:vertical"></textarea></div>
-    <div class="actions"><button class="btn" id="portalNoteSave">حفظ الإعلان</button></div>
+  <div class="card"><div class="section-title"><h2>إعلانات إلى التلاميذ</h2></div>
+    <p class="muted" style="font-size:12px">أضف إعلانًا قصيرًا (تذكير بفرض، إحضار أداة، موعد دعم…) وحدّد جمهوره بدقّة: مستوى كامل، أو قسمًا واحدًا داخل مستوى، أو «كل المستويات» لإعلان عام. يظهر كل إعلان للتلاميذ المستهدَفين فقط في أعلى بوابتهم بعد «تحديث البيانات الآن» أو «نشر الآن إلى السحابة».</p>
+    <div class="field"><label>نص الإعلان</label><textarea id="noteText" rows="2" maxlength="500" placeholder="مثال: فرض التاريخ والجغرافيا يوم الخميس القادم — أحضروا كراساتكم." style="width:100%;padding:10px;border:1px solid var(--l);border-radius:8px;font:inherit;resize:vertical"></textarea></div>
+    <div class="form three">
+      <div class="field"><label>المستوى</label><select id="noteLevel"></select></div>
+      <div class="field"><label>القسم (اختياري)</label><select id="noteClass"></select></div>
+      <div class="field" style="display:flex;align-items:flex-end"><button class="btn primary" id="noteAdd" style="width:100%">إضافة الإعلان</button></div>
+    </div>
+    <div id="noteList" style="margin-top:10px"></div>
   </div>
   <div class="card"><div class="section-title"><h2>الحماية</h2></div>
     <p class="muted" style="font-size:13px">أصبح كل متعلم يملك <b>رمزًا خاصًا به وحده</b> من 12 خانة مولّدًا بتشفير آمن، ويمكن ضبطه من «رمز البوابة الخاص» في ملف المتعلم. لا يحتاج التلاميذ أي رمز مشترك، ولا تظهر لهم أي إعدادات اتصال — يمسحون رمز QR الخاص بهم فقط فتُحمَّل بياناتهم. الرمز الخاص لا يُخزَّن ولا يُنصَّل في السحابة، بل يُشتقّ منه مفتاح الصفّ فيُحمي بيانات كل تلميذ من المتطفلين حتى لو عرفوا رقم مساره.</p>
@@ -4841,6 +4846,7 @@ async function buildPortalSnapshot(){
   const wavgX=(aa,ea,sid)=>{let aw=actN,ew=exN;const ssw=swv[sid];if(ssw&&ssw.activity>0&&ssw.exam>0){aw=Number(ssw.activity);ew=Number(ssw.exam);}const tw=aw+ew;return tw>0?(aa*aw+ea*ew)/tw:null;};
   const gradX=v=>v>=16?'ممتاز':v>=14?'جيد جداً':v>=12?'جيد':v>=10?'متوسط':'دون المتوسط';
   const levelMap=Object.fromEntries(levels.map(x=>[x.id,x]));
+  const notes=portalNotesFromMeta(metas);
   const branchMap=Object.fromEntries(branches.map(x=>[x.id,x]));
   const classMap=Object.fromEntries(classes.map(x=>[x.id,x]));
   const subMap=Object.fromEntries(subjects.map(x=>[x.id,x]));
@@ -4899,7 +4905,9 @@ async function buildPortalSnapshot(){
     const ab=mine.filter(a=>a.type==='absent').length,la=mine.filter(a=>a.type==='late').length,ex=mine.filter(a=>a.type==='excused').length,px=mine.filter(a=>a.type==='present').length;
     if(!st.portalSecret){st.portalSecret=genPortalSecret();try{DB.put('students',st);}catch(e){}}
     const tr=trFor(st.id);
-    return {code:st.externalId||'',sec:st.portalSecret||'',name:st.name||'',cls:cr.name||'',lv:(levelMap[cr.levelId]||{}).name||'',br:(branchMap[cr.branchId]||{}).name||'',avg,p:avg!==null?passFnX(avg):null,g:avg!==null?gradX(avg):'',subs:subsOut,hw:hwOut,att:{ab,la,ex,px},evo:evo,sched:schedByClass[st.classId]||[],lessons:lessonsByClass[st.classId]||[],sup:supByClass[st.classId]||[],beh:(behIdx[String(st.id)]||{neg:0,pos:0}),tr,part:tr.reduce((a,x)=>a+(x.p||0),0),nb:tr.reduce((a,x)=>a+(x.n||0),0),rank:null,rankOf:null,_cid:st.classId};
+    const lvId=String(st.levelId||(cr&&cr.levelId)||'');
+    const myNotes=notes.filter(a=>(!a.levelId||String(a.levelId)===lvId)&&(!a.classId||String(a.classId)===String(st.classId))).map(a=>({t:a.text,sc:a.classId?'class':(a.levelId?'level':'all')}));
+    return {code:st.externalId||'',sec:st.portalSecret||'',name:st.name||'',cls:cr.name||'',lv:(levelMap[cr.levelId]||{}).name||'',br:(branchMap[cr.branchId]||{}).name||'',avg,p:avg!==null?passFnX(avg):null,g:avg!==null?gradX(avg):'',subs:subsOut,hw:hwOut,att:{ab,la,ex,px},evo:evo,sched:schedByClass[st.classId]||[],lessons:lessonsByClass[st.classId]||[],sup:supByClass[st.classId]||[],beh:(behIdx[String(st.id)]||{neg:0,pos:0}),tr,part:tr.reduce((a,x)=>a+(x.p||0),0),nb:tr.reduce((a,x)=>a+(x.n||0),0),rank:null,rankOf:null,_cid:st.classId,note:myNotes};
   });
   const byCls={};studs.forEach(s=>{(byCls[s._cid]||(byCls[s._cid]=[])).push(s)});
   Object.values(byCls).forEach(arr=>{const ranked=arr.filter(s=>s.avg!=null).sort((a,b)=>b.avg-a.avg);const n=ranked.length;ranked.forEach(s=>{s.rank=1+ranked.filter(o=>o.avg>s.avg).length;s.rankOf=n})});
@@ -4907,8 +4915,7 @@ async function buildPortalSnapshot(){
   const inst=institutions.find(i=>i.id===ctx.institutionId)||institutions[0]||{};
   const contact=await loadContact();
   const whats=String((contact&&contact.whats)||'').replace(/[^0-9]/g,'');
-  const note=String((((metas.find(m=>m.id==='portalNote')||{}).value)||{}).text||'').trim().slice(0,500);
-  return {meta:{inst:inst.name||ctx.inst||'',updatedAt:new Date().toISOString(),days:30,whats,act:{i:actSid,n:actName},tdays:TR_DAYS,...(note?{note}:{})},auth,studs};
+  return {meta:{inst:inst.name||ctx.inst||'',updatedAt:new Date().toISOString(),days:30,whats,act:{i:actSid,n:actName},tdays:TR_DAYS},auth,studs};
 }
 async function renderPortal(){
   wireAppLink();renderAppLinkQr();
@@ -4949,8 +4956,7 @@ async function renderPortal(){
   const contact=await loadContact();
   if($('portalWhats'))$('portalWhats').value=contact.whats||'';
   if($('portalWhatsSave'))$('portalWhatsSave').onclick=async()=>{const raw=$('portalWhats').value||'';const digits=String(raw).replace(/[^0-9]/g,'');if(digits&&digits.length<8){toast('أدخل رقم واتساب صحيحًا بالصيغة الدولية');return;}await saveContact({whats:digits});toast(digits?'حُفظ رقم التواصل. لا يُنقل للتلاميذ إلا بعد «تحديث البيانات الآن» أو «نشر الآن إلى السحابة».':'أُزيل رقم التواصل');renderPortal()};
-  const nt=await loadNote();if($('portalNote'))$('portalNote').value=nt.text||'';
-  if($('portalNoteSave'))$('portalNoteSave').onclick=async()=>{const text=String($('portalNote').value||'').trim().slice(0,500);await saveNote({text});toast(text?'حُفظ الإعلان — يظهر للتلاميذ بعد «تحديث البيانات الآن» أو «نشر الآن إلى السحابة»':'أُزيل الإعلان');};
+  await renderNoteManager();
 }
 async function portalStart(){
   const port=parseInt($('portalPort').value,10)||8050;
@@ -4986,8 +4992,38 @@ async function loadCloud(){try{const m=await DB.get('appMeta','syncCloud');retur
 async function saveCloud(v){const m=await DB.get('appMeta','syncCloud');await DB.put('appMeta',{...(m||{}),id:'syncCloud',value:v,updatedAt:now()})}
 async function loadContact(){try{const m=await DB.get('appMeta','portalContact');return (m&&m.value)||{}}catch(e){return{}}}
 async function saveContact(v){const m=await DB.get('appMeta','portalContact');await DB.put('appMeta',{...(m||{}),id:'portalContact',value:v,updatedAt:now()})}
-async function loadNote(){try{const m=await DB.get('appMeta','portalNote');return (m&&m.value)||{}}catch(e){return{}}}
-async function saveNote(v){const m=await DB.get('appMeta','portalNote');await DB.put('appMeta',{...(m||{}),id:'portalNote',value:v,updatedAt:now()})}
+function portalNotesFromMeta(metas){
+  const rec=(metas||[]).find(m=>m.id==='portalNotes');
+  let list;
+  if(rec&&rec.value&&Array.isArray(rec.value.list)){list=rec.value.list.slice();}
+  else{
+    list=[];
+    const leg=(metas||[]).find(m=>m.id==='portalNote');
+    const lt=String(((leg&&leg.value)||{}).text||'').trim();
+    if(lt)list=[{id:'legacy',text:lt.slice(0,500),levelId:'',classId:''}];
+  }
+  return list.filter(n=>n&&String(n.text||'').trim()).map(n=>({id:String(n.id||('n'+Math.random().toString(36).slice(2))),text:String(n.text||'').trim().slice(0,500),levelId:String(n.levelId||''),classId:String(n.classId||'')}));
+}
+async function loadNotes(){try{const metas=await DB.all('appMeta');return portalNotesFromMeta(metas)}catch(e){return[]}}
+async function saveNotes(list){const m=await DB.get('appMeta','portalNotes');await DB.put('appMeta',{...(m||{}),id:'portalNotes',value:{list:list},updatedAt:now()})}
+async function renderNoteManager(){
+  if(!$('noteLevel'))return;
+  const [allLevels,allClasses,metas]=await Promise.all([DB.all('levels'),DB.all('classes'),DB.all('appMeta')]);
+  const iid=String((((metas.find(m=>m.id==='context')||{}).value)||{}).institutionId||'');
+  const levels=iid?allLevels.filter(l=>!l.institutionId||l.institutionId===iid):allLevels;
+  const classes=allClasses.slice();try{await instScope({classes})}catch(e){}
+  const lvIds=new Set(levels.map(l=>String(l.id)));
+  const list=portalNotesFromMeta(metas).filter(n=>!n.levelId||lvIds.has(String(n.levelId)));
+  const lvMap=Object.fromEntries(levels.map(l=>[String(l.id),l.name]));
+  const clMap=Object.fromEntries(classes.map(c=>[String(c.id),c.name]));
+  $('noteLevel').innerHTML='<option value="">كل المستويات (إعلان عام)</option>'+levels.map(l=>'<option value="'+esc(l.id)+'">'+esc(l.name)+'</option>').join('');
+  const fillClass=()=>{const lv=$('noteLevel').value;const cs=lv?classes.filter(c=>String(c.levelId)===String(lv)):[];$('noteClass').innerHTML=lv?('<option value="">كل أقسام المستوى</option>'+cs.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('')):'<option value="">— (اختر مستوى أولًا)</option>';$('noteClass').disabled=!lv;};
+  $('noteLevel').onchange=fillClass;fillClass();
+  const targetOf=(n)=>{if(!n.levelId)return 'كل المستويات';const ln=lvMap[String(n.levelId)]||'مستوى';if(!n.classId)return ln+' — كل الأقسام';return ln+' — '+(clMap[String(n.classId)]||'قسم');};
+  $('noteList').innerHTML=list.length?list.map(n=>'<div style="display:flex;gap:8px;align-items:flex-start;justify-content:space-between;padding:8px 10px;border:1px solid var(--l);border-radius:8px;margin-bottom:6px"><div style="flex:1;min-width:0"><div style="font-size:11px;color:var(--b,#4f7cff);font-weight:700;margin-bottom:2px">'+esc(targetOf(n))+'</div><div style="font-size:13px;line-height:1.7">'+esc(n.text)+'</div></div><button class="btn danger btn-sm" data-del-note="'+esc(n.id)+'">حذف</button></div>').join(''):'<p class="muted" style="font-size:12px">لا إعلانات بعد. أضف إعلانًا وحدّد جمهوره بدقّة.</p>';
+  $('noteAdd').onclick=async()=>{const text=String($('noteText').value||'').trim().slice(0,500);if(!text)return toast('اكتب نص الإعلان أولًا');const levelId=String($('noteLevel').value||'');const classId=levelId?String($('noteClass').value||''):'';const cur=await loadNotes();cur.push({id:uid('note'),text,levelId,classId});await saveNotes(cur);$('noteText').value='';toast('أُضيف الإعلان — يظهر للمستهدَفين بعد «تحديث البيانات الآن» أو «نشر الآن إلى السحابة»');renderNoteManager();};
+  $('noteList').onclick=async(e)=>{const b=e.target.closest('button[data-del-note]');if(!b)return;const id=b.getAttribute('data-del-note');if(!confirm('حذف هذا الإعلان؟'))return;const cur=(await loadNotes()).filter(n=>String(n.id)!==String(id));await saveNotes(cur);toast('حُذف الإعلان — يختفي بعد «تحديث البيانات الآن» أو «نشر الآن إلى السحابة»');renderNoteManager();};
+}
 async function sha256h(txt){txt=String(txt==null?'':txt);try{if(window.sijilAPI&&sijilAPI.sha256){const h=await sijilAPI.sha256(txt);if(h&&h.length===64)return h.toLowerCase();}}catch(e){}try{if(window.crypto&&crypto.subtle&&crypto.subtle.digest){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(txt));const a=new Uint8Array(b);let s='';for(let i=0;i<a.length;i++){s+=(a[i]<16?'0':'')+a[i].toString(16);}if(s.length===64)return s;}}catch(e){}return '';}
 async function cloudCountStale(c,startedAt){
   try{
