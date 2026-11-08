@@ -539,11 +539,13 @@ S.copyHelp=function(){
  manual()
 };
 var _lastErr="";
-function quietRefresh(silent){var c=currentCode();if(!c)return Promise.resolve(null);
-  return fetchData(c,currentPin()).then(function(x){
+function quietRefresh(silent,code,pin){var c=code||currentCode();if(!c)return Promise.resolve(null);
+  var p=(pin==null?currentPin():pin);
+  return fetchData(c,p).then(function(x){
     if(!x||x.status!==200||!x.j||!x.j.student)return null;
     var old=JSON.stringify(D);D=x.j.student;META=x.j.meta;
     writeCache(c,{sig:sig(D),meta:META,student:D,at:nowIso()});
+    try{localStorage.setItem(LSS,JSON.stringify({code:c,pin:p,mode:CFG.mode}))}catch(e){}
     renderGrades();renderHw();renderSched();renderSup();renderEvo();renderLessons();renderContact();paintMeta();
     if(!silent){banner("");if(JSON.stringify(D)!==old){paintHwDot();toast("تم — وصلت بيانات جديدة من أستاذك")}else toast("أنت على آخر تحديث — لا توجد مستجدات")}
     else if(JSON.stringify(D)!==old){paintHwDot();notify("تحديث جديد","أضاف الأستاذ مستجدات إلى بوابة نقطتي")}
@@ -770,11 +772,14 @@ S.tab=function(pg){
 document.querySelectorAll("nav.tabs button").forEach(function(b){b.onclick=function(){S.tab(b.getAttribute("data-pg"))}});
 S.logout=function(){_dk=null;_dkSig="";try{localStorage.removeItem(LSS)}catch(e){};D=null;$x("appWrap").style.display="none";$x("tabs").style.display="none";$x("auth").style.display="block";banner("")};
 var _refreshing=false;
-S.refresh=function(){var c=currentCode()||$x("code").value.trim();if(!c){toast("أدخل رقم دخولك أولاً");return}
+S.refresh=function(){
+  var fc=$x("code")?$x("code").value.trim():"",fp=$x("pin")?$x("pin").value.trim():"";
+  var c=fc||currentCode();if(!c){toast("أدخل رقم دخولك أولاً");return}
+  var p=fp||currentPin();
   if(_refreshing)return;_refreshing=true;
   var btn=$x("refreshBtn");if(btn)btn.classList.add("spin");
   banner("جارٍ التحديث من الأستاذ…");
-  quietRefresh(true).then(function(ch){
+  quietRefresh(true,c,p).then(function(ch){
     banner("");
     if(ch===null)toast("تعذّر التحديث — "+(_lastErr||"اضغط «فحص الاتصال» لمعرفة السبب"));
     else if(ch){paintHwDot();toast("تم — وصلت بيانات جديدة من أستاذك")}
