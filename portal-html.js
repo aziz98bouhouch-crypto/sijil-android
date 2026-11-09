@@ -286,7 +286,7 @@ function paintLandHint(){try{var el=$x("landHint");if(!el)return;var t="";
   else if(!lanBase())t="لم يُضبط الربط بعد: امسح رمز QR الذي أعطاك إياه الأستاذ.";
   if(t){el.innerHTML=t;el.style.display="block"}else{el.innerHTML="";el.style.display="none"}}catch(e){}}
 function nowIso(){return new Date().toISOString()}
-function sig(d){if(!d)return "";return [d.avg,d.g,(d.subs||[]).length,(d.hw||[]).filter(function(h){return !h.sub}).length,(d.lessons||[]).length,(d.evo||[]).map(function(e){return e.c+":"+e.a}).join("|"),(d.beh?((+d.beh.neg||0)+"/"+((+d.beh.pos||0))):"-"),(d.tr||[]).map(function(x){return x.d+":"+x.v}).join("|"),(d.sup||[]).length].join("_")}
+function sig(d){if(!d)return "";return [d.avg,d.g,(d.subs||[]).length,(d.hw||[]).filter(function(h){return !h.sub}).length,(d.lessons||[]).length,(d.evo||[]).map(function(e){return e.c+":"+e.a}).join("|"),(d.beh?((+d.beh.neg||0)+"/"+((+d.beh.pos||0))):"-"),(d.tr||[]).map(function(x){return x.d+":"+x.v}).join("|"),(d.sup||[]).length,(d.subs||[]).map(function(x){return (x&&x.eaPoints?x.eaPoints:[]).map(function(e){return (e&&e.v!=null?e.v:"-")+"/"+(e&&e.mx?e.mx:20)}).join(",")}).join("|")].join("_")}
 function readCache(code){var k=String(code).toLowerCase(),r=null;try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");r=m[k]||null}catch(e){}return r||_mem[k]||null}
 function writeCache(code,obj){var k=String(code).toLowerCase();_mem[k]=obj;try{var m=JSON.parse(localStorage.getItem(LSD)||"{}");m[k]=obj;localStorage.setItem(LSD,JSON.stringify(m))}catch(e){}}
 /* لوحات المفاتيح العربية تكتب ٤٨٢٩ و۴۸۲۹ وfullwidth مع علامات اتجاه مخفية: تُطبَّع الخانتان
