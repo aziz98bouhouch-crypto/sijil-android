@@ -640,7 +640,8 @@ function show(changed,prev){
 function srow(l,v,cls){return "<div class='sr'><span>"+esc(l)+"</span><b class='"+(cls||"")+"'>"+esc(v)+"</b></div>"}
 function actId(){var a=META&&META.act&&META.act.i;return a?String(a):""}
 function actName(){var n=META&&META.act&&META.act.n;return n?String(n):""}
-function subPanel(x){return "<div class='sub1'>"+srow("نقطة الأنشطة المندمجة",(x.aa==null?"—":Number(x.aa).toFixed(1)),"")+srow("نقطة الفرض",(x.ea==null?"—":Number(x.ea).toFixed(1)),"")+srow("العلامة",(x.f==null?"—":Number(x.f).toFixed(2)),(x.f==null?"":(x.p?"pass":"fail")))+srow("النتيجة",(x.p?"ناجح":"راسب"),(x.p?"pass":"fail"))+"</div>"}
+function examLines(x){if(!x||!x.eaPoints||!x.eaPoints.length)return "";return x.eaPoints.map(function(e){if(!e)return "";return srow(esc(e.t||"فرض"),(e.v==null?"—":Number(e.v).toFixed(2)+"/"+(e.mx||20)),"")}).join("")}
+function subPanel(x){return "<div class='sub1'>"+srow("نقطة الأنشطة المندمجة",(x.aa==null?"—":Number(x.aa).toFixed(1)),"")+srow("نقطة الفرض",(x.ea==null?"—":Number(x.ea).toFixed(1)),"")+examLines(x)+srow("العلامة",(x.f==null?"—":Number(x.f).toFixed(2)),(x.f==null?"":(x.p?"pass":"fail")))+srow("النتيجة",(x.p?"ناجح":"راسب"),(x.p?"pass":"fail"))+"</div>"}
 function behBlock(){var b=D.beh;if(!b)return "";return "<div class='beh'><div><b>"+((+b.neg)||0)+"</b><span>عدد التقارير السلبية</span></div><div><b class='pos'>"+((+b.pos)||0)+"</b><span>عدد السلوكيات الإيجابية</span></div></div>"}
 function renderGrades(){
   $x("vavg").textContent=D.avg==null?"—":Number(D.avg).toFixed(2);
@@ -655,7 +656,7 @@ function renderGrades(){
   if(one){if(hd)hd.textContent="نتيجتي في "+(one.s||actName()||"المادة");$x("vsub1").innerHTML=subPanel(one);if(wr)wr.style.display="none";return}
   if(hd)hd.textContent="النتائج في المواد (نشاط / فرض / علامة)";
   $x("vsub1").innerHTML="";if(wr)wr.style.display="";
-  var s="";list.forEach(function(x){s+="<tr><td>"+esc(x.s)+"</td><td>"+(x.c==null?"—":x.c)+"</td><td>"+(x.aa==null?"—":Number(x.aa).toFixed(1))+"</td><td>"+(x.ea==null?"—":Number(x.ea).toFixed(1))+"</td><td class='"+(x.p?"pass":"fail")+"'>"+(x.f==null?"—":Number(x.f).toFixed(2))+"</td><td class='"+(x.p?"pass":"fail")+"'>"+(x.p?"ناجح":"راسب")+"</td></tr>"});
+  var s="";list.forEach(function(x){var eps="";if(x.eaPoints&&x.eaPoints.length){eps=x.eaPoints.map(function(e){if(!e)return "";return "<span class='num'>"+esc(e.t||"فرض")+": "+(e.v==null?"—":Number(e.v).toFixed(2)+"/"+(e.mx||20))+"</span>"}).filter(Boolean).join(" • ");}s+="<tr><td>"+esc(x.s)+"</td><td>"+(x.c==null?"—":x.c)+"</td><td>"+(x.aa==null?"—":Number(x.aa).toFixed(1))+"</td><td>"+(x.ea==null?"—":Number(x.ea).toFixed(1))+"</td><td class='"+(x.p?"pass":"fail")+"'>"+(x.f==null?"—":Number(x.f).toFixed(2))+"</td><td class='"+(x.p?"pass":"fail")+"'>"+(x.p?"ناجح":"راسب")+"</td></tr>"+(eps?"<tr><td colspan='6' style='text-align:center;font-size:11px;padding:2px 0 6px 0'>"+eps+"</td></tr>":"")});
   $x("vsubs").innerHTML=s||"<tr><td colspan='6' class='none'>لا توجد نتائج بعد</td></tr>";
 }
 function fmtCd(d){if(!d)return "";var t=new Date(String(d)+"T23:59:59");if(isNaN(t.getTime()))return "";var diff=t-new Date();var day=Math.ceil(diff/86400000);if(diff<0)return {tx:"متأخر "+arCount(Math.abs(day),"يوم","أيام","يومين"),cl:"late"};if(day===0)return {tx:"اليوم",cl:"soon"};return {tx:"باقي "+arCount(day,"يوم","أيام","يومين"),cl:(day<=2?"soon":"")}}
