@@ -137,6 +137,29 @@ nav.tabs button.on{color:#0f766e}
 @media(max-width:440px){.vbest b{font-size:15px}}
 #printHead{display:none}
 .rankline{text-align:center;margin:0 0 10px}
+#celebrateReplay{display:none;width:auto;margin:0 auto 10px;padding:7px 14px;font-size:12px}
+#celebrateReplay.on{display:inline-flex}
+.celebrate{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,23,42,.62);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+.celebrate.on{display:flex}
+.celebrate-card{position:relative;width:min(100%,380px);max-height:calc(100dvh - 40px);overflow:auto;background:linear-gradient(180deg,#fff,#f0fdfa);border:1px solid rgba(255,255,255,.8);border-radius:26px;padding:22px 20px 20px;text-align:center;box-shadow:0 24px 70px rgba(15,23,42,.35);animation:celebratePop .45s cubic-bezier(.2,.9,.25,1.15) both}
+.celebrate-x{position:absolute;top:10px;inset-inline-end:10px;width:34px;height:34px;padding:0;border-radius:50%;background:#e2e8f0;color:#334155;font-size:22px;line-height:1}
+.celebrate-character{width:170px;height:155px;margin:0 auto 2px;animation:celebrateFloat 2.4s ease-in-out infinite}
+.celebrate-character svg{width:100%;height:100%;overflow:visible}
+.celebrate-card h2{display:block;margin:4px 0 8px;color:#0f766e;font-size:24px;line-height:1.35}
+.celebrate-card p{color:#334155;font-size:15px;line-height:1.9;margin:0 0 12px}
+.celebrate-reasons{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0 0 16px}
+.celebrate-reasons span{padding:5px 10px;border-radius:99px;background:#ccfbf1;color:#0f766e;font-size:11px;font-weight:800}
+.celebrate.tier-3 .celebrate-card{background:linear-gradient(180deg,#fffbeb,#ecfdf5)}
+.celebrate.tier-3 .celebrate-card h2{color:#b45309}
+.celebrate.tier-2 .celebrate-card{background:linear-gradient(180deg,#eff6ff,#f0fdfa)}
+html.dark .celebrate-card{background:linear-gradient(180deg,#1e293b,#0f172a);border-color:#334155}
+html.dark .celebrate-card p{color:#cbd5e1}
+html.dark .celebrate-card h2{color:#5eead4}
+html.dark .celebrate-reasons span{background:#134e4a;color:#99f6e4}
+@keyframes celebratePop{0%{transform:scale(.78) translateY(22px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+@keyframes celebrateFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+@media(max-height:700px){.celebrate-card{padding:12px 16px 14px}.celebrate-character{width:126px;height:112px}.celebrate-card h2{font-size:22px;margin:2px 0 6px}.celebrate-card p{font-size:14px;line-height:1.7;margin-bottom:9px}.celebrate-reasons{margin-bottom:10px}}
+@media(prefers-reduced-motion:reduce){.celebrate-card,.celebrate-character{animation:none}}
 .note{border-inline-start:4px solid #f59e0b;background:#fffbeb}
 .printbtn{margin-top:10px}
 #dot-hw{min-width:16px;height:16px;padding:0 4px;border-radius:99px;font-size:9px;font-weight:800;color:#fff;align-items:center;justify-content:center;line-height:1;top:4px;left:20%}
@@ -191,7 +214,7 @@ html.dark .note{background:#422006;border-color:#f59e0b}
 html.dark .trend.flat{background:#334155;color:#cbd5e1}
 @media print{
 body{background:#fff!important;padding:0!important;display:block!important;color:#000!important}
-#splash,#bgSym,nav.tabs,#auth,.banner,#diagBox,.fresh,.lock,button,.printbtn{display:none!important}
+#splash,#bgSym,nav.tabs,#auth,.banner,#diagBox,.fresh,.lock,button,.printbtn,.celebrate{display:none!important}
 .wrap{max-width:100%!important;width:100%!important}
 .page{display:none!important}
 #pg-grades{display:block!important}
@@ -230,6 +253,7 @@ a{color:#000!important;text-decoration:none}
     <div class="card">
       <div class="kpis"><div class="kpi"><b id="vavg">—</b><span>المعدل العام</span></div><div class="kpi"><b id="vres">—</b><span>النتيجة</span></div><div class="kpi"><b id="vgrade">—</b><span>التقدير</span></div></div>
       <div class="rankline" id="vrank" style="display:none"></div>
+      <button class="secondary" id="celebrateReplay" onclick="S.celebrateReplay()">عرض بطاقة التهنئة</button>
       <h3>الحضور — آخر 30 يوماً</h3>
       <div class="att"><div><b id="aab">0</b><span>غائب</span></div><div><b id="ala">0</b><span>متأخر</span></div><div><b id="aex">0</b><span>مبرر</span></div><div><b id="apx">0</b><span>حاضر</span></div></div>
       <div class="atbar" id="vattbar"></div><div class="atnote" id="vattnote"></div>
@@ -256,6 +280,32 @@ a{color:#000!important;text-decoration:none}
   <button data-pg="lessons"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>الدروس<span class="dot" id="dot-lessons"></span></button>
   <button data-pg="contact"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>تواصلي</button>
 </nav>
+<div class="celebrate" id="celebrate" role="dialog" aria-modal="true" aria-labelledby="celebrateTitle" aria-hidden="true">
+  <div class="celebrate-card">
+    <button class="celebrate-x" onclick="S.celebrateClose()" aria-label="إغلاق التهنئة">×</button>
+    <div class="celebrate-character" aria-hidden="true">
+      <svg viewBox="0 0 180 160">
+        <ellipse cx="90" cy="149" rx="51" ry="7" fill="#0f172a" opacity=".12"/>
+        <path d="M57 91Q35 91 29 73M123 91q22 0 28-18" fill="none" stroke="#f59e0b" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="28" cy="69" r="6" fill="#fbbf24"/><circle cx="152" cy="69" r="6" fill="#fbbf24"/>
+        <path d="M90 25 108 57 144 62 119 88 124 124 90 107 56 124 61 88 36 62 72 57Z" fill="#fbbf24" stroke="#f59e0b" stroke-width="4" stroke-linejoin="round"/>
+        <ellipse cx="74" cy="74" rx="5" ry="7" fill="#0f172a"/><ellipse cx="106" cy="74" rx="5" ry="7" fill="#0f172a"/>
+        <circle cx="72" cy="71" r="1.7" fill="#fff"/><circle cx="104" cy="71" r="1.7" fill="#fff"/>
+        <ellipse cx="64" cy="87" rx="7" ry="4" fill="#f87171" opacity=".55"/><ellipse cx="116" cy="87" rx="7" ry="4" fill="#f87171" opacity=".55"/>
+        <path d="M76 88q14 15 28 0" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round"/>
+        <path d="M53 34h74L90 17Z" fill="#4f7cff" stroke="#2563eb" stroke-width="3" stroke-linejoin="round"/><path d="M69 39v12q21 12 42 0V39" fill="#2563eb"/>
+        <path d="M127 34v20" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/><circle cx="127" cy="56" r="5" fill="#8b5cf6"/>
+        <path d="M52 118q20-8 38 4 18-12 38-4v27q-20-8-38 3-18-11-38-3Z" fill="#14b8a6" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M90 122v26" stroke="#ccfbf1" stroke-width="2"/><path d="M60 127q13-3 23 2M97 129q10-5 23-2" fill="none" stroke="#ccfbf1" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="24" cy="29" r="4" fill="#8b5cf6"/><circle cx="153" cy="25" r="5" fill="#14b8a6"/><path d="m25 111 4 7 7 4-7 4-4 7-4-7-7-4 7-4Z" fill="#4f7cff"/><path d="m151 105 3 6 6 3-6 3-3 6-3-6-6-3 6-3Z" fill="#f472b6"/>
+      </svg>
+    </div>
+    <h2 id="celebrateTitle"></h2>
+    <p id="celebrateMessage"></p>
+    <div class="celebrate-reasons" id="celebrateReasons"></div>
+    <button id="celebrateDone" onclick="S.celebrateClose()">أواصل الاجتهاد</button>
+  </div>
+</div>
 <script>
 var S={};
 var D=null,META=null,CFG=null;
@@ -643,6 +693,46 @@ function actName(){var n=META&&META.act&&META.act.n;return n?String(n):""}
 function examLines(x){if(!x||!x.eaPoints||!x.eaPoints.length)return "";return x.eaPoints.map(function(e){if(!e)return "";return srow(esc(e.t||"فرض"),(e.v==null?"—":Number(e.v).toFixed(2)+"/"+(e.mx||20)),"")}).join("")}
 function subPanel(x){return "<div class='sub1'>"+srow("نقطة الأنشطة المندمجة",(x.aa==null?"—":Number(x.aa).toFixed(1)),"")+srow("نقطة الفرض",(x.ea==null?"—":Number(x.ea).toFixed(1)),"")+examLines(x)+srow("العلامة",(x.f==null?"—":Number(x.f).toFixed(2)),(x.f==null?"":(x.p?"pass":"fail")))+srow("النتيجة",(x.p?"ناجح":"راسب"),(x.p?"pass":"fail"))+"</div>"}
 function behBlock(){var b=D.beh;if(!b)return "";return "<div class='beh'><div><b>"+((+b.neg)||0)+"</b><span>عدد التقارير السلبية</span></div><div><b class='pos'>"+((+b.pos)||0)+"</b><span>عدد السلوكيات الإيجابية</span></div></div>"}
+var LSC='sjc_celebration',_celeKey='';
+function celebrationInfo(){
+ if(!D)return null;
+ var list=Object.prototype.toString.call(D.subs)==='[object Array]'?D.subs:[],exams=[],bestAct=null;
+ list.forEach(function(x){
+  if(!x)return;
+  var av=Number(x.aa);if(x.aa!=null&&isFinite(av)&&av>18&&(!bestAct||av>bestAct.v))bestAct={v:av,s:String(x.s||'المادة')};
+  (x.eaPoints||[]).forEach(function(e){var v=Number(e&&e.v);if(e&&e.v!=null&&isFinite(v))exams.push(v)});
+ });
+ var examsOk=exams.length>0&&exams.every(function(v){return v>10}),passed=D.p===true&&D.avg!=null;
+ if(!examsOk&&!passed&&!bestAct)return null;
+ var score=Number(D.avg);if(D.avg==null||!isFinite(score))score=bestAct?bestAct.v:Math.min.apply(Math,exams);
+ var tier=score>=18?3:(score>=16?2:1),name=String(D.name||'متعلم').trim().split(/\\s+/)[0]||'متعلم';
+ var title=tier===3?'تفوق رائع يا '+name+'!':(tier===2?'أحسنت يا '+name+'!':'عمل جميل يا '+name+'!');
+ var achieved=[],reasons=[];
+ if(passed){achieved.push('نجحت في الدورة بمعدل '+Number(D.avg).toFixed(2)+'/20');reasons.push('النجاح في الدورة')}
+ if(examsOk){achieved.push('تجاوزت 10 في جميع الفروض');reasons.push('كل الفروض فوق 10')}
+ if(bestAct){achieved.push('حصلت على '+bestAct.v.toFixed(2)+'/20 في أنشطة '+bestAct.s);reasons.push('أنشطة فوق 18')}
+ var encouragement=tier===3?'أداؤك استثنائي؛ استمر بهذا التألق، فاجتهادك يصنع الفرق.':(tier===2?'نتيجتك جميلة؛ واصل العمل بنفس الهمة والثقة.':'كل خطوة جيدة تقربك من التفوق؛ واصل الاجتهاد بثقة.');
+ return {tier:tier,title:title,message:achieved.join('، و')+'. '+encouragement,reasons:reasons,key:JSON.stringify([D.avg,D.p,exams,bestAct])};
+}
+function celebrationMap(){try{return JSON.parse(localStorage.getItem(LSC)||'{}')||{}}catch(e){return {}}}
+function celebrationSeen(key){var m=celebrationMap(),c=currentCode()||(D&&D.code)||'student';return m[c]===key}
+function hideCelebration(mark){
+ var overlay=$x('celebrate');if(mark&&_celeKey){try{var m=celebrationMap(),c=currentCode()||(D&&D.code)||'student';m[c]=_celeKey;localStorage.setItem(LSC,JSON.stringify(m))}catch(e){}}
+ if(overlay){overlay.classList.remove('on');overlay.setAttribute('aria-hidden','true')}
+}
+function paintCelebration(force){
+ var overlay=$x('celebrate'),replay=$x('celebrateReplay'),info=celebrationInfo();if(!overlay||!replay)return;
+ if(!info){_celeKey='';hideCelebration(false);replay.classList.remove('on');return}
+ replay.classList.add('on');if(!force&&celebrationSeen(info.key))return;
+ if(!force&&overlay.classList.contains('on')&&_celeKey===info.key)return;
+ var opening=!overlay.classList.contains('on');_celeKey=info.key;overlay.className='celebrate on tier-'+info.tier;overlay.setAttribute('aria-hidden','false');
+ $x('celebrateTitle').textContent=info.title;$x('celebrateMessage').textContent=info.message;
+ var box=$x('celebrateReasons');box.innerHTML='';info.reasons.forEach(function(r){var s=document.createElement('span');s.textContent=r;box.appendChild(s)});
+ if(opening)setTimeout(function(){try{$x('celebrateDone').focus({preventScroll:true})}catch(e){}},80);
+}
+S.celebrateReplay=function(){paintCelebration(true)};
+S.celebrateClose=function(){hideCelebration(true);try{var b=$x('celebrateReplay');if(b&&b.classList.contains('on'))b.focus()}catch(e){}};
+(function bindCelebration(){var overlay=$x('celebrate');if(overlay)overlay.addEventListener('click',function(e){if(e.target===overlay)S.celebrateClose()});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay&&overlay.classList.contains('on'))S.celebrateClose()})})();
 function renderGrades(){
   $x("vavg").textContent=D.avg==null?"—":Number(D.avg).toFixed(2);
   var r=$x("vres");r.textContent=(D.avg==null)?"—":(D.p?"ناجح":"راسب");r.className=D.p?"pass":"fail";
@@ -651,7 +741,7 @@ function renderGrades(){
   var aid=actId(),list=D.subs||[],one=null,i;
   if(aid){for(i=0;i<list.length;i++){if(String(list[i].i||"")===aid){one=list[i];break}}}
   else if(list.length===1)one=list[0];
-  $x("vbeh").innerHTML=behBlock();renderAtt();paintRank();paintPartNb();paintPrintHead();
+  $x("vbeh").innerHTML=behBlock();renderAtt();paintRank();paintPartNb();paintPrintHead();paintCelebration(false);
   var wr=$x("vsubWrap"),hd=$x("vsubhead");
   if(one){if(hd)hd.textContent="نتيجتي في "+(one.s||actName()||"المادة");$x("vsub1").innerHTML=subPanel(one);if(wr)wr.style.display="none";return}
   if(hd)hd.textContent="النتائج في المواد (نشاط / فرض / علامة)";
@@ -774,7 +864,7 @@ S.tab=function(pg){
   if(pg==="evo")renderEvo();
 };
 document.querySelectorAll("nav.tabs button").forEach(function(b){b.onclick=function(){S.tab(b.getAttribute("data-pg"))}});
-S.logout=function(){_dk=null;_dkSig="";_ses=null;try{localStorage.removeItem(LSS)}catch(e){};D=null;$x("appWrap").style.display="none";$x("tabs").style.display="none";$x("auth").style.display="block";banner("")};
+S.logout=function(){hideCelebration(false);_celeKey='';var cr=$x("celebrateReplay");if(cr)cr.classList.remove("on");_dk=null;_dkSig="";_ses=null;try{localStorage.removeItem(LSS)}catch(e){};D=null;$x("appWrap").style.display="none";$x("tabs").style.display="none";$x("auth").style.display="block";banner("")};
 var _refreshing=false;
 S.refresh=function(){
   var fc=$x("code")?$x("code").value.trim():"",fp=$x("pin")?$x("pin").value.trim():"";
