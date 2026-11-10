@@ -1086,7 +1086,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <!-- SETTINGS -->
 <div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="section-title"><h2>المظهر والواجهة</h2></div><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
 <div class="card"><div class="section-title"><h2>عتبات الأوسمة</h2></div><div class="form"><div class="field"><label>عتبة وسام «المتفوق» /20</label><input id="badgeTop" type="number" min="0" max="20" step="0.5" value="16"></div><div class="field"><label>عتبة وسام «المجتهد» /20</label><input id="badgeDil" type="number" min="0" max="20" step="0.5" value="14"></div></div><p class="muted">تُطبَّق على منح أوسمة التحفيز في كل الحاسبات والتقارير: وسام «المتفوق» لمن بلغ معدله العام العتبة الأولى فما فوق، و«المجتهد» لمن بلغ العتبة الثانية. تُحفظ تلقائيًا وتنعكس على صفحة التحفيز والتنبيهات.</p><div class="actions"><button class="btn primary" id="saveBadgeWeights">حفظ عتبات الأوسمة</button></div></div><div class="card"><div class="section-title"><h2>شعار المؤسسة</h2></div><p class="muted">يظهر الشعار أعلى رأس كل بطاقة وتقرير رسمي (بطاقة المتعلم، ولي الأمر، الأكشفة، الشهادات...).</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><img id="logoPreview" alt="الشعار" style="height:64px;max-width:200px;object-fit:contain;display:none;border:1px solid var(--l);border-radius:8px;padding:6px;background:#fff"><div style="display:flex;flex-direction:column;gap:8px"><input id="logoInput" type="file" accept="image/*"><button class="btn danger" id="logoRemoveBtn">إزالة الشعار</button></div></div></div><div class="card"><div class="section-title"><h2>أوزان المواد</h2></div><p class="muted">تحديد وزن «النشاط» و«الفرض» لكل مادة على حدة عند تركيب معدلها في البطاقات والنتائج والأكشفة. مؤشر «عام» يعني الاعتماد على الأوزان العامة الموضوعة في صفحة التقويم.</p><div id="subjectWeightsList"></div><div class="actions"><button class="btn primary" id="saveSubjectWeights">حفظ أوزان المواد</button></div></div>
-<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.72</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
+<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.73</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
 
 <!-- TRASH -->
 <div id="trash" class="page"><div class="hero"><span class="badge">TRASH</span><h1>السلة</h1><p>ما حُذف عبر أزرار «حذف» يبقى هنا قابلاً للاستعادة في أي وقت، حتى تحذفه نهائيًا.</p></div>
@@ -1468,7 +1468,7 @@ async function genStudentCard(silent){try{invalidateReportCaches();}catch(_){}
     const f=gradeFinal(track,actAvg,examAvg,data.exams.length,sid);
     const coeff=isGen?1:(cc[sid]||1);
     if(f!==null&&!isGen){wAvg+=f*coeff;wSum+=coeff;wCnt++}
-    resultsHtml+='<div class="r-field"><label>'+esc(sub.name)+' <small class="muted">(معامل '+coeff+')</small></label><span>'+(actAvg!==null?'نشاط: '+actAvg.toFixed(1):'—')+' | '+(examAvg!==null?'فرض: '+examAvg.toFixed(1):'—')+' | <b>'+(f!==null?f.toFixed(2):'—')+'</b></span></div>';
+    resultsHtml+='<div class="r-field"><label>'+esc(sub.name)+' <small class="muted">(معامل '+coeff+')</small></label><span>'+(actAvg!==null?'نشاط: '+actAvg.toFixed(1):'—')+' | '+(examAvg!==null?'فروض (×0.75): '+(Math.round(examAvg*0.75*10)/10).toFixed(1):'—')+' | <b>'+(f!==null?f.toFixed(2):'—')+'</b></span></div>';
   }
   const finalAvg=wSum?wAvg/wSum:0;
   const myAtt=attendance.filter(a=>a.studentId===studentId);
@@ -1574,7 +1574,7 @@ async function genResultsReport(silent){try{invalidateReportCaches();}catch(_){}
     const actAvg=actSum20(acts,scoreMap,attendance,behavior,st.id,cycle);const examS=exams.map(a=>scoreMap[st.id+'_'+a.id]).filter(v=>v!=null);
     const examAvg=examS.length?examS.reduce((a,b)=>a+b,0)/examS.length:null;
     const f=gradeFinal(track,actAvg,examAvg,examS.length,sub.id);
-    if(actAvg!==null||examAvg!==null){rows+='<tr><td>'+esc(st.name)+'</td><td>'+esc(sub.name)+'</td><td>'+(actAvg!==null?actAvg.toFixed(2):'—')+'</td><td>'+(examAvg!==null?examAvg.toFixed(2):'—')+'</td><td><b>'+(f!==null?f.toFixed(2):'—')+'</b></td><td>'+(f!==null?(passFn(f)?'<span class="pass">نجاح</span>':'<span class="fail">رسوب</span>'):'—')+'</td></tr>';}
+    if(actAvg!==null||examAvg!==null){const examContrib=examAvg!==null?Math.round(examAvg*0.75*100)/100:null;rows+='<tr><td>'+esc(st.name)+'</td><td>'+esc(sub.name)+'</td><td>'+(actAvg!==null?actAvg.toFixed(2):'—')+'</td><td>'+(examContrib!==null?examContrib.toFixed(2):'—')+'</td><td><b>'+(f!==null?f.toFixed(2):'—')+'</b></td><td>'+(f!==null?(passFn(f)?'<span class="pass">نجاح</span>':'<span class="fail">رسوب</span>'):'—')+'</td></tr>';}
   }}
   const cls=(await DB.all('classes')).find(c=>c.id===classId);
   const html='<div class="report-view">'+await pedHead('تقرير النتائج التفصيلي','القسم: '+esc(cls?.name||'')+' — الدورة '+cycle+' — '+today(),{levelId:cls?.levelId,branchId:cls?.branchId})
@@ -1800,35 +1800,70 @@ async function exportScoresCsvAll(){
 
 // ============ PHASE 11: EVOLUTION & COMMUNICATION ============
 async function studentFinalByCycle(studentId,classId,cycle){
-  const [assessments,scores,subjects,attendance,behavior]=await Promise.all([DB.all('assessments'),DB.all('scores'),DB.all('subjects'),DB.all('attendance'),DB.all('behaviorRecords')]);
-  const myAss=assessments.filter(a=>a.classId===classId&&a.cycle===cycle);
-  const scoreMap={};scores.forEach(s=>{scoreMap[s.studentId+'_'+s.assessmentId]=s.value});
+  const ctx=await _evBuildCtx();
+  return _evStudentFinal(ctx, studentId, classId, cycle);
+}
+async function _evBuildCtx(){
+  const [assessments,scores,subjects,attendance,behavior,students,classes]=await Promise.all([DB.all('assessments'),DB.all('scores'),DB.all('subjects'),DB.all('attendance'),DB.all('behaviorRecords'),DB.all('students'),DB.all('classes')]);
+  const scoreMap={}; for(const s of (scores||[])) scoreMap[s.studentId+"_"+s.assessmentId]=s.value;
+  const attBy={}, behBy={};
+  for(const r of (attendance||[])){ (attBy[r.classId+'|'+r.cycle+'|'+r.studentId]||(attBy[r.classId+'|'+r.cycle+'|'+r.studentId]=[])).push(r); }
+  for(const r of (behavior||[])){ (behBy[r.classId+'|'+r.cycle+'|'+r.studentId]||(behBy[r.classId+'|'+r.cycle+'|'+r.studentId]=[])).push(r); }
+  const assByClassCycle={};
+  for(const a of (assessments||[])){ const k=a.classId+'|'+a.cycle; (assByClassCycle[k]||(assByClassCycle[k]=[])).push(a); }
+  const ccByClass={}, trackByClass={};
+  const classIds=[...new Set((classes||[]).map(c=>c.id).filter(Boolean))];
+  for(const cid of classIds){ try{ ccByClass[cid]=await classCoeffFor(cid,subjects);}catch(_){ ccByClass[cid]={}; } try{ trackByClass[cid]=await classTrackOf(cid);}catch(_){ trackByClass[cid]=null; } }
+  return {assessments,scores,subjects,attendance,behavior,students,classes,scoreMap,attBy,behBy,assByClassCycle,ccByClass,trackByClass,clsMap:Object.fromEntries((classes||[]).map(c=>[c.id,c.name]))};
+}
+function _evStudentFinal(ctx, studentId, classId, cycle){
+  const myAss=(ctx.assByClassCycle[classId+'|'+cycle]||[]);
+  const cc=ctx.ccByClass[classId]||{};
+  const track=ctx.trackByClass[classId];
+  const myAtt=ctx.attBy[classId+'|'+cycle+'|'+studentId]||[];
+  const myBeh=ctx.behBy[classId+'|'+cycle+'|'+studentId]||[];
   let wAvg=0,wSum=0;
-  const cc=await classCoeffFor(classId,subjects);
-  const track=await classTrackOf(classId);
-  for(const sub of subjects){const acts=myAss.filter(a=>a.subjectId===sub.id&&a.type==='activity');const exams=myAss.filter(a=>a.subjectId===sub.id&&a.type==='exam').map(a=>scoreMap[studentId+'_'+a.id]).filter(v=>v!=null);const aa=actSum20(acts,scoreMap,attendance,behavior,studentId,cycle);const ea=exams.length?exams.reduce((a,b)=>a+b,0)/exams.length:null;const f=gradeFinal(track,aa,ea,exams.length,sub.id);if(f!==null){const coeff=cc[sub.id]||1;wAvg+=f*coeff;wSum+=coeff}}
+  const subs=ctx.subjects||[];
+  for(const sub of subs){
+    const acts=[]; const examVals=[];
+    for(const a of myAss){ if(a.subjectId!==sub.id) continue; if(a.type==="activity") acts.push(a); else if(a.type==="exam"){ const v=ctx.scoreMap[studentId+"_"+a.id]; if(v!=null) examVals.push(v); } }
+    const aa=actSum20(acts,ctx.scoreMap,myAtt,myBeh,studentId,cycle);
+    const ea=examVals.length?examVals.reduce((a,b)=>a+b,0)/examVals.length:null;
+    const f=gradeFinal(track,aa,ea,examVals.length,sub.id);
+    if(f!==null){ const coeff=cc[sub.id]||1; wAvg+=f*coeff; wSum+=coeff; }
+  }
   return wSum?wAvg/wSum:null;
 }
 async function renderEvolution(){
-  const classes=await DB.all('classes');await instScope({classes});if($('evClass'))$('evClass').innerHTML='<option value="">كل الأقسام</option>'+classes.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
-  await evCompute();
+  try{ if(typeof _curCgCache!=='undefined') _curCgCache={}; }catch(_){}
+  try{
+    const classes=await DB.all('classes');await instScope({classes});if($('evClass'))$('evClass').innerHTML='<option value="">كل الأقسام</option>'+classes.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
+    await evCompute();
+  }catch(e){ console.error('renderEvolution',e); try{toast('تعذّر تحميل تتبع التطور: '+(e&&e.message?e.message:e));}catch(_){} }
 }
 async function evCompute(){
-  const classId=$('evClass')?.value||'',mode=$('evMode')?.value||'all';
-  const [students,classes,subjects]=await Promise.all([DB.all('students'),DB.all('classes'),DB.all('subjects')]);
-  const pool=classId?students.filter(s=>s.classId===classId&&s.status!=='archived'):students.filter(s=>s.status!=='archived');
-  const clsMap=Object.fromEntries(classes.map(c=>[c.id,c.name]));
-  const rows=[];
-  for(const st of pool){const c1=await studentFinalByCycle(st.id,st.classId,1);const c2=await studentFinalByCycle(st.id,st.classId,2);if(c1!==null&&c2!==null){const diff=c2-c1;rows.push({name:st.name,className:clsMap[st.classId]||'—',c1,c2,diff});}}
-  if(mode==='best')rows.sort((a,b)=>b.diff-a.diff);else if(mode==='worry')rows.sort((a,b)=>a.diff-b.diff);else rows.sort((a,b)=>b.diff-a.diff);
-  const improving=rows.filter(r=>r.diff>=1).length;
-  const regressing=rows.filter(r=>r.diff<=-1).length;
-  const stable=rows.length-improving-regressing;
-  const avgDiff=rows.length?rows.reduce((s,r)=>s+r.diff,0)/rows.length:0;
-  if($('evCards'))$('evCards').innerHTML='<div class="card stat"><span class="muted">قيد المقارنة</span><strong>'+rows.length+'</strong></div><div class="card stat"><span class="muted">متحسنون (+1)</span><strong>'+improving+'</strong></div><div class="card stat"><span class="muted">مستقرون</span><strong>'+stable+'</strong></div><div class="card stat"><span class="muted">متراجعون (-1)</span><strong>'+regressing+'</strong></div><div class="card stat"><span class="muted">متوسط الفارق</span><strong>'+avgDiff.toFixed(2)+'</strong></div>';
-  if($('evRows'))$('evRows').innerHTML=rows.length?rows.map(r=>{const arrow=r.diff>=1?'⬆️ تحسن':r.diff<=-1?'⬇️ تراجع':'➖ مستقر';const col=r.diff>=1?'var(--s)':r.diff<=-1?'var(--d)':'var(--m)';return '<tr><td>'+esc(r.name)+' <small class="muted">('+esc(r.className)+')</small></td><td>'+r.c1.toFixed(2)+'</td><td>'+r.c2.toFixed(2)+'</td><td style="color:'+col+';font-weight:700">'+(r.diff>=0?'+':'')+r.diff.toFixed(2)+'</td><td style="color:'+col+'">'+arrow+'</td></tr>';}).join(''):'<tr><td colspan="5">لا توجد بيانات في الدورتين معاً</td></tr>';
-  if($('evChart')){const items=rows.slice(0,25).map(r=>({label:r.name,value:r.diff}));$('evChart').innerHTML=hBars(items,' نقطة');}
+  try{
+    if($('evRows')) $('evRows').innerHTML='<tr><td colspan="5">جارٍ الحساب…</td></tr>';
+    const ctx=await _evBuildCtx();
+    const classId=$('evClass')?.value||'',mode=$('evMode')?.value||'all';
+    const pool=(ctx.students||[]).filter(s=>s.status!=='archived' && (!classId || s.classId===classId));
+    const rows=[];
+    for(const st of pool){
+      const c1=_evStudentFinal(ctx, st.id, st.classId, 1);
+      const c2=_evStudentFinal(ctx, st.id, st.classId, 2);
+      if(c1!==null&&c2!==null){const diff=c2-c1;rows.push({name:st.name,className:ctx.clsMap[st.classId]||'—',c1,c2,diff});}
+    }
+    if(mode==='best')rows.sort((a,b)=>b.diff-a.diff);else if(mode==='worry')rows.sort((a,b)=>a.diff-b.diff);else rows.sort((a,b)=>b.diff-a.diff);
+    const improving=rows.filter(r=>r.diff>=1).length;
+    const regressing=rows.filter(r=>r.diff<=-1).length;
+    const stable=rows.length-improving-regressing;
+    const avgDiff=rows.length?rows.reduce((s,r)=>s+r.diff,0)/rows.length:0;
+    if($('evCards'))$('evCards').innerHTML='<div class="card stat"><span class="muted">قيد المقارنة</span><strong>'+rows.length+'</strong></div><div class="card stat"><span class="muted">متحسنون (+1)</span><strong>'+improving+'</strong></div><div class="card stat"><span class="muted">مستقرون</span><strong>'+stable+'</strong></div><div class="card stat"><span class="muted">متراجعون (-1)</span><strong>'+regressing+'</strong></div><div class="card stat"><span class="muted">متوسط الفارق</span><strong>'+avgDiff.toFixed(2)+'</strong></div>';
+    if($('evRows'))$('evRows').innerHTML=rows.length?rows.map(r=>{const arrow=r.diff>=1?'⬆️ تحسن':r.diff<=-1?'⬇️ تراجع':'➖ مستقر';const col=r.diff>=1?'var(--s)':r.diff<=-1?'var(--d)':'var(--m)';return '<tr><td>'+esc(r.name)+' <small class="muted">('+esc(r.className)+')</small></td><td>'+r.c1.toFixed(2)+'</td><td>'+r.c2.toFixed(2)+'</td><td style="color:'+col+';font-weight:700">'+(r.diff>=0?'+':'')+r.diff.toFixed(2)+'</td><td style="color:'+col+'">'+arrow+'</td></tr>';}).join(''):'<tr><td colspan="5">لا توجد بيانات في الدورتين معاً</td></tr>';
+    if($('evChart')){const items=rows.slice(0,25).map(r=>({label:r.name,value:r.diff}));$('evChart').innerHTML=hBars(items,' نقطة');}
+  }catch(e){ console.error('evCompute',e); try{toast('تعذّر حساب التطور: '+(e&&e.message?e.message:e));}catch(_){} if($('evRows'))$('evRows').innerHTML='<tr><td colspan="5">تعذّر حساب التطور</td></tr>'; }
 }
+
 async function renderCommunication(){
   const classes=await DB.all('classes');if($('commClass'))$('commClass').innerHTML='<option value="">اختر القسم</option>'+classes.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');
   const [commLog,students]=await Promise.all([DB.all('commLog'),DB.all('students')]);
@@ -2675,7 +2710,7 @@ for(const [sid,data] of Object.entries(subResults)){
     const coeff=isGen?1:(cc[sid]||1);
    if(f!==null&&!isGen){wAvg+=f*coeff;wSum+=coeff;wCnt++}
    const weightedAvg=gradeFinal(track,actAvg,examAvg,data.exams.length,sid);
-   resultsRows+='<tr><td>'+esc(sub.name)+'</td><td>'+(actAvg!==null?actAvg.toFixed(2):'—')+'</td><td>'+(examAvg!==null?examAvg.toFixed(2):'—')+'</td><td><b>'+(weightedAvg!==null?weightedAvg.toFixed(2):'—')+'</b></td><td>'+(f!==null?(passFn(f)?'<span class="pass">ناجح</span>':'<span class="fail">راسب</span>'):'—')+'</td></tr>';
+   const examContrib=examAvg!==null?Math.round(examAvg*0.75*100)/100:null;resultsRows+='<tr><td>'+esc(sub.name)+'</td><td>'+(actAvg!==null?actAvg.toFixed(2):'—')+'</td><td>'+(examContrib!==null?examContrib.toFixed(2):'—')+'</td><td><b>'+(weightedAvg!==null?weightedAvg.toFixed(2):'—')+'</b></td><td>'+(f!==null?(passFn(f)?'<span class="pass">ناجح</span>':'<span class="fail">راسب</span>'):'—')+'</td></tr>';
   }
  const finalAvg=wSum?wAvg/wSum:null;
  const cycleLabel=cycle===0?'السنة الدراسية':'الدورة '+cycle;
@@ -3530,12 +3565,12 @@ async function showReport(){
         const examAvg=examScores.length?examScores.reduce((a,b)=>a+b,0)/examScores.length:null;
         const weightedAvg=gradeFinal(track,actAvg,examAvg,examScores.length,sub.id);
         const final=weightedAvg;
-        const examDetail=exams.map(a=>{const v=scoreMap[st.id+'_'+a.id];if(v==null)return null;const mx=parseFloat(a.maxScore)||20;const g=gradeFinal(track,null,v,exams.length,sub.id);return {t:a.title||'فرض',mx:mx,g:g}}).filter(Boolean);
+        const examDetail=exams.map(a=>{const v=scoreMap[st.id+'_'+a.id];if(v==null)return null;const mx=parseFloat(a.maxScore)||20;return {t:a.title||'فرض',mx:mx,v:v}}).filter(Boolean);
         results.push({student:st,subject:sub,coeff:coeffMap[sub.id]||parseFloat(sub.coeff)||1,actAvg,actRaw,examAvg,weightedAvg,final,examDetail});
       }
     }
     $('reportContainer').style.display='block';
-    $('reportRows').innerHTML=results.length?results.map(r=>{let status='—';if(r.final!==null){status=passFn(r.final)?'<span class="pass">✅ نجاح</span>':'<span class="fail">❌ رسوب</span>';}return '<tr><td>'+esc(r.student.name)+'</td><td>'+esc(r.subject.name)+'</td><td>'+(r.actAvg!==null?r.actAvg.toFixed(2):'—')+'</td><td>'+(r.examAvg!==null?r.examAvg.toFixed(2):'—')+'</td><td style="font-size:12px;line-height:1.7">'+(r.examDetail&&r.examDetail.length?r.examDetail.map(e=>esc(e.t)+': <b>'+(e.g!==null?e.g.toFixed(2):'—')+'</b>/'+e.mx).join('<br>'):'—')+'</td><td><b>'+(r.weightedAvg!==null?r.weightedAvg.toFixed(2):'—')+'</b></td><td>'+status+'</td></tr>';}).join(''):'<tr><td colspan="7">لا توجد بيانات للعرض</td></tr>';
+    $('reportRows').innerHTML=results.length?results.map(r=>{let status='—';if(r.final!==null){status=passFn(r.final)?'<span class="pass">✅ نجاح</span>':'<span class="fail">❌ رسوب</span>';}const examContrib=r.examAvg!==null?Math.round(r.examAvg*0.75*100)/100:null;return '<tr><td>'+esc(r.student.name)+'</td><td>'+esc(r.subject.name)+'</td><td>'+(r.actAvg!==null?r.actAvg.toFixed(2):'—')+'</td><td>'+(examContrib!==null?examContrib.toFixed(2):'—')+'</td><td style="font-size:12px;line-height:1.7">'+(r.examDetail&&r.examDetail.length?r.examDetail.map(e=>esc(e.t)+': <b>'+(e.v!=null?Number(e.v).toFixed(2):'—')+'</b>/'+e.mx).join('<br>'):'—')+'</td><td><b>'+(r.weightedAvg!==null?r.weightedAvg.toFixed(2):'—')+'</b></td><td>'+status+'</td></tr>';}).join(''):'<tr><td colspan="7">لا توجد بيانات للعرض</td></tr>';
   }catch(e){console.error(e);try{toast('تعذّر إنشاء نتائج القسم: '+(e&&e.message?e.message:e));}catch(_){} }
 }
 async function feedActivityFromTracking(p){const tied=(await DB.all('assessments')).find(a=>a[p.srcField]===p.srcId);if(!tied&&await tiedSuppressed(p.srcField,p.srcId))return;if(p.score===null||p.score===undefined||isNaN(p.score)){if(tied){const tiedScores=(await DB.all('scores')).filter(sc=>sc.assessmentId===tied.id);for(const sc of tiedScores)await DB.remove('scores',sc.id);await DB.remove('assessments',tied.id);}return;}let ass=tied;if(!ass){ass=await DB.put('assessments',{id:uid('ass'),classId:p.classId,subjectId:p.subjectId||'',type:'activity',title:p.title,cycle:p.cycle,maxScore:p.maxScore||20,[p.srcField]:p.srcId,createdAt:now()});}else{ass.classId=p.classId;ass.subjectId=p.subjectId||ass.subjectId;ass.cycle=p.cycle;ass.title=p.title;ass.updatedAt=now();await DB.put('assessments',ass);}const existing=await DB.get('scores',p.studentId+'_'+ass.id);if(existing)await DB.put('scores',{...existing,value:p.score,updatedAt:now()});else await DB.put('scores',{id:p.studentId+'_'+ass.id,studentId:p.studentId,assessmentId:ass.id,value:p.score,createdAt:now()});}
@@ -4978,7 +5013,7 @@ async function buildPortalSnapshot(){
       const f=wavgX(aa,ea,sid);
       const coeff=isGen?1:((classCoeffs[st.classId]||{})[sid]||1);
       if(f!==null&&!isGen){wAvg+=f*coeff;wSum+=coeff;}
-      const examList=myAss.filter(a=>a.subjectId===sid&&a.type==='exam');const eaPoints=examList.map(a=>{const v=scoreMap[st.id+'_'+a.id];if(v==null)return null;const mx=parseFloat(a.maxScore)||20;const g=gradeFinal(trackBox,null,v,examList.length,sid);return {t:a.title||'فرض',v:Math.round(g*100)/100,mx:mx}}).filter(Boolean);if(isGen||isActiveSub(st.classId,sid))subsOut.push({i:String(sid),s:sub.name,c:coeff,aa:aa===null?null:Math.round(aa*100)/100,ea:ea===null?null:Math.round(ea*100)/100,f:f===null?null:Math.round(f*100)/100,p:passFnX(f),eaPoints:eaPoints});
+      const examList=myAss.filter(a=>a.subjectId===sid&&a.type==='exam');const eaPoints=examList.map(a=>{const v=scoreMap[st.id+'_'+a.id];if(v==null)return null;const mx=parseFloat(a.maxScore)||20;return {t:a.title||'فرض',v:Math.round(Number(v)*100)/100,mx:mx}}).filter(Boolean);if(isGen||isActiveSub(st.classId,sid))subsOut.push({i:String(sid),s:sub.name,c:coeff,aa:aa===null?null:Math.round(aa*100)/100,ea:ea===null?null:Math.round(ea*100)/100,f:f===null?null:Math.round(f*100)/100,p:passFnX(f),eaPoints:eaPoints});
     }
     subsOut.sort((a,b)=>(String(a.s)).localeCompare(String(b.s),'ar'));
     const avg=wSum?Math.round(wAvg/wSum*100)/100:null;
@@ -5578,7 +5613,7 @@ async function genKashfReport(silent){try{invalidateReportCaches();}catch(_){}
       const ea=examS.length?examS.reduce((a,b)=>a+b,0)/examS.length:null;
       const f=gradeFinal(track,aa,ea,examS.length,sub.id);
       const weightedAvg=(aa!==null&&ea!==null)?wavg(aa,ea,sub.id):(aa!==null?aa:ea);
-      cells+='<td>'+(aa!==null?aa.toFixed(2):'—')+'</td><td>'+(ea!==null?ea.toFixed(2):'—')+'</td><td'+(weightedAvg!==null&&!passFn(weightedAvg)?' class="fail"':'')+'><b>'+(weightedAvg!==null?weightedAvg.toFixed(2):'—')+'</b></td>';
+      const eaContrib=ea!==null?Math.round(ea*0.75*100)/100:null;cells+='<td>'+(aa!==null?aa.toFixed(2):'—')+'</td><td>'+(eaContrib!==null?eaContrib.toFixed(2):'—')+'</td><td'+(weightedAvg!==null&&!passFn(weightedAvg)?' class="fail"':'')+'><b>'+(weightedAvg!==null?weightedAvg.toFixed(2):'—')+'</b></td>';
       if(f!==null){const coeff=cc[sub.id]||1;wAvg+=f*coeff;wSum+=coeff}
     });
     const avg=wSum?wAvg/wSum:null;
