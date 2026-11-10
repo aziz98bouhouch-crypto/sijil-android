@@ -193,7 +193,7 @@ function manifestJson(){
     ]
   });
 }
-const SW_JS=`const CACHE='sijil-app-v1.0.73';
+const SW_JS=`const CACHE='sijil-app-v1.0.74';
 const ASSETS=['/app','/manifest.webmanifest','/icon-192.png','/icon-512.png'];
 self.addEventListener('install',function(e){self.skipWaiting();e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(ASSETS).catch(function(){});}));});
 self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim());});
