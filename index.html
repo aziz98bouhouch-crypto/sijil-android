@@ -1327,8 +1327,166 @@ function now(){const w=Date.now();if(w>st.t)st={t:w,c:0};else st={t:st.t,c:st.c+
 function recv(s){const m=dec(s);if(!m||m.legacy)return;if(m.t>st.t||(m.t===st.t&&m.c>st.c)){st={t:m.t,c:m.c};save();}}
 function cmp(a,b){const x=dec(a),y=dec(b);if(!x&&!y)return 0;if(!x)return -1;if(!y)return 1;if(x.legacy!==y.legacy)return x.legacy?-1:1;if(x.t!==y.t)return x.t<y.t?-1:1;if(x.c!==y.c)return x.c<y.c?-1:1;return x.d<y.d?-1:(x.d>y.d?1:0);}
 return{now:now,recv:recv,cmp:cmp,valid:s=>!!dec(s),wall:s=>{const m=dec(s);return m?m.t:0;},legacy:ts=>'L'+pad(ts,9),dev:()=>dev};})();
-const DB=(()=>{let db,useLocal=false;const LK='SJX_'+CORE.db+'_';function lsAll(s){try{return JSON.parse(localStorage.getItem(LK+s)||'[]')}catch(e){return[]}}function lsPutAll(s,a){try{localStorage.setItem(LK+s,JSON.stringify(a))}catch(e){}}function lsPut(s,o){const a=lsAll(s);const i=a.findIndex(x=>x.id===o.id);if(i>=0)a[i]=o;else a.push(o);lsPutAll(s,a)}function lsRemove(s,id){lsPutAll(s,lsAll(s).filter(x=>x.id!==id))}function lsClear(){CORE.stores.forEach(s=>{try{localStorage.removeItem(LK+s)}catch(e){}})}async function open(){if(useLocal||db)return;try{await new Promise((res,rej)=>{let r=indexedDB.open(CORE.db,7);r.onupgradeneeded=e=>{let d=e.target.result;CORE.stores.forEach(n=>{if(!d.objectStoreNames.contains(n)){let s=d.createObjectStore(n,{keyPath:'id'});s.createIndex('updatedAt','updatedAt')}})};r.onsuccess=e=>res(db=e.target.result);r.onerror=()=>rej(r.error)})}catch(e){useLocal=true;db=null}}async function all(s,o){let r;if(useLocal)r=lsAll(s);else{await open();r=useLocal?lsAll(s):await new Promise((res,rej)=>{let t=db.transaction(s).objectStore(s).getAll();t.onsuccess=()=>res(t.result||[]);t.onerror=()=>rej(t.error)})}const HW=['classes','levels','branches','tracks'];let out=HW.indexOf(s)>=0&&!(o&&o.inactive)?(r||[]).filter(x=>x.status!=='archived'):(r||[]);if(s==='students')out=out.slice().sort(stCmp);return out;}
-async function get(s,id){if(id==null||id==='')return null;if(useLocal)return lsAll(s).find(x=>x.id===id)||null;await open();return useLocal?lsAll(s).find(x=>x.id===id)||null:new Promise((res,rej)=>{let r=db.transaction(s).objectStore(s).get(id);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}async function put(s,o){o={...o,id:o.id||uid(s.slice(0,3)),updatedAt:now(),_hlc:HLC.now()};if(useLocal){lsPut(s,o);Bus.emit(s+'.changed',o);return o}await open();if(useLocal){lsPut(s,o);Bus.emit(s+'.changed',o);return o}return new Promise((res,rej)=>{let t=db.transaction(s,'readwrite');t.objectStore(s).put(o);t.oncomplete=()=>{Bus.emit(s+'.changed',o);res(o)};t.onerror=()=>rej(t.error)})}async function putRaw(s,o){o={...o,id:o.id||uid(s.slice(0,3))};if(useLocal){lsPut(s,o);Bus.emit(s+'.changed',o);return o}await open();if(useLocal){lsPut(s,o);Bus.emit(s+'.changed',o);return o}return new Promise((res,rej)=>{let t=db.transaction(s,'readwrite');t.objectStore(s).put(o);t.oncomplete=()=>{Bus.emit(s+'.changed',o);res(o)};t.onerror=()=>rej(t.error)})}async function remove(s,id,opts){const perm=!!(opts&&opts.permanent);if(s!=='trash'&&s!=='appMeta'&&!(opts&&opts.noTomb)){try{const rec=await get(s,id);if(rec)await put('trash',{id:uid('tr'),store:s,record:perm?{id:rec.id}:rec,deletedAt:now(),permanent:perm});}catch(e){}}if(useLocal){lsRemove(s,id);return}await open();if(useLocal){lsRemove(s,id);return}return new Promise((res,rej)=>{let t=db.transaction(s,'readwrite');t.objectStore(s).delete(id);t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function clear(){if(useLocal){lsClear();return}await open();if(useLocal){lsClear();return}return new Promise((res,rej)=>{let t=db.transaction(CORE.stores,'readwrite');CORE.stores.forEach(s=>t.objectStore(s).clear());t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function clearStore(s){if(useLocal){try{localStorage.removeItem(LK+s)}catch(e){}return}await open();if(useLocal){try{localStorage.removeItem(LK+s)}catch(e){}return}return new Promise((res,rej)=>{let t=db.transaction(s,'readwrite');t.objectStore(s).clear();t.oncomplete=res;t.onerror=()=>rej(t.error)})}async function counts(){let n=0;for(const s of CORE.stores)n+=(await all(s)).length;return n}function mode(){return useLocal?'local':'indexeddb'}return{open,all,get,put,putRaw,remove,clear,clearStore,counts,mode}})();
+/* ===== طبقة التخزين (IndexedDB) =====
+   WebView/المتصفح يغلق اتصال قاعدة البيانات من تلقاء نفسه: تجميد الصفحة في الخلفية،
+   تغيير الإصدار من نافذة أخرى، ضغط الذاكرة، أو إعادة فتح التطبيق. النسخة السابقة
+   كانت تحتفظ بالاتصال الميت فيبقى كل شيء معطّلًا إلى إغلاق التطبيق، ويظهر للمدرّس:
+   «Failed to execute 'transaction' on 'IDBDatabase': The database connection is closing».
+   هنا: نتخلّص من الاتصال فور إغلاقه، ونعيد الفتح مرة واحدة تلقائيًا عند أول عملية فاشلة. */
+const DB=(()=>{
+  let db=null,opening=null,useLocal=false;
+  const LK='SJX_'+CORE.db+'_',VERSION=7;
+  /* stores ضخمة (أرشيف النسخ التلقائية والسلة) لا تُخزَّن في الذاكرة */
+  const NO_CACHE={appMeta:1,trash:1};
+  const cache=new Map();
+  function lsAll(s){try{return JSON.parse(localStorage.getItem(LK+s)||'[]')}catch(e){return[]}}
+  function lsPutAll(s,a){try{localStorage.setItem(LK+s,JSON.stringify(a))}catch(e){}}
+  function lsPut(s,o){const a=lsAll(s);const i=a.findIndex(x=>x.id===o.id);if(i>=0)a[i]=o;else a.push(o);lsPutAll(s,a)}
+  function lsRemove(s,id){lsPutAll(s,lsAll(s).filter(x=>x.id!==id))}
+  function lsClear(){CORE.stores.forEach(s=>{try{localStorage.removeItem(LK+s)}catch(e){}})}
+  function errName(e){return String((e&&(e.name||e.message))||e||'')}
+  /* أخطاء تعني «الاتصال مات» لا «العملية خاطئة»: تُعالَج بإعادة الفتح لا بالإبلاغ */
+  function deadConn(e){return /InvalidStateError|connection is closing|close pending|not open|VersionError|TransactionInactiveError|UnknownError/i.test(errName(e))}
+  function drop(){const d=db;db=null;try{if(d)d.close()}catch(e){}}
+  function forget(s){cache.delete(s)}
+  function open(){
+    if(useLocal)return Promise.resolve(null);
+    if(db)return Promise.resolve(db);
+    if(opening)return opening;
+    if(typeof indexedDB==='undefined'){useLocal=true;return Promise.resolve(null);}
+    opening=new Promise((resolve,reject)=>{
+      let req;
+      try{req=indexedDB.open(CORE.db,VERSION)}catch(e){opening=null;reject(e);return;}
+      req.onupgradeneeded=e=>{const d=e.target.result;CORE.stores.forEach(n=>{if(!d.objectStoreNames.contains(n)){const s=d.createObjectStore(n,{keyPath:'id'});s.createIndex('updatedAt','updatedAt')}})};
+      req.onblocked=()=>{};
+      req.onsuccess=()=>{
+        const d=req.result;
+        db=d;opening=null;
+        /* الاتصال سيُغلق (نافذة أخرى ترفع الإصدار، أو المتصفح يغلق قسرًا): لا تحتفظ به */
+        d.onversionchange=()=>{try{d.close()}catch(e){}if(db===d)db=null};
+        d.onclose=()=>{if(db===d)db=null};
+        resolve(d);
+      };
+      req.onerror=()=>{opening=null;reject(req.error||new Error('open-failed'))};
+    });
+    return opening;
+  }
+  async function ensure(){
+    if(useLocal)return false;
+    if(db)return true;
+    try{await open()}
+    catch(e){
+      /* التخزين المحلي معطَّل فعلًا (وضع خاص/ذاكرة ممتلئة): يُستعمل البديل المحلي */
+      if(/SecurityError|InvalidAccessError|NotSupportedError|QuotaExceededError/i.test(errName(e))){useLocal=true;return false}
+      throw e;
+    }
+    return !!db;
+  }
+  async function read(s,fn){
+    for(let k=0;k<2;k++){
+      if(!(await ensure()))return undefined;
+      const d=db;
+      try{
+        return await new Promise((res,rej)=>{
+          const t=d.transaction(s);
+          const rq=fn(t.objectStore(s));
+          rq.onsuccess=()=>res(rq.result);
+          rq.onerror=()=>rej(rq.error||new Error('read-failed'));
+          t.onabort=()=>rej(t.error||new Error('read-aborted'));
+        });
+      }catch(e){
+        if(k===0&&deadConn(e)){if(db===d)drop();continue}
+        throw e;
+      }
+    }
+    return undefined;
+  }
+  async function write(s,fn){
+    for(let k=0;k<2;k++){
+      if(!(await ensure()))return false;
+      const d=db;
+      try{
+        return await new Promise((res,rej)=>{
+          const t=d.transaction(s,'readwrite');
+          fn(t.objectStore(s),t);
+          t.oncomplete=()=>res(true);
+          t.onerror=()=>rej(t.error||new Error('write-failed'));
+          t.onabort=()=>rej(t.error||new Error('write-aborted'));
+        });
+      }catch(e){
+        if(k===0&&deadConn(e)){if(db===d)drop();continue}
+        throw e;
+      }
+    }
+    return false;
+  }
+  async function all(s,o){
+    let r=cache.get(s);
+    if(!r){
+      if(!useLocal)r=await read(s,st=>st.getAll());
+      if(r===undefined)r=lsAll(s);
+      else if(!NO_CACHE[s])cache.set(s,r);
+    }
+    /* نسخة جديدة في كل نداء: من يُرتّب أو يُعدّل في المصفوفة لا يمسّ الذاكرة المؤقتة */
+    const HW=['classes','levels','branches','tracks'];
+    let out=HW.indexOf(s)>=0&&!(o&&o.inactive)?(r||[]).filter(x=>x.status!=='archived'):(r||[]).slice();
+    if(s==='students')out.sort(stCmp);
+    return out;
+  }
+  async function get(s,id){
+    if(id==null||id==='')return null;
+    if(!useLocal){
+      const r=await read(s,st=>st.get(id));
+      if(!useLocal)return r===undefined?null:r;
+    }
+    return lsAll(s).find(x=>x.id===id)||null;
+  }
+  async function put(s,o){
+    o=Object.assign({},o,{id:o.id||uid(s.slice(0,3)),updatedAt:now()});
+    if(!useLocal){
+      const ok=await write(s,st=>st.put(o));
+      if(ok){forget(s);Bus.emit(s+'.changed',o);return o}
+    }
+    lsPut(s,o);forget(s);Bus.emit(s+'.changed',o);return o;
+  }
+  async function putRaw(s,o){
+    o=Object.assign({},o,{id:o.id||uid(s.slice(0,3))});
+    if(!useLocal){
+      const ok=await write(s,st=>st.put(o));
+      if(ok){forget(s);Bus.emit(s+'.changed',o);return o}
+    }
+    lsPut(s,o);forget(s);Bus.emit(s+'.changed',o);return o;
+  }
+  async function remove(s,id,opts){
+    const perm=!!(opts&&opts.permanent);
+    if(s!=='trash'&&s!=='appMeta'&&!(opts&&opts.noTomb)){
+      try{const rec=await get(s,id);if(rec)await put('trash',{id:uid('tr'),store:s,record:perm?{id:rec.id}:rec,deletedAt:now(),permanent:perm})}catch(e){}
+    }
+    if(!useLocal){
+      const ok=await write(s,st=>st.delete(id));
+      if(ok){forget(s);return}
+    }
+    lsRemove(s,id);forget(s);
+  }
+  async function clear(){
+    if(!useLocal){
+      const ok=await write(CORE.stores,(st,t)=>{CORE.stores.forEach(n=>t.objectStore(n).clear())});
+      if(ok){CORE.stores.forEach(forget);return}
+    }
+    lsClear();CORE.stores.forEach(forget);
+  }
+  async function clearStore(s){
+    if(!useLocal){
+      const ok=await write(s,st=>st.clear());
+      if(ok){forget(s);return}
+    }
+    try{localStorage.removeItem(LK+s)}catch(e){}forget(s);
+  }
+  async function counts(){let n=0;for(const s of CORE.stores)n+=(await all(s)).length;return n}
+  function mode(){return useLocal?'local':'indexeddb'}
+  return{open,all,get,put,putRaw,remove,clear,clearStore,counts,mode};
+})();
+
 const toast=(m,t)=>{const el=$('toast');let tv=t;const s=String(m);if(!tv){tv=/^تم/.test(s)?'ok':/^(تعذ|خطأ|فشل|معرّف مستعمل|القسم غير|لا توجد)/.test(s)?'err':/^(اختر|أكمل|لا )/.test(s)?'warn':'n';}const ic={ok:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',err:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',warn:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',n:''};el.dataset.t=tv||'n';el.innerHTML='<span class="toast-ico">'+(ic[tv]||'')+'</span><span class="toast-tx">'+esc(s)+'</span><span class="toast-bar"></span>';el.classList.add('show');clearTimeout(toast._h);toast._h=setTimeout(()=>el.classList.remove('show'),3200)};
 const Router={go(p){const titles={home:'الرئيسية',academic:'الهوية الأكاديمية',curriculum:'المنهاج الدراسي',management:'الأقسام',students:'ملفات المتعلمين',studentProfile:'ملف المتعلم',assessment:'التقويم والنتائج',tracking:'المتابعة',schedule:'استعمال الزمان والحصص',diagnosis:'التشخيص والدعم',motivation:'التحفيز والإنجاز',resources:'الموارد والتعلم',reports:'التقارير والمؤشرات',analytics:'التحليلات والإحصاء',evolution:'تتبع التطور',communication:'سجل التواصل',exams:'منشئ نماذج الامتحانات',qcm:'امتحانات QCM والتصحيح الآلي',health:'فحص النظام',backup:'النسخ الاحتياطي',trash:'السلة',settings:'الإعدادات',portal:'بوابة المتعلمين',sync:'المزامنة'};p=titles[p]?p:'home';document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('title').textContent='سجل التقييم PRO — '+titles[p];try{localStorage.setItem('corePage',p)}catch(e){}const fns={academic:renderAcademic,curriculum:renderCurriculum,management:renderManagement,students:renderStudents,studentProfile:renderStudentProfile,assessment:renderAssessment,tracking:renderTracking,schedule:renderSchedule,diagnosis:renderDiagnosis,motivation:renderMotivation,resources:renderResources,reports:renderReports,analytics:renderAnalytics,evolution:renderEvolution,communication:renderCommunication,exams:renderExams,qcm:function(){if(window.renderQcm)window.renderQcm();},health:health,backup:renderBackup,trash:renderTrash,settings:function(){renderInstCard();try{renderTeacherSubjects()}catch(e){}},portal:renderPortal,sync:()=>renderSync()};if(fns[p])fns[p]();try{renderSubjectSwitch()}catch(e){}try{Router.current={page:p};window.dispatchEvent(new Event('appnav'))}catch(e){}}};
 /* الفرض المولَّد من المتابعة: مصدره + كبت إعادة التوليد بعد حذفه يدويًا (مرحلة 40) */
@@ -7056,8 +7214,9 @@ function scanActs(list){var el=document.getElementById('syncScanActs');if(!el)re
 function scanShow(msg){var ov=document.getElementById('syncScanOverlay');if(ov)ov.style.display='flex';scanSetTitle((__scanLastOpts&&__scanLastOpts.title)||'امسح الرمز');scanMsg(msg);}
 function scanErrName(e){return String((e&&(e.name||e.message))||e||'خطأ غير معروف');}
 function scanCamMsgFor(n){
-  if(n==='NotAllowedError'||n==='SecurityError')return 'لم يُسمح باستخدام الكاميرا. في أندرويد: إعدادات التطبيق > الأذونات > الكاميرا > السماح، ثم أعد المحاولة.';
-  if(n==='NotReadableError'||n==='AbortError')return 'الكاميرا مشغولة بتطبيق آخر — أغلقه ثم أعد المحاولة.';
+  var desk=!!(window.sijilAPI&&window.sijilAPI.printPdf)&&!scanCamPlugin();
+  if(n==='NotAllowedError'||n==='SecurityError')return desk?'لم يسمح النظام بالكاميرا — في Windows: الإعدادات > الخصوصية والأمان > الكاميرا > «السماح لتطبيقات سطح المكتب»، ثم أعد تشغيل البرنامج.':'لم يُسمح باستخدام الكاميرا. في أندرويد: إعدادات التطبيق > الأذونات > الكاميرا > السماح، ثم أعد المحاولة.';
+  if(n==='NotReadableError'||n==='AbortError')return desk?'الكاميرا مشغولة بتطبيق آخر أو محجوبة — أغلق كل برنامج يستعملها ثم أعد المحاولة.':'الكاميرا مشغولة بتطبيق آخر — أغلقه ثم أعد المحاولة.';
   if(n==='NotFoundError'||n==='DevicesNotFoundError')return 'لا توجد كاميرا متاحة في هذا الجهاز.';
   if(n==='OverconstrainedError')return 'الكاميرا المطلوبة غير متاحة في هذا الجهاز — أعد المحاولة.';
   return 'تعذّر فتح الكاميرا: '+n;

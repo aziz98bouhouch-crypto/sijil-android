@@ -59,7 +59,8 @@ public class SijilCameraPlugin extends Plugin {
     @PermissionCallback
     private void cameraGranted(PluginCall call) {
         JSObject ret = new JSObject();
-        ret.put("granted", true);
+        boolean ok = granted();
+        ret.put("granted", ok);
         ret.put("already", false);
         call.resolve(ret);
     }

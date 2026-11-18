@@ -14,6 +14,36 @@ if(!gotTheLock){ app.quit(); }
 
 let win=null;
 
+// ===== إذن الكاميرا (ناسخ رمز QR) =====
+// getUserMedia لا يعمل في Electron بلا معالِج إذن: الفحص المسبق يسبق الطلب،
+// وعلى Windows يصل الطلب بقائمة أنواع فارغة، فيُرفض بصمت بلا أي رسالة.
+function ownPageUrl(url){
+  const u=String(url||'');
+  return /^file:\/\//i.test(u)||/^https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?(?:[/?#]|$)/i.test(u);
+}
+function installMediaPermissions(){
+  try{
+    const ses=session.defaultSession;
+    ses.setPermissionRequestHandler((wc,permission,callback,details)=>{
+      if(permission!=='media')return callback(true);
+      let url='';try{url=wc&&wc.getURL?wc.getURL():'';}catch(e){}
+      const types=(details&&details.mediaTypes)||[];
+      /* display-capture (شاشة/نافذة/تبويب) لا يخصّ الكاميرا: يُرفض */
+      if(types.length&&types.every(t=>t!=='video'&&t!=='audio'))return callback(false);
+      const origin=details&&details.securityOrigin;
+      callback(ownPageUrl(url)||ownPageUrl(origin));
+    });
+    ses.setPermissionCheckHandler((wc,permission,origin,details)=>{
+      if(permission!=='media')return true;
+      const t=details&&details.mediaType;
+      if(t&&t!=='video'&&t!=='audio')return false;
+      let url='';try{url=wc&&wc.getURL?wc.getURL():'';}catch(e){}
+      return ownPageUrl(url)||ownPageUrl(origin);
+    });
+  }catch(e){}
+}
+
+
 function createWindow(){
   const iconPath=path.join(__dirname,'build','icon.ico');
   win=new BrowserWindow({
@@ -584,6 +614,7 @@ ipcMain.handle('proxy-heal',(e,u)=>proxyHeal(u));
 
 app.whenReady().then(async()=>{
   if(!gotTheLock) return;
+  installMediaPermissions();
   createWindow();
   createTray();
   try{ await portalRun(portalBasePort); }catch(e){}
