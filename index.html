@@ -7289,9 +7289,10 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
    الأول يعطي المحور والثاني يعطي الاتجاه والعمق، ثم تُقرأ 21 خانة عشرية و4 خانات أرباع بموضعها
    محسوبًا هندسيًا لا بالبكسل الثابت، فتصحّ الصورة المائلة أو المصغّرة. */
 (function(){
+  /* intHW/intHH/qHW/qHH = نصف نافذة القراءة داخل الصندوق المطبوع (يُستبعد إطارُه) */
   var G={span:164.5,leftX:2.5,leftY:18,rightX:167,rightY:8,barL:36,barR:16,
-         int0:10.75,pitch:7.5,intY:13.5,intHW:1.55,intHH:3.6,
-         qY:25,qHW:1.55,qHH:2.2,intN:21,qN:4};
+         int0:10.75,pitch:7.5,intY:13.5,intHW:2.1,intHH:4.75,
+         qY:25,qHW:2.1,qHH:3.25,intN:21,qN:4,boxW:5.6,intH:11,qH:8};
   var DIST=Math.sqrt(G.span*G.span+100);
 
   function grayCanvas(canvas,maxSide){
@@ -7410,7 +7411,7 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     }
     return [b[0],b[1],b[2],b[3],b[4],b[5],b[6],b[7],1];
   }
-  function locate(g,w,h){
+  function locateBars(g,w,h){
     var comps=components(g,w,h,otsu(g));
     if(comps.length<2)return null;
     var best=null,bestScore=0.95;
@@ -7456,7 +7457,9 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     if(!isFinite(K)||K<0.65||K>1.5)return null;
     /* نهايات الشريطين الأربع نقاط مرجعية: الإسقاط المنظوري يغيّر اتجاه كل شريط على حدة،
        فلا يكفي محور شريط واحد؛ نحلّ تحويلًا إسقاطيًا من مم إلى البكسل بالضبط. */
-    var hL=L.L/2,hR=R.L/2;
+    /* نصف الطول بالبكسل يُشتقّ من المسافة بين مركزي الشريطين لا من الطول المطبوع،
+       فالشريط المقطوع أو المطبوع على حدّ الورقة لا يغيّر مقياس الخانات. */
+    var hL=G.barL*sMid/2,hR=G.barR*sMid/2;
     var Hm=homography4(
       [[G.leftX,G.leftY-G.barL/2],[G.leftX,G.leftY+G.barL/2],
        [G.rightX,G.rightY-G.barR/2],[G.rightX,G.rightY+G.barR/2]],
@@ -7473,56 +7476,195 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     if(!(pitchPx>4&&pitchPx<80))return null;
     return {P:P,scale:(sL+sR)/2,K:K,sL:sL,sR:sR,phi:L.phi,dist:best.dist};
   }
-  function winStats(g,w,h,P,cx,cy,hw,hh){
-    var p00=P(cx-hw,cy-hh),p10=P(cx+hw,cy-hh),p11=P(cx+hw,cy+hh),p01=P(cx-hw,cy+hh);
-    var nx=7,ny=9,sum=0,sum2=0,cnt=0;
-    for(var a=0;a<nx;a++){
-      var u=(a+0.5)/nx,u0=1-u;
-      for(var b=0;b<ny;b++){
-        var v=(b+0.5)/ny,v0=1-v;
-        var X=(p00[0]*u0+p10[0]*u)*(1-v)+(p01[0]*u0+p11[0]*u)*v;
-        var Y=(p00[1]*u0+p10[1]*u)*(1-v)+(p01[1]*u0+p11[1]*u)*v;
-        if(!(X>=0&&Y>=0&&X<w&&Y<h))return null;
-        var val=g[(Y|0)*w+(X|0)];
-        sum+=val;sum2+=val*val;cnt++;
+
+  /* أطراف الشريطين قد تخرج مسنّنة أو مثقوبة بنقاط بيضاء فتنفصل مكوّناتها؛ نعيد المحاولة
+     بعد إغلاق الفجوات الصغيرة (3×3) بدل إعلان «لا شريط». */
+  function closeGray(g,w,h){
+    var o=new Uint8Array(w*h),x,y,i,m,j,k;
+    for(y=0;y<h;y++){
+      for(x=0;x<w;x++){
+        i=y*w+x;m=g[i];
+        if(x>0&&g[i-1]<m)m=g[i-1];
+        if(x<w-1&&g[i+1]<m)m=g[i+1];
+        if(y>0){
+          j=i-w;if(g[j]<m)m=g[j];
+          if(x>0&&g[j-1]<m)m=g[j-1];
+          if(x<w-1&&g[j+1]<m)m=g[j+1];
+        }
+        if(y<h-1){
+          k=i+w;if(g[k]<m)m=g[k];
+          if(x>0&&g[k-1]<m)m=g[k-1];
+          if(x<w-1&&g[k+1]<m)m=g[k+1];
+        }
+        o[i]=m;
       }
     }
-    var m=sum/cnt;
-    return {m:m,sd:Math.sqrt(Math.max(0,sum2/cnt-m*m))};
+    return o;
   }
-  function pick(arr){
-    var s=arr.slice().sort(function(a,b){return a-b;});
-    var med=(s[(arr.length-1)>>1]+s[arr.length>>1])/2;
-    var best=-1e9,bi=-1,second=-1e9;
-    for(var i=0;i<arr.length;i++){
-      var d=med-arr[i];
-      if(d>best){second=best;best=d;bi=i;}
-      else if(d>second)second=d;
+  function locate(g,w,h){
+    var r=locateBars(g,w,h);
+    if(r)return r;
+    try{return locateBars(closeGray(g,w,h),w,h);}catch(e){return null;}
+  }
+  /* ===== قراءة الخانات: شكلُ الحبر لا متوسطُ السواد =====
+     الورق المطبوع يحمل نقاطًا صغيرة وأشرطة حبر رمادية وأطرافًا مسنّنة للشريطين، ومتوسط
+     السواد يخدع فيها. لذلك تُقرأ الخانة كلها (دون إطارها المطبوع) وتُستخرج منها أكبر
+     كتلة حبر متّصلة، ثم يُقاس:
+       span : امتداد تلك الكتلة بالمليمتر (الخطّ العريض يمتدّ، والنقطة الطائرة لا تمتدّ)،
+       big  : نسبة مساحتها من الخانة (بقعة طباعة صغيرة لا تبلغ العتبة)،
+       f    : نسبة الحبر في الخانة (للترتيب بين الخانات).
+     فيُقبل الشطب إذا كان الحبر متّصلًا ويمتدّ داخل الخانة، وتُرفض النقاط والذبذبة. */
+  function paperLevels(g){
+    var hist=new Uint32Array(256),i,n=g.length,acc=0,white=210;
+    for(i=0;i<n;i++)hist[g[i]]++;
+    for(i=255;i>=0;i--){acc+=hist[i];if(acc>=n*0.15){white=i;break;}}
+    if(white<70)white=70;
+    /* عتبة أوتسو تفصل الورق عن الحبر فصلًا تكيّفيًا، وأشرطة الحبر الرمادية الخفيفة
+       تبقى فوقها فلا تُحسب شطبًا. */
+    return {white:white,thr:otsu(g)};
+  }
+  var CELL_OFF=[[0,0],[0,-0.6],[0,0.6]];
+  function cellInk(g,w,h,P,cx,cy,hw,hh,thr){
+    var nx=15,ny=19,N=nx*ny,mask=new Uint8Array(N),seen=new Uint8Array(N),stack=new Int32Array(N);
+    var p00=P(cx-hw,cy-hh),p10=P(cx+hw,cy-hh),p11=P(cx+hw,cy+hh),p01=P(cx-hw,cy+hh);
+    var i,j,dark=0;
+    for(j=0;j<ny;j++){
+      var v=(j+0.5)/ny,v0=1-v;
+      for(i=0;i<nx;i++){
+        var u=(i+0.5)/nx,u0=1-u;
+        var X=(p00[0]*u0+p10[0]*u)*(1-v)+(p01[0]*u0+p11[0]*u)*v;
+        var Y=(p00[1]*u0+p10[1]*u)*(1-v)+(p01[1]*u0+p11[1]*u)*v;
+        if(!(X>=0&&Y>=0&&X<w-1&&Y<h-1))return null;
+        if(g[((Y+0.5)|0)*w+((X+0.5)|0)]<thr){mask[j*nx+i]=1;dark++;}
+      }
     }
-    return {i:bi,delta:best,second:second,med:med};
+    var bestN=0,bestSpan=0,bestMin=0,dx=2*hw/nx,dy=2*hh/ny;
+    for(i=0;i<N;i++){
+      if(!mask[i]||seen[i])continue;
+      var sp=0,cn=0,minx=nx,maxx=-1,miny=ny,maxy=-1;
+      stack[sp++]=i;seen[i]=1;
+      while(sp){
+        var k=stack[--sp],kx=k%nx,ky=(k/nx)|0;
+        cn++;
+        if(kx<minx)minx=kx;if(kx>maxx)maxx=kx;
+        if(ky<miny)miny=ky;if(ky>maxy)maxy=ky;
+        for(var ay=ky-1;ay<=ky+1;ay++){
+          if(ay<0||ay>=ny)continue;
+          for(var ax=kx-1;ax<=kx+1;ax++){
+            if(ax<0||ax>=nx)continue;
+            var q=ay*nx+ax;
+            if(mask[q]&&!seen[q]){seen[q]=1;stack[sp++]=q;}
+          }
+        }
+      }
+      if(cn>bestN){
+        bestN=cn;
+        var bw=(maxx-minx+1)*dx,bh=(maxy-miny+1)*dy;
+        bestSpan=Math.max(bw,bh);bestMin=Math.min(bw,bh);
+      }
+    }
+    /* el = استطالة الكتلة: الخطّ المسحوب ممتدّ، وبقعة الطباعة مستديرة */
+    return {f:dark/N,big:bestN/N,span:bestSpan,el:bestSpan/Math.max(0.3,bestMin)};
+  }
+  /* الخانة تُقرأ في ثلاثة مواضع رأسية ويُؤخذ الوسيط: الشطب الحقيقي يظهر في الثلاثة،
+     وإطارُ الخانة المطبوع إن دخل نافذةً واحدة بسبب انزياح لا يُغيّر الوسيط. */
+  function cellBest(g,w,h,P,cx,cy,hw,hh,thr){
+    var sts=[],k,st;
+    for(k=0;k<CELL_OFF.length;k++){
+      st=cellInk(g,w,h,P,cx,cy+CELL_OFF[k][1],hw,hh,thr);
+      if(!st)return null;
+      sts.push(st);
+    }
+    sts.sort(function(a,b){return a.big-b.big;});
+    st=sts[1]||sts[0];
+    return {f:st.f,big:st.big,span:st.span,el:st.el};
+  }
+  /* الشطب يُقبل إذا كان الحبر متّصلًا وممتدًّا، وكانت كتلته كبيرة (شطب كامل) أو ممتدة
+     استطالةً واضحة (شطبة أو خطّ). بقعة الطباعة المستديرة الصغيرة لا تبلغ أيهما. */
+  function markedCell(st,minSpan,minBig,bigStrong){
+    return !!(st&&st.span>=minSpan&&(st.big>=bigStrong||(st.big>=minBig&&st.el>=2.5)));
+  }
+  function rankCells(list){
+    return list.map(function(o,i){return {i:i,o:o,q:o?o.f:0};})
+      .sort(function(a,b){return b.q-a.q;});
+  }
+  /* معايرة على شبكة الخانات المطبوعة نفسها: مقطع أفقي في منتصف صفّ العشرات تُحدث فيه
+     حدودُ الخانات انخفاضاتٍ متساوية التباعد. نبحث عن أقلّ تصغير/تكبير (k) وإزاحة (d)
+     يجعلان الحدود في مواضعها، فتصلح القراءة حتى لو قُصّ الشريط أو صُوّر بمكبّرة أو مالت
+     هندسته قليلًا بسبب الطباعة. */
+  function refineGrid(g,w,h,P){
+    var B=0.16,U0=-4,U1=174,N=Math.round((U1-U0)/B)+1,i;
+    var prof=new Float64Array(N),vals=[],q,X,Y;
+    for(i=0;i<N;i++){
+      var s=0,m=0;
+      for(var t=-1;t<=1;t++){
+        q=P(U0+i*B+t*0.18,G.intY);
+        X=q[0]|0;Y=q[1]|0;
+        if(X<0||Y<0||X>=w||Y>=h)return null;
+        s+=g[Y*w+X];m++;
+      }
+      prof[i]=s/m;vals.push(prof[i]);
+    }
+    vals.sort(function(a,b){return a-b;});
+    var med=vals[vals.length>>1];
+    var edges=[],mids=[];
+    for(i=0;i<G.intN;i++){
+      var c=G.int0+i*G.pitch;
+      edges.push(c-G.boxW/2,c+G.boxW/2);mids.push(c);
+    }
+    var samp=function(u){
+      var f=(u-U0)/B;
+      if(f<0||f>N-1.001)return med;
+      var a=f|0,fr=f-a;
+      return prof[a]*(1-fr)+prof[a+1]*fr;
+    };
+    var score=function(k,d){
+      var s=0,j;
+      for(j=0;j<edges.length;j++)s+=med-samp(85+(edges[j]-85)*k+d);
+      for(j=0;j<mids.length;j++)s-=0.3*(med-samp(85+(mids[j]-85)*k+d));
+      return s/edges.length;
+    };
+    var base=score(1,0),best=base,bk=1,bd=0,k,d,sc;
+    for(var a=-7;a<=7;a++){
+      k=1+a*0.005;
+      for(var b=-10;b<=10;b++){
+        d=b*0.25;
+        /* ميل خفيف نحو عدم التغيير يفصل بين حلول متقاربة لا معنى لها */
+        sc=score(k,d)-0.02*(Math.abs(a)+Math.abs(b));
+        if(sc>best+1e-6){best=sc;bk=k;bd=d;}
+      }
+    }
+    if(!(best>base+3))return null;
+    return {k:bk,d:bd,gain:best-base};
   }
   function read(g,w,h,loc){
-    var P=loc.P,ints=[],qs=[],i,st;
+    var P0=loc.P,rf=null,P=P0,i,st;
+    try{rf=refineGrid(g,w,h,P0);}catch(e){rf=null;}
+    if(rf)P=function(dx,dy){return P0(85+(dx-85)*rf.k+rf.d,dy);};
+    var lv=paperLevels(g),thr=lv.thr;
+    var ints=[],qs=[];
     for(i=0;i<G.intN;i++){
-      st=winStats(g,w,h,P,G.int0+i*G.pitch,G.intY,G.intHW,G.intHH);
+      st=cellBest(g,w,h,P,G.int0+i*G.pitch,G.intY,G.intHW,G.intHH,thr);
       if(!st)return {ok:false,reason:'edges'};
       ints.push(st);
     }
+    var ri=rankCells(ints),b=ri[0].o,s=ri[1]?ri[1].o:null;
+    if(!markedCell(b,2.2,0.03,0.10))return {ok:false,reason:'none'};
+    if(markedCell(s,2.2,0.03,0.10)&&s.f>=0.6*b.f)return {ok:false,reason:'multiple'};
     for(i=0;i<G.qN;i++){
-      st=winStats(g,w,h,P,G.int0+i*G.pitch,G.qY,G.qHW,G.qHH);
+      st=cellBest(g,w,h,P,G.int0+i*G.pitch,G.qY,G.qHW,G.qHH,thr);
       if(!st)return {ok:false,reason:'edges'};
       qs.push(st);
     }
-    var pi=pick(ints.map(function(o){return o.m;}));
-    if(pi.delta<14)return {ok:false,reason:'none'};
-    if(pi.delta-pi.second<Math.max(8,pi.delta*0.45))return {ok:false,reason:'multiple'};
-    if(ints[pi.i].sd<14&&pi.delta<45)return {ok:false,reason:'shadow'};
-    var pq=pick(qs.map(function(o){return o.m;}));
-    var q=0;
-    /* الأرباع اختيارية: عتبة أعلى كي لا يقرأ ظلّ حدود الخانات ربعًا وهميًا */
-    if(pq.delta>=30&&pq.delta-pq.second>=15&&(qs[pq.i].sd>=12||pq.delta>=45))q=pq.i;
-    return {ok:true,int:pi.i,qtr:q,value:pi.i+q*0.25,
-            conf:{intDelta:pi.delta,intSecond:pi.second,qDelta:pq.delta,qSecond:pq.second,sd:ints[pi.i].sd},
+    var rq=rankCells(qs),qb=rq[0].o,q2=rq[1]?rq[1].o:null,q=0;
+    if(markedCell(qb,1.6,0.03,0.07)){
+      if(markedCell(q2,1.6,0.03,0.07)&&q2.f>=0.6*qb.f)return {ok:false,reason:'multiple'};
+      q=rq[0].i;
+    }
+    return {ok:true,int:ri[0].i,qtr:q,value:ri[0].i+q*0.25,
+            conf:{                  intF:b.f,intSpan:b.span,intBig:b.big,intEl:b.el,secondF:s?s.f:0,
+                  qF:qb?qb.f:0,qSpan:qb?qb.span:0,thr:thr,white:lv.white,
+                  grid:rf?{k:rf.k,d:rf.d,gain:rf.gain}:null},
             loc:loc};
   }
   function decodeCanvas(canvas,maxSide){
@@ -7636,19 +7778,33 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     SS.tickAt=t;
     var r=window.SijilStrip.decodeCanvas(fr.canvas);
     if(!r||!r.ok){
+      SS.votes=[];
       if(SS.msgAt&&t-SS.msgAt<2600)return true;
       if(r&&r.reason==='edges'){scanMsg('الشريط مقطوع من حدود الصورة — أبعد الكاميرا قليلًا');SS.msgAt=t;}
       else if(r&&r.reason==='multiple'){scanMsg('خانتان مؤشرتان في الشريط — أعد الشطب داخل خانة واحدة أو صحّح الورقة');SS.msgAt=t;}
-      else if(r&&r.reason==='none'||r&&r.reason==='shadow'){scanMsg('لم أتبيّن شطبة واضحة داخل شريط النقطة — اشطب بخط عريض داخل الخانة');SS.msgAt=t;}
+      else if(r&&(r.reason==='none'||r.reason==='shadow')){scanMsg('لم أتبيّن شطبة واضحة داخل شريط النقطة — اشطب بخط عريض داخل الخانة');SS.msgAt=t;}
       else{scanMsg('قرّب الكاميرا من شريط النقطة حتى يمتلئ الإطار');SS.msgAt=t;}
       return true;
     }
-    hit(SS.stu,r.value);
+    /* تأكيد زمني: تُقبل العلامة بعد قراءتين متطابقتين خلال ثلاث ثوانٍ، فلا تُسجَّل نقطةٌ
+       من ذبذبة إطار أو من نقطة طباعة عابرة. */
+    var key=fmt(r.value),n=0,diff=0,i;
+    SS.votes=(SS.votes||[]).filter(function(v){return t-v.t<3000;});
+    SS.votes.push({v:key,t:t});
+    for(i=0;i<SS.votes.length;i++){if(SS.votes[i].v===key)n++;else diff++;}
+    if(n>=2&&n>diff){
+      SS.votes=[];
+      hit(SS.stu,r.value);
+      return true;
+    }
+    SS.msgAt=0;
+    scanMsg('قراءة: '+key+' — ثبّت الكاميرا لحظة للتأكيد ('+n+'/2)');
     return true;
   }
   function openStripStep(){
     if(!SS)return;
     var stu=SS.stu;
+    SS.votes=[];SS.tickAt=0;
     openScanner({
       title:'٢) امسح شريط النقطة — '+String((stu&&stu.name)||''),
       guide:'strip',
