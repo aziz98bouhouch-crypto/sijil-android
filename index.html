@@ -7294,6 +7294,8 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
          int0:10.75,pitch:7.5,intY:13.5,intHW:2.1,intHH:4.75,
          qY:25,qHW:2.1,qHH:3.25,intN:21,qN:4,boxW:5.6,intH:11,qH:8};
   var DIST=Math.sqrt(G.span*G.span+100);
+  /* أدنى درجة محاذاة مقبولة لشبكة الخانات (تُقاس على ورق حقيقي) */
+  var GRID_MIN=12;
 
   function grayCanvas(canvas,maxSide){
     maxSide=maxSide||900;
@@ -7411,16 +7413,19 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     }
     return [b[0],b[1],b[2],b[3],b[4],b[5],b[6],b[7],1];
   }
-  function locateBars(g,w,h){
-    var comps=components(g,w,h,otsu(g));
-    if(comps.length<2)return null;
-    var best=null,bestScore=0.95;
+  /* ===== إيجاد الشريطين وبناء مقياس المليمتر =====
+     الشريطان مطبوعان بعرض واحد (5مم) وبنسبةِ طول 36:16، فالزوج الذي يخرج عن ذلك
+     ليس شريطي الورقة. وكل محاولة تُقاس على شبكة الخانات المطبوعة نفسها (gridFit)،
+     فلا تُقبل قراءةٌ شبكتُها غير مطابقة للورقة — وهذا ما كان يُنتج قيمًا خاطئة
+     (كقراءة 2.5) حين يلتقط القارئ شكلين داكنين آخرين. */
+  function pairCands(comps,limit){
+    var out=[];
     for(var i=0;i<comps.length;i++){
       for(var j=i+1;j<comps.length;j++){
         var A=comps[i],B=comps[j];
         var lo=A.L>=B.L?A:B,sh=A.L>=B.L?B:A;
         var lr=lo.L/sh.L;
-        if(lr<1.35||lr>3.7)continue;
+        if(lr<1.40||lr>3.80)continue;
         var dx=sh.cx-lo.cx,dy=sh.cy-lo.cy,dist=Math.sqrt(dx*dx+dy*dy);
         var wavg=(lo.Wd+sh.Wd)/2;
         if(!wavg||!dist)continue;
@@ -7430,13 +7435,20 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
         if(Math.abs(dx*ax+dy*ay)/dist>0.34)continue;
         var cross=Math.abs(Math.sin(A.phi-B.phi));
         if(cross>0.34)continue;
+        /* عرض الشريطين واحد (5مم): اختلاف كبير في العرض يكشف زوجًا ليس شريطين */
+        var wr=lo.Wd/sh.Wd;
+        if(wr<0.72||wr>1.40)continue;
         var sc=Math.abs(Math.log(dr/33))+Math.abs(Math.log(lr/2.25))+cross*1.5;
-        if(sc<bestScore){bestScore=sc;best={lo:lo,sh:sh,dist:dist};}
+        if(sc>0.95)continue;
+        out.push({lo:lo,sh:sh,dist:dist,sc:sc});
       }
     }
-    if(!best)return null;
-    var L=best.lo,R=best.sh;
-    var sL=L.L/G.barL,sR=R.L/G.barR,sMid=best.dist/DIST;
+    out.sort(function(a,b){return a.sc-b.sc;});
+    return out.slice(0,limit||4);
+  }
+  function pairLoc(pc){
+    var lo=pc.lo,sh=pc.sh,L=lo,R=sh;
+    var sL=L.L/G.barL,sR=R.L/G.barR,sMid=pc.dist/DIST;
     if(!sMid||sL/sMid<0.55||sL/sMid>1.8||sR/sMid<0.55||sR/sMid>1.8)return null;
     var ddx=R.cx-L.cx,ddy=R.cy-L.cy;
     /* اتجاه محور y في الشريط (من صفّ العشرات نحو صفّ الأرباع) هو متوسط محورَي الشريطين:
@@ -7453,8 +7465,12 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     var xx=-yy,xy=yx;
     if(ddx*xx+ddy*xy<0){xx=-xx;xy=-xy;}
     var along=ddx*xx+ddy*xy;
+    var perp=ddx*xy-ddy*xx;
     var K=along/(G.span*(sL+sR)/2);
     if(!isFinite(K)||K<0.65||K>1.5)return null;
+    /* الشريطان يفترقان 10مم عرضًا (18−8): إن تجاوز الفرق ذلك فالمقياس مقلوب */
+    var sm=(sL+sR)/2;
+    if(Math.abs(perp)>14*sm)return null;
     /* نهايات الشريطين الأربع نقاط مرجعية: الإسقاط المنظوري يغيّر اتجاه كل شريط على حدة،
        فلا يكفي محور شريط واحد؛ نحلّ تحويلًا إسقاطيًا من مم إلى البكسل بالضبط. */
     /* نصف الطول بالبكسل يُشتقّ من المسافة بين مركزي الشريطين لا من الطول المطبوع،
@@ -7474,11 +7490,77 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     var pitchPx=Math.hypot(P(G.int0+G.pitch,G.intY)[0]-P(G.int0,G.intY)[0],
                           P(G.int0+G.pitch,G.intY)[1]-P(G.int0,G.intY)[1]);
     if(!(pitchPx>4&&pitchPx<80))return null;
-    return {P:P,scale:(sL+sR)/2,K:K,sL:sL,sR:sR,phi:L.phi,dist:best.dist};
+    /* شريطان مطبوعان بعرض 5مم وطول 36/16مم: إن طابقت أربع نسبٍ مطبوعاتِها فالزوج هو
+       شريط الورقة يقينًا، ويُقبل حتى لو كانت خطوط الخانات باهتة فلم تُقرأ الشبكة. */
+    var lr=L.L/R.L,wr=L.Wd/R.Wd;
+    var strict=lr>=1.80&&lr<=2.80&&wr>=0.80&&wr<=1.25&&
+               sL/sMid>=0.78&&sL/sMid<=1.30&&sR/sMid>=0.78&&sR/sMid<=1.30;
+    return {P:P,scale:sm,K:K,sL:sL,sR:sR,phi:L.phi,dist:pc.dist,kind:'pair',strict:strict};
   }
-
-  /* أطراف الشريطين قد تخرج مسنّنة أو مثقوبة بنقاط بيضاء فتنفصل مكوّناتها؛ نعيد المحاولة
-     بعد إغلاق الفجوات الصغيرة (3×3) بدل إعلان «لا شريط». */
+  /* احتياطي: الشريط الطويل وحده ظاهر (القصير ملصقٌ أو مقصوص أو مطبوع باهتًا).
+     الشريط يعطي الاتجاه والمقياس (36مم طولًا و5مم عرضًا) وموضعَ بداية الشريط في
+     منتصفه، وشبكةُ الخانات المطبوعة تحدّد الموضع: نجرّب الاتجاهين ونأخذ ما طابق
+     الخانات فعلًا. */
+  function oneCands(comps){
+    var out=[];
+    for(var i=0;i<comps.length;i++){
+      var c=comps[i];
+      var sW=c.Wd/5,sL=c.L/G.barL,s=(sL+sW)/2;
+      if(!(s>0))continue;
+      /* الشريط الطويل وحده (36مم × 5مم) يصلح مرجعًا: موضعه في منتصف ارتفاع الشريط
+         معلوم، بخلاف القصير (16مم) الذي يلتصق بأحد الطرفين فيلتبس بالطويل المقصوص. */
+      if(Math.abs(sL/s-1)>0.26||Math.abs(sW/s-1)>0.30)continue;
+      if(c.L<12||c.Wd<2.4)continue;
+      var ux=Math.cos(c.phi),uy=Math.sin(c.phi);
+      var cx0=G.leftX,cy0=G.leftY;
+      for(var sg=-1;sg<=1;sg+=2){
+        var vx=-uy*sg,vy=ux*sg;
+        out.push({P:(function(cx,cy,ux,uy,vx,vy,s2,cx0v,cy0v){
+          return function(dx,dy){
+            var a=(dx-cx0v)*s2, b=(dy-cy0v)*s2;
+            return [cx+a*vx+b*ux, cy+a*vy+b*uy];
+          };
+        })(c.cx,c.cy,ux,uy,vx,vy,s,cx0,cy0),
+          scale:s,sL:sL,sR:sW,phi:c.phi,kind:'one-long'});
+      }
+    }
+    return out;
+  }
+  /* يتحقّق من محاذاة الشبكة المطبوعة ويعيد المحاولة إن كانت غير مطابقة */
+  function acceptLoc(g,w,h,loc){
+    var f=null;
+    try{f=gridFit(g,w,h,loc.P);}catch(e){f=null;}
+    if(f&&f.quality>=GRID_MIN){loc.grid=f;loc.trust='grid';return loc;}
+    /* الشريطان معًا بهندسة مطابقة دليلٌ كافٍ وإن شحبت خطوط الخانات */
+    if(loc.kind==='pair'&&loc.strict){loc.grid=f;loc.trust='bars';return loc;}
+    /* شريط طويل وحده مع حدود دوريّة (حتى لو شحّت): قراءة بدل رفض */
+    if(loc.kind==='one-long'&&f&&f.quality>=6&&f.period>=1.5){loc.grid=f;loc.trust='grid';return loc;}
+    return null;
+  }
+  function locateIn(g,w,h){
+    var comps=components(g,w,h,otsu(g));
+    if(comps.length<1)return null;
+    var best=null,i,loc;
+    var ps=pairCands(comps,4);
+    for(i=0;i<ps.length;i++){
+      loc=pairLoc(ps[i]);
+      if(!loc)continue;
+      loc=acceptLoc(g,w,h,loc);
+      if(loc&&(!best||loc.grid.quality>best.grid.quality))best=loc;
+    }
+    if(best)return best;
+    var os=oneCands(comps);
+    for(i=0;i<os.length;i++){
+      loc=acceptLoc(g,w,h,os[i]);
+      if(loc&&(!best||loc.grid.quality>best.grid.quality))best=loc;
+    }
+    return best;
+  }
+  function locate(g,w,h){
+    var r=locateIn(g,w,h);
+    if(r)return r;
+    try{return locateIn(closeGray(g,w,h),w,h);}catch(e){return null;}
+  }
   function closeGray(g,w,h){
     var o=new Uint8Array(w*h),x,y,i,m,j,k;
     for(y=0;y<h;y++){
@@ -7500,11 +7582,6 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
       }
     }
     return o;
-  }
-  function locate(g,w,h){
-    var r=locateBars(g,w,h);
-    if(r)return r;
-    try{return locateBars(closeGray(g,w,h),w,h);}catch(e){return null;}
   }
   /* ===== قراءة الخانات: شكلُ الحبر لا متوسطُ السواد =====
      الورق المطبوع يحمل نقاطًا صغيرة وأشرطة حبر رمادية وأطرافًا مسنّنة للشريطين، ومتوسط
@@ -7589,35 +7666,43 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
       .sort(function(a,b){return b.q-a.q;});
   }
   /* معايرة على شبكة الخانات المطبوعة نفسها: مقطع أفقي في منتصف صفّ العشرات تُحدث فيه
-     حدودُ الخانات انخفاضاتٍ متساوية التباعد. نبحث عن أقلّ تصغير/تكبير (k) وإزاحة (d)
-     يجعلان الحدود في مواضعها، فتصلح القراءة حتى لو قُصّ الشريط أو صُوّر بمكبّرة أو مالت
-     هندسته قليلًا بسبب الطباعة. */
-  function refineGrid(g,w,h,P){
+     حدودُ الخانات انخفاضاتٍ متساوية التباعد (42 حدًّا على تباعد 7.5مم). نبحث عن أقلّ
+     تصغير/تكبير (k) وإزاحة (d) يجعلان الحدود في مواضعها، فتصلح القراءة حتى لو قُصّ
+     الشريط أو صُوّر بمكبّرة أو مالت هندسته بسبب الطباعة.
+     ونعيد مع الحلّ «درجة محاذاة» (quality) تقيس عمق الحدود عند مواضعها المتوقّعة: فإن
+     التقط القارئ شكلين داكنين ليسا شريطي الورقة صار الشريط المتوقّع مجافياً للخانات
+     المطبوعة فتهبط الدرجة، فنرفض القراءة بدل تسجيل علامة خاطئة. */
+  function gridFit(g,w,h,P0){
     var B=0.16,U0=-4,U1=174,N=Math.round((U1-U0)/B)+1,i;
-    var prof=new Float64Array(N),vals=[],q,X,Y;
+    var prof=new Float64Array(N),vals=[],q,X,Y,bad=new Uint8Array(N);
+    /* أطراف المقطع قد تخرج من الإطار (قصاصة قريبة): تُهمل ولا تُسقط المحاذاة كلها */
     for(i=0;i<N;i++){
       var s=0,m=0;
       for(var t=-1;t<=1;t++){
-        q=P(U0+i*B+t*0.18,G.intY);
+        q=P0(U0+i*B+t*0.18,G.intY);
         X=q[0]|0;Y=q[1]|0;
-        if(X<0||Y<0||X>=w||Y>=h)return null;
+        if(X<0||Y<0||X>=w||Y>=h)continue;
         s+=g[Y*w+X];m++;
       }
+      if(!m){bad[i]=1;continue;}
       prof[i]=s/m;vals.push(prof[i]);
     }
+    if(vals.length<40)return null;
     vals.sort(function(a,b){return a-b;});
     var med=vals[vals.length>>1];
+    if(!(med>30))return null;
+    var samp=function(u){
+      var f=(u-U0)/B;
+      if(f<0||f>N-1.001)return med;
+      var a=f|0,fr=f-a;
+      if(bad[a]||bad[a+1])return med;
+      return prof[a]*(1-fr)+prof[a+1]*fr;
+    };
     var edges=[],mids=[];
     for(i=0;i<G.intN;i++){
       var c=G.int0+i*G.pitch;
       edges.push(c-G.boxW/2,c+G.boxW/2);mids.push(c);
     }
-    var samp=function(u){
-      var f=(u-U0)/B;
-      if(f<0||f>N-1.001)return med;
-      var a=f|0,fr=f-a;
-      return prof[a]*(1-fr)+prof[a+1]*fr;
-    };
     var score=function(k,d){
       var s=0,j;
       for(j=0;j<edges.length;j++)s+=med-samp(85+(edges[j]-85)*k+d);
@@ -7625,22 +7710,46 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
       return s/edges.length;
     };
     var base=score(1,0),best=base,bk=1,bd=0,k,d,sc;
-    for(var a=-7;a<=7;a++){
+    for(var a=-8;a<=8;a++){
       k=1+a*0.005;
-      for(var b=-10;b<=10;b++){
-        d=b*0.25;
-        /* ميل خفيف نحو عدم التغيير يفصل بين حلول متقاربة لا معنى لها */
-        sc=score(k,d)-0.02*(Math.abs(a)+Math.abs(b));
+      for(var b=-15;b<=15;b++){
+        /* إزاحة حتى ±4.5مم مع ميل قويّ إلى موضع الشريط الأصلي: انزياح نصف خانة لا
+           يُقبل إلا إذا فسّر الحدود تفسيرًا واضحًا، وإلا انزلقت القراءة إلى خانة جارة */
+        d=b*0.3;
+        sc=score(k,d)-0.8*Math.abs(d)-0.05*Math.abs(a);
         if(sc>best+1e-6){best=sc;bk=k;bd=d;}
       }
     }
-    if(!(best>base+3))return null;
-    return {k:bk,d:bd,gain:best-base};
+    /* إن كانت الهندسة الأصلية تُفسّر الحدود أصلًا فلا داعي لانزياح قد يغيّر الخانة */
+    if(base>=best*0.72){bk=1;bd=0;best=base;}
+    /* دوريّةُ الحدود: نمسح طورًا كاملًا (7.5مم) ونقيس عمق الحدود عند كل طور. على ورقة
+       حقيقية يبلغ العمق ذروةً وحيدة عند الطور الصحيح ويهبط بينها، وعلى صورة ليست شريطًا
+       يبقى العمق متقاربًا في كل الأطوار. النسبة degree/mean لا تتأثّر بشحوب الطباعة،
+       بخلاف العمق المطلق. */
+    var depthOnly=function(dd){
+      var s=0,j;
+      for(j=0;j<edges.length;j++)s+=med-samp(85+(edges[j]-85)+dd);
+      return s/edges.length;
+    };
+    var sum=0,mx=-1e9,cnt=0,dd,r;
+    for(var q1=0;q1<25;q1++){
+      dd=-3.75+q1*0.3;
+      r=depthOnly(dd);
+      sum+=r;cnt++;if(r>mx)mx=r;
+    }
+    var mean=sum/cnt;
+    var period=mean>0.4?mx/mean:0;
+    return {k:bk,d:bd,base:base,quality:best,period:period};
   }
   function read(g,w,h,loc){
     var P0=loc.P,rf=null,P=P0,i,st;
-    try{rf=refineGrid(g,w,h,P0);}catch(e){rf=null;}
-    if(rf)P=function(dx,dy){return P0(85+(dx-85)*rf.k+rf.d,dy);};
+    try{rf=gridFit(g,w,h,P0);}catch(e){rf=null;}
+    /* الشبكة غير المطابقة = إمّا لا شريط حقيقي في الإطار أو قصاصة مشوّهة: لا نخمّن قيمة.
+       يُستثنى ما ثبت بشريطين مطابقين للهندسة المطبوعة (خطوط مطبوعة باهتة). */
+    if(!rf||!(rf.quality>=GRID_MIN)){
+      if(!(loc&&loc.trust==='bars'))return {ok:false,reason:'grid',conf:{quality:rf?rf.quality:null}};
+    }
+    if(rf&&rf.quality>=GRID_MIN)P=function(dx,dy){return P0(85+(dx-85)*rf.k+rf.d,dy);};
     var lv=paperLevels(g),thr=lv.thr;
     var ints=[],qs=[];
     for(i=0;i<G.intN;i++){
@@ -7664,7 +7773,7 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     return {ok:true,int:ri[0].i,qtr:q,value:ri[0].i+q*0.25,
             conf:{                  intF:b.f,intSpan:b.span,intBig:b.big,intEl:b.el,secondF:s?s.f:0,
                   qF:qb?qb.f:0,qSpan:qb?qb.span:0,thr:thr,white:lv.white,
-                  grid:rf?{k:rf.k,d:rf.d,gain:rf.gain}:null},
+                  grid:rf?{k:rf.k,d:rf.d,quality:rf.quality,base:rf.base,period:rf.period}:null,trust:(loc&&loc.trust)||null},
             loc:loc};
   }
   function decodeCanvas(canvas,maxSide){
@@ -7687,7 +7796,8 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
           var k=Math.min(1,1500/Math.max(rw,rh));
           var hi=grayRegion(canvas,x0,y0,rw,rh,k);
           var sc=k/s,ox=x0*k,oy=y0*k;
-          var loc2={P:function(dx,dy){var q=loc.P(dx,dy);return [q[0]*sc-ox,q[1]*sc-oy];}};
+          var loc2={P:function(dx,dy){var q=loc.P(dx,dy);return [q[0]*sc-ox,q[1]*sc-oy];},
+                     trust:loc.trust};
           return read(hi.g,hi.w,hi.h,loc2);
         }
       }
@@ -7782,6 +7892,7 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
       if(SS.msgAt&&t-SS.msgAt<2600)return true;
       if(r&&r.reason==='edges'){scanMsg('الشريط مقطوع من حدود الصورة — أبعد الكاميرا قليلًا');SS.msgAt=t;}
       else if(r&&r.reason==='multiple'){scanMsg('خانتان مؤشرتان في الشريط — أعد الشطب داخل خانة واحدة أو صحّح الورقة');SS.msgAt=t;}
+      else if(r&&r.reason==='grid'){scanMsg('لم أتبيّن خانات شريط النقطة في الإطار — قرّب الكاميرا حتى يظهر الشريط كاملًا بالشريطين الأسودين');SS.msgAt=t;}
       else if(r&&(r.reason==='none'||r.reason==='shadow')){scanMsg('لم أتبيّن شطبة واضحة داخل شريط النقطة — اشطب بخط عريض داخل الخانة');SS.msgAt=t;}
       else{scanMsg('قرّب الكاميرا من شريط النقطة حتى يمتلئ الإطار');SS.msgAt=t;}
       return true;
