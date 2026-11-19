@@ -312,7 +312,35 @@ thead{display:table-header-group}
 .ex-paper .ex-tbl th,.ex-paper .ex-tbl td{border:1px solid #333;padding:5px 8px;font-size:14.5px;text-align:center}
 .ex-paper svg{max-width:100%;height:auto}
 /* ===== EXAM STUDIO v2: تنسيق الورقة، الأعمدة، سلم التنقيط، أنواع الأسئلة ===== */
-.ex-paper{font-size:var(--ex-fs,16px)}
+.ex-paper{font-size:var(--ex-fs,16px);line-height:var(--ex-lh,1.5)}
+.ex-paper p{margin:.12em 0}
+.ex-paper .q{margin:0 0 var(--ex-qgap,1.2mm);padding:1.2mm 2mm;border-radius:5px;background:#fff}
+.ex-paper .q .q-title{margin-bottom:.4mm}
+.ex-paper .q .q-txt{margin-top:.3mm}
+.ex-paper .q .q-cap{margin-top:.3mm;font-size:.86em}
+.ex-paper .q .mcq{margin-top:.8mm;gap:.6mm 5mm}
+.ex-paper .q .tf{margin-top:.8mm;gap:8mm}
+.ex-paper .q .q-ans{margin-top:1mm;border-radius:4px}
+.ex-paper .doc{padding:1.4mm 2mm;margin:0;border-radius:5px}
+.ex-paper .doc .doc-title{margin-bottom:.7mm}
+.ex-paper .doc .doc-src{margin-top:.7mm;padding-top:.5mm}
+.ex-paper .pap-docs{gap:2mm}
+.ex-paper .pap-part{margin:2.4mm 0 1mm;font-size:1.05em;padding-bottom:.6mm}
+.ex-paper .pap-part2{margin:2.4mm 0 1mm;font-size:1.05em}
+.ex-paper .ex-tbl{margin:.8mm 0}
+.ex-paper .ex-tbl th,.ex-paper .ex-tbl td{padding:.8mm 1.6mm;font-size:.92em}
+.ex-paper .essay{padding:1.8mm 2.6mm;margin:0 0 1.4mm;border-radius:6px}
+.ex-paper .essay .essay-title{margin-bottom:.8mm;font-size:1.02em}
+.ex-paper .essay .essay-pre{margin:.6mm 0 1.2mm;text-align:justify}
+.ex-paper .essay .essay-topics{display:grid;gap:.8mm;margin-bottom:1mm}
+.ex-paper .essay .et{margin:0}
+.ex-paper .essay .et b{color:#0b3c78}
+.ex-paper .essay .essay-num{font-weight:800;margin-top:1mm}
+.ex-paper .essay .essay-body{margin-top:1.2mm}
+.ex-paper .foot{margin-top:2mm;padding-top:1mm}
+.ex-paper .ex-svgbox{padding:0;border-radius:0;overflow:hidden}
+.ex-paper .ex-svgbox svg{display:block;width:100%;height:auto}
+.ex-paper .ds-pg{page-break-after:always}
 .ex-paper .doc{font-size:calc(var(--ex-fs,16px) * var(--doc-fs,1))}
 .ex-paper.compact .pap-head2>tbody>tr>td{padding:3px 6px}
 .ex-paper.compact .ph-admin{font-size:.72em;line-height:1.35}
@@ -1063,6 +1091,25 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     </div>
   </div>
 
+  <!-- PRESETS -->
+  <div class="section-title"><h2>قوالب فروض جاهزة</h2></div>
+  <div class="card">
+    <div class="form three">
+      <div class="field"><label>القالب</label><select id="exPreset">
+        <option value="">— اختر قالبًا —</option>
+        <option value="social">فرض محروس — اجتماعيات (وثائق + مقالي بالاختيار)</option>
+        <option value="socialExam">امتحان موحد — اجتماعيات (3 وثائق + 3 مواضيع مقالية)</option>
+        <option value="arabic">فرض — اللغة العربية (نص + أسئلة + موضوع إنشائي)</option>
+        <option value="math">فرض — الرياضيات (تمارين + اختيار من متعدد)</option>
+        <option value="science">فرض — علوم (جدول + مبيان + أسئلة)</option>
+        <option value="blank">هيكل فارغ (10 وثائق + 10 مقالي)</option>
+      </select></div>
+      <div class="field"><label>المستوى / الشعبة</label><input id="exPresetLevel" placeholder="مثال: TCSF — الجذع المشترك"></div>
+      <div class="field"><label>&nbsp;</label><button class="btn primary" id="exPresetApply" type="button">تطبيق القالب</button></div>
+    </div>
+    <p class="muted" style="font-size:11.5px;margin:6px 0 0">القوالب تبني بنية الفرض كاملة (الترويسة، الوثائق، الأسئلة، الموضوع المقالي بالاختيار) وتترك لك ملء النصوص — بدل البدء من صفحة فارغة.</p>
+  </div>
+
   <!-- DOCUMENTS -->
   <div class="section-title"><h2>الوثائق</h2></div>
   <div class="card">
@@ -1106,6 +1153,8 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
           <div class="field"><label>الهوامش</label><select id="exMargin"><option value="tight">ضيّقة (8مم) — مساحة أكبر</option><option value="normal">عادية (12مم)</option><option value="wide">واسعة (18مم)</option></select></div>
           <div class="field"><label>أعمدة الأسئلة</label><select id="exCols"><option value="1">عمود واحد</option><option value="2">عمودان</option></select></div>
           <div class="field"><label>حجم الخط (<span id="exFontVal">16</span>px)</label><input id="exFont" type="range" min="11" max="20" step="0.5" value="16"></div>
+          <div class="field"><label>تباعد الأسطر (<span id="exLineHVal">1.5</span>)</label><input id="exLineH" type="range" min="1.15" max="2" step="0.05" value="1.5"></div>
+          <div class="field"><label>الفراغ بين الأسئلة (<span id="exQgapVal">1.2مم</span>)</label><input id="exQgap" type="range" min="0" max="6" step="0.2" value="1.2"></div>
         </div>
         <div class="field opt" style="margin-top:6px"><label class="opt"><input type="checkbox" id="exCompact" checked> ترويسة مضغوطة (مساحة أكبر للأسئلة)</label></div>
         <div class="field opt"><label class="opt"><input type="checkbox" id="exShowFoot" checked> إظهار عبارة «انتهت الأسئلة — بالتوفيق»</label></div>
@@ -6059,7 +6108,6 @@ async function exportKashfFrom(classId,cycle){
 let EX={cur:null,list:[]};
 const EX_TYPES=[
  {t:'text',label:'📄 نص'},
- {t:'other',label:'📝 وثيقة نصية'},
  {t:'image',label:'🖼️ صورة'},
  {t:'map',label:'🗺️ خريطة'},
  {t:'table',label:'📋 جدول'},
@@ -6096,7 +6144,7 @@ function exPatSwatch(k){return '<svg width="15" height="15" viewBox="0 0 15 15" 
 function exLineSample(k){return '<svg width="30" height="14" viewBox="0 0 30 14" style="vertical-align:middle;flex:0 0 auto"><line x1="1" y1="7" x2="29" y2="7" stroke="#111" stroke-width="2.2" stroke-dasharray="'+(exDash(k)||'0')+'"/>'+exMarker(k,15,7,3.6,'#fff')+'</svg>';}
 function exNewDoc(type){const id=uid('exd');const d={id,type,title:'',src:''};
  switch(type){
-  case 'text':case 'other': d.data={text:''};break;
+  case 'text': d.data={text:''};break;
   case 'image':case 'map': d.data={dataUrl:'',caption:''};break;
   case 'table': d.data={cols:['البيان','القيمة'],rows:[['','']]};break;
   case 'timeline': d.data={events:[{date:'',label:''}]};break;
@@ -6110,11 +6158,12 @@ function exNewModel(){return{id:uid('exam'),name:'نموذج امتحان جدي
 const EX_QKINDS={normal:'سؤال عادي',linked:'مرتبط بوثيقة',essay:'موضوع إنشائي',mcq:'اختيار من متعدد',tf:'صح / خطأ',blank:'ملء الفراغ'};
 const EX_LETTERS=['أ','ب','ج','د','هـ','و','ز','ح','ط','ي'];
 function exNewQ(kind){
- const q={id:uid('exq'),kind,docId:'',points:(kind==='essay'?6:2),text:'',words:'',guide:'',answer:''};
+ const q={id:uid('exq'),kind,docId:'',points:(kind==='essay'?10:2),text:'',words:'',guide:'',answer:''};
  if(kind==='mcq')q.options=[{text:'',correct:true},{text:'',correct:false},{text:'',correct:false}];
+ if(kind==='essay'){q.preamble='';q.topics=[];q.numField=true;q.topicCount=2;}
  return q;}
 function exPts(v){const p=parseFloat(v);return isFinite(p)&&p>0?p:0;}
-function exLay(m){const l=(m&&m.layout)||{};return Object.assign({orient:'portrait',margin:'tight',cols:1,font:16,compact:true,footer:true},l||{});}
+function exLay(m){const l=(m&&m.layout)||{};return Object.assign({orient:'portrait',margin:'tight',cols:1,font:16,compact:true,footer:true,lh:1.5,gap:1.2},l||{});}
 /* تحرير نصّي مبسّط: **عريض** __تحته خط__ *مائل* — مع حماية من HTML */
 function exFmt(v){
  let s=esc(String(v??''));
@@ -6134,6 +6183,83 @@ function exWrapSel(el,before,after){
  const k=el.dataset.k;if(k&&EX.cur)exSetPath(EX.cur,k,el.value);
  try{el.focus();el.selectionStart=el.selectionEnd=s+before.length+sel.length+after.length;}catch(err){}
  exStats();exDebounced();exCheck();}
+function exApplyPreset(kind){
+ if(!kind)return;
+ const m=exNewModel();
+ const lvl=$('exPresetLevel');const lv=lvl&&lvl.value?lvl.value.trim():'';
+ const base=EX.cur&&EX.cur.header?EX.cur.header:{};
+ m.header=Object.assign(m.header,{
+  institution:base.institution||'',directorate:base.directorate||'',academy:base.academy||'',
+  level:lv||base.level||'',track:base.track||'',subject:base.subject||'',
+  examTitle:'فرض محروس',season:base.season||m.header.season,session:'الدورة الثانية'
+ });
+ m.layout={orient:'portrait',margin:'tight',cols:2,font:15.5,compact:true,footer:true};
+ const addDoc=(type,title,data,extra)=>{
+  const d=exNewDoc(type);d.title=title;d.data=data||d.data;
+  if(extra)Object.assign(d,extra);
+  m.docs.push(d);return d;
+ };
+ const Q=(kind,text,points,extra)=>Object.assign(exNewQ(kind),{text,points},extra||{});
+ const essay=(preamble,topics,extra)=>Object.assign(exNewQ('essay'),{
+  preamble,points:(extra&&extra.points)||10,words:(extra&&extra.words)||'',numField:true,
+  topics:topics.map((t,i)=>({title:'الموضوع '+(i===0?'الأول':i===1?'الثاني':i===2?'الثالث':'الرابع'),text:t}))
+ },extra||{});
+ if(kind==='social'){
+  m.header.subject=m.header.subject||'التاريخ والجغرافيا';
+  const d1=addDoc('text','وثيقة 1: نص','تمثل الوثيقة الأولى معطيات حول الموضوع. اقرأها بتمعّن ثم أجب عن الأسئلة.',{src:'بتصرف من مرجع مدرسي'});
+  const d2=addDoc('table','وثيقة 2: جدول إحصائي',{cols:['المؤشر','القيمة 1','القيمة 2'],rows:[['المؤشر الأول','',''],['المؤشر الثاني','',''],['المؤشر الثالث','','']]},{src:'من إحصاءات رسمية'});
+  m.questions=[
+   Q('linked','انطلاقًا من الوثيقة 1، عيّن ثلاث أفكار أساسية وردت فيها.',3,{docId:d1.id,ansH:25}),
+   Q('linked','انطلاقًا من الوثيقة 2، صِف تطور الظاهرة ثم استخلص نتيجة.',3,{docId:d2.id,ansH:30}),
+   Q('blank','أكمل ما يلي: ___ هي العملية التي ... ويبرز ذلك في الوثيقة ___.',2,{ansH:20}),
+   essay('اعتمادًا على معطيات الوثائق ومكتسباتك، اكتب موضوعًا مقاليًا تراعي فيه المقدمة والعرض والخاتمة.',['الموضوع الأول: … (اكتب هنا نص الموضوع الأول)','الموضوع الثاني: … (اكتب هنا نص الموضوع الثاني)'],{ansH:150})
+  ];
+ } else if(kind==='socialExam'){
+  m.header.subject=m.header.subject||'التاريخ والجغرافيا';m.header.examTitle='الامتحان الموحد';
+  const d1=addDoc('text','وثيقة 1: نص',{'text':''},{src:''});
+  const d2=addDoc('image','وثيقة 2: صورة / خريطة',{dataUrl:'',caption:''});
+  const d3=addDoc('table','وثيقة 3: جدول',{cols:['العنصر','المعطى 1','المعطى 2'],rows:[['','',''],['','',''],['','','']]});
+  m.questions=[
+   Q('linked','عرّف المفاهيم الواردة في الوثيقة 1.',3,{docId:d1.id,ansH:25}),
+   Q('linked','حلّل معطيات الوثيقة 2 وحدّد دلالتها.',3,{docId:d2.id,ansH:35}),
+   Q('linked','قارن بين معطيات الوثيقة 3 مع ما درسته.',4,{docId:d3.id,ansH:40}),
+   essay('اكتب في أحد الموضوعات الآتية موضوعًا مقاليًا مبنيًا على الوثائق:',['الموضوع الأول: …','الموضوع الثاني: …','الموضوع الثالث: …'],{ansH:160})
+  ];
+ } else if(kind==='arabic'){
+  m.header.subject=m.header.subject||'اللغة العربية';
+  const d1=addDoc('text','النص: عنوان النص','اكتب نص الانطلاق هنا…',{src:'بتصرف'});
+  m.questions=[
+   Q('linked','اشرح المفردات الآتية حسب سياق النص: …',3,{docId:d1.id,ansH:20}),
+   Q('linked','حدّد الفكرة المحورية للنص وأبرز أفكاره الأساسية.',3,{docId:d1.id,ansH:25}),
+   Q('mcq','اختر الإجابة الصحيحة:',2,{}),
+   essay('اعتمادًا على فهمك للنص، اكتب إنشاءً متكاملًا (مقدمة، عرض، خاتمة).',['الموضوع الأول: …','الموضوع الثاني: …'],{ansH:150})
+  ];
+ } else if(kind==='math'){
+  m.header.subject=m.header.subject||'الرياضيات';m.layout.cols=1;m.layout.font=16;
+  m.questions=[
+   Q('normal','التمرين الأول: أدرس تطور الدالة f المعرّفة بـ f(x)=…',6,{ansH:55}),
+   Q('normal','التمرين الثاني: بيّن أنّ … ثم استنتج…',6,{ansH:55}),
+   Q('mcq','اختر الجواب الصحيح:',4,{}),
+   Q('blank','أكمل: تسمى النقطة … بـ ___ عندما ___.',2,{ansH:20})
+  ];
+ } else if(kind==='science'){
+  m.header.subject=m.header.subject||'علوم الحياة والأرض';
+  const d1=addDoc('table','وثيقة 1: نتائج التجربة',{cols:['الحالة','المعطى'],rows:[['الأنبوب 1',''],['الأنبوب 2',''],['الأنبوب 3','']]},{src:'من التجربة'});
+  const d2=addDoc('bar','وثيقة 2: مبيان النتائج',{items:[{label:'',value:60},{label:'',value:30},{label:'',value:10}]});
+  m.questions=[
+   Q('linked','انطلاقًا من الوثيقة 1، استخرج النتيجة المستخلصة.',3,{docId:d1.id,ansH:25}),
+   Q('linked','فسّر معطيات الوثيقة 2.',3,{docId:d2.id,ansH:25}),
+   Q('blank','تتحول الطاقة في الخلية إلى ___ بفضل ___.',2,{ansH:18})
+  ];
+ } else if(kind==='blank'){
+  for(let i=1;i<=10;i++)addDoc(i%2?'text':'table','وثيقة '+i,i%2?{text:''}:{cols:['العنصر','المعطى'],rows:[['',''],['','']]});
+  for(let i=1;i<=9;i++)m.questions.push(Q('linked','السؤال '+i+': …',2,{docId:m.docs[(i-1)%m.docs.length].id,ansH:25}));
+  m.questions.push(essay('',['الموضوع الأول: …','الموضوع الثاني: …'],{ansH:150}));
+ }
+ EX.cur=m;
+ renderExams();
+ toast('تم تطبيق القالب — أكمل النصوص الوثائق والأسئلة');
+}
 function exReadLayout(){
  if(typeof EX==='undefined'||!EX||!EX.cur)return;
  const L=EX.cur.layout=exLay(EX.cur);
@@ -6142,7 +6268,9 @@ function exReadLayout(){
  const cs=$('exCols');if(cs&&cs.value)L.cols=parseInt(cs.value,10)||1;
  const fs=$('exFont');if(fs&&fs.value)L.font=parseFloat(fs.value)||16;
  const cp=$('exCompact');if(cp&&cp.type==='checkbox')L.compact=!!cp.checked;
- const ft=$('exShowFoot');if(ft&&ft.type==='checkbox')L.footer=!!ft.checked;}
+ const ft=$('exShowFoot');if(ft&&ft.type==='checkbox')L.footer=!!ft.checked;
+ const lh=$('exLineH');if(lh&&lh.value)L.lh=Math.min(2,Math.max(1.15,parseFloat(lh.value)||1.5));
+ const gp=$('exQgap');if(gp&&gp.value)L.gap=Math.min(6,Math.max(0,parseFloat(gp.value)));}
 function exApplyLayout(){
  if(typeof EX==='undefined'||!EX||!EX.cur)return;
  const L=exLay(EX.cur);
@@ -6152,7 +6280,11 @@ function exApplyLayout(){
  const fs=$('exFont');if(fs)fs.value=L.font;
  const fv=$('exFontVal');if(fv)fv.textContent=L.font;
  const cp=$('exCompact');if(cp)cp.checked=!!L.compact;
- const ft=$('exShowFoot');if(ft)ft.checked=!!L.footer;}
+ const ft=$('exShowFoot');if(ft)ft.checked=!!L.footer;
+ const lh=$('exLineH');if(lh)lh.value=L.lh;
+ const lhv=$('exLineHVal');if(lhv)lhv.textContent=L.lh;
+ const gp=$('exQgap');if(gp)gp.value=L.gap;
+ const gpv=$('exQgapVal');if(gpv)gpv.textContent=L.gap+'مم';}
 function exGetPath(o,p){return String(p).split('.').reduce((a,k)=>a==null?a:a[k],o);}
 function exSetPath(o,p,v){const ks=String(p).split('.');let c=o;for(let i=0;i<ks.length-1;i++){if(c[ks[i]]==null)c[ks[i]]={};c=c[ks[i]];}c[ks[ks.length-1]]=v;}
 let exPreviewTimer=null;
@@ -6263,7 +6395,15 @@ function exRenderQs(){
     +'<span class="ex-chipbtn" data-optact="add" data-q="'+q.id+'">➕ خيار</span></div>';
   }
   if(q.kind==='tf')body+='<div class="ex-subopts"><div class="field"><label>الإجابة الصحيحة</label><select data-tfans="'+q.id+'"><option value=""'+(String(q.answer||'').trim()===''?' selected':'')+'>غير محددة</option><option value="صحيح"'+(String(q.answer||'').trim()==='صحيح'?' selected':'')+'>صحيح</option><option value="خطأ"'+(String(q.answer||'').trim()==='خطأ'?' selected':'')+'>خطأ</option></select></div></div>';
-  if(q.kind==='essay')body+='<div class="form two"><div class="field"><label>العدد المقترح من الكلمات</label><input data-k="questions.'+i+'.words" placeholder="مثال: 120 كلمة"></div><div class="field"><label>توجيه للتلميذ</label><input data-k="questions.'+i+'.guide" placeholder="مثال: اربط الإجابة بالوثائق"></div></div>';
+  if(q.kind==='essay'){
+   body+='<div class="field"><label>التمهيد (تقديم للأستاذ يظهر قبل المواضيع)</label>'+exFmtbar('questions.'+i+'.preamble')+'<textarea data-k="questions.'+i+'.preamble" rows="2" placeholder="مثال: اعتمادًا على مكتسباتك ومعطيات الوثائق، اكتب موضوعًا مقاليًا..."></textarea></div>';
+   const tps=Array.isArray(q.topics)?q.topics:[];
+   body+='<div class="ex-subopts"><label style="font-size:12px;font-weight:700">المواضيع المقترحة (يكتب المتعلم في أحدها)</label>'
+    +tps.map((t,j)=>'<div style="display:flex;gap:6px;margin:5px 0;align-items:flex-start"><span style="font-weight:800;flex:0 0 84px;font-size:12px">'+(t.title?esc(t.title):'الموضوع '+(j+1))+'</span><input data-k="questions.'+i+'.topics.'+j+'.title" placeholder="عنوان الموضوع" style="flex:0 0 130px"><input data-k="questions.'+i+'.topics.'+j+'.text" placeholder="نص الموضوع" style="flex:1"><button class="btn danger ex-chipbtn" data-topicact="del" data-q="'+q.id+'" data-j="'+j+'">✕</button></div>').join('')
+    +'<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="ex-chipbtn" data-topicact="add" data-q="'+q.id+'">➕ موضوع</span><label style="display:flex;gap:5px;align-items:center;font-size:11.5px"><input type="checkbox" data-numfield="'+q.id+'" '+(q.numField===true||q.numField===undefined?'checked':'')+'> إظهار «رقم الموضوع» ليكتبه المتعلم</label></div>'
+    +'<div class="muted" style="font-size:11px;margin-top:4px">موضوع واحد = سؤال مقالي عادي؛ موضوعان أو ثلاثة = اختيار. تظهر مطبوعة بتباعد ضيّق.</div></div>';
+   body+='<div class="form two"><div class="field"><label>العدد المقترح من الكلمات</label><input data-k="questions.'+i+'.words" placeholder="مثال: 120 كلمة"></div><div class="field"><label>توجيه للتلميذ</label><input data-k="questions.'+i+'.guide" placeholder="مثال: اربط الإجابة بالوثائق"></div></div>';
+  }
   body+='<div class="field" style="margin-top:6px"><label>فضاء الإجابة (مم) — <b data-anslab="'+i+'">'+_ansLab+'</b></label><div style="display:flex;gap:8px;align-items:center"><input type="number" data-k="questions.'+i+'.ansH" min="0" max="300" step="5" placeholder="عام" style="width:96px"><input type="range" data-ansrange="'+i+'" min="0" max="300" step="5" value="'+_ansVal+'" style="flex:1"></div><div class="muted" style="font-size:11px">0 = بلا فضاء؛ اتركه فارغًا لاتّباع الإعداد العام فوق المعاينة.</div></div>';
   body+='<div class="field"><label>الإجابة النموذجية وعناصر التنقيط (تظهر في سلم التنقيط فقط)</label>'+exFmtbar('questions.'+i+'.answer')+'<textarea data-k="questions.'+i+'.answer" rows="2" placeholder="اكتب عناصر الإجابة وتوزيع النقط..."></textarea></div>';
   return '<div class="ex-card card" style="margin-bottom:10px">'+head+row+body+'</div>';
@@ -6301,6 +6441,13 @@ document.addEventListener('click',e=>{
   else if(act==='down'&&qi<EX.cur.questions.length-1){const a=EX.cur.questions.splice(qi,1)[0];EX.cur.questions.splice(qi+1,0,a);}
   else if(act==='dup'){const cp=JSON.parse(JSON.stringify(EX.cur.questions[qi]));cp.id=uid('exq');EX.cur.questions.splice(qi+1,0,cp);}
   else if(act==='del'){EX.cur.questions.splice(qi,1);}
+  exRenderQs();exStats();exRenderPreview();exCheck();return;}
+ const tc=e.target.closest('[data-topicact]');
+ if(tc&&EX.cur){const q=EX.cur.questions.find(x=>x.id===tc.dataset.q);
+  if(q){if(!Array.isArray(q.topics))q.topics=[];
+   if(tc.dataset.topicact==='add')q.topics.push({title:'',text:''});
+   else if(tc.dataset.topicact==='del')q.topics.splice(+tc.dataset.j,1);
+  }
   exRenderQs();exStats();exRenderPreview();exCheck();return;}
  const oc=e.target.closest('[data-optact]');
  if(oc&&EX.cur){const q=EX.cur.questions.find(x=>x.id===oc.dataset.q);
@@ -6358,6 +6505,8 @@ document.addEventListener('change',e=>{
   if(qt!==undefined){const qi=+qt;if(EX.cur.questions[qi]){const q=EX.cur.questions[qi];q.kind=el.value;const nq=exNewQ(el.value);if(el.value==='mcq'&&!Array.isArray(q.options))q.options=nq.options;if(el.value!=='essay'){q.words='';q.guide='';}}exRenderQs();exStats();exRenderPreview();exCheck();return;}
   const ock=el.dataset.optck;
   if(ock!==undefined){const q=EX.cur.questions.find(x=>x.id===ock);const j=+el.dataset.j;if(q&&Array.isArray(q.options)&&q.options[j]){q.options[j].correct=el.checked;exCheck();exDebounced();}return;}
+  const nf=el.dataset.numfield;
+  if(nf!==undefined){const q=EX.cur.questions.find(x=>x.id===nf);if(q){q.numField=el.checked;exDebounced();exCheck();}return;}
   const tfa=el.dataset.tfans;
   if(tfa!==undefined){const q=EX.cur.questions.find(x=>x.id===tfa);if(q){q.answer=el.value;exCheck();exDebounced();}return;}
  }
@@ -6388,6 +6537,10 @@ $('exImportFile').onchange=ev=>{
 ['exOrient','exMargin','exCols'].forEach(id=>{const el=$(id);if(el)el.onchange=()=>{exReadLayout();exDebounced();};});
 const _exFontEl=$('exFont');if(_exFontEl)_exFontEl.oninput=()=>{const fv=$('exFontVal');if(fv)fv.textContent=_exFontEl.value;exReadLayout();exDebounced();};
 ['exCompact','exShowFoot'].forEach(id=>{const el=$(id);if(el)el.onchange=()=>{exReadLayout();exDebounced();};});
+[['exLineH','exLineHVal',v=>v],['exQgap','exQgapVal',v=>v+'مم']].forEach(([id,labId,fmt])=>{
+ const el=$(id);if(!el)return;
+ el.oninput=()=>{const lab=$(labId);if(lab)lab.textContent=fmt(el.value);exReadLayout();exDebounced();};
+});
 let exZoom=1;
 function exApplyZoom(){const w=$('exPreviewWrap');if(!w)return;w.style.width=(100/exZoom)+'%';w.style.transform='scale('+exZoom+')';w.style.transformOrigin='top center';const z=$('exZoomVal');if(z)z.textContent=Math.round(exZoom*100)+'%';}
 const _zi=$('exZoomIn'),_zo=$('exZoomOut'),_zf=$('exZoomFit');
@@ -6423,6 +6576,7 @@ function exLogoThumb(prevId,src){const el=$(prevId);if(!el)return;if(src){el.inn
 function exWireLogo(fileId,prevId,key){const inp=$(fileId);if(!inp)return;inp.onchange=()=>{if(EX.cur&&inp.files&&inp.files[0]){if(!EX.cur.header)EX.cur.header={};const r=new FileReader();r.onload=()=>{EX.cur.header[key]=r.result;exLogoThumb(prevId,r.result);exRenderPreview();};r.readAsDataURL(inp.files[0]);}};}
 exWireLogo('exEmblemFile','exEmblemPrev','emblem');
 exWireLogo('exLogoFile','exLogoPrev','logo');
+$('exPresetApply').onclick=()=>{const v=($('exPreset')||{}).value;if(!v)return toast('اختر قالبًا أولًا');if(EX.cur&&(EX.cur.docs||[]).length&&!confirm('سيُستبدل النموذج الحالي بالقالب — متابعة؟'))return;exApplyPreset(v);};
 $('exAddQnormal').onclick=()=>exAddQ('normal');
 $('exAddQlinked').onclick=()=>exAddQ('linked');
 $('exAddQessay').onclick=()=>exAddQ('essay');
@@ -6431,7 +6585,6 @@ if($('exAddQtf'))$('exAddQtf').onclick=()=>exAddQ('tf');
 if($('exAddQblank'))$('exAddQblank').onclick=()=>exAddQ('blank');
 
 function exDocShow(d){return !d.order||d.order==='show';}
-function exDocBlockShow(d,i){return exDocShow(d)&&(d.type==='timeline'||d.type==='timelineC'||d.type==='diagram'||d.type==='pie'||d.type==='halfpie'||d.type==='bar'||d.type==='line')?'<!--inline-->':true;}
 function exRenderPreview(){exRenderPaper(true);}
 /* ===== ورقة الفرض لكل تلميذ: رمز QR مبسّط + شريط نقطة مصغّر داخل الترويسة =====
    الشريط المصغّر بنفس نسب الشريط المطبوع (169.5×36مم) مضروبة في 0.45، فيفكّه القارئ نفسه:
@@ -6566,7 +6719,8 @@ function exDocBoxStyle(d,n){
  const ink=exDocInk(d&&d.tone);
  const size=exDocSizeOf(d);
  if(size===0)return 'display:none;';
- const base=(size!=null)?size+'%':(n>1?'calc(50% - 6px)':'100%');
+ const gap=2;
+ const base=(size!=null)?(size>=100?'100%':'calc('+size+'% - '+gap+'mm)'):(n>1?'calc(50% - 1mm)':'100%');
  let st='flex:0 0 '+base+';max-width:'+base+';min-width:0;color:'+ink.text+';border-color:'+ink.line+';';
  if(fs!==100)st+='--doc-fs:'+(fs/100).toFixed(2)+';';
  if(align==='center')st+='margin-inline:auto;';
@@ -6612,7 +6766,7 @@ function exPaperHTML(opts){
  const total=qs.reduce((s,q)=>s+exPts(q.points),0);
  const vis=docs.map((d,i)=>({d,i})).filter(x=>exDocShow(x.d));
  const docNum={};vis.forEach((x,n)=>{docNum[x.d.id]=n+1;});
- const paperStyle=' style="--ex-fs:'+L.font+'px"';
+ const paperStyle=' style="--ex-fs:'+L.font+'px;--ex-lh:'+L.lh+';--ex-qgap:'+L.gap+'mm"';
  let s='';
  s+='<div class="ex-paper'+(L.compact?' compact':'')+(key?' key':'')+'"'+paperStyle+'>';
  s+='<table class="pap-head2"><tr>';
@@ -6682,9 +6836,18 @@ function exQPaper(q,num,docNum,L,key){
 }
 function exEssayPaper(q,num,L,key){
  const pts=exPts(q.points);
- let s='<div class="essay"><div class="essay-title">السؤال '+num+': '+exFmt(q.text||'')+'</div>';
- s+='<div style="text-align:center;font-weight:800">('+pts+' نقط)</div>';
- s+='<div class="q-cap" style="text-align:center">'+(q.words?'عدد الكلمات: حوالي '+exEsc(q.words):'')+(q.guide?' — '+exEsc(q.guide):'')+'</div>';
+ const topics=(Array.isArray(q.topics)?q.topics:[]).filter(t=>String((t&&t.text)||'').trim());
+ const names=['الموضوع الأول','الموضوع الثاني','الموضوع الثالث','الموضوع الرابع'];
+ let s='<div class="essay">';
+ s+='<div class="essay-title">السؤال '+num+(String(q.text||'').trim()?': '+exFmt(q.text):'')+' <span style="font-weight:800;white-space:nowrap">('+pts+' نقط)</span></div>';
+ if(String(q.preamble||'').trim())s+='<div class="essay-pre">'+exFmt(q.preamble)+'</div>';
+ if(topics.length){
+  s+='<div class="essay-topics">'+topics.map((t,i)=>'<div class="et"><b>'+(t.title?exFmt(t.title):names[i]||('الموضوع '+(i+1)))+':</b> '+exFmt(t.text)+'</div>').join('')+'</div>';
+  if(q.numField===true||q.numField===undefined)s+='<div class="essay-num">رقم الموضوع: .........................</div>';
+ }else if(String(q.text||'').trim()===''){
+  s+='<div class="essay-pre" style="color:#666">اكتب موضوعك هنا…</div>';
+ }
+ s+='<div class="q-cap" style="text-align:center">'+(q.words?'عدد الكلمات: حوالي '+exEsc(q.words):'')+(q.guide?(q.words?' — ':'')+exEsc(q.guide):'')+'</div>';
  if(key)s+=exKeyBox(q);
  else{
   const _ah=exAnsOf(q)||120;
@@ -6736,108 +6899,122 @@ function exDocContent(d,i){
  return'';
 }
 function exSvgTimeline(events){
- if(!events||!events.length)return'<div class="ex-empty">لا يوجد أحداث</div>';
- const W=560,H=180,pad=40,bottom=30;const n=events.length;const step=(W-pad*2)/(n>1?n-1:1);
- let pts='';let labels='';
+ events=(events||[]).filter(e=>String((e&&(e.label||e.date))||'').trim());
+ if(!events.length)return'<div class="ex-empty">لا يوجد أحداث</div>';
+ const W=520,pad=26,H=118;const n=events.length;const step=(W-pad*2)/(n>1?n-1:1);
+ const y=H-38;
+ let pts='',labels='';
  events.forEach((e,k)=>{const x=pad+k*step;
-  pts+='<circle cx="'+x+'" cy="'+(H-bottom-14)+'" r="6" fill="#111" stroke="#fff" stroke-width="2"/>';
-  labels+='<text x="'+x+'" y="'+(H-bottom-38)+'" text-anchor="middle" font-size="11" fill="#111">'+exEsc(e.label)+'</text>';
-  labels+='<text x="'+x+'" y="'+(H-6)+'" text-anchor="middle" font-size="9" fill="#555">'+exEsc(e.date)+'</text>';
+  pts+='<circle cx="'+x+'" cy="'+y+'" r="4.6" fill="#111" stroke="#fff" stroke-width="1.6"/>';
+  labels+='<text x="'+x+'" y="'+(y-12)+'" text-anchor="middle" font-size="10.5" fill="#111">'+exEsc(e.label)+'</text>';
+  labels+='<text x="'+x+'" y="'+(H-8)+'" text-anchor="middle" font-size="9" fill="#555">'+exEsc(e.date)+'</text>';
  });
- const line='<line x1="'+pad+'" y1="'+(H-bottom-14)+'" x2="'+(W-pad)+'" y2="'+(H-bottom-14)+'" stroke="#111" stroke-width="2"/>';
- return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+line+pts+labels+'</svg></div>';
+ const line='<line x1="'+pad+'" y1="'+y+'" x2="'+(W-pad)+'" y2="'+y+'" stroke="#111" stroke-width="1.8"/>';
+ return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'+line+pts+labels+'</svg></div>';
 }
 function exSvgTimelineC(series){
  if(!series||!series.length)return'<div class="ex-empty">لا توجد سلاسل</div>';
- const W=560,pad=150,bottom=30;const rowH=80;const H=rowH*series.length+54;
+ const W=520,padL=104,rowH=54,H=rowH*series.length+26;
  let s='';
  series.forEach((sr,ri)=>{
-  const y=rowH*ri+44;const evs=sr.events||[];const n=evs.length;const step=n>1?(W-pad-20)/(n-1):0;
-  evs.forEach((e,k)=>{const x=pad+10+k*step;
-   s+=exMarker(ri,x,y,5.5,'#fff');
-   s+='<text x="'+x+'" y="'+(y-9)+'" text-anchor="middle" font-size="9" fill="#333">'+exEsc(e.label)+'</text>';
-   s+='<text x="'+x+'" y="'+(y+18)+'" text-anchor="middle" font-size="8" fill="#777">'+exEsc(e.date)+'</text>';
+  const y=rowH*ri+22;const evs=(sr.events||[]).filter(e=>String((e&&(e.label||e.date))||'').trim());const n=evs.length;const step=n>1?(W-padL-18)/(n-1):0;
+  s+='<line x1="'+(padL+8)+'" y1="'+y+'" x2="'+(W-8)+'" y2="'+y+'" stroke="#111" stroke-width="1.6" stroke-dasharray="'+(exDash(ri)||'0')+'"/>';
+  evs.forEach((e,k)=>{const x=padL+8+k*step;
+   s+=exMarker(ri,x,y,4.4,'#fff');
+   s+='<text x="'+x+'" y="'+(y-7)+'" text-anchor="middle" font-size="9" fill="#222">'+exEsc(e.label)+'</text>';
+   s+='<text x="'+x+'" y="'+(y+12)+'" text-anchor="middle" font-size="8" fill="#666">'+exEsc(e.date)+'</text>';
   });
-  s+='<line x1="'+(pad+10)+'" y1="'+y+'" x2="'+(W-10)+'" y2="'+y+'" stroke="#111" stroke-width="2" stroke-dasharray="'+(exDash(ri)||'0')+'"/>';
-  s+='<rect x="10" y="'+(y-13)+'" width="130" height="26" rx="13" fill="'+exPat(ri)+'" stroke="#111" stroke-width="1"/><text x="75" y="'+(y+4)+'" text-anchor="middle" font-size="11" font-weight="700" fill="#111" stroke="#fff" stroke-width="3" paint-order="stroke">'+exEsc(sr.name)+'</text>';
+  s+='<rect x="2" y="'+(y-9)+'" width="92" height="18" rx="9" fill="'+exPat(ri)+'" stroke="#111" stroke-width="1"/><text x="48" y="'+(y+4)+'" text-anchor="middle" font-size="10" font-weight="700" fill="#111" stroke="#fff" stroke-width="2.6" paint-order="stroke">'+exEsc(String(sr.name||'').slice(0,16))+'</text>';
  });
- return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+EX_PAT_DEFS+s+'</svg></div>';
+ return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'+EX_PAT_DEFS+s+'</svg></div>';
 }
 function exSvgDiagram(lines){
- if(!lines||!lines.length)return'<div class="ex-empty">لا يوجد خطاطة</div>';
- const raw=lines.filter(l=>String(l).trim()).map(l=>{const m=String(l).match(/^(\s*)(.*)$/);return{level:Math.min([...String(l).match(/^(\s*)/)[1]].filter(x=>x===' '||x==='\t').length,10),text:(m[2]||'').trim()}});
+ const raw=(lines||[]).filter(l=>String(l).trim()).map(l=>{const m=String(l).match(/^(\s*)(.*)$/);return{level:Math.min([...String(l).match(/^(\s*)/)[1]].length,8),text:(m[2]||'').trim()}});
  if(!raw.length)return'';
- const BW=170,BH=44,GX=36,GY=52;
+ const BH=26,GY=24,GX=14;
  const root={text:'',level:-1,children:[],parent:null,x:0};
  let cur=root;
  raw.forEach(n=>{while(cur.level>=n.level){cur=cur.parent;}const node=Object.assign({},n,{children:[],parent:cur});cur.children.push(node);cur=node;});
+ let leafI=0;
  function layout(node,depth){
-  if(!node.children.length){node._x=_leafI++;node._y=depth;node._leaf=1;return 1;}
-  let c=0;for(const ch of node.children){c+=layout(ch,depth+1);}
-  node._x=(node.children[0]._x+node.children[node.children.length-1]._x)/2;node._y=depth;node._leaf=c;return c;}
- let _leafI=0;
+  if(!node.children.length){node._x=leafI++;node._y=depth;return 1;}
+  let c=0;for(const ch of node.children)c+=layout(ch,depth+1);
+  node._x=(node.children[0]._x+node.children[node.children.length-1]._x)/2;node._y=depth;return c;}
  const total=layout(root,0);
- const W=Math.max(480,total*BW+(total-1)*GX+60),H=(Math.max(...raw.map(n=>n.level))+2)*(BH+GY)+30;
+ const W=Math.max(300,total*124+(total-1)*GX+16);
+ const H=(Math.max(...raw.map(n=>n.level))+1)*(BH+GY)+10;
+ const colW=(W-16-(total-1)*GX)/Math.max(1,total);
+ const BW=Math.max(64,Math.min(colW,170));
  let out='';
  function draw(n){
-  const x=30+n._x*(BW+GX),y=10+n._y*(BH+GY);
-  if(n.parent&&n._y>0){const px=30+n.parent._x*(BW+GX),py=10+n.parent._y*(BH+GY);
-   out+='<path d="M'+(px+BW/2)+' '+(py+BH)+' V'+(py+BH+GY/2)+' H'+(x+BW/2)+' V'+y+'" fill="none" stroke="#334" stroke-width="1.6"/>';}
-  out+='<rect x="'+x+'" y="'+y+'" width="'+BW+'" height="'+BH+'" rx="10" fill="'+exPat(n.level)+'" stroke="#111" stroke-width="1.6"/>';
-  const txt=n.text.length>30?n.text.slice(0,30)+'…':n.text;
-  out+='<text x="'+(x+BW/2)+'" y="'+(y+BH/2+4)+'" text-anchor="middle" font-size="11" fill="#0f172a" stroke="#fff" stroke-width="3" paint-order="stroke">'+exEsc(txt)+'</text>';
+  const x=8+n._x*(BW+GX),y=4+n._y*(BH+GY);
+  if(n.parent&&n._y>0){const px=8+n.parent._x*(BW+GX),py=4+n.parent._y*(BH+GY);
+   out+='<path d="M'+(px+BW/2).toFixed(1)+' '+(py+BH)+' V'+(py+BH+GY/2)+' H'+(x+BW/2).toFixed(1)+' V'+y+'" fill="none" stroke="#334" stroke-width="1.2"/>';}
+  out+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+BW.toFixed(1)+'" height="'+BH+'" rx="6" fill="'+exPat(n.level)+'" stroke="#111" stroke-width="1.2"/>';
+  const txt=n.text.length>26?n.text.slice(0,26)+'…':n.text;
+  out+='<text x="'+(x+BW/2).toFixed(1)+'" y="'+(y+BH/2+3.4).toFixed(1)+'" text-anchor="middle" font-size="9.5" fill="#0f172a" stroke="#fff" stroke-width="2.6" paint-order="stroke">'+exEsc(txt)+'</text>';
   n.children.forEach(draw);}
  root.children.forEach(draw);
- return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+EX_PAT_DEFS+out+'</svg></div>';
+ return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W.toFixed(0)+' '+H+'" preserveAspectRatio="xMidYMid meet">'+EX_PAT_DEFS+out+'</svg></div>';
 }
 function exSvgPie(items,half){
- const total=items.reduce((s,x)=>s+x.value,0);if(!total)return'<div class="ex-empty">لا توجد قيم</div>';
- const W=440,H=half?230:280,cx=half?220:220,cy=half?225:140,r=half?180:110;
+ items=(items||[]).filter(x=>x&&Number(x.value)>0);
+ const total=items.reduce((a,x)=>a+Number(x.value),0);
+ if(!total)return'<div class="ex-empty">لا توجد قيم</div>';
+ const W=208,H=half?112:196,R=half?92:76;
+ const cx=W/2,cy=half?104:88;
  let a0=half?180:-90;let segs='';
- items.forEach((it,k)=>{const frac=it.value/total;const a1=a0+frac*(half?180:360);
-  const p0=exAngle(cx,cy,r,a0),p1=exAngle(cx,cy,r,a1);
-  const large=a1-a0>180?1:0;
-  segs+='<path d="M'+cx+' '+cy+' L'+p0.x+' '+p0.y+' A'+r+' '+r+' 0 '+large+' 1 '+p1.x+' '+p1.y+' Z" fill="'+exPat(k)+'" stroke="#111" stroke-width="1.6"/>';
-  const mid=a0+(a1-a0)/2;const lmx=exAngle(cx,cy,r*0.62,mid);
-  segs+='<text x="'+lmx.x+'" y="'+lmx.y+'" text-anchor="middle" font-size="11" fill="#111" font-weight="700" stroke="#fff" stroke-width="3.2" paint-order="stroke">'+(frac>=0.06?Math.round(frac*100)+'%':'')+'</text>';
+ items.forEach((it,k)=>{const frac=Number(it.value)/total;const a1=a0+frac*(half?180:360);
+  const p0=exAngle(cx,cy,R,a0),p1=exAngle(cx,cy,R,a1);
+  const large=(a1-a0)>180?1:0;
+  segs+='<path d="M'+cx+' '+cy+' L'+p0.x.toFixed(2)+' '+p0.y.toFixed(2)+' A'+R+' '+R+' 0 '+large+' 1 '+p1.x.toFixed(2)+' '+p1.y.toFixed(2)+' Z" fill="'+exPat(k)+'" stroke="#111" stroke-width="1.2"/>';
+  const mid=a0+(a1-a0)/2;const lm=exAngle(cx,cy,R*0.62,mid);
+  if(frac>=0.07)segs+='<text x="'+lm.x.toFixed(1)+'" y="'+(lm.y+3).toFixed(1)+'" text-anchor="middle" font-size="9.5" font-weight="700" fill="#111" stroke="#fff" stroke-width="2.6" paint-order="stroke">'+Math.round(frac*100)+'%</text>';
   a0=a1;});
- let legend='';items.forEach((it,k)=>{legend+='<div style="display:inline-flex;align-items:center;gap:6px;margin:3px 10px;font-size:12px">'+exPatSwatch(k)+'<span>'+exEsc(it.label)+' ('+it.value+')</span></div>';});
- return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+EX_PAT_DEFS+segs+'</svg><div style="text-align:center;margin-top:4px">'+legend+'</div></div>';
+ let legend='';items.forEach((it,k)=>{legend+='<div style="display:inline-flex;align-items:center;gap:4px;margin:1px 7px;font-size:10.5px;white-space:nowrap">'+exPatSwatch(k)+'<span>'+exEsc(it.label)+' ('+it.value+')</span></div>';});
+ return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'+EX_PAT_DEFS+segs+'</svg><div style="text-align:center;line-height:1.7">'+legend+'</div></div>';
 }
 function exAngle(cx,cy,r,a){const rad=a*Math.PI/180;return{x:cx+r*Math.cos(rad),y:cy+r*Math.sin(rad)};}
 function exSvgBar(items){
- if(!items||!items.length)return'<div class="ex-empty">لا توجد قيم</div>';
- const W=560,H=280,pad=30,maxv=Math.max(...items.map(x=>x.value),1);
- const bw=Math.min((W-pad*2)/items.length-8,56);
+ items=(items||[]).filter(x=>x&&Number(x.value)>0);
+ if(!items.length)return'<div class="ex-empty">لا توجد قيم</div>';
+ const W=520,H=196,padL=26,padR=10,padT=18,padB=30;
+ const maxv=Math.max(...items.map(x=>Number(x.value)),1);
+ const plotH=H-padT-padB,plotW=W-padL-padR;
+ const bw=Math.min(plotW/items.length*0.62,54);
  let s='';
- items.forEach((it,k)=>{const x=pad+k*((W-pad*2)/items.length)+( (W-pad*2)/items.length-bw)/2;
-  const h=(it.value/maxv)*(H-pad*2-30);
-  s+='<rect x="'+x+'" y="'+(H-pad-h)+'" width="'+bw+'" height="'+h+'" rx="4" fill="'+exPat(k)+'" stroke="#111" stroke-width="1.3"/>';
-  s+='<text x="'+(x+bw/2)+'" y="'+(H-pad-h-6)+'" text-anchor="middle" font-size="10" fill="#111" font-weight="700" stroke="#fff" stroke-width="2.6" paint-order="stroke">'+it.value+'</text>';
-  s+='<text x="'+(x+bw/2)+'" y="'+(H-12)+'" text-anchor="middle" font-size="9" fill="#333">'+exEsc(String(it.label).slice(0,16))+'</text>';
+ for(let g=0;g<=2;g++){const gy=padT+plotH*(g/2);const v=Math.round(maxv*(1-g/2));
+  s+='<line x1="'+padL+'" y1="'+gy+'" x2="'+(W-padR)+'" y2="'+gy+'" stroke="#e2e2e2" stroke-width="1"/><text x="'+(padL-4)+'" y="'+(gy+3.5)+'" text-anchor="end" font-size="8.5" fill="#777">'+v+'</text>';}
+ items.forEach((it,k)=>{const slot=plotW/items.length;const x=padL+k*slot+(slot-bw)/2;
+  const h=Math.max(2,(Number(it.value)/maxv)*plotH);
+  s+='<rect x="'+x.toFixed(1)+'" y="'+(padT+plotH-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+exPat(k)+'" stroke="#111" stroke-width="1.1"/>';
+  s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(padT+plotH-h-3).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="700" fill="#111">'+it.value+'</text>';
+  s+='<text x="'+(x+bw/2).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" font-size="9" fill="#333">'+exEsc(String(it.label).slice(0,14))+'</text>';
  });
- const axis='<line x1="'+pad+'" y1="'+(H-pad)+'" x2="'+(W-pad)+'" y2="'+(H-pad)+'" stroke="#111" stroke-width="2"/>';
- return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+EX_PAT_DEFS+axis+s+'</svg></div>';
+ s+='<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(W-padR)+'" y2="'+(padT+plotH)+'" stroke="#111" stroke-width="1.4"/>';
+ return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'+EX_PAT_DEFS+s+'</svg></div>';
 }
 function exSvgLine(d){
  const cats=String(d.cats||'').split(/[،,;]/).map(x=>x.trim()).filter(Boolean);
- const ser=(d.ser||[]).map(s=>({name:s.name,values:String(s.values||'').split(/[،,;]/).map(x=>parseFloat(x.replace(/[^\d.-]/g,''))||0)}));
- if(!cats.length)return'<div class="ex-empty">أدخل المراحل ثم السلاسل</div>';
- const W=560,H=300,pad=36,maxv=Math.max(...ser.map(s=>Math.max(...s.values,1)),1);
- const plotW=W-pad*2,plotH=H-pad*2;
- const n=cats.length;const step=n>1?plotW/(n-1):plotW;
+ const ser=(d.ser||[]).map(s=>({name:s.name,values:String(s.values||'').split(/[،,;]/).map(x=>parseFloat(String(x).replace(/[^0-9.-]/g,''))||0)}));
+ if(!cats.length||!ser.length)return'<div class="ex-empty">أدخل المراحل ثم السلاسل</div>';
+ const W=520,H=196,padL=30,padR=12,padT=22,padB=30;
+ const maxv=Math.max(...ser.map(s=>Math.max(...s.values,1)),1);
+ const plotW=W-padL-padR,plotH=H-padT-padB;
+ const n=cats.length;const step=n>1?plotW/(n-1):0;
  let s='';
- for(let g=0;g<=4;g++){const gy=pad+(g/4)*plotH;const v=maxv-(maxv*g/4);s+='<line x1="'+pad+'" y1="'+gy+'" x2="'+(W-pad)+'" y2="'+gy+'" stroke="#ddd" stroke-width="1"/><text x="'+(pad-6)+'" y="'+(gy+4)+'" text-anchor="end" font-size="9" fill="#777">'+Math.round(v)+'</text>';}
- cats.forEach((c,k)=>{const x=pad+k*step;s+='<text x="'+x+'" y="'+(H-10)+'" text-anchor="middle" font-size="10" fill="#333">'+exEsc(c)+'</text>';});
+ for(let g=0;g<=3;g++){const gy=padT+plotH*(g/3);const v=maxv*(1-g/3);
+  s+='<line x1="'+padL+'" y1="'+gy.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+gy.toFixed(1)+'" stroke="#e4e4e4" stroke-width="1"/><text x="'+(padL-4)+'" y="'+(gy+3.5).toFixed(1)+'" text-anchor="end" font-size="8.5" fill="#777">'+Math.round(v)+'</text>';}
+ cats.forEach((c,k)=>{const x=padL+k*step;s+='<text x="'+x.toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle" font-size="9" fill="#333">'+exEsc(c)+'</text>';});
  ser.forEach((sr,si)=>{
-  const path=sr.values.map((v,k)=>{const x=pad+k*step;const y=pad+(1-(v/maxv))*plotH;return(k?' L':'M')+x+' '+y;}).join('');
-  s+='<path d="'+path+'" fill="none" stroke="#111" stroke-width="2.4" stroke-dasharray="'+(exDash(si)||'0')+'"/>';
-  sr.values.forEach((v,k)=>{const x=pad+k*step;const y=pad+(1-(v/maxv))*plotH;s+=exMarker(si,x,y,4.2,'#fff');});
-  const ly=pad-28+si*16;
-  s+='<line x1="'+(W-152)+'" y1="'+ly+'" x2="'+(W-116)+'" y2="'+ly+'" stroke="#111" stroke-width="2.4" stroke-dasharray="'+(exDash(si)||'0')+'"/>'+exMarker(si,W-134,ly,3.6,'#fff');
-  s+='<text x="'+(W-110)+'" y="'+(ly+4)+'" font-size="10" fill="#333" text-anchor="start">'+exEsc(sr.name)+'</text>';
+  const path=sr.values.map((v,k)=>{const x=padL+k*step;const y=padT+(1-(v/maxv))*plotH;return(k?' L':'M')+x.toFixed(1)+' '+y.toFixed(1);}).join('');
+  s+='<path d="'+path+'" fill="none" stroke="#111" stroke-width="1.9" stroke-dasharray="'+(exDash(si)||'0')+'"/>';
+  sr.values.forEach((v,k)=>{const x=padL+k*step;const y=padT+(1-(v/maxv))*plotH;s+=exMarker(si,x,y,3.6,'#fff');});
+  const ly=padT-10+si*13;
+  s+='<line x1="'+(W-148)+'" y1="'+ly+'" x2="'+(W-116)+'" y2="'+ly+'" stroke="#111" stroke-width="1.9" stroke-dasharray="'+(exDash(si)||'0')+'"/>'+exMarker(si,W-132,ly,3.2,'#fff');
+  s+='<text x="'+(W-110)+'" y="'+(ly+3.5)+'" font-size="9" fill="#333" text-anchor="start">'+exEsc(String(sr.name||'').slice(0,14))+'</text>';
  });
- return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'">'+s+'</svg></div>';
+ return '<div class="ex-svgbox"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'+s+'</svg></div>';
 }
 function exRenderPaper(toStore){
  const m=EX.cur;if(!m)return;
@@ -6869,7 +7046,6 @@ function exExportHtml(m,key){
  return '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(m.name||'نموذج امتحان')+'</title><style>'+exExportCss()+'</style></head><body>'+exPrintRoot(m,key)+'</body></html>';
 }
 function exSafeName(v){return String(v||'نموذج امتحان').replace(/[\/:*?"<>|]/g,'_');}
-function exWordHtml(){return exExportHtml(EX.cur,false);}
 window.addEventListener('afterprint',()=>document.body.classList.remove('ex-printing'));
 if($('exDsPdf'))$('exDsPdf').onclick=()=>exDsGenerate(false);
 if($('exDsPrint'))$('exDsPrint').onclick=()=>exDsGenerate(true);
