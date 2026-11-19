@@ -293,13 +293,13 @@ thead{display:table-header-group}
 .ex-paper .ph-meta td{width:29%}
 .ex-paper .pap-part{font-weight:900;font-size:17px;margin:16px 0 8px;border-bottom:2px solid #333;padding-bottom:3px}
 .ex-paper .pap-part2{font-weight:900;font-size:17px;margin:16px 0 8px}
-.ex-paper .pap-docs{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;align-items:start}
-.ex-paper .pap-docs .doc{break-inside:avoid;page-break-inside:avoid}
-.ex-paper .pap-docs .doc .ex-tbl th,.ex-paper .pap-docs .doc .ex-tbl td{font-size:12.5px;padding:3px 6px}
-.ex-paper .doc{border:1px solid #999;border-radius:8px;padding:10px 12px;margin:10px 0}
+.ex-paper .pap-docs{display:flex;flex-wrap:wrap;gap:10px 12px;align-items:flex-start}
+.ex-paper .pap-docs .doc{break-inside:avoid;page-break-inside:avoid;margin:0}
+.ex-paper .pap-docs .doc .ex-tbl th,.ex-paper .pap-docs .doc .ex-tbl td{font-size:.78em;padding:3px 6px}
+.ex-paper .doc{border:1px solid #999;border-radius:8px;padding:10px 12px;margin:10px 0;font-size:calc(16px * var(--doc-fs,1))}
 .ex-paper .doc .doc-title{font-weight:800;margin-bottom:6px}
 .ex-paper .doc img{max-width:100%;border:1px solid #ccc;border-radius:6px}
-.ex-paper .doc .doc-src{font-size:12.5px;color:#555;border-top:1px dashed #bbb;margin-top:8px;padding-top:4px}
+.ex-paper .doc .doc-src{font-size:.78em;color:#555;border-top:1px dashed #bbb;margin-top:8px;padding-top:4px}
 .ex-paper .q{margin:8px 0;padding:8px 10px;background:#f7f7f7;border:1px solid #e2e2e2;border-radius:8px}
 .ex-paper .q .q-title{font-weight:800}
 .ex-paper .q .q-txt{margin-top:4px}
@@ -6032,7 +6032,13 @@ function exDocEditor(d,i){
    body='<div class="field"><label>المراحل (مفصولة بفاصلة)</label><input data-k="'+k+'.cats" placeholder="المرحلة 1، المرحلة 2، المرحلة 3"></div><div class="field"><label>السلاسل</label><div id="exLn'+i+'">'+(d.data.ser||[]).map((s,j)=>'<div style="display:flex;gap:6px;margin:4px 0"><input data-k="'+k+'.ser.'+j+'.name" placeholder="اسم السلسلة" style="flex:0 0 160px"><input data-k="'+k+'.ser.'+j+'.values" placeholder="القيم مفصولة بفاصلة" style="flex:1"><button class="btn danger ex-chipbtn" data-act="lndel" data-id="'+d.id+'" data-j="'+j+'">✕</button></div>').join('')+'</div><span class="ex-chipbtn" data-act="lnadd" data-id="'+d.id+'">➕ سلسلة</span></div>';break;
  }
  const ord='<div class="field"><label>الشكل في الورقة</label><select data-k="docs.'+i+'.order"><option value="show">مضمَّن</option><option value="later">بعد الأسئلة</option><option value="hide">مخفي</option></select></div>';
- return head+base+'<div class="ex-doc-grid" style="margin-top:8px">'+body+'</div><div style="margin-top:8px">'+ord+'</div>';
+ const look='<div class="form three" style="margin-top:8px">'+
+  '<div class="field"><label>حجم الوثيقة (العرض)</label><select data-k="docs.'+i+'.size"><option value="">تلقائي (نصف إذا تعددت)</option><option value="100">عرض كامل</option><option value="75">ثلاثة أرباع العرض</option><option value="66">ثلثا العرض</option><option value="50">نصف العرض</option><option value="33">ثلث العرض</option><option value="25">ربع العرض</option></select></div>'+
+  '<div class="field"><label>موقع الوثيقة في الورقة</label><select data-k="docs.'+i+'.align"><option value="">تلقائي (يمين)</option><option value="right">يمين</option><option value="center">وسط</option><option value="left">يسار</option></select></div>'+
+  '<div class="field"><label>حجم خط الوثيقة</label><select data-k="docs.'+i+'.fs"><option value="85">صغير (85٪)</option><option value="100">عادي (100٪)</option><option value="110">كبير (110٪)</option><option value="120">أكبر (120٪)</option><option value="135">كبير جدًا (135٪)</option></select></div>'+
+  '</div>'+
+  '<div class="field" style="margin-top:6px"><label>درجة اللون (سواد الحبر) <span class="muted" style="font-weight:400">— 100٪ عادي، وأقلّ منه يخفّف السواد لتوفير الحبر، وأكثر يعمّق الأوراق الباهتة</span></label><input type="range" min="70" max="130" step="5" value="100" data-k="docs.'+i+'.tone" style="width:100%;max-width:420px"></div>';
+ return head+base+'<div class="ex-doc-grid" style="margin-top:8px">'+body+'</div><div style="margin-top:8px">'+ord+look+'</div>';
 }
 function exTableEditor(d,i){
  const k='docs.'+i+'.data';const cols=d.data.cols||[];
@@ -6214,6 +6220,27 @@ async function exDsGenerate(printMode){
   toast('تم توليد '+files.length+' ملف PDF — '+total+' ورقة');
  }catch(e){toast('تعذّر التوليد: '+String((e&&e.message)||e));}
 }
+/* تحكّم في عرض كل وثيقة وموقعها وحجم خطها ودرجة سواد حبرها — يُحفظ داخل النموذج */
+function exDocInk(tone){
+ const t=Math.max(70,Math.min(130,Math.round((parseFloat(tone)||100)/5)*5));
+ const full=v=>{const n=Math.max(0,Math.min(255,Math.round(v))).toString(16);const p=n.length<2?'0'+n:n;return '#'+p+p+p;};
+ const text=t<=100?85+(t-70)*(17-85)/30:17+(t-100)*(0-17)/30;
+ const line=t<=100?201+(t-70)*(153-201)/30:153+(t-100)*(107-153)/30;
+ return{text:full(text),line:full(line)};
+}
+function exDocBoxStyle(d,n){
+ const size=String((d&&d.size!=null)?d.size:'').trim();
+ const align=String((d&&d.align!=null)?d.align:'').trim();
+ const fs=Math.max(70,Math.min(150,parseFloat(d&&d.fs)||100));
+ const ink=exDocInk(d&&d.tone);
+ const base=size?size+'%':(n>1?'calc(50% - 6px)':'100%');
+ let st='flex:0 0 '+base+';max-width:'+base+';min-width:0;color:'+ink.text+';border-color:'+ink.line+';';
+ if(fs!==100)st+='--doc-fs:'+(fs/100).toFixed(2)+';';
+ if(align==='center')st+='margin-inline:auto;';
+ else if(align==='left')st+='margin-inline-start:auto;margin-inline-end:0;';
+ else if(align==='right')st+='margin-inline-start:0;margin-inline-end:auto;';
+ return st;
+}
 function exPaperHTML(opts){
  const m=EX.cur;if(!m)return'';const h=m.header||{};const docs=m.docs||[];const qs=m.questions||[];
  const total=qs.reduce((s,q)=>s+(parseFloat(q.points)||0),0);
@@ -6228,10 +6255,9 @@ function exPaperHTML(opts){
  if(docs.length){
   const vis=docs.map((d,i)=>({d,i})).filter(x=>exDocShow(x.d));
   if(vis.length){
-   s+='<div class="pap-part">الجزء الأول: الوثائق</div>';
-   s+=vis.length>1?'<div class="pap-docs">':'';
-   vis.forEach(({d,i})=>{s+='<div class="doc"><div class="doc-title">الوثيقة رقم '+(i+1)+': '+exEsc(d.title)+'</div>'+exDocContent(d,i)+'</div>';});
-   s+=vis.length>1?'</div>':'';
+   s+='<div class="pap-part">الجزء الأول: الوثائق</div><div class="pap-docs">';
+   vis.forEach(({d,i})=>{s+='<div class="doc" style="'+exDocBoxStyle(d,vis.length)+'"><div class="doc-title">الوثيقة رقم '+(i+1)+': '+exEsc(d.title)+'</div>'+exDocContent(d,i)+'</div>';});
+   s+='</div>';
   }
  }
  if(qs.length){
@@ -6247,7 +6273,7 @@ function exPaperHTML(opts){
   }
  }
  const laterDocs=docs.filter(d=>d.order==='later');
- if(laterDocs.length){s+='<div class="pap-part2">وثائق ملحقة</div>';laterDocs.forEach(d=>{s+='<div class="doc">'+exDocContent(d,0)+'</div>';});}
+ if(laterDocs.length){s+='<div class="pap-part2">وثائق ملحقة</div><div class="pap-docs">';laterDocs.forEach(d=>{s+='<div class="doc" style="'+exDocBoxStyle(d,laterDocs.length)+'">'+exDocContent(d,0)+'</div>';});s+='</div>';}
  if(h.instructions)s+='<div class="q-cap" style="margin-top:10px">'+exEsc(h.instructions)+'</div>';
  s+='<div class="foot">انتهت الأسئلة — بالتوفيق</div>';
  s+='</div>';
