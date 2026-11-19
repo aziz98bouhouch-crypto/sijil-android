@@ -304,6 +304,7 @@ thead{display:table-header-group}
 .ex-paper .q .q-title{font-weight:800}
 .ex-paper .q .q-txt{margin-top:4px}
 .ex-paper .q .q-cap{font-size:12.5px;color:#666;margin-top:4px}
+.ex-paper .q .q-ans{margin-top:8px;border:1px dashed #888;border-radius:6px;background:#fff}
 .ex-paper .essay{border:1.5px dashed #555;border-radius:10px;padding:12px 14px;margin:12px 0}
 .ex-paper .essay .essay-title{font-weight:900;text-align:center;font-size:17px;margin-bottom:8px}
 .ex-paper .foot{text-align:center;font-weight:900;font-size:16px;margin-top:20px;padding-top:10px;border-top:2px solid #333}
@@ -1036,6 +1037,27 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     </div>
     <p class="muted" style="margin:8px 0 0;font-size:12px">المدى من 0٪ إلى 400٪ من عرض الورقة (100٪ = العرض الكامل، و0٪ = إخفاء الوثيقة). يطبَّق هذا الحجم العام على الوثائق التي لم تُحدَّد لها قيمة خاصة، والقيم فوق 100٪ تجعل الوثيقة أعرض من الورقة فتُقتطع عند الطباعة. لكل وثيقة إعدادها الخاص في «إعدادات الوثيقة».</p>
   </div>
+  <div class="card" id="exAnsBar">
+    <div class="section-title" style="margin-top:0"><h2>فضاء الإجابة — تحكم يدوي</h2></div>
+    <div class="form three">
+      <div class="field"><label>ارتفاع فضاء الإجابة لكل الأسئلة — <b id="exAnsVal">بلا</b></label>
+        <input type="range" id="exAnsRange" min="0" max="300" step="5" value="0" style="width:100%">
+      </div>
+      <div class="field"><label>قيمة يدوية (مم)</label>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="exAnsNum" min="0" max="300" step="5" placeholder="بلا" style="width:110px">
+          <button class="btn" id="exAnsOff" type="button">بلا فضاء</button>
+          <button class="btn primary" id="exAnsAll" type="button">تطبيق على كل الأسئلة</button>
+        </div>
+      </div>
+      <div class="field"><label>اختصارات سريعة (مم)</label>
+        <div class="ex-chips" id="exAnsPresets">
+          <span class="ex-chip" data-ansmm="0">0</span><span class="ex-chip" data-ansmm="20">20</span><span class="ex-chip" data-ansmm="30">30</span><span class="ex-chip" data-ansmm="40">40</span><span class="ex-chip" data-ansmm="50">50</span><span class="ex-chip" data-ansmm="70">70</span><span class="ex-chip" data-ansmm="100">100</span><span class="ex-chip" data-ansmm="150">150</span><span class="ex-chip" data-ansmm="200">200</span>
+        </div>
+      </div>
+    </div>
+    <p class="muted" style="margin:8px 0 0;font-size:12px">مساحة فارغة تُضاف بعد كل سؤال ليكتب فيها المتعلم إجابته (بالملّيمتر). يسري هذا الارتفاع على كل سؤال لم تُحدَّد له قيمة خاصة، و0 = بلا فضاء. تُحفظ القيمة مع النموذج فتظهر في المعاينة والطباعة وPDF وWord.</p>
+  </div>
   <div class="card"><div class="ex-svgbox"><div id="exPreview"></div></div></div>
 </div>
 
@@ -1195,7 +1217,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     <!-- SETTINGS -->
 <div id="settings" class="page"><div class="hero"><span class="badge">SETTINGS</span><h1>الإعدادات</h1></div><div class="card"><div class="section-title"><h2>مواد تدريس الأستاذ</h2></div><p class="muted">حدّد مادة تدريسية واحدة أو أكثر. بعد الحفظ لا تسألك وظائف البرنامج عن المادة — تُطبَّق المادة النشطة تلقائيًا وتُخفى خانتها من النماذج، ويمكنك تبديل المادة النشطة بنقرة من الترويسة أعلى الشاشة. تظهر هنا فقط المواد المرتبطة بالمستويات/الشعب/المسالك المضافة في «الهوية الأكاديمية». الاستثناء الوحيد: خلايا استعمال الزمان الخاص بالتلاميذ تبقى قابلة لاختيار أي مادة.</p><div id="teacherSubjectsList"></div><div class="actions"><button class="btn primary" id="saveTeacherSubjects">حفظ مواد التدريس</button></div></div><div class="card"><div class="section-title"><h2>المظهر والواجهة</h2></div><div class="form"><div class="field"><label>المظهر</label><select id="appearance"><option>auto</option><option>light</option><option>dark</option></select></div><div class="field"><label>الواجهة الافتراضية</label><select id="defaultPage"><option value="home">الرئيسية</option><option value="assessment">التقويم</option><option value="reports">التقارير</option><option value="analytics">التحليلات</option><option value="evolution">تتبع التطور</option><option value="communication">سجل التواصل</option><option value="resources">الموارد والتعلم</option></select></div></div><div class="actions"><button class="btn primary" id="saveSettings">حفظ</button></div></div><div class="card"><div class="section-title"><h2>الحماية والأمان</h2></div><div class="form"><div class="field"><label class="opt"><input type="checkbox" id="secLockEnabled"> قفل البرنامج باسم المستخدم</label></div><div class="field"><label>اسم المستخدم</label><input id="secUsername" placeholder="مثال: مدير المؤسسة" autocomplete="off"></div><div class="field"><label>كلمة مرور جديدة (تُحفظ مشفّرة SHA-256 + ملح عشوائي)</label><input id="secPass" type="password" placeholder="اتركها فارغة للإبقاء على الحالية" autocomplete="new-password"></div><div class="field"><label>القفل التلقائي بعد (دقائق)</label><input id="secIdleLock" type="number" min="0" max="240" step="1" value="0"><p class="muted">صفر = إيقاف القفل التلقائي</p></div><div class="field"><label class="opt"><input type="checkbox" id="secImportSanitize" checked> تعقيم الملفات المستوردة (منع حقن الصيغ في Excel)</label></div><div class="field"><label class="opt"><input type="checkbox" id="secIntegrityWarn" checked> فحص تلقائي لسلامة البيانات عند التشغيل</label></div></div><div class="actions"><button class="btn primary" id="secSaveBtn">حفظ إعدادات الحماية</button><button class="btn" id="secScanBtn">فحص سلامة البيانات الآن</button><button class="btn" id="secLockNow">قفل الآن</button></div><div id="secScanStatus" class="muted" style="margin-top:8px"></div></div><div class="card"><div class="section-title"><h2>اختصارات لوحة المفاتيح</h2></div><div class="hint-list"><div class="row"><span>تنقّل سريع — بحث فوري عبر الصفحات والإجراءات</span><kbd>Ctrl+K</kbd></div><div class="row"><span>حفظ العلامات (في صفحة التقويم عند وجود تعديلات)</span><kbd>Ctrl+S</kbd></div><div class="row"><span>إغلاق اللوحة المنبثقة أو الـDrawer</span><kbd>Esc</kbd></div></div></div>
 <div class="card"><div class="section-title"><h2>عتبات الأوسمة</h2></div><div class="form"><div class="field"><label>عتبة وسام «المتفوق» /20</label><input id="badgeTop" type="number" min="0" max="20" step="0.5" value="16"></div><div class="field"><label>عتبة وسام «المجتهد» /20</label><input id="badgeDil" type="number" min="0" max="20" step="0.5" value="14"></div></div><p class="muted">تُطبَّق على منح أوسمة التحفيز في كل الحاسبات والتقارير: وسام «المتفوق» لمن بلغ معدله العام العتبة الأولى فما فوق، و«المجتهد» لمن بلغ العتبة الثانية. تُحفظ تلقائيًا وتنعكس على صفحة التحفيز والتنبيهات.</p><div class="actions"><button class="btn primary" id="saveBadgeWeights">حفظ عتبات الأوسمة</button></div></div><div class="card"><div class="section-title"><h2>شعار المؤسسة</h2></div><p class="muted">يظهر الشعار أعلى رأس كل بطاقة وتقرير رسمي (بطاقة المتعلم، ولي الأمر، الأكشفة، الشهادات...).</p><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><img id="logoPreview" alt="الشعار" style="height:64px;max-width:200px;object-fit:contain;display:none;border:1px solid var(--l);border-radius:8px;padding:6px;background:#fff"><div style="display:flex;flex-direction:column;gap:8px"><input id="logoInput" type="file" accept="image/*"><button class="btn danger" id="logoRemoveBtn">إزالة الشعار</button></div></div></div><div class="card"><div class="section-title"><h2>أوزان المواد</h2></div><p class="muted">تحديد وزن «النشاط» و«الفرض» لكل مادة على حدة عند تركيب معدلها في البطاقات والنتائج والأكشفة. مؤشر «عام» يعني الاعتماد على الأوزان العامة الموضوعة في صفحة التقويم.</p><div id="subjectWeightsList"></div><div class="actions"><button class="btn primary" id="saveSubjectWeights">حفظ أوزان المواد</button></div></div>
-<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.85</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
+<div class="card"><div class="section-title"><h2>المؤسسات التعليمية</h2></div><p class="muted">يدعم البرنامج عدة مؤسسات في نفس قاعدة البيانات، وكل شاشة/تقرير يعرض بيانات المؤسسة النشطة فقط عبر سلسلة: المستوى ← الشعبة ← المسلك ← الأقسام ← المتعلمين. عند إضافة مؤسسة جديدة تُفعَّل تلقائيًا، ثم أكمل هيكلها من صفحة «الهوية الأكاديمية».</p><div id="instList"></div><div class="section-title"><h3>إضافة مؤسسة جديدة</h3></div><div class="form"><div class="field"><label>اسم المؤسسة</label><input id="instNewName" placeholder="اسم المؤسسة التعليمية"></div><div class="field"><label>الأكاديمية الجهوية</label><input id="instNewAcademy" placeholder="الأكاديمية الجهوية للتربية والتكوين"></div><div class="field"><label>المديرية الإقليمية</label><input id="instNewDirectorate" placeholder="المديرية الإقليمية"></div><div class="field"><label>السنة الدراسية</label><input id="instNewAy" placeholder="2026-2027"></div></div><div class="actions"><button class="btn primary" id="instAddBtn">إضافة المؤسسة وتفعيلها</button></div></div><div class="card"><div class="section-title"><h2>حول التطبيق</h2></div><div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap"><div style="flex:none;width:64px;height:64px;border-radius:16px;background:var(--brand-grad);display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:var(--shadow-sm)">س</div><div><div style="font-weight:800;font-size:18px">سجل التقييم</div><div class="muted">المواكبة التربوية الذكية — تدبير التقييم المستمر</div></div></div><div class="hint-list" style="margin-top:14px"><div class="row"><span>الإصدار</span><b id="aboutVersion">1.0.86</b></div><div class="row"><span>المطوّر</span><b>PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</b></div><div class="row"><span>قاعدة البيانات</span><span>محلية (IndexedDB) — تعمل بالكامل بدون إنترنت</span></div></div><div class="actions" style="margin-top:10px"><button class="btn" id="updCheckBtn" type="button">🔄 التحقق من التحديثات</button></div><p class="muted" style="margin-top:12px;text-align:center">PR.AZIZ-BOUHOUCH@جميع الحقوق محفوظة 2026</p></div></div>
 
 <!-- TRASH -->
 <div id="trash" class="page"><div class="hero"><span class="badge">TRASH</span><h1>السلة</h1><p>ما حُذف عبر أزرار «حذف» يبقى هنا قابلاً للاستعادة في أي وقت، حتى تحذفه نهائيًا.</p></div>
@@ -5986,7 +6008,7 @@ function exNewDoc(type){const id=uid('exd');const d={id,type,title:'',src:''};
   case 'line': d.data={cats:'المرحلة 1، المرحلة 2، المرحلة 3',ser:[{name:'السلسلة 1',values:'10، 20، 15'}]};break;
  }
  return d;}
-function exNewModel(){return{id:uid('exam'),name:'نموذج امتحان جديد',header:{republic:'المملكة المغربية',ministry:'وزارة التربية الوطنية والتعليم الأولي والرياضة',academy:'الأكاديمية الجهوية للتربية والتكوين',directorate:'',institution:'',examTitle:'الامتحان الموحد المحلي',subject:'',level:'',track:'',season:today().slice(0,4)+'-'+(+today().slice(0,4)+1),session:'الدورة الأولى',duration:'ساعتان',instructions:'أجب عن جميع الأسئلة المطلوبة مراعيًا توزيع النقط.',emblem:'',logo:''},docs:[],questions:[],docSize:''};}
+function exNewModel(){return{id:uid('exam'),name:'نموذج امتحان جديد',header:{republic:'المملكة المغربية',ministry:'وزارة التربية الوطنية والتعليم الأولي والرياضة',academy:'الأكاديمية الجهوية للتربية والتكوين',directorate:'',institution:'',examTitle:'الامتحان الموحد المحلي',subject:'',level:'',track:'',season:today().slice(0,4)+'-'+(+today().slice(0,4)+1),session:'الدورة الأولى',duration:'ساعتان',instructions:'أجب عن جميع الأسئلة المطلوبة مراعيًا توزيع النقط.',emblem:'',logo:''},docs:[],questions:[],docSize:'',ansH:''};}
 function exGetPath(o,p){return String(p).split('.').reduce((a,k)=>a==null?a:a[k],o);}
 function exSetPath(o,p,v){const ks=String(p).split('.');let c=o;for(let i=0;i<ks.length-1;i++){if(c[ks[i]]==null)c[ks[i]]={};c=c[ks[i]];}c[ks[ks.length-1]]=v;}
 let exPreviewTimer=null;
@@ -6004,7 +6026,7 @@ async function renderExams(){
  const ss=$('exSession');if(ss&&h.session)ss.value=h.session;
  exLogoThumb('exEmblemPrev',h.emblem);exLogoThumb('exLogoPrev',h.logo);
  $('exName').value=EX.cur.name||'';
- exRenderAddDocChips();exRenderDocs();exRenderQs();exStats();exSyncDocSizeBar();exRenderPreview();
+ exRenderAddDocChips();exRenderDocs();exRenderQs();exStats();exSyncDocSizeBar();exSyncAnsBar();exRenderPreview();
  try{exDsClasses();}catch(e){}
 }
 function exStats(){
@@ -6076,13 +6098,14 @@ function exTableEditor(d,i){
 }
 function exRenderQs(){
  const root=$('exQs');const qs=EX.cur.questions||[];
- root.innerHTML=qs.length?qs.map((q,i)=>'<div class="ex-card card" style="margin-bottom:10px"><div class="ex-head"><b>سؤال '+(i+1)+(q.kind==='essay'?' (موضوع إنشائي)':q.kind==='linked'?' (مرتبط بوثيقة)':' (عادي)')+'</b><div style="display:flex;gap:6px"><button class="btn" data-qact="up" data-id="'+q.id+'">⬆</button><button class="btn" data-qact="down" data-id="'+q.id+'">⬇</button><button class="btn danger" data-qact="del" data-id="'+q.id+'">🗑️</button></div></div>'+
+ root.innerHTML=qs.length?qs.map((q,i)=>{const _ownAns=exAnsMm(q.ansH);const _genAns=exAnsMm(EX.cur.ansH);const _ansVal=(_ownAns!=null?_ownAns:(_genAns!=null?_genAns:0));const _ansLab=(_ownAns!=null?('يدوي '+_ownAns+' مم'):(_genAns!=null?('العام '+_genAns+' مم'):'بلا'));return '<div class="ex-card card" style="margin-bottom:10px"><div class="ex-head"><b>سؤال '+(i+1)+(q.kind==='essay'?' (موضوع إنشائي)':q.kind==='linked'?' (مرتبط بوثيقة)':' (عادي)')+'</b><div style="display:flex;gap:6px"><button class="btn" data-qact="up" data-id="'+q.id+'">⬆</button><button class="btn" data-qact="down" data-id="'+q.id+'">⬇</button><button class="btn danger" data-qact="del" data-id="'+q.id+'">🗑️</button></div></div>'+
  '<div class="form three" style="margin-top:8px"><div class="field"><label>النوع</label><select data-qtype="'+i+'"><option value="normal"'+(q.kind==='normal'?' selected':'')+'>سؤال عادي</option><option value="linked"'+(q.kind==='linked'?' selected':'')+'>مرتبط بوثيقة</option><option value="essay"'+(q.kind==='essay'?' selected':'')+'>موضوع إنشائي (مقال)</option></select></div>'+
  '<div class="field"><label>النقطة /10 أو /20</label><input data-k="questions.'+i+'.points" value="'+(q.points||2)+'"></div>'+
  '<div class="field"><label>الوثيقة المرتبطة</label><select data-k="questions.'+i+'.docId"><option value="">بدون وثيقة</option>'+(EX.cur.docs||[]).map((d,j)=>'<option value="'+esc(d.id)+'"'+(q.docId===d.id?' selected':'')+'>الوثيقة '+(j+1)+'</option>').join('')+'</select></div></div>'+
  '<div class="field"><label>'+(q.kind==='essay'?'الموضوع الإنشائي':q.kind==='linked'?'السؤال (انطلاقًا من الوثيقة):':'نص السؤال:')+'</label><textarea data-k="questions.'+i+'.text" rows="2" placeholder="..."></textarea></div>'+
+ '<div class="field" style="margin-top:6px"><label>فضاء الإجابة (مم) — <b data-anslab="'+i+'">'+_ansLab+'</b></label><div style="display:flex;gap:8px;align-items:center"><input type="number" data-k="questions.'+i+'.ansH" min="0" max="300" step="5" placeholder="عام" style="width:96px"><input type="range" data-ansrange="'+i+'" min="0" max="300" step="5" value="'+_ansVal+'" style="flex:1"></div><div class="muted" style="font-size:11px">0 = بلا فضاء للإجابة؛ اتركه فارغًا لاتّباع الإعداد العام فوق المعاينة.</div></div>'+
  (q.kind==='essay'?'<div class="form two"><div class="field"><label>العدد المقترح من الكلمات</label><input data-k="questions.'+i+'.words" placeholder="مثال: 120 كلمة"></div><div class="field"><label>تعليمات المصحح / التلميذ</label><input data-k="questions.'+i+'.guide" placeholder="مثال: اربط الإجابة بالوثائق"></div></div>':'')+
- '</div>').join(''):'<div class="ex-empty">لا توجد أسئلة بعد.</div>';
+ '</div>';}).join(''):'<div class="ex-empty">لا توجد أسئلة بعد.</div>';
  document.querySelectorAll('#exQs [data-k]').forEach(el=>{const v=exGetPath(EX.cur,el.dataset.k);if(el.type==='checkbox')el.checked=!!v;else if(v!=null)el.value=v;});
 }
 function exAddQ(kind){EX.cur.questions.push({id:uid('exq'),kind,docId:'',points:2,text:'',words:'',guide:''});exRenderQs();exStats();exRenderPreview();}
@@ -6129,6 +6152,19 @@ document.addEventListener('input',e=>{
   const lab=document.querySelector('[data-sizelab="'+r.dataset.sizerange+'"]');
   if(lab)lab.textContent='يدوي '+r.value+'٪';
  }
+ if(r&&r.dataset&&r.dataset.ansrange!==undefined&&EX&&EX.cur){
+  const num=r.previousElementSibling;
+  if(num&&num.dataset&&num.dataset.k){num.value=r.value;num.dispatchEvent(new Event('input',{bubbles:true}));}
+  const lab=document.querySelector('[data-anslab="'+r.dataset.ansrange+'"]');
+  if(lab)lab.textContent='يدوي '+r.value+' مم';
+ }
+ if(r&&r.dataset&&r.dataset.k&&/\.ansH$/.test(r.dataset.k)&&EX&&EX.cur){
+  const sl=r.nextElementSibling;
+  if(sl&&sl.dataset&&sl.dataset.ansrange!==undefined){const v=exAnsMm(r.value);sl.value=(v==null?(exAnsMm(EX.cur.ansH)||0):v);}
+  const m=r.dataset.k.match(/^questions\.(\d+)\.ansH$/);
+  const lab2=document.querySelector('[data-anslab="'+((m||[])[1]||'')+'"]');
+  if(lab2){const v2=exAnsMm(r.value);lab2.textContent=(v2==null?'بلا':'يدوي '+v2+' مم');}
+ }
  if(r&&r.dataset&&r.dataset.k&&/\.size$/.test(r.dataset.k)&&EX&&EX.cur){
   const sl=r.nextElementSibling;
   if(sl&&sl.dataset&&sl.dataset.sizerange!==undefined){const v=exDocClampSize(r.value);sl.value=(v==null?exDocClampSize(EX.cur.docSize)||100:v);}
@@ -6163,6 +6199,16 @@ $('exList').onchange=async()=>{const id=$('exList').value;if(!id)return;const m=
  const auto=$('exDocSizeAuto');if(auto)auto.onclick=()=>{exSetDocSize('',false);toast('تم إرجاع الحجم إلى التلقائي');};
  const all=$('exDocSizeAll');if(all)all.onclick=()=>{const raw=String((n&&n.value)||'').trim();const v=raw!==''?raw:(r&&!r.disabled?r.value:'');if(String(v).trim()==='')return toast('حدّد حجمًا أولًا');exSetDocSize(v,true);toast('طُبّق الحجم '+v+'٪ على كل الوثائق');};
  document.querySelectorAll('#exDocSizePresets [data-exsize]').forEach(b=>{b.addEventListener('click',()=>exSetDocSize(b.dataset.exsize,false));});
+})();
+(function(){
+ const bar=$('exAnsBar');if(!bar)return;
+ const r=$('exAnsRange'),n=$('exAnsNum');
+ function setVal(v){if(!EX||!EX.cur)return;const c=exAnsMm(v);EX.cur.ansH=(c==null?'':c);exSyncAnsBar();exDebounced();}
+ if(r)r.addEventListener('input',()=>{if(n)n.value=r.value;setVal(r.value);});
+ if(n)n.addEventListener('input',()=>{const raw=String(n.value).trim();if(raw===''){setVal('');return;}const c=exAnsMm(raw);if(c!=null&&r&&!r.disabled)r.value=c;setVal(c);});
+ const off=$('exAnsOff');if(off)off.onclick=()=>{exSetAns('',false);toast('أُلغي فضاء الإجابة');};
+ const all=$('exAnsAll');if(all)all.onclick=()=>{const raw=String((n&&n.value)||'').trim();const v=raw!==''?raw:(r&&!r.disabled?r.value:'');if(String(v).trim()==='')return toast('حدّد الارتفاع أولًا');exSetAns(v,true);toast('طُبّق فضاء الإجابة '+v+' مم على كل الأسئلة');};
+ document.querySelectorAll('#exAnsPresets [data-ansmm]').forEach(b=>{b.addEventListener('click',()=>exSetAns(b.dataset.ansmm,false));});
 })();
 $('exName').oninput=()=>{if(EX.cur)EX.cur.name=$('exName').value;};
 ['exRepublic','exMinistry','exAcademy','exDirectorate','exInstitution','exExamTitle','exSubject','exLevel','exTrack','exSeason','exDuration'].forEach(id=>{const el=$(id);if(el)el.oninput=()=>{if(EX.cur){exReadHeader();exRenderPreview();}};});
@@ -6292,6 +6338,18 @@ function exDocSizeOf(d){
  if(own!=null)return own;
  return exDocClampSize(typeof EX!=='undefined'&&EX&&EX.cur?EX.cur.docSize:null);
 }
+function exAnsMm(v){
+ if(v==null)return null;
+ if(typeof v==='string'&&v.trim()==='')return null;
+ const n=Math.round(parseFloat(v));
+ if(!isFinite(n))return null;
+ return Math.max(0,Math.min(300,n));
+}
+function exAnsOf(q){
+ const own=exAnsMm(q&&q.ansH);
+ if(own!=null)return own;
+ return exAnsMm(typeof EX!=='undefined'&&EX&&EX.cur?EX.cur.ansH:null);
+}
 function exDocBoxStyle(d,n){
  const align=String((d&&d.align!=null)?d.align:'').trim();
  const fs=Math.max(70,Math.min(150,parseFloat(d&&d.fs)||100));
@@ -6305,6 +6363,22 @@ function exDocBoxStyle(d,n){
  else if(align==='left')st+='margin-inline-start:auto;margin-inline-end:0;';
  else if(align==='right')st+='margin-inline-start:0;margin-inline-end:auto;';
  return st;
+}
+function exSyncAnsBar(){
+ if(!$('exAnsBar'))return;
+ const g=exAnsMm(typeof EX!=='undefined'&&EX&&EX.cur?EX.cur.ansH:null);
+ const r=$('exAnsRange'),n=$('exAnsNum'),lab=$('exAnsVal');
+ if(r){r.disabled=(g==null);r.value=(g==null?0:g);}
+ if(n)n.value=(g==null?'':g);
+ if(lab)lab.textContent=(g==null?'بلا':g+' مم');
+ document.querySelectorAll('#exAnsPresets [data-ansmm]').forEach(b=>{b.classList.toggle('on',g!=null&&+b.dataset.ansmm===g);});
+}
+function exSetAns(v,all){
+ if(typeof EX==='undefined'||!EX||!EX.cur)return;
+ const n=exAnsMm(v);
+ EX.cur.ansH=(n==null?'':n);
+ if(all&&Array.isArray(EX.cur.questions))EX.cur.questions.forEach(q=>{if(q)q.ansH=(n==null?'':n);});
+ exSyncAnsBar();exRenderQs();exRenderPreview();
 }
 function exSyncDocSizeBar(){
  if(!$('exDocSizeBar'))return;
@@ -6345,7 +6419,8 @@ function exPaperHTML(opts){
   s+='<div class="pap-part">الجزء الثاني: الأسئلة</div>';
   qs.forEach((q,i)=>{
    const docIdx=q.docId?docs.findIndex(d=>d.id===q.docId):-1;
-   s+='<div class="q"><div class="q-title">السؤال '+(i+1)+(docIdx>=0?' (انطلاقًا من الوثيقة رقم '+(docIdx+1)+')':'')+' — ('+(q.points||0)+' نقط)</div><div class="q-txt">'+exEsc(q.text)+'</div>'+((q.kind==='essay')?'<div class="q-cap">'+exEsc(q.words||'')+(q.guide?' — '+exEsc(q.guide):'')+'</div>':'')+'</div>';
+   const _ah=exAnsOf(q);
+   s+='<div class="q"><div class="q-title">السؤال '+(i+1)+(docIdx>=0?' (انطلاقًا من الوثيقة رقم '+(docIdx+1)+')':'')+' — ('+(q.points||0)+' نقط)</div><div class="q-txt">'+exEsc(q.text)+'</div>'+((q.kind==='essay')?'<div class="q-cap">'+exEsc(q.words||'')+(q.guide?' — '+exEsc(q.guide):'')+'</div>':'')+(_ah?'<div class="q-ans" style="height:'+_ah+'mm"></div>':'')+'</div>';
   });
   const essays=qs.filter(q=>q.kind==='essay');
   if(essays.length){
