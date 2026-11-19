@@ -98,6 +98,23 @@ ipcMain.handle('print-pdf', async (event, html, name, opts)=>{
   }
 });
 
+ipcMain.handle('print-doc', async (event, html)=>{
+  let w=null;
+  try{
+    w=new BrowserWindow({show:false,width:900,height:1200,webPreferences:{sandbox:true,contextIsolation:true}});
+    await w.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(String(html||'')));
+    await new Promise(r=>setTimeout(r,400));
+    const result=await new Promise(resolve=>{
+      w.webContents.print({silent:false,printBackground:true,pageSize:'A4'},(ok,reason)=>resolve({ok,reason}));
+    });
+    return {ok:!!result.ok,reason:result.reason||''};
+  }catch(e){
+    return {ok:false,error:String((e&&e.message)||e)};
+  }finally{
+    try{if(w)setTimeout(()=>{try{w.destroy()}catch(e){}},800);}catch(e){}
+  }
+});
+
 ipcMain.handle('pick-backup-dir', async ()=>{
   try{
     const r=await dialog.showOpenDialog({title:'اختر مجلد النسخ الاحتياطي على القرص',properties:['openDirectory','createDirectory']});

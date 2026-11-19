@@ -320,7 +320,11 @@ thead{display:table-header-group}
 .ex-paper .q .q-cap{margin-top:.3mm;font-size:.86em}
 .ex-paper .q .mcq{margin-top:.8mm;gap:.6mm 5mm}
 .ex-paper .q .tf{margin-top:.8mm;gap:8mm}
-.ex-paper .q .q-ans{margin-top:1mm;border-radius:4px}
+.ex-paper .q .q-ans{margin-top:1mm;border-radius:4px;background:#fff;border:1px dashed #999}
+.ex-paper .q .q-ans.lines{border:none;background:none;box-shadow:none}
+.ex-paper .q .q-ans.lines i{display:block;height:7.2mm;border-bottom:1px dotted #555}
+.ex-paper .q .q-ans.blank{background:#fff;border:1px dashed #999}
+.ex-paper .essay .essay-body.blank{border:1px dashed #999;border-radius:4px;background:#fff}
 .ex-paper .doc{padding:1.4mm 2mm;margin:0;border-radius:5px}
 .ex-paper .doc .doc-title{margin-bottom:.7mm}
 .ex-paper .doc .doc-src{margin-top:.7mm;padding-top:.5mm}
@@ -1197,6 +1201,12 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
           <button class="btn" id="exAnsOff" type="button">بلا فضاء</button>
           <button class="btn primary" id="exAnsAll" type="button">تطبيق على كل الأسئلة</button>
         </div>
+      </div>
+      <div class="field"><label>شكل فضاء الإجابة</label>
+        <select id="exAnsStyle">
+          <option value="lines">مسطّر (أسطر منقّطة للكتابة)</option>
+          <option value="blank">مجال أبيض فقط</option>
+        </select>
       </div>
       <div class="field"><label>اختصارات سريعة (مم)</label>
         <div class="ex-chips" id="exAnsPresets">
@@ -6154,7 +6164,7 @@ function exNewDoc(type){const id=uid('exd');const d={id,type,title:'',src:''};
   case 'line': d.data={cats:'المرحلة 1، المرحلة 2، المرحلة 3',ser:[{name:'السلسلة 1',values:'10، 20، 15'}]};break;
  }
  return d;}
-function exNewModel(){return{id:uid('exam'),name:'نموذج امتحان جديد',header:{republic:'المملكة المغربية',ministry:'وزارة التربية الوطنية والتعليم الأولي والرياضة',academy:'الأكاديمية الجهوية للتربية والتكوين',directorate:'',institution:'',examTitle:'الامتحان الموحد المحلي',subject:'',level:'',track:'',season:today().slice(0,4)+'-'+(+today().slice(0,4)+1),session:'الدورة الأولى',duration:'ساعتان',instructions:'أجب عن جميع الأسئلة المطلوبة مراعيًا توزيع النقط.',emblem:'',logo:''},docs:[],questions:[],docSize:'',ansH:'',layout:{orient:'portrait',margin:'tight',cols:1,font:16,compact:true,footer:true}};}
+function exNewModel(){return{id:uid('exam'),name:'نموذج امتحان جديد',header:{republic:'المملكة المغربية',ministry:'وزارة التربية الوطنية والتعليم الأولي والرياضة',academy:'الأكاديمية الجهوية للتربية والتكوين',directorate:'',institution:'',examTitle:'الامتحان الموحد المحلي',subject:'',level:'',track:'',season:today().slice(0,4)+'-'+(+today().slice(0,4)+1),session:'الدورة الأولى',duration:'ساعتان',instructions:'أجب عن جميع الأسئلة المطلوبة مراعيًا توزيع النقط.',emblem:'',logo:''},docs:[],questions:[],docSize:'',ansH:'',ansStyle:'lines',layout:{orient:'portrait',margin:'tight',cols:1,font:16,compact:true,footer:true}};}
 const EX_QKINDS={normal:'سؤال عادي',linked:'مرتبط بوثيقة',essay:'موضوع إنشائي',mcq:'اختيار من متعدد',tf:'صح / خطأ',blank:'ملء الفراغ'};
 const EX_LETTERS=['أ','ب','ج','د','هـ','و','ز','ح','ط','ي'];
 function exNewQ(kind){
@@ -6193,7 +6203,7 @@ function exApplyPreset(kind){
   level:lv||base.level||'',track:base.track||'',subject:base.subject||'',
   examTitle:'فرض محروس',season:base.season||m.header.season,session:'الدورة الثانية'
  });
- m.layout={orient:'portrait',margin:'tight',cols:2,font:15.5,compact:true,footer:true};
+ m.layout={orient:'portrait',margin:'tight',cols:2,font:15.5,compact:true,footer:true};m.ansStyle='lines';
  const addDoc=(type,title,data,extra)=>{
   const d=exNewDoc(type);d.title=title;d.data=data||d.data;
   if(extra)Object.assign(d,extra);
@@ -6304,6 +6314,7 @@ async function renderExams(){
  $('exName').value=EX.cur.name||'';
  exRenderAddDocChips();exRenderDocs();exRenderQs();exStats();exSyncDocSizeBar();exSyncAnsBar();exRenderPreview();
  try{exApplyLayout();}catch(e){}
+ try{if(window.__exSyncAnsStyle)window.__exSyncAnsStyle();}catch(e){}
  try{exCheck();}catch(e){}
  try{exApplyZoom();}catch(e){}
  try{exDsClasses();}catch(e){}
@@ -6404,7 +6415,7 @@ function exRenderQs(){
     +'<div class="muted" style="font-size:11px;margin-top:4px">موضوع واحد = سؤال مقالي عادي؛ موضوعان أو ثلاثة = اختيار. تظهر مطبوعة بتباعد ضيّق.</div></div>';
    body+='<div class="form two"><div class="field"><label>العدد المقترح من الكلمات</label><input data-k="questions.'+i+'.words" placeholder="مثال: 120 كلمة"></div><div class="field"><label>توجيه للتلميذ</label><input data-k="questions.'+i+'.guide" placeholder="مثال: اربط الإجابة بالوثائق"></div></div>';
   }
-  body+='<div class="field" style="margin-top:6px"><label>فضاء الإجابة (مم) — <b data-anslab="'+i+'">'+_ansLab+'</b></label><div style="display:flex;gap:8px;align-items:center"><input type="number" data-k="questions.'+i+'.ansH" min="0" max="300" step="5" placeholder="عام" style="width:96px"><input type="range" data-ansrange="'+i+'" min="0" max="300" step="5" value="'+_ansVal+'" style="flex:1"></div><div class="muted" style="font-size:11px">0 = بلا فضاء؛ اتركه فارغًا لاتّباع الإعداد العام فوق المعاينة.</div></div>';
+  body+='<div class="field" style="margin-top:6px"><label>فضاء الإجابة (مم) — <b data-anslab="'+i+'">'+_ansLab+'</b></label><div style="display:flex;gap:8px;align-items:center"><input type="number" data-k="questions.'+i+'.ansH" min="0" max="300" step="5" placeholder="عام" style="width:96px"><input type="range" data-ansrange="'+i+'" min="0" max="300" step="5" value="'+_ansVal+'" style="flex:1"></div><div style="display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap"><label style="font-size:11px;font-weight:700">شكل الفضاء</label><select data-ansstyle="'+q.id+'" style="max-width:230px;flex:1"><option value="">اتّباع الإعداد العام</option><option value="lines">مسطّر</option><option value="blank">مجال أبيض</option></select></div><div class="muted" style="font-size:11px">0 = بلا فضاء؛ اتركه فارغًا لاتّباع الإعداد العام فوق المعاينة.</div></div>';
   body+='<div class="field"><label>الإجابة النموذجية وعناصر التنقيط (تظهر في سلم التنقيط فقط)</label>'+exFmtbar('questions.'+i+'.answer')+'<textarea data-k="questions.'+i+'.answer" rows="2" placeholder="اكتب عناصر الإجابة وتوزيع النقط..."></textarea></div>';
   return '<div class="ex-card card" style="margin-bottom:10px">'+head+row+body+'</div>';
  }).join(''):'<div class="ex-empty">لا توجد أسئلة بعد.</div>';
@@ -6505,6 +6516,8 @@ document.addEventListener('change',e=>{
   if(qt!==undefined){const qi=+qt;if(EX.cur.questions[qi]){const q=EX.cur.questions[qi];q.kind=el.value;const nq=exNewQ(el.value);if(el.value==='mcq'&&!Array.isArray(q.options))q.options=nq.options;if(el.value!=='essay'){q.words='';q.guide='';}}exRenderQs();exStats();exRenderPreview();exCheck();return;}
   const ock=el.dataset.optck;
   if(ock!==undefined){const q=EX.cur.questions.find(x=>x.id===ock);const j=+el.dataset.j;if(q&&Array.isArray(q.options)&&q.options[j]){q.options[j].correct=el.checked;exCheck();exDebounced();}return;}
+  const ast=el.dataset.ansstyle;
+  if(ast!==undefined){const q=EX.cur.questions.find(x=>x.id===ast);if(q){q.ansStyle=el.value;exDebounced();exCheck();}return;}
   const nf=el.dataset.numfield;
   if(nf!==undefined){const q=EX.cur.questions.find(x=>x.id===nf);if(q){q.numField=el.checked;exDebounced();exCheck();}return;}
   const tfa=el.dataset.tfans;
@@ -6576,6 +6589,12 @@ function exLogoThumb(prevId,src){const el=$(prevId);if(!el)return;if(src){el.inn
 function exWireLogo(fileId,prevId,key){const inp=$(fileId);if(!inp)return;inp.onchange=()=>{if(EX.cur&&inp.files&&inp.files[0]){if(!EX.cur.header)EX.cur.header={};const r=new FileReader();r.onload=()=>{EX.cur.header[key]=r.result;exLogoThumb(prevId,r.result);exRenderPreview();};r.readAsDataURL(inp.files[0]);}};}
 exWireLogo('exEmblemFile','exEmblemPrev','emblem');
 exWireLogo('exLogoFile','exLogoPrev','logo');
+(function(){
+ const sel=$('exAnsStyle');if(!sel)return;
+ const sync=()=>{if(EX&&EX.cur)sel.value=(String(EX.cur.ansStyle||'lines')==='blank'?'blank':'lines');};
+ sel.onchange=()=>{if(EX&&EX.cur){EX.cur.ansStyle=sel.value;exRenderQs();exDebounced();exCheck();}};
+ window.__exSyncAnsStyle=sync;
+})();
 $('exPresetApply').onclick=()=>{const v=($('exPreset')||{}).value;if(!v)return toast('اختر قالبًا أولًا');if(EX.cur&&(EX.cur.docs||[]).length&&!confirm('سيُستبدل النموذج الحالي بالقالب — متابعة؟'))return;exApplyPreset(v);};
 $('exAddQnormal').onclick=()=>exAddQ('normal');
 $('exAddQlinked').onclick=()=>exAddQ('linked');
@@ -6811,10 +6830,23 @@ function exKeyBox(q){
  if(!a)return'';
  return '<div class="keybox"><b>عناصر الإجابة والتنقيط:</b> '+a+'</div>';
 }
+function exAnsStyleOf(q){
+ const own=String((q&&q.ansStyle)||'').trim();
+ if(own==='lines'||own==='blank')return own;
+ const g=String((typeof EX!=='undefined'&&EX&&EX.cur&&EX.cur.ansStyle)||'').trim();
+ return (g==='blank')?'blank':'lines';
+}
+function exAnsBlock(q){
+ const ah=exAnsOf(q);
+ if(!ah)return'';
+ const st=exAnsStyleOf(q);
+ if(st==='blank')return '<div class="q-ans blank" style="height:'+ah+'mm"></div>';
+ const n=Math.max(1,Math.round(ah/7.2));
+ return '<div class="q-ans lines" style="height:'+ah+'mm">'+'<i></i>'.repeat(n)+'</div>';
+}
 function exQPaper(q,num,docNum,L,key){
  const pts=exPts(q.points);
  const docNo=q.docId?(docNum[q.docId]||null):null;
- const _ah=key?0:exAnsOf(q);
  let s='<div class="q">';
  s+='<div class="q-title"><span class="qn">السؤال '+num+(docNo?' <span class="q-docref">(انطلاقًا من الوثيقة رقم '+docNo+')</span>':'')+(q.kind==='mcq'?' (اختر الإجابة الصحيحة)':q.kind==='tf'?' (قيم العبارة)':q.kind==='blank'?' (أكمل الفراغات)':'')+'</span><span class="qp">('+pts+' نقط)</span></div>';
  if(String(q.text||'').trim())s+='<div class="q-txt">'+(q.kind==='blank'?exBlankFmt(q.text):exFmt(q.text))+'</div>';
@@ -6830,7 +6862,7 @@ function exQPaper(q,num,docNum,L,key){
   s+='<div class="tf"><span>صحيح<span class="bx"'+(key&&/^(صحيح|صالح|صح)$/.test(good)?' style="background:#0b57a8"':'')+'></span></span><span>غير صحيح<span class="bx"'+(key&&/^(خطأ|غير صحيح|غير صالح)$/.test(good)?' style="background:#0b57a8"':'')+'></span></span></div>';
  }
  if(key)s+=exKeyBox(q);
- else if(_ah)s+='<div class="q-ans" style="height:'+_ah+'mm"></div>';
+ else s+=exAnsBlock(q);
  s+='</div>';
  return s;
 }
@@ -6849,7 +6881,10 @@ function exEssayPaper(q,num,L,key){
  }
  s+='<div class="q-cap" style="text-align:center">'+(q.words?'عدد الكلمات: حوالي '+exEsc(q.words):'')+(q.guide?(q.words?' — ':'')+exEsc(q.guide):'')+'</div>';
  if(key)s+=exKeyBox(q);
- else{
+ else if(exAnsStyleOf(q)==='blank'){
+  const _ah=exAnsOf(q)||120;
+  s+='<div class="essay-body blank" style="height:'+_ah+'mm"></div>';
+ }else{
   const _ah=exAnsOf(q)||120;
   s+='<div class="essay-body">'+'<i></i>'.repeat(Math.max(0,Math.round(_ah/7.2)))+'</div>';
  }
@@ -7049,6 +7084,36 @@ function exSafeName(v){return String(v||'نموذج امتحان').replace(/[\/:
 window.addEventListener('afterprint',()=>document.body.classList.remove('ex-printing'));
 if($('exDsPdf'))$('exDsPdf').onclick=()=>exDsGenerate(false);
 if($('exDsPrint'))$('exDsPrint').onclick=()=>exDsGenerate(true);
+/* طباعة موثوقة: نطبع مستندًا مستقلًا داخل إطار مخفي بدل إخفاء التطبيق،
+   فلا يتأثر المحتوى بتوقيت نافذة الطباعة (كان سبب خروج الورقة بيضاء). */
+function exPrintFrame(html){
+ const old=document.getElementById('exPrintFrame');
+ if(old){try{old.remove()}catch(e){}}
+ const f=document.createElement('iframe');
+ f.id='exPrintFrame';f.setAttribute('aria-hidden','true');
+ f.style.cssText='position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;opacity:0;pointer-events:none';
+ let fired=false;
+ const fire=()=>{
+  if(fired)return;fired=true;
+  try{const w=f.contentWindow;w.focus();w.print();}
+  catch(e){console.error(e);toast('تعذّرت الطباعة داخل التطبيق — سيُفتح مستند مستقل');exPrintPopup(html);}
+ };
+ f.onload=()=>setTimeout(fire,300);
+ document.body.appendChild(f);
+ try{f.srcdoc=html;}catch(e){try{const d=f.contentDocument;d.open();d.write(html);d.close();}catch(e2){}}
+ const clean=()=>{try{f.remove()}catch(e){}};
+ try{window.addEventListener('afterprint',clean,{once:true});}catch(e){}
+ setTimeout(clean,300000);
+ return true;
+}
+function exPrintPopup(html){
+ try{
+  const w=window.open('','_blank');
+  if(!w)return toast('اسمح بالنوافذ المنبثقة ثم أعد المحاولة');
+  w.document.write(html+'<script>window.onload=function(){setTimeout(function(){try{window.print()}catch(e){}},300)}<\/script>');
+  w.document.close();
+ }catch(e){toast('تعذّر فتح نافذة الطباعة: '+String(e));}
+}
 async function exPrintPaper(key){
  try{
   exReadHeader();exReadLayout();
@@ -7064,19 +7129,21 @@ async function exPrintPaper(key){
    else toast('تعذّر تجهيز الطباعة'+(r&&r.err?': '+r.err:''));
    return;
   }
-  const popup=()=>{
-   const w=window.open('','_blank');
-   if(!w)return toast('اسمح بالنوافذ المنبثقة ثم أعد المحاولة');
-   w.document.write(html+'<script>window.onload=function(){setTimeout(function(){window.print();},250)}<\/script>');
-   w.document.close();
-  };
-  if(typeof window.print!=='function')return popup();
+  // احتياط: نُبقي نسخة جاهزة أيضًا لمن يطبع من قائمة المتصفح
   $('exPaperStore').innerHTML=exPrintRoot(m,key);
-  document.body.classList.add('ex-printing');
-  setTimeout(()=>{
-   try{window.print();}catch(e){document.body.classList.remove('ex-printing');popup();return;}
-   setTimeout(()=>document.body.classList.remove('ex-printing'),1500);
-  },120);
+  // 1) الإصدار المثبّت (Electron): طباعة أصلية عبر نافذة مستقلة — الأكثر موثوقية
+  if(window.sijilAPI&&typeof window.sijilAPI.printDoc==='function'){
+   toast('جارٍ تجهيز الطباعة…');
+   try{
+    const r=await window.sijilAPI.printDoc(html);
+    if(r&&r.ok)toast('تم إرسال الورقة إلى الطابعة');
+    else if(r&&r.reason==='cancelled')toast('أُلغيت الطباعة');
+    else{toast('تعذّرت الطباعة الأصلية — سيُفتح مستند مستقل');exPrintFrame(html);}
+    return;
+   }catch(e){console.error(e);}
+  }
+  // 2) المتصفح/الهاتف: إطار مستقل، ثم نافذة مستقلة عند التعذّر
+  if(!exPrintFrame(html))exPrintPopup(html);
  }catch(err){console.error(err);toast('تعذّرت الطباعة: '+String(err));}
 }
 $('exPrintBtn').onclick=()=>exPrintPaper(false);
