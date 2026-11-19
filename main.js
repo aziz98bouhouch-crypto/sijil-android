@@ -49,7 +49,7 @@ ipcMain.handle('print-pdf', async (event, html, name)=>{
   try{
     w=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true}});
     await w.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(html));
-    const data=await w.webContents.printToPDF({printBackground:true,pageSize:'A4'});
+    const data=await w.webContents.printToPDF({printBackground:true,preferCSSPageSize:true,pageSize:'A4'});
     const safeName=String(name||'نموذج_امتحان.pdf').replace(/[\\/:*?"<>|]/g,'_');
     const def=/(?:\.pdf)$/i.test(safeName)?safeName:safeName+'.pdf';
     const r=await dialog.showSaveDialog({defaultPath:def,filters:[{name:'PDF',extensions:['pdf']}]});
