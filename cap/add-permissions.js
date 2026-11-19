@@ -12,7 +12,9 @@ let xml = fs.readFileSync(manifestPath, 'utf8');
 // 1) Runtime permissions (camera + storage) so getUserMedia / file access work.
 const additions = [
   '<uses-permission android:name="android.permission.CAMERA" />',
+  '<uses-permission android:name="android.permission.FLASHLIGHT" />',
   '<uses-feature android:name="android.hardware.camera" android:required="false" />',
+  '<uses-feature android:name="android.hardware.camera.flash" android:required="false" />',
   '<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />',
   '<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />',
   '<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />'

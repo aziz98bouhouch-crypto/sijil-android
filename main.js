@@ -1,8 +1,9 @@
-const {app,BrowserWindow,Menu,shell,ipcMain,dialog,nativeImage,Tray,Notification}=require('electron');
+const {app,BrowserWindow,Menu,shell,ipcMain,dialog,nativeImage,Tray,Notification,session}=require('electron');
 const path=require('path');
 const fs=require('fs');
 const http=require('http');
 const os=require('os');
+const dnsP=require('dns').promises;
 const crypto=require('crypto');
 const {execFile}=require('child_process');
 
@@ -12,6 +13,36 @@ const gotTheLock=app.requestSingleInstanceLock();
 if(!gotTheLock){ app.quit(); }
 
 let win=null;
+
+// ===== إذن الكاميرا (ناسخ رمز QR) =====
+// getUserMedia لا يعمل في Electron بلا معالِج إذن: الفحص المسبق يسبق الطلب،
+// وعلى Windows يصل الطلب بقائمة أنواع فارغة، فيُرفض بصمت بلا أي رسالة.
+function ownPageUrl(url){
+  const u=String(url||'');
+  return /^file:\/\//i.test(u)||/^https?:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?(?:[/?#]|$)/i.test(u);
+}
+function installMediaPermissions(){
+  try{
+    const ses=session.defaultSession;
+    ses.setPermissionRequestHandler((wc,permission,callback,details)=>{
+      if(permission!=='media')return callback(true);
+      let url='';try{url=wc&&wc.getURL?wc.getURL():'';}catch(e){}
+      const types=(details&&details.mediaTypes)||[];
+      /* display-capture (شاشة/نافذة/تبويب) لا يخصّ الكاميرا: يُرفض */
+      if(types.length&&types.every(t=>t!=='video'&&t!=='audio'))return callback(false);
+      const origin=details&&details.securityOrigin;
+      callback(ownPageUrl(url)||ownPageUrl(origin));
+    });
+    ses.setPermissionCheckHandler((wc,permission,origin,details)=>{
+      if(permission!=='media')return true;
+      const t=details&&details.mediaType;
+      if(t&&t!=='video'&&t!=='audio')return false;
+      let url='';try{url=wc&&wc.getURL?wc.getURL():'';}catch(e){}
+      return ownPageUrl(url)||ownPageUrl(origin);
+    });
+  }catch(e){}
+}
+
 
 function createWindow(){
   const iconPath=path.join(__dirname,'build','icon.ico');
@@ -44,12 +75,15 @@ function createWindow(){
 
 Menu.setApplicationMenu(null);
 
-ipcMain.handle('print-pdf', async (event, html, name)=>{
+ipcMain.handle('print-pdf', async (event, html, name, opts)=>{
   let w=null;
   try{
     w=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true}});
     await w.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(html));
-    const data=await w.webContents.printToPDF({printBackground:true,preferCSSPageSize:true,pageSize:'A4'});
+    // cssPage=true: احترام @page في الورقة (الهوامش والاتجاه) — يُستعمل لأوراق الامتحانات
+    const pdfOpts={printBackground:true,pageSize:'A4'};
+    if(opts&&opts.cssPage)pdfOpts.preferCSSPageSize=true;
+    const data=await w.webContents.printToPDF(pdfOpts);
     const safeName=String(name||'نموذج_امتحان.pdf').replace(/[\\/:*?"<>|]/g,'_');
     const def=/(?:\.pdf)$/i.test(safeName)?safeName:safeName+'.pdf';
     const r=await dialog.showSaveDialog({defaultPath:def,filters:[{name:'PDF',extensions:['pdf']}]});
@@ -104,7 +138,18 @@ function lanIPv4(){
   }catch(e){}
   return out;
 }
-function portalUrls(port){const urls=['http://127.0.0.1:'+port];lanIPv4().forEach(a=>urls.push('http://'+a+':'+port));return urls;}
+function lanRank(ip){
+  const o=String(ip||'').split('.').map(Number);
+  if(o.length!==4||o.some(x=>!(x>=0&&x<=255)))return 4;
+  if(o[0]===169&&o[1]===254)return 3;
+  if(o[0]===100&&o[1]>=64&&o[1]<=127)return 2;
+  if(o[0]===10)return 0;
+  if(o[0]===192&&o[1]===168)return 0;
+  if(o[0]===172&&o[1]>=16&&o[1]<=31)return 0;
+  return 1;
+}
+function lanIPv4Sorted(){return lanIPv4().slice().sort((a,b)=>lanRank(a)-lanRank(b));}
+function portalUrls(port){const urls=['http://127.0.0.1:'+port];lanIPv4Sorted().forEach(a=>urls.push('http://'+a+':'+port));return urls;}
 
 const PORTAL_HTML=require("./portal-html.js");
 
@@ -128,6 +173,24 @@ function portalDeny(res,ip){portalHit(ip);return res;}
 
 // ===== نسخة الهاتف (تطبيق ويب/PWA يقدّمه نفس الخادم على /app) =====
 const APP_ICON_PNG=path.join(__dirname,'build','icon.png');
+const VENDOR_DIR=path.join(__dirname,'vendor');
+// مكتبات البائع (jsQR / html2pdf) يجب أن تُقدَّم كـ JavaScript، لا كصفحة /app
+function serveVendor(res,u){
+  let rel=null;
+  if(u.indexOf('/app/vendor/')===0)rel=u.slice('/app/vendor/'.length);
+  else if(u.indexOf('/vendor/')===0)rel=u.slice('/vendor/'.length);
+  if(rel===null)return false;
+  try{
+    const fp=path.join(VENDOR_DIR,rel.replace(/\\/g,'/').replace(/^\/+/,''));
+    if(rel.indexOf('..')<0&&fp.startsWith(VENDOR_DIR)&&fs.existsSync(fp)&&fs.statSync(fp).isFile()){
+      const ext=path.extname(fp).toLowerCase();
+      const types={'.js':'application/javascript; charset=utf-8','.mjs':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.png':'image/png','.wasm':'application/wasm'};
+      res.writeHead(200,{'Content-Type':types[ext]||'application/octet-stream','Cache-Control':'public, max-age=86400','Access-Control-Allow-Origin':'*'});
+      res.end(fs.readFileSync(fp));return true;
+    }
+  }catch(e){}
+  res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8'});res.end('not found');return true;
+}
 const appIconCache={};
 function appIcon(size){
   if(appIconCache[size])return appIconCache[size];
@@ -163,7 +226,7 @@ function manifestJson(){
     ]
   });
 }
-const SW_JS=`const CACHE='sijil-app-v1';
+const SW_JS=`const CACHE='sijil-app-v1.0.86';
 const ASSETS=['/app','/manifest.webmanifest','/icon-192.png','/icon-512.png'];
 self.addEventListener('install',function(e){self.skipWaiting();e.waitUntil(caches.open(CACHE).then(function(c){return c.addAll(ASSETS).catch(function(){});}));});
 self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim());});
@@ -181,6 +244,19 @@ self.addEventListener('fetch',function(e){
   }
 });`;
 
+let portalBuilding=null;
+async function portalDataOrBuild(){
+  if(portalData&&portalData.studs&&portalData.studs.length)return portalData;
+  if(!win||!win.webContents||win.webContents.isDestroyed())return portalData;
+  if(!portalBuilding){
+    portalBuilding=win.webContents.executeJavaScript('(typeof buildPortalSnapshot==="function")?buildPortalSnapshot():null')
+      .then(d=>{if(d&&d.studs&&d.studs.length)portalData=d;return d;})
+      .catch(()=>null)
+      .then(d=>{portalBuilding=null;return d;});
+  }
+  await portalBuilding;
+  return portalData;
+}
 async function portalHandler(req,res){
   const u=(req.url||'/').split('?')[0];
   const ip=(req.socket&&req.socket.remoteAddress)||'?';
@@ -214,27 +290,39 @@ async function portalHandler(req,res){
     if(portalLocked(ip)){res.writeHead(429,cors);res.end(JSON.stringify({error:'محاولات كثيرة — حاول بعد قليل'}));return;}
     let code='',sec='';
     try{const sp=new URL(req.url,'http://x').searchParams;code=sp.get('code')||'';sec=sp.get('sec')||sp.get('pin')||'';}catch(e){}
-    const list=(portalData&&portalData.studs)?(portalData.studs||[]):[];
-    const st=list.find(x=>x.code&&String(x.code).toLowerCase()===String(code).toLowerCase());
+    /* لوحات المفاتيح العربية على الهواتف تكتب الأرقام المشرقية وعلامات اتجاه مخفية: تُطبَّع الخانتان قبل المطابقة */
+    const lat=s=>String(s).replace(/[\u0660-\u0669\u06F0-\u06F9\uFF10-\uFF19]/g,c=>{const o=c.charCodeAt(0);return String(o-(o>=0xFF10?0xFF10:(o>=0x06F0?0x06F0:0x0660)))}).replace(/[\uFBF1-\uFBF9]/g,c=>String(c.charCodeAt(0)-0xFBF0));
+    const unbidi=s=>String(s).replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u206F\u061C\uFEFF]/g,'');
+    const nCode=v=>lat(unbidi(v)).replace(/\uFF0F/g,'/').replace(/\s+/g,'').toLowerCase();
+    const nSec=v=>lat(unbidi(v)).replace(/[\s\-\u005F.\u00B7\u060C,\u2010-\u2015]/g,'');
+    const nc=nCode(code),ns=nSec(sec);
+    if(!nc){res.writeHead(400,cors);res.end(JSON.stringify({error:'need_code',message:'أدخل رقم دخولك أولًا'}));return;}
+    if(!ns){res.writeHead(400,cors);res.end(JSON.stringify({error:'missing_sec',message:'أدخل الرمز السرّي المطبوع في بطاقتك'}));return;}
+    if(ns.length<4){res.writeHead(400,cors);res.end(JSON.stringify({error:'short_sec',message:'الرمز السرّي قصير — هو ١٢ رقمًا في البطاقة'}));return;}
+    const pd=await portalDataOrBuild();
+    const list=(pd&&pd.studs)?(pd.studs||[]):[];
+    const st=list.find(x=>x.code&&nCode(x.code)===nc);
     if(!st){
       portalDeny(res,ip);await sleepMs(THROT_MS);
-      res.writeHead(404,cors);res.end(JSON.stringify({error:'رمز الدخول غير صحيح'}));return;
+      res.writeHead(404,cors);res.end(JSON.stringify({error:'not_published',message:'رمز الدخول غير صحيح'}));return;
     }
-    if(!st.sec||!ctEq(String(sec),String(st.sec))){
+    if(!st.sec||!ctEq(ns,nSec(String(st.sec)))){
       portalDeny(res,ip);await sleepMs(THROT_MS);
-      res.writeHead(404,cors);res.end(JSON.stringify({error:'الرمز غير صحيح'}));return;
+      res.writeHead(404,cors);res.end(JSON.stringify({error:'bad_sec',message:'الرمز غير صحيح'}));return;
     }
     portalClear(ip);
     const safe=Object.assign({},st);delete safe.sec;
     res.writeHead(200,cors);
-    res.end(JSON.stringify({meta:portalData&&portalData.meta?portalData.meta:null,student:safe}));
+    res.end(JSON.stringify({meta:pd&&pd.meta?pd.meta:null,student:safe}));
     return;
   }
+  if(u.indexOf('/vendor/')===0||u.indexOf('/app/vendor/')===0){if(serveVendor(res,u))return;}
   if(u==='/app'||u==='/app/'||u.indexOf('/app/')===0){serveAppHtml(res);return;}
   if(u==='/manifest.webmanifest'){res.writeHead(200,{'Content-Type':'application/manifest+json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(manifestJson());return;}
   if(u==='/sw.js'){res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'no-store','Service-Worker-Allowed':'/'});res.end(SW_JS);return;}
   if(u==='/icon-192.png'||u==='/icon-512.png'){const size=u.indexOf('192')>=0?192:512;const b=appIcon(size);if(b){res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=86400'});res.end(b);}else{res.writeHead(404,{'Content-Type':'text/plain'});res.end('no icon');}return;}
   if(u==='/logo.png'){try{const fp=path.join(__dirname,'build','icon.png');if(fs.existsSync(fp)){res.writeHead(200,{'Content-Type':'image/png','Cache-Control':'public, max-age=86400','Access-Control-Allow-Origin':'*'});res.end(fs.readFileSync(fp));return;}}catch(e){}res.writeHead(404,{'Content-Type':'text/plain'});res.end('no logo');return;}
+  if(u==='/jsqr.js'||u==='/vendor/jsqr.js'){try{const fp=path.join(__dirname,'vendor','jsqr.js');if(fs.existsSync(fp)){res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'public, max-age=86400','Access-Control-Allow-Origin':'*'});res.end(fs.readFileSync(fp));return;}}catch(e){}res.writeHead(404,{'Content-Type':'text/plain'});res.end('no jsqr');return;}
   if(u.indexOf('/build/')===0){
     try{
       const base=path.join(__dirname,'build');
@@ -301,6 +389,33 @@ ipcMain.handle('portal-stop',()=>{portalStopSync();return{ok:true,running:false}
 ipcMain.handle('portal-push',(e,payload)=>{try{portalData=payload||null}catch(eo){}return{ok:true,running:!!portalSrv};});
 ipcMain.handle('portal-status',()=>{const port=portalSrv?(portalSrv.address()&&portalSrv.address().port):0;return{running:!!portalSrv,port:port||0,urls:portalSrv?portalUrls(port||8050):[]};});
 ipcMain.handle('sha256',(e,txt)=>sha256HexNode(txt));
+// ===== تشفير حمولة البوابة لكل متعلم (AES-256-GCM + PBKDF2) =====
+const ENC_ITER=150000,ENC_MIN=5000,ENC_MAX=600000;
+function encB64Buf(buf){return Buffer.from(buf).toString('base64')}
+ipcMain.handle('enc-portal',async(e,job)=>{
+  try{
+    const pass=String((job&&job.pass)||'');
+    if(!pass||pass.length<8)return{error:'nokey'};
+    const plain=JSON.stringify((job&&job.plain!=null)?job.plain:null);
+    if(!plain||plain.length>4000000)return{error:'tosslarge'};
+    let iter=parseInt((job&&job.iter)||ENC_ITER,10);if(!isFinite(iter))iter=ENC_ITER;
+    iter=Math.max(ENC_MIN,Math.min(ENC_MAX,iter));
+    const salt=crypto.randomBytes(16),iv=crypto.randomBytes(12);
+    const key=await new Promise((res,rej)=>crypto.pbkdf2(pass,salt,iter,32,'sha256',(er,k)=>er?rej(er):res(k)));
+    if(!key||key.length!==32)return{error:'kdf'};
+    const ci=crypto.createCipheriv('aes-256-gcm',key,iv);
+    const ct=Buffer.concat([ci.update(plain,'utf8'),ci.final(),ci.getAuthTag()]);
+    return{alg:'A256GCM',iter:iter,salt:encB64Buf(salt),iv:encB64Buf(iv),ct:encB64Buf(ct)};
+  }catch(x){return{error:String((x&&x.message)||x).slice(0,80)}}
+});
+ipcMain.handle('net-diag',async(e,u)=>{try{
+  const target=String(u||'https://api.github.com');
+  let host='';try{host=new URL(target).hostname;}catch(x){host=target.replace(/^https?:\/\//,'').split('/')[0].split(':')[0];}
+  const p=await session.defaultSession.resolveProxy(target);
+  let dnsState='unknown';
+  if(host){try{await dnsP.lookup(host,{ttl:false});dnsState='ok';}catch(x){dnsState='fail';}}
+  return{ok:true,proxy:p,dns:dnsState,host:host,healed:proxyHealed,note:proxyHealNote};
+}catch(err){return{ok:false,error:String(err&&err.message||err)};}});
 
 
 async function rendererSnapshot(){if(!win||!win.webContents||win.webContents.isDestroyed())return null;try{return await win.webContents.executeJavaScript('(typeof window.__syncSnapshot==="function")?window.__syncSnapshot():Promise.resolve(null)');}catch(e){return null;}}
@@ -333,6 +448,12 @@ function pruneBackups(dir,keep){
     for(let i=keep;i<files.length;i++){ try{ fs.unlinkSync(path.join(dir,files[i].f)); }catch(e){} }
   }catch(e){}
 }
+// طابع الدقيقة وحده لا يكفي: نسختان في نفس الدقيقة كانتا تكتبان فوق بعضهما
+function backupFilePath(dir,stamp){
+  let fp=path.join(dir,'sijil-backup_'+stamp+'.enc.json');
+  for(let n=2;n<100&&fs.existsSync(fp);n++) fp=path.join(dir,'sijil-backup_'+stamp+'-'+n+'.enc.json');
+  return fp;
+}
 async function doEncryptedBackup(reason){
   try{
     const key=getBackupKey(); if(!key) return {ok:false,error:'no-key'};
@@ -341,7 +462,7 @@ async function doEncryptedBackup(reason){
     const ts=new Date();
     const stamp=ts.getFullYear()+'-'+pad2(ts.getMonth()+1)+'-'+pad2(ts.getDate())+'_'+pad2(ts.getHours())+'-'+pad2(ts.getMinutes());
     const payload=encryptString(key,JSON.stringify({createdAt:ts.toISOString(),reason:reason||'scheduled',app:'sijil-taqyim-pro',data}));
-    const fp=path.join(dir,'sijil-backup_'+stamp+'.enc.json');
+    const fp=backupFilePath(dir,stamp);
     fs.writeFileSync(fp,payload,{mode:0o600});
     pruneBackups(dir,BACKUP_KEEP);
     lastBackupAt=Date.now();
@@ -356,8 +477,62 @@ function newestBackupAgeHours(){
     return (Date.now()-Math.max.apply(null,ms))/3600000;
   }catch(e){ return 1e9; }
 }
-function startBackupScheduler(){
-  (async()=>{ try{ if(newestBackupAgeHours()>BACKUP_MAX_AGE_H){ const r=await doEncryptedBackup('startup'); if(r&&r.ok) notify('نسخة احتياطية مشفّرة','أُنشئت نسخة عند التشغيل'); } }catch(e){} })();
+// ===== دفعة 41 (#246): واجهة الاسترجاع داخل التطبيق =====
+const ENC_BACKUP_RE=/^sijil-backup_[0-9]{4}-[0-9]{2}-[0-9]{2}_[0-9]{2}-[0-9]{2}(-[0-9]{1,2})?\.enc\.json$/;
+function isEncBackupName(n){ return typeof n==='string' && ENC_BACKUP_RE.test(n) && n.indexOf('/')<0 && n.indexOf('\\')<0 && n.indexOf('..')<0; }
+function hasBackupKey(){
+  try{ const kp=path.join(app.getPath('userData'),'backup.key'); if(!fs.existsSync(kp)) return false;
+    const s=fs.readFileSync(kp,'utf8').trim(); return !!s && s.length>=44; }catch(e){ return false; }
+}
+function decryptString(keyB64,boxJson){
+  const box=JSON.parse(boxJson);
+  if(!box||box.alg!=='aes-256-gcm'||!box.iv||!box.tag||!box.data) throw new Error('ملف ليس بصيغة نسخة مشفّرة معروفة');
+  const d=crypto.createDecipheriv('aes-256-gcm',Buffer.from(keyB64,'base64'),Buffer.from(box.iv,'base64'));
+  d.setAuthTag(Buffer.from(box.tag,'base64'));
+  return Buffer.concat([d.update(Buffer.from(box.data,'base64')),d.final()]).toString('utf8');
+}
+function readEncBackup(name){
+  if(!isEncBackupName(name)) throw new Error('اسم ملف غير صالح');
+  if(!hasBackupKey()) throw new Error('لا يوجد مفتاح تشفير على هذا الجهاز — النسخ لا تُفتح بدونه');
+  const fp=path.join(backupsDir(),name);
+  if(!fs.existsSync(fp)) throw new Error('ملف النسخة غير موجود');
+  let box;
+  try{ box=JSON.parse(decryptString(getBackupKey(),fs.readFileSync(fp,'utf8'))); }
+  catch(x){ const m=String((x&&x.message)||x);
+    throw new Error(x instanceof SyntaxError?'ملف ليس بصيغة نسخة مشفّرة معروفة':
+      (/Unsupported state|unable to authenticate|tag mismatch|bad decrypt/i.test(m)
+        ?'تعذّر فكّ التشفير: النسخة تالفة أو كُتبت بمفتاح جهاز آخر — انقل معها ملف backup.key أو استعمل الجهاز الذي أُنشئت عليه'
+        :'تعذّر فكّ التشفير: '+m.slice(0,60))); }
+  if(!box||!box.data||typeof box.data!=='object'||Array.isArray(box.data)) throw new Error('النسخة لا تحتوي بيانات');
+  return {name:name,path:fp,createdAt:box.createdAt||'',reason:box.reason||'',app:box.app||'',data:box.data};
+}
+function encBackupCounts(data){
+  const out={}; let total=0;
+  for(const k of Object.keys(data)){ const v=data[k]; if(Array.isArray(v)){ out[k]=v.length; total+=v.length; } }
+  return {stores:out,total:total};
+}
+ipcMain.handle('backup-list',()=>{ try{
+  const dir=backupsDir();
+  const items=fs.existsSync(dir)?fs.readdirSync(dir).filter(isEncBackupName).map(f=>{
+    try{ const s=fs.statSync(path.join(dir,f)); return{name:f,size:s.size,mtime:s.mtimeMs}; }catch(e){ return{name:f,size:0,mtime:0}; }
+  }).sort((a,b)=>b.mtime-a.mtime):[];
+  return{ok:true,items:items,hasKey:hasBackupKey(),dir:dir};
+}catch(e){ return{ok:false,error:String((e&&e.message)||e)}; } });
+ipcMain.handle('backup-peek',(e,name)=>{ try{
+  const b=readEncBackup(name); const c=encBackupCounts(b.data);
+  return{ok:true,name:name,createdAt:b.createdAt,reason:b.reason,app:b.app,stores:c.stores,total:c.total};
+}catch(x){ return{ok:false,error:String((x&&x.message)||x)}; } });
+ipcMain.handle('backup-read',(e,name)=>{ try{
+  const b=readEncBackup(name);
+  return{ok:true,name:name,createdAt:b.createdAt,reason:b.reason,data:b.data};
+}catch(x){ return{ok:false,error:String((x&&x.message)||x)}; } });
+ipcMain.handle('backup-create',async(e,reason)=>{ try{
+  const r=await doEncryptedBackup(String(reason||'manual').slice(0,32));
+  return r&&r.ok?{ok:true,name:path.basename(r.file)}:(r&&r.skipped?{ok:false,error:'لا توجد بيانات محفوظة بعد'}:{ok:false,error:(r&&r.error)||'تعذّر إنشاء النسخة'});
+}catch(x){ return{ok:false,error:String((x&&x.message)||x)}; } });
+ipcMain.handle('backup-open-dir',()=>{ try{ fs.mkdirSync(backupsDir(),{recursive:true}); shell.openPath(backupsDir()); return{ok:true}; }catch(e){ return{ok:false,error:String((e&&e.message)||e)}; } });
+
+function startBackupScheduler(){  (async()=>{ try{ if(newestBackupAgeHours()>BACKUP_MAX_AGE_H){ const r=await doEncryptedBackup('startup'); if(r&&r.ok) notify('نسخة احتياطية مشفّرة','أُنشئت نسخة عند التشغيل'); } }catch(e){} })();
   if(backupTimer) clearInterval(backupTimer);
   backupTimer=setInterval(()=>{ doEncryptedBackup('scheduled'); },BACKUP_INTERVAL_MS);
 }
@@ -413,8 +588,36 @@ ipcMain.handle('updater:check',async()=>{ try{ if(!__upd) return {ok:false,dev:t
 ipcMain.handle('updater:install',async()=>{ try{ if(__upd){ quitRequested=true; setImmediate(()=>{ try{ __upd.quitAndInstall(false,true); }catch(e){ app.quit(); } }); } return {ok:true}; }catch(e){ return {ok:false,error:String(e&&e.message||e)}; } });
 ipcMain.handle('updater:state',()=>__updState);
 
+// ===== تجاوز الوكيل المعطوب عند الحاجة: يفحص وصول العنوان الحالي، ويحوّل للمباشرة إن عطّلها الوكيل =====
+let proxyHealed=false, proxyHealNote='';
+async function proxyHeal(target){
+  const out={ok:false,changed:false,proxy:'',viaProxy:'',viaDirect:''};
+  try{
+    const ses=session.defaultSession;
+    const url=String(target||'https://api.github.com');
+    let p=''; try{ p=String(await ses.resolveProxy(url)||''); }catch(e){ return out; }
+    out.proxy=p;
+    const m=/^PROXY\s+([\w.-]+):(\d+)/i.exec(p.trim());
+    try{ const r=await ses.fetch(url,{method:'GET',cache:'no-store'}); out.viaProxy='http '+((r&&r.status)||0); }
+    catch(e){ out.viaProxy=String(e&&e.message||e); }
+    if(!m){ out.ok=/^http /.test(out.viaProxy); return out; }
+    if(/^net::ERR_(PROXY_|TUNNEL_|CONNECTION_|SOCKS|ADDRESS_)/i.test(out.viaProxy)===false){ out.ok=true; return out; }
+    try{
+      await ses.setProxy({mode:'direct'});
+      try{ await ses.forceReloadProxyConfig(); }catch(e){}
+      proxyHealed=true; proxyHealNote='وكيل النظام «'+m[1]+':'+m[2]+'»';
+      out.changed=true;
+    }catch(e){ out.error=String(e&&e.message||e); return out; }
+    try{ const r2=await ses.fetch(url,{method:'GET',cache:'no-store'}); out.viaDirect='http '+((r2&&r2.status)||0); out.ok=true; }
+    catch(e2){ out.viaDirect=String(e2&&e2.message||e2); }
+    return out;
+  }catch(err){ out.error=String(err&&err.message||err); return out; }
+}
+ipcMain.handle('proxy-heal',(e,u)=>proxyHeal(u));
+
 app.whenReady().then(async()=>{
   if(!gotTheLock) return;
+  installMediaPermissions();
   createWindow();
   createTray();
   try{ await portalRun(portalBasePort); }catch(e){}
