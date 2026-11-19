@@ -73,6 +73,10 @@ jobs:
         working-directory: cap
         run: node add-permissions.js
 
+      - name: Inject native Chromium print plugin
+        working-directory: cap
+        run: node add-print-plugin.js
+
       - name: Sync Capacitor
         working-directory: cap
         run: npx cap sync android

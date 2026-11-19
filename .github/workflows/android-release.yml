@@ -12,6 +12,10 @@ on:
         required: false
         default: "المواكبة التربوية الذكية"
 
+  push:
+    tags:
+      - 'v*'
+
 permissions:
   contents: write
 
