@@ -75,12 +75,15 @@ function createWindow(){
 
 Menu.setApplicationMenu(null);
 
-ipcMain.handle('print-pdf', async (event, html, name)=>{
+ipcMain.handle('print-pdf', async (event, html, name, opts)=>{
   let w=null;
   try{
     w=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true}});
     await w.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(html));
-    const data=await w.webContents.printToPDF({printBackground:true,pageSize:'A4'});
+    // cssPage=true: احترام @page في الورقة (الهوامش والاتجاه) — يُستعمل لأوراق الامتحانات
+    const pdfOpts={printBackground:true,pageSize:'A4'};
+    if(opts&&opts.cssPage)pdfOpts.preferCSSPageSize=true;
+    const data=await w.webContents.printToPDF(pdfOpts);
     const safeName=String(name||'نموذج_امتحان.pdf').replace(/[\\/:*?"<>|]/g,'_');
     const def=/(?:\.pdf)$/i.test(safeName)?safeName:safeName+'.pdf';
     const r=await dialog.showSaveDialog({defaultPath:def,filters:[{name:'PDF',extensions:['pdf']}]});

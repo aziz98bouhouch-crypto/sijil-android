@@ -1,6 +1,6 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('sijilAPI',{
-  printPdf:(html,name)=>ipcRenderer.invoke('print-pdf',html,name||'نموذج_امتحان.pdf'),
+  printPdf:(html,name,opts)=>ipcRenderer.invoke('print-pdf',html,name||'نموذج_امتحان.pdf',opts||null),
   pickBackupDir:()=>ipcRenderer.invoke('pick-backup-dir'),
   writeBackupFile:(dir,payload)=>ipcRenderer.invoke('write-backup-file',dir,payload),
   encBackupList:()=>ipcRenderer.invoke('backup-list'),
