@@ -1468,6 +1468,8 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     try{
       var P=caps();
       var safeName=String(name||'تقرير').replace(/[\\/:*?"<>|]/g,'_');
+      // وثائق الامتحانات/أوراق الفرض تحمل @page بهامش الورقة واتجاهها،
+      // فيحترمها محرّك الطباعة بدل الهوامش الافتراضية.
       if(P&&P.SijilPrint&&typeof P.SijilPrint.printHtml==='function'){
         try{
           var __pdfDoc=window.__sijilBuildPrintDocument(fullHtml);
@@ -1480,23 +1482,30 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       if(typeof window.html2pdf!=='function'){try{await window.loadVendor('html2pdf')}catch(e){}}
       if(typeof window.html2pdf!=='function')return{ok:false,err:'مولّد PDF غير محمّل'};
       try{if(typeof window.confirm==='function'){var go=window.confirm('هل تسمح بإنشاء ملف PDF للطباعة/الحفظ؟\nسيتم بعد ذلك فتح نافذة النظام لاختيار مكان الحفظ أو تطبيق الطباعة.');if(!go)return{ok:false,cancelled:true};}}catch(e){}
+      var __g=window.__exPdfGeom?window.__exPdfGeom(fullHtml):null;
+      var __exam=!!(__g&&__g.exam);
+      var __mg=(__g&&__g.mg!=null)?__g.mg:12;
+      var __land=!!(__g&&__g.land);
+      var __wpx=(__exam&&__g&&__g.px)?__g.px:794;
       var doc=new DOMParser().parseFromString(String(fullHtml||''),'text/html');
       var styleEl=doc.querySelector('style');
+      var styleAll=[].slice.call(doc.querySelectorAll('style')).map(function(s){return s.textContent||'';}).join('\n');
       var bodyHtml=doc.body?doc.body.innerHTML:String(fullHtml||'');
       var host=document.createElement('div');
       host.id='__pdfHost';
-      host.style.cssText='position:absolute;left:-10000px;top:0;width:794px;background:#ffffff;color:#000;z-index:-1;overflow:visible';
+      host.style.cssText='position:absolute;left:-10000px;top:0;width:'+__wpx+'px;background:#ffffff;color:#000;z-index:-1;overflow:visible';
       var harden='<style>#__pdfApp{display:block!important;min-height:0!important;background:#ffffff!important;color:#000!important}#__pdfApp,#__pdfApp *{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important;mix-blend-mode:normal!important;text-shadow:none!important;box-shadow:none!important;animation:none!important;transition:none!important}#__pdfApp .card,#__pdfApp .dash-card,#__pdfApp .report-view,#__pdfApp .chart-box,#__pdfApp .row,#__pdfApp .top{background:#ffffff!important;border:1px solid #e2e8f0!important;color:#000!important}#__pdfApp .ex-paper{width:100%!important;background:#ffffff!important;color:#111!important;border-radius:0!important;box-shadow:none!important}#__pdfApp .page,#__pdfApp .page.active{display:block!important}#__pdfApp .report-view .r-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:0 22px!important}#__pdfApp .r-field{flex-wrap:wrap!important;gap:0 10px}#__pdfApp .r-field label,#__pdfApp .r-field span{min-width:0;overflow-wrap:anywhere;word-break:break-word}#__pdfApp .r-field>span{flex:1 1 100%!important}#__pdfApp .card-id{display:flex!important;gap:16px!important;align-items:flex-start!important}#__pdfApp .card-id-qr{flex:0 0 auto!important}#__pdfApp .card-id-info{flex:1 1 0!important;min-width:0!important}#__pdfApp .card-qr{background:#ffffff!important;border:1px solid #e2e8f0!important}#__pdfApp .report-view{width:752px!important;margin:0 auto!important;box-sizing:border-box!important}#__pdfApp b,#__pdfApp strong,#__pdfApp span,#__pdfApp p,#__pdfApp td,#__pdfApp th,#__pdfApp li,#__pdfApp h1,#__pdfApp h2,#__pdfApp h3,#__pdfApp h4{color:#000!important}#__pdfApp .table thead th,#__pdfApp .tablewrap .table thead th{position:static!important;top:auto!important;z-index:auto!important}#__pdfApp .tablewrap{overflow:visible!important;max-height:none!important}</style>';
       var compactCss='<style>#__pdfApp.compact .ex-paper{padding:12px 16px!important;line-height:1.45!important}#__pdfApp.compact .report-view{padding:12px 14px!important}#__pdfApp.compact .r-section{margin:6px 0!important;padding:8px!important}#__pdfApp.compact .r-field{padding:3px 0!important}#__pdfApp.compact .q{margin:4px 0!important;padding:5px 8px!important}#__pdfApp.compact .doc{margin:5px 0!important;padding:6px 9px!important}#__pdfApp.compact .essay{margin:6px 0!important;padding:8px 10px!important}#__pdfApp.compact .pap-part{margin:8px 0 4px!important}#__pdfApp.compact .cert-box{padding:12px!important}#__pdfApp.compact .foot{margin-top:8px!important;padding-top:6px!important}#__pdfApp.compact .kpi{padding:6px!important}#__pdfApp.compact table{margin:4px 0!important}</style>';
-      host.innerHTML=(styleEl?('<style>'+styleEl.textContent+'</style>'):'')+harden+compactCss+'<div class="app" id="__pdfApp" dir="rtl" style="width:794px;background:#ffffff;padding:0">'+bodyHtml+'</div>';
+      var hardenExam=__exam?'<style>#__pdfApp .ex-print-root{width:auto!important;padding:0!important;margin:0!important;background:#ffffff!important}#__pdfApp .ex-print-root .ex-paper{padding:0!important;margin:0!important;max-width:none!important;box-shadow:none!important;border-radius:0!important}#__pdfApp .ds-pg{break-after:page;page-break-after:always}#__pdfApp .ds-pg:last-child{break-after:auto;page-break-after:auto}</style>':'';
+      host.innerHTML=(styleAll?('<style>'+styleAll+'</style>'):'')+harden+hardenExam+compactCss+'<div class="app" id="__pdfApp" dir="rtl" style="width:'+__wpx+'px;background:#ffffff;padding:0">'+bodyHtml+'</div>';
       document.body.appendChild(host);
       try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;}catch(e){}
-      var tgt=host.querySelector('#__pdfApp');var MARGIN_MM=12,PAGE_H=Math.round((297-2*MARGIN_MM)/25.4*96);var ch=(tgt&&tgt.scrollHeight)||0;var pages0=Math.ceil(ch/PAGE_H),rem=ch-(pages0-1)*PAGE_H;
-      if((ch>PAGE_H&&ch<=PAGE_H*1.30)||(pages0>=2&&rem<PAGE_H*0.30)){tgt.classList.add('compact');ch=tgt.scrollHeight;}
+      var tgt=host.querySelector('#__pdfApp');var MARGIN_MM=__mg,PAGE_H=Math.round(((__land?210:297)-2*MARGIN_MM)/25.4*96);var ch=(tgt&&tgt.scrollHeight)||0;var pages0=Math.ceil(ch/PAGE_H),rem=ch-(pages0-1)*PAGE_H;
+      if(!__exam&&((ch>PAGE_H&&ch<=PAGE_H*1.30)||(pages0>=2&&rem<PAGE_H*0.30))){tgt.classList.add('compact');ch=tgt.scrollHeight;}
       var isExam=!!(tgt&&tgt.querySelector('.ex-paper'));
       if(!isExam&&ch<=PAGE_H){var pad=Math.max(0,Math.round((PAGE_H-ch)/2));if(pad>4){var sp=document.createElement('div');sp.style.height=pad+'px';sp.style.width='100%';tgt.insertBefore(sp,tgt.firstChild);}}
-      var sc=ch>2600?1.5:(ch>1600?1.8:2.2);var maxPx=16000000;while(sc>1&&794*sc*Math.max(ch,1123)*sc>maxPx)sc-=0.1;if(sc<1)sc=1;
-      var opt={margin:[MARGIN_MM,MARGIN_MM,MARGIN_MM,MARGIN_MM],filename:'x.pdf',image:{type:'jpeg',quality:0.92},html2canvas:{scale:sc,useCORS:true,backgroundColor:'#ffffff',logging:false,imageTimeout:0},jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true},pagebreak:{mode:['css','legacy'],avoid:'tr,.doc,.q,.essay,.r-section,.cert-box,table,img,canvas'}};
+      var sc=ch>2600?1.5:(ch>1600?1.8:2.2);var maxPx=16000000;while(sc>1&&__wpx*sc*Math.max(ch,1123)*sc>maxPx)sc-=0.1;if(sc<1)sc=1;
+      var opt={margin:[MARGIN_MM,MARGIN_MM,MARGIN_MM,MARGIN_MM],filename:'x.pdf',image:{type:'jpeg',quality:0.92},html2canvas:{scale:sc,useCORS:true,backgroundColor:'#ffffff',logging:false,imageTimeout:0,windowWidth:__wpx},jsPDF:{unit:'mm',format:'a4',orientation:__land?'landscape':'portrait',compress:true},pagebreak:{mode:['css','legacy'],avoid:'tr,.doc,.q,.essay,.r-section,.cert-box,table,img,canvas'}};
       var dataUrl=await window.html2pdf().set(opt).from(tgt).outputPdf('dataurl');
       try{host.remove();}catch(e){}
       var b64=String(dataUrl||'').split(',')[1]||'';
@@ -1514,19 +1523,24 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
   window.__pdfViaHtml2pdf=async function(html,name){
     try{
       if(typeof window.html2pdf!=='function')return{ok:false,err:'مولّد PDF غير محمّل'};
+      var __g=window.__exPdfGeom?window.__exPdfGeom(html):null;
+      var __exam=!!(__g&&__g.exam);
+      var __mg=(__g&&__g.mg!=null)?__g.mg:10;
+      var __land=!!(__g&&__g.land);
+      var __wpx=(__exam&&__g&&__g.px)?__g.px:794;
       var d=new DOMParser().parseFromString(String(html||''),'text/html');
-      var styleEl=d.querySelector('style');
+      var styleAll=[].slice.call(d.querySelectorAll('style')).map(function(s){return s.textContent||'';}).join('\n');
       var bodyHtml=d.body?d.body.innerHTML:String(html||'');
       var host=document.createElement('div');
-      host.style.cssText='position:fixed;left:-10000px;top:0;width:794px;background:#ffffff;color:#000;z-index:-1;overflow:visible';
-      host.innerHTML=(styleEl?'<style>'+styleEl.textContent+'</style>':'')
-        +'<style>#__pdfApp{display:block!important;background:#fff!important;color:#000!important}#__pdfApp,#__pdfApp *{filter:none!important;box-shadow:none!important;backdrop-filter:none!important;animation:none!important;transition:none!important}#__pdfApp .page,#__pdfApp .page.active{display:block!important}#__pdfApp .ex-paper{width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important}#__pdfApp button,#__pdfApp .btn{display:none!important}#__pdfApp .ds-pg{break-after:page;page-break-after:always}</style>'
-        +'<div id="__pdfApp" dir="rtl" style="width:794px;background:#ffffff;padding:0">'+bodyHtml+'</div>';
+      host.style.cssText='position:fixed;left:-10000px;top:0;width:'+__wpx+'px;background:#ffffff;color:#000;z-index:-1;overflow:visible';
+      host.innerHTML=(styleAll?'<style>'+styleAll+'</style>':'')
+        +'<style>#__pdfApp{display:block!important;background:#fff!important;color:#000!important}#__pdfApp,#__pdfApp *{filter:none!important;box-shadow:none!important;backdrop-filter:none!important;animation:none!important;transition:none!important}#__pdfApp .page,#__pdfApp .page.active{display:block!important}#__pdfApp .ex-paper{width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important}#__pdfApp .ex-print-root{width:auto!important;padding:0!important;margin:0!important;background:#fff!important}#__pdfApp .ex-print-root .ex-paper{padding:0!important;max-width:none!important}#__pdfApp button,#__pdfApp .btn{display:none!important}#__pdfApp .ds-pg{break-after:page;page-break-after:always}#__pdfApp .ds-pg:last-child{break-after:auto;page-break-after:auto}</style>'
+        +'<div id="__pdfApp" dir="rtl" style="width:'+__wpx+'px;background:#ffffff;padding:0">'+bodyHtml+'</div>';
       document.body.appendChild(host);
       try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;}catch(e){}
       var tgt=host.querySelector('#__pdfApp');
       var safe=String(name||'تقرير').replace(/[\\/:*?"<>|]/g,'_')+'.pdf';
-      var opt={margin:[10,10,10,10],filename:safe,image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,imageTimeout:0},jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true},pagebreak:{mode:['css','legacy'],avoid:'tr,.doc,.q,.essay,table,img,svg,.ds-pg'}};
+      var opt={margin:[__mg,__mg,__mg,__mg],filename:safe,image:{type:'jpeg',quality:__exam?0.94:0.95},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,imageTimeout:0,windowWidth:__wpx},jsPDF:{unit:'mm',format:'a4',orientation:__land?'landscape':'portrait',compress:true},pagebreak:{mode:['css','legacy'],avoid:'tr,.doc,.q,.essay,table,img,svg'}};
       await window.html2pdf().set(opt).from(tgt).save();
       try{host.remove();}catch(e){}
       return{ok:true,name:safe};
@@ -7035,20 +7049,22 @@ async function exDsGenerate(printMode){
    const ctx={name:cls.name||'',levelName:levelName};
    const pages=sts.map(st=>'<div class="ds-pg">'+exPaperHTML({student:st,cls:ctx,num:num})+'</div>').join('');
    const base='Devoir_Surveille_'+num+'_Classe_'+(latinSlug(cls.name)||'Sans_nom')+'_Niveau_'+(latinSlug(levelName)||'Sans_niveau');
-   files.push({name:base,count:sts.length,html:'<html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+exEsc(base)+'</title><style>'+window.__sijilAllCss()+'</style></head><body>'+pages+'</body></html>'});
+   /* مستند الورقة: تنسيق التطبيق كامل (فتظهر الورقة كما في المعاينة) + قواعد @page والهوامش */
+   files.push({name:base,count:sts.length,pages:pages,html:'<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+exEsc(base)+'</title><style>'+window.__sijilAllCss()+'</style><style>'+exExportCss(EX.cur)+'</style></head><body>'+exPaperRootWrap(pages)+'</body></html>'});
    total+=sts.length;
   }
   if(!files.length)return toast('لا يوجد متعلمون في الأقسام المختارة');
   if(printMode){
    const store=$('exPaperStore');
    // الهوامش المختارة تسري على أوراق الفرض أيضًا (الطباعة تمرّ عبر @page لا عبر حشو الورقة)
-   store.innerHTML='<style>@page{size:A4;margin:'+exPageMm(EX.cur)+'mm}.ex-paper{--ex-mg:'+exPageMm(EX.cur)+'mm}</style>'+files.map(f=>f.html.replace(/^[\s\S]*<body>/i,'').replace(/<\/body>[\s\S]*$/i,'')).join('');
+   store.innerHTML='<style>'+exExportCss(EX.cur)+'</style>'+files.map(f=>exPaperRootWrap(f.pages)).join('');
    document.body.classList.add('ex-printing');
    toast('طباعة '+total+' ورقة في '+files.length+' قسم');
    setTimeout(()=>{try{window.print()}catch(e){}},140);
    return;
   }
-  for(const f of files)await exportReportHtmlPdf(f.html,f.name);
+  toast('جارٍ توليد PDF...');
+  for(const f of files)await exPdfExport(f.html,f.name);
   toast('تم توليد '+files.length+' ملف PDF — '+total+' ورقة');
  }catch(e){toast('تعذّر التوليد: '+String((e&&e.message)||e));}
 }
@@ -7419,6 +7435,46 @@ function exPrintRoot(m,key){
  const L=exLay(m);
  return '<div class="ex-print-root'+(L.orient==='landscape'?' land':'')+'" style="--ex-mg:'+exPageMm(m)+'mm">'+exPaperDiv(m,key)+'</div>';
 }
+/* غلاف أوراق الفرض: كل قسم ملف واحد، وكل ورقة تلميذ في صفحتها (ds-pg) */
+function exPaperRootWrap(pages){
+ const m=(typeof EX!=='undefined'&&EX)?EX.cur:null;const L=exLay(m);
+ return '<div class="ex-print-root'+(L.orient==='landscape'?' land':'')+'" style="--ex-mg:'+exPageMm(m)+'mm">'+(pages||'')+'</div>';
+}
+/* تصدير PDF لورقة امتحان/فرض: Electron بنافذة طباعة تحترم @page، وأندرويد بالمسار الأصلي،
+   ثم مولّد html2pdf بهندسة الورقة نفسها — فلا يعود هناك هامش ثابت ولا اختلاف عن المعاينة. */
+async function exPdfExport(html,name){
+ const base=String(name||'ورقة_امتحان').replace(/[\\/:*?"<>|]/g,'_').replace(/\.pdf$/i,'');
+ try{
+  if(window.__sijilNative&&window.__sijilNative.isAndroid()&&typeof window.__nativePdfFromHtml==='function'){
+   toast('جارٍ إنشاء PDF...');
+   const r=await window.__nativePdfFromHtml(html,base+'.pdf');
+   if(r&&(r.ok||r.cancelled))return r;
+  }
+  if(window.sijilAPI&&typeof window.sijilAPI.printPdf==='function'){
+   toast('جارٍ إنشاء PDF...');
+   try{
+    const r=await window.sijilAPI.printPdf(html,base+'.pdf',{cssPage:true});
+    if(r&&(r.ok||r.cancelled))return r;
+   }catch(e){}
+  }
+  /* متصفح بلا Electron ولا أندرويد: نطبع المستند نفسه (حفظ كـ PDF)
+     فتُحفظ الورقة بهوامشها واتجاهها بدل تحويلها صورة بهوامش ثابتة. */
+  try{
+   const d=new DOMParser().parseFromString(String(html||''),'text/html');
+   const styles=[].slice.call(d.querySelectorAll('style')).map(function(s){return s.textContent||'';});
+   const store=$('exPaperStore');
+   if(store){
+    store.innerHTML='<style>'+(styles.length?styles[styles.length-1]:'')+'</style>'+(d.body?d.body.innerHTML:'');
+    document.body.classList.add('ex-printing');
+    toast('سيُفتح خيار الطباعة — اختر «حفظ كـ PDF»');
+    setTimeout(function(){try{window.print()}catch(e){}},140);
+    return{ok:true,printed:true};
+   }
+  }catch(e){}
+  try{window.print()}catch(e){}
+  return{ok:false,err:'print'};
+ }catch(e){return{ok:false,err:String((e&&e.message)||e)};}
+}
 function exExportCss(m){
  const mdl=(m&&m.layout)?m:((typeof EX!=='undefined'&&EX)?EX.cur:null);
  const L=exLay(mdl);const mg=exPageMm(mdl);
@@ -7438,7 +7494,8 @@ function exExportCss(m){
 }
 function exExportHtml(m,key){
  m=m||EX.cur;if(!m)return'';
- return '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(m.name||'نموذج امتحان')+'</title><style>'+exExportCss(m)+'</style></head><body>'+exPrintRoot(m,key)+'</body></html>';
+ /* تنسيق التطبيق كامل أوّلًا، فيخرج الورق في Word/PDF مطابقًا للمعاينة، ثم قواعد @page والهوامش */
+ return '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(m.name||'نموذج امتحان')+'</title><style>'+window.__sijilAllCss()+'</style><style>'+exExportCss(m)+'</style></head><body>'+exPrintRoot(m,key)+'</body></html>';
 }
 function exSafeName(v){return String(v||'نموذج امتحان').replace(/[\/:*?"<>|]/g,'_');}
 window.addEventListener('afterprint',()=>document.body.classList.remove('ex-printing'));
@@ -7535,7 +7592,7 @@ $('exPdfBtn').onclick=async()=>{
     if(r&&r.cancelled)return;
    }catch(e){}
   }
-  // في المتصفح وحده (بلا Electron ولا تطبيق الهاتف): الطباعة مع «حفظ كـ PDF» أسرع وأدق من تحويل الورقة إلى صورة
+  // متصفح بلا Electron ولا تطبيق الهاتف: الطباعة (حفظ كـ PDF) تحفظ الشكل والهوامش نفسها
   toast('سيُفتح خيار الطباعة — اختر «حفظ كـ PDF»');
   exPrintPaper(false);return;
  }catch(err){toast('فشل إنشاء PDF: '+String(err));}
@@ -8400,6 +8457,19 @@ window.ensureJsQR=async function(){
  try{await window.loadVendor('jsqr')}catch(e){}
  if(typeof window.jsQR!=='function'){try{window.__vendorQueue.jsqr=null}catch(e){}return false;}
  return true;
+};
+/* هندسة صفحة PDF من مستند التصدير: تقرأ @page (margin بالمليمتر والاتجاه) فتُولَّد
+   الأوراق بنفس هوامش المعاينة، بدل هوامش ثابتة كانت تُضاف فوق حشو الورقة. */
+window.__exPdfGeom=function(html){
+ var s=String(html||'');
+ // آخر قاعدة @page هي التي تفوز في CSS (تنسيق التطبيق يضع 12مم، وتصدير الورقة يضع هامش المستخدم بعده)
+ var all=s.match(/@page\s*\{[^}]*\}/gi)||[];
+ var pg=all.length?all[all.length-1]:'';
+ var land=/landscape/i.test(pg);
+ var mm=/margin\s*:\s*([0-9.]+)mm/i.exec(pg);
+ var mg=mm?parseFloat(mm[1]):null;if(!(mg>=0&&mg<=40))mg=null;
+ var pw=(land?297:210)-(mg!=null?2*mg:0);
+ return {mg:mg,land:land,px:Math.round(pw/25.4*96),exam:/(ex-print-root|ex-paper|ds-pg)/.test(s)};
 };
 /* jsQR خفيف نسبيًا ويحتاجه الماسح: يُحمَّل بعد الإقلاع حتى لا يؤخّر أول رسم */
 (function(){
