@@ -42,6 +42,28 @@ th{background:#f1f5f9;color:#334155;font-weight:700}
 .hwrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border:1px solid #e2e8f0;border-radius:12px;margin-bottom:7px;font-size:13px}
 .hwrow.soon{border-color:#f59e0b;background:#fffbeb}
 .hwrow.late{border-color:#dc2626;background:#fef2f2}
+.hwsub{margin:-3px 0 9px;padding:0 2px}
+.hwsub .hwsend{border:1px solid #4f7cff;background:#eef4ff;color:#1d4ed8;font-weight:800;font-size:12px;padding:6px 11px;border-radius:10px;cursor:pointer;font-family:inherit}
+.hwsub .hwsend:active{transform:scale(.98)}
+.hwsub .hwsend[disabled]{opacity:.55;border-color:#cbd5e1;background:#f1f5f9;color:#475569}
+.hwpanel{margin-top:7px;border:1px dashed #94a3b8;border-radius:12px;padding:9px;background:rgba(148,163,184,.07)}
+.hwpanel .hint{font-size:11.5px;color:#64748b;margin-bottom:7px;line-height:1.7}
+.hwpick{display:inline-flex;align-items:center;gap:7px;border:1px solid #4f7cff;background:#4f7cff;color:#fff;font-weight:800;font-size:12.5px;padding:8px 13px;border-radius:10px;cursor:pointer}
+.hwthumbs{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+.hwthumb{position:relative;width:74px;height:74px;border-radius:9px;overflow:hidden;border:1px solid #cbd5e1}
+.hwthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.hwthumb button{position:absolute;top:0;left:0;width:20px;height:20px;border:0;border-radius:0 0 7px 0;background:rgba(220,38,38,.92);color:#fff;font-size:12px;line-height:1;cursor:pointer}
+.hwnote{width:100%;margin-top:8px;padding:7px 9px;border:1px solid #cbd5e1;border-radius:9px;font-family:inherit;font-size:12.5px;box-sizing:border-box;resize:vertical;min-height:44px}
+.hwgo{margin-top:8px}
+.hwmsg{margin-top:7px;font-size:12px;font-weight:700}
+.hwmsg.ok{color:#15803d}.hwmsg.err{color:#b91c1c}.hwmsg.wait{color:#b45309}
+.hwdone{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#15803d;background:#dcfce7;border-radius:9px;padding:5px 10px}
+.hwwait{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#b45309;background:#fef3c7;border-radius:9px;padding:5px 10px}
+html.dark .hwsub .hwsend{background:#1e3a8a;color:#dbeafe;border-color:#3b82f6}
+html.dark .hwpanel{background:rgba(51,65,85,.35);border-color:#475569}
+html.dark .hwpick{background:#2563eb;border-color:#2563eb}
+html.dark .hwnote{background:#0f172a;color:#e2e8f0;border-color:#334155}
+html.dark .hwthumb{border-color:#334155}
 .cd{font-size:11px;font-weight:700;white-space:nowrap}
 .done{color:#15803d}.pend{color:#b45309}
 .none{color:#94a3b8;font-size:13px;text-align:center;padding:10px}
@@ -236,14 +258,14 @@ a{color:#000!important;text-decoration:none}
 <div class="card" id="auth">
   <label>الرمز الخاص بك</label><input id="pin" type="password" inputmode="numeric" autocomplete="one-time-code" autocorrect="off" spellcheck="false" dir="ltr" placeholder="الأرقام الاثنا عشر المطبوعة في بطاقتك">
   <label>رقم دخولك</label><input id="code" type="text" inputmode="latin" autocomplete="username" autocorrect="off" autocapitalize="off" spellcheck="false" dir="ltr" placeholder="مثال: 2025/01">
-  <div class="row2"><button onclick="S.login()"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>دخول</button><button class="secondary" onclick="S.scan()" title="مسح رمز الربط"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></button></div>
+  <div class="row2"><button onclick=\\"S.login()\\"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>دخول</button><button class="secondary" onclick=\\"S.scan()" title="مسح رمز الربط\\"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></button></div>
   <div class="err" id="err"></div>
   <div class="evnote" id="landHint" style="display:none;margin-top:8px"></div>
-  <div class="row2" style="margin-top:4px"><button class="secondary" style="font-size:12px;padding:9px" onclick="S.diag()">فحص الاتصال</button><button class="secondary" style="font-size:12px;padding:9px" onclick="S.forget()">إعادة الربط</button></div>
+  <div class="row2" style="margin-top:4px"><button class="secondary" style="font-size:12px;padding:9px" onclick=\\"S.diag()\\">فحص الاتصال</button><button class="secondary" style="font-size:12px;padding:9px" onclick=\\"S.forget()\\">إعادة الربط</button></div>
 </div>
 <div id="appWrap" style="display:none">
   <div class="card">
-    <div class="headrow"><div class="nm"><img class="logo" src="logo.png" alt="شعار مواكبتي" onerror="this.style.display='none'"/><span id="vname"></span></div><div style="display:flex;gap:6px"><button class="secondary" id="themeBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.theme()" title="الوضع الليلي"></button><button class="secondary" id="refreshBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.refresh()" title="جلب آخر البيانات من الأستاذ"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>تحديث</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.diag()" title="فحص الاتصال"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg>فحص</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>خروج</button></div></div>
+    <div class="headrow"><div class="nm"><img class="logo" src="logo.png" alt="شعار مواكبتي" onerror="this.style.display='none'"/><span id="vname"></span></div><div style="display:flex;gap:6px"><button class="secondary" id="themeBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.theme()" title="الوضع الليلي\\"></button><button class="secondary" id="refreshBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.refresh()" title="جلب آخر البيانات من الأستاذ\\"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>تحديث</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.diag()" title="فحص الاتصال\\"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg>فحص</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.logout()\\"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>خروج</button></div></div>
     <div class="meta" id="vmeta"></div>
     <div class="fresh" id="vfresh"></div>
   </div>
@@ -253,11 +275,11 @@ a{color:#000!important;text-decoration:none}
     <div class="card">
       <div class="kpis"><div class="kpi"><b id="vavg">—</b><span>المعدل العام</span></div><div class="kpi"><b id="vres">—</b><span>النتيجة</span></div><div class="kpi"><b id="vgrade">—</b><span>التقدير</span></div></div>
       <div class="rankline" id="vrank" style="display:none"></div>
-      <button class="secondary" id="celebrateReplay" onclick="S.celebrateReplay()">عرض بطاقة التهنئة</button>
+      <button class="secondary" id="celebrateReplay" onclick=\\"S.celebrateReplay()\\">عرض بطاقة التهنئة</button>
       <h3>الحضور — آخر 30 يوماً</h3>
       <div class="att"><div><b id="aab">0</b><span>غائب</span></div><div><b id="ala">0</b><span>متأخر</span></div><div><b id="aex">0</b><span>مبرر</span></div><div><b id="apx">0</b><span>حاضر</span></div></div>
       <div class="atbar" id="vattbar"></div><div class="atnote" id="vattnote"></div>
-      <button class="secondary printbtn" onclick="S.print()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة كشف النقط / حفظ PDF</button>
+      <button class="secondary printbtn" onclick=\\"S.print()\\"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة كشف النقط / حفظ PDF</button>
     </div>
 <div class="card"><h3 id="vsubhead">نتيجتي</h3><div id="vsub1"></div><div id="vbeh"></div><div class="beh" id="vpartnb" style="margin-top:8px"></div>
 <div style="overflow-x:auto" id="vsubWrap"><table><thead><tr><th>المادة</th><th>معامل</th><th>نشاط</th><th>فرض</th><th>العلامة</th><th>النتيجة</th></tr></thead><tbody id="vsubs"></tbody></table></div>
@@ -267,7 +289,7 @@ a{color:#000!important;text-decoration:none}
 <div class="page" id="pg-sched"><div class="card"><h3 id="vschedh">جدول حصصي</h3><div id="vsched"></div></div><div class="card"><h3>حصص الدعم والتعويض</h3><div id="vsup"></div></div></div>
 <div class="page" id="pg-evo"><div class="card"><h3 id="vevoh">تطوّر نشاطي في الحصص</h3><div id="vtrend"></div><div class="kpis k4" id="vekpi"></div><div id="vevo"></div><div class="vbest" id="vbest"></div><div id="vedays"></div></div></div>
   <div class="page" id="pg-lessons"><div class="card"><h3>الدروس والموارد</h3><div id="vlessons"></div></div></div>
-  <div class="page" id="pg-contact"><div class="card"><h3>التواصل مع الأستاذ</h3><div id="contactHint" style="font-size:12px;color:#64748b;margin-bottom:10px"></div><div id="contactForm"><label style="font-size:12px;color:#334155">نص رسالتك</label><textarea id="msgBody" placeholder="اكتب سؤالك أو طلبك للأستاذ هنا…" style="width:100%;min-height:120px;margin:6px 0 12px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font:inherit;font-size:14px;line-height:1.6;resize:vertical;box-sizing:border-box"></textarea><button onclick="S.sendMsg()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>إرسال عبر واتساب</button><div style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">ستُفتح رسالة واتساب لدى أستاذك تتضمّن اسمك ورقم مسارك وقسمك مع نص رسالتك.</div></div></div></div>
+  <div class="page" id="pg-contact"><div class="card"><h3>التواصل مع الأستاذ</h3><div id="contactHint" style="font-size:12px;color:#64748b;margin-bottom:10px"></div><div id="contactForm"><label style="font-size:12px;color:#334155">نص رسالتك</label><textarea id="msgBody" placeholder="اكتب سؤالك أو طلبك للأستاذ هنا…" style="width:100%;min-height:120px;margin:6px 0 12px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font:inherit;font-size:14px;line-height:1.6;resize:vertical;box-sizing:border-box"></textarea><button onclick=\\"S.sendMsg()\\"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>إرسال عبر واتساب</button><div style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">ستُفتح رسالة واتساب لدى أستاذك تتضمّن اسمك ورقم مسارك وقسمك مع نص رسالتك.</div></div></div></div>
 </div>
 <div style="text-align:center;margin:6px 0"><span class="lock" style="color:#64748b"><svg viewBox="0 0 24 24" style="stroke:#64748b"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>تطبيق محمي — عرض بياناتك أنت فقط</span></div>
 <div id="diagBox" style="display:none"></div>
@@ -282,7 +304,7 @@ a{color:#000!important;text-decoration:none}
 </nav>
 <div class="celebrate" id="celebrate" role="dialog" aria-modal="true" aria-labelledby="celebrateTitle" aria-hidden="true">
   <div class="celebrate-card">
-    <button class="celebrate-x" onclick="S.celebrateClose()" aria-label="إغلاق التهنئة">×</button>
+    <button class="celebrate-x" onclick=\\"S.celebrateClose()" aria-label="إغلاق التهنئة\\">×</button>
     <div class="celebrate-character" aria-hidden="true">
       <svg viewBox="0 0 180 160">
         <ellipse cx="90" cy="149" rx="51" ry="7" fill="#0f172a" opacity=".12"/>
@@ -303,7 +325,7 @@ a{color:#000!important;text-decoration:none}
     <h2 id="celebrateTitle"></h2>
     <p id="celebrateMessage"></p>
     <div class="celebrate-reasons" id="celebrateReasons"></div>
-    <button id="celebrateDone" onclick="S.celebrateClose()">أواصل الاجتهاد</button>
+    <button id="celebrateDone" onclick=\\"S.celebrateClose()\\">أواصل الاجتهاد</button>
   </div>
 </div>
 <script>
@@ -750,9 +772,163 @@ function renderGrades(){
   $x("vsubs").innerHTML=s||"<tr><td colspan='6' class='none'>لا توجد نتائج بعد</td></tr>";
 }
 function fmtCd(d){if(!d)return "";var t=new Date(String(d)+"T23:59:59");if(isNaN(t.getTime()))return "";var diff=t-new Date();var day=Math.ceil(diff/86400000);if(diff<0)return {tx:"متأخر "+arCount(Math.abs(day),"يوم","أيام","يومين"),cl:"late"};if(day===0)return {tx:"اليوم",cl:"soon"};return {tx:"باقي "+arCount(day,"يوم","أيام","يومين"),cl:(day<=2?"soon":"")}}
+/* ================= إنجاز مصوّر يُرسَل إلى الأستاذ =================
+   التلميذ يصوّر تمرينه من هاتفه (بإذن نظام التشغيل) فتُضغط الصورة وتُرسل إلى
+   برنامج الأستاذ: عبر خادم القسم على الشبكة المحلية، أو عبر سحابة الأستاذ.
+   لا يُسجَّل التسليم ولا تُضاف النقطة إلا بعد اعتماد الأستاذ. */
+var HWST='sjc_hwsent';
+var HWDRAFT={};            /* مسودات الإرسال في الذاكرة: hwId -> [dataURL,...] */
+var HWBUSY={};
+function hwSentMap(){return readLS(HWST,{})}
+function hwSentOf(id){var m=hwSentMap();return m[String(id)]||null}
+function hwSentSet(id,o){var m=hwSentMap();m[String(id)]=o;writeLS(HWST,m)}
+function hwSentDrop(id){var m=hwSentMap();delete m[String(id)];writeLS(HWST,m)}
+document.addEventListener('click',function(e){try{
+  var t=e.target&&e.target.closest?e.target.closest('[data-hwtoggle],[data-hwsubmit],[data-hwrm]'):null;if(!t)return;
+  if(t.hasAttribute('data-hwtoggle')){S.hwToggle(t.getAttribute('data-hwtoggle'));return;}
+  if(t.hasAttribute('data-hwsubmit')){S.hwSubmit(t.getAttribute('data-hwsubmit'));return;}
+  var host=t.closest?t.closest('.hwpanel'):null;if(!host)return;
+  var id=String(host.id||'').replace(/^hwp_/,'');if(!id)return;
+  S.hwRemove(id,+t.getAttribute('data-hwrm')||0);
+}catch(err){}});
+document.addEventListener('change',function(e){try{
+  var inp=e.target;if(!inp||!inp.getAttribute)return;
+  var id=inp.getAttribute('data-hwpick');if(!id)return;
+  S.hwPick(id,inp);
+}catch(err){}});
+function hwCanSend(){try{return !!(lanBase()||(CFG&&CFG.su&&CFG.sk))}catch(e){return false}}
+function hwWhy(why){
+  var m={busy:"خادم الأستاذ مشغول الآن — أعد المحاولة بعد قليل",
+    big:"الصور كبيرة جدًا — صوّر بعدد أقل أو من مسافة أبعد",
+    auth:"رمز الدخول أو الرمز السري غير مطابق — أعد الدخول ثم أرسل",
+    notable:"لم يُفعّل الأستاذ استلام الإنجازات عبر الإنترنت بعد — أرسل عبر شبكة القسم",
+    net:"تعذّر الاتصال — تحقّق من الإنترنت وأعد المحاولة",
+    nocloud:"لم يُضبط مصدر الإرسال بعد — امسح رمز QR الذي أعطاك إياه الأستاذ"};
+  if(m[why])return m[why];
+  if(String(why).slice(0,5)==="cloud")return "تعذّر الإرسال إلى السحابة — أعد المحاولة";
+  return "تعذّر الإرسال — أعد المحاولة";
+}
+function hwCompress(f){
+  return new Promise(function(res,rej){
+    var done=false,fail=function(e){if(done)return;done=true;rej(e)};
+    var readerFallback=function(){
+      try{var fr=new FileReader();fr.onload=function(){if(done)return;done=true;res(String(fr.result||""))};fr.onerror=fail;fr.readAsDataURL(f)}catch(e){fail(e)}
+    };
+    try{
+      var url=URL.createObjectURL(f),img=new Image();
+      img.onload=function(){
+        try{
+          var w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+          if(!w||!h)return readerFallback();
+          var sc=Math.min(1,1280/Math.max(w,h));
+          var cw=Math.max(1,Math.round(w*sc)),ch=Math.max(1,Math.round(h*sc));
+          var cv=document.createElement("canvas");cv.width=cw;cv.height=ch;
+          var cx=cv.getContext("2d");
+          if(!cx)return readerFallback();
+          cx.fillStyle="#fff";cx.fillRect(0,0,cw,ch);cx.drawImage(img,0,0,cw,ch);
+          var d=cv.toDataURL("image/jpeg",0.72);
+          if(done)return;done=true;
+          try{URL.revokeObjectURL(url)}catch(e){}
+          if(!d||d.length<200)return res(String(d||""));
+          res(d);
+        }catch(e){readerFallback()}
+      };
+      img.onerror=function(){try{URL.revokeObjectURL(url)}catch(e){}readerFallback()};
+      img.src=url;
+    }catch(e){readerFallback()}
+  });
+}
+function hwSendVia(hwId,images,note){
+  var lan="";
+  try{lan=lanBase()}catch(e){}
+  var body={code:currentCode(),sec:currentPin(),homeworkId:String(hwId),images:images,note:note||""};
+  if(lan){
+    return timed(lan+"/api/hw/submit",25000,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),cache:"no-store"}).then(function(x){
+      var j=jsonOf(x.txt)||{};
+      if(x.r&&(x.r.ok||x.r.status===200)&&j.ok)return {ok:true,path:"lan"};
+      if(x.r&&x.r.status===429)return {ok:false,why:"busy"};
+      if(x.r&&x.r.status===413)return {ok:false,why:"big"};
+      if(x.r&&(x.r.status===400||x.r.status===404))return {ok:false,why:"auth"};
+      if(x.r&&x.r.status===503)return {ok:false,why:"net"};
+      return {ok:false,why:"net"};
+    },function(){return {ok:false,why:"net"}});
+  }
+  var su="",sk="";
+  try{su=trimEnd(CFG.su||"");sk=String(CFG.sk||"")}catch(e){}
+  if(!su||!sk)return Promise.resolve({ok:false,why:"nocloud"});
+  var inst="";try{inst=String(CFG.inst||"")}catch(e){}
+  return sha256hex(String(currentCode())+"::"+String(currentPin())+"::"+inst).then(function(rk){
+    var row={inst:inst,rowkey:String(rk||""),code:String((D&&D.code)||currentCode()),homework_id:String(hwId),status:"pending",payload:{homeworkId:String(hwId),images:images,note:note||""}};
+    return fetch(su+"/rest/v1/portal_submissions",{method:"POST",headers:{apikey:sk,Authorization:"Bearer "+sk,"Content-Type":"application/json","Prefer":"return=minimal"},body:JSON.stringify(row)}).then(function(r){
+      if(r&&(r.ok||r.status===201))return {ok:true,path:"cloud"};
+      if(r&&(r.status===404||r.status===400))return {ok:false,why:"notable"};
+      return {ok:false,why:"cloud"+(r?r.status:"")};
+    },function(){return {ok:false,why:"net"}});
+  });
+}
+S.hwToggle=function(id){
+  var box=$x("hwp_"+id);if(!box)return;
+  box.style.display=(box.style.display==="none"||!box.style.display)?"block":"none";
+  if(box.style.display==="block"){try{var inp=box.querySelector("input[type=file]");if(inp)inp.focus()}catch(e){}}
+};
+S.hwPick=function(id,input){
+  var files=[];try{files=Array.prototype.slice.call(input.files||[])}catch(e){}
+  if(!files.length)return;
+  var msg=$x("hwm_"+id);
+  if(msg){msg.className="hwmsg wait";msg.textContent="جارٍ تجهيز الصور…"}
+  var list=HWDRAFT[id]||(HWDRAFT[id]=[]);
+  var chain=Promise.resolve();
+  files.slice(0,6- list.length > 0 ? 6-list.length : 0).forEach(function(f){
+    if(!/^image\\//.test(String(f.type||"image/")))return;
+    chain=chain.then(function(){return hwCompress(f)}).then(function(d){if(d)list.push(d)}).catch(function(){});
+  });
+  chain.then(function(){
+    try{input.value=""}catch(e){}
+    S.hwPaint(id);
+    if(msg){msg.className="";msg.textContent=""}
+  });
+};
+S.hwRemove=function(id,i){
+  var list=HWDRAFT[id]||[];list.splice(i,1);HWDRAFT[id]=list;S.hwPaint(id);
+};
+S.hwPaint=function(id){
+  var list=HWDRAFT[id]||[];
+  var box=$x("hwt_"+id);if(!box)return;
+  box.innerHTML=list.map(function(d,i){return "<div class='hwthumb'><img src='"+d+"' alt=''><button type='button' data-hwrm='"+i+"' title='إزالة'>✕</button></div>"}).join("");
+  var go=$x("hwg_"+id);
+  if(go){go.disabled=list.length===0;go.textContent=list.length?("📤 إرسال "+list.length+" صورة إلى الأستاذ"):"📤 أرسل الصور أولًا"}
+};
+S.hwSubmit=function(id){
+  if(HWBUSY[id])return;
+  var list=(HWDRAFT[id]||[]).slice();
+  if(!list.length)return;
+  var msg=$x("hwm_"+id);
+  var note="";try{var nt=$x("hwn_"+id);note=nt?String(nt.value||"").slice(0,600):""}catch(e){}
+  HWBUSY[id]=true;
+  var go=$x("hwg_"+id);if(go){go.disabled=true;go.textContent="جارٍ الإرسال…"}
+  if(msg){msg.className="hwmsg wait";msg.textContent="جارٍ الإرسال إلى الأستاذ…"}
+  hwSendVia(id,list,note).then(function(r){
+    HWBUSY[id]=false;
+    if(r&&r.ok){
+      HWDRAFT[id]=[];
+      hwSentSet(id,{at:Date.now(),path:r.path,status:"pending"});
+      if(msg){msg.className="hwmsg ok";msg.textContent="وصل إنجازك إلى الأستاذ — يبقى «بانتظار التأكيد» حتى يعتمده ويضيف النقطة."}
+      renderHw();
+      var m2=$x("hwm_"+id);if(m2){m2.className="hwmsg ok";m2.textContent="وصل إنجازك إلى الأستاذ ✓"}
+      try{notify("أُرسل إنجازك","سيؤكّده الأستاذ قريبًا وتُضاف النقطة بعد التأكد من الإنجاز.")}catch(e){}
+    }else{
+      if(msg){msg.className="hwmsg err";msg.textContent=hwWhy(r&&r.why)}
+      var g2=$x("hwg_"+id);if(g2){g2.disabled=false;g2.textContent="📤 إعادة المحاولة"}
+    }
+  },function(){
+    HWBUSY[id]=false;
+    if(msg){msg.className="hwmsg err";msg.textContent=hwWhy("net")}
+    var g3=$x("hwg_"+id);if(g3){g3.disabled=false;g3.textContent="📤 إعادة المحاولة"}
+  });
+};
 function renderHw(){
   var hw=(D.hw||[]).slice().sort(function(a,b){return String(a.d||"9999").localeCompare(String(b.d||"9999"))});
-  var pend=hw.filter(function(h){return !h.sub});
+  var pend=hw.filter(function(h){return !h.sub&&h.st!=="pending"});
   var lateN=0;pend.forEach(function(h){var c=fmtCd(h.d);if(c&&c.cl==="late")lateN++});
   var sum=$x("vhwsum");
   if(sum){
@@ -760,9 +936,37 @@ function renderHw(){
     else if(!pend.length){sum.className="hwsum on good";sum.textContent="لا واجب معلّق — كل ما أعلنه الأستاذ مُسلَّم"}
     else{sum.className="hwsum on"+(lateN?" warn":"");sum.textContent="عليك "+arCount(pend.length,"واجب","واجبات","واجبين")+" غير مُسلَّم"+(lateN?(" — منها "+arCount(lateN,"واجب متأخر","واجبات متأخرة","واجبين متأخرين")):"")}
   }
-  $x("vhw").innerHTML=hw.length?hw.map(function(h){var cd=h.sub?{tx:"مسلَّم",cl:""}:fmtCd(h.d);var cls=h.sub?"":(cd&&cd.cl?cd.cl:"");return "<div class='hwrow "+cls+"'><div><b>"+esc(h.t)+"</b><div style='font-size:11px;color:#64748b'>"+esc(h.s)+(h.d?(" · "+esc(h.d)):"")+"</div></div><span class='cd "+(h.sub?"done":"pend")+"'>"+(cd?esc(cd.tx):"—")+"</span></div>"}).join(""):"<div class='none'>لا توجد واجبات معلنة</div>";
+  var canSend=hwCanSend();
+  $x("vhw").innerHTML=hw.length?hw.map(function(h){
+    var done=(h.st==="done")||(!!h.sub&&h.st!=="pending");
+    var waiting=h.st==="pending";
+    var local=hwSentOf(h.i);
+    var cd=done?{tx:"مسلَّم",cl:""}:fmtCd(h.d);
+    var cls=done?"":(cd&&cd.cl?cd.cl:"");
+    var out="<div class='hwrow "+cls+"'><div style='flex:1;min-width:0'><b>"+esc(h.t)+"</b><div style='font-size:11px;color:#64748b'>"+esc(h.s)+(h.d?(" · "+esc(h.d)):"")+"</div></div><span class='cd "+(done?"done":"pend")+"'>"+(done?"مسلَّم":esc(cd?cd.tx:"—"))+"</span></div>";
+    out+="<div class='hwsub'>";
+    if(done)out+="<span class='hwdone'>✓ أنجزته واعتمده الأستاذ</span>";
+    else if(waiting)out+="<span class='hwwait'>📷 أُرسل — بانتظار تأكيد الأستاذ وإضافة النقطة</span>";
+    else if(local)out+="<span class='hwwait'>📷 أُرسل — بانتظار التأكيد</span><div style='margin-top:6px'><button type='button' class='hwsend' data-hwtoggle='"+h.i+"' style='background:#fff;color:#1d4ed8;font-size:11.5px;padding:4px 9px'>إعادة الإرسال / إضافة صورة</button></div>";
+    else if(h.i&&canSend){
+      out+="<button type='button' class='hwsend' data-hwtoggle='"+h.i+"'>📷 صوّر تمرينك المنجز وأرسله</button>";
+      out+="<div class='hwpanel' id='hwp_"+h.i+"' style='display:none'>";
+      out+="<div class='hint'>صوّر ورقة إنجازك بهاتفك (صفحة أو أكثر). يطلب نظام التشغيل إذن الكاميرا أول مرة. لا يُحتسب التسليم ولا تُضاف النقطة إلا بعد أن يتأكد الأستاذ من الإنجاز.</div>";
+      out+="<label class='hwpick'>📷 التقاط صورة / اختيار من المعرض<input type='file' accept='image/*' multiple data-hwpick='"+h.i+"' style='display:none'></label>";
+      out+="<div class='hwthumbs' id='hwt_"+h.i+"'></div>";
+      out+="<textarea class='hwnote' id='hwn_"+h.i+"' rows='2' maxlength='600' placeholder='ملاحظة للأستاذ (اختيارية): ما أنجزته، أو صعوبة واجهتك…'></textarea>";
+      out+="<div class='hwgo'><button type='button' class='hwsend' id='hwg_"+h.i+"' data-hwsubmit='"+h.i+"' disabled>📤 أرسل الصور أولًا</button></div>";
+      out+="<div class='hwmsg' id='hwm_"+h.i+"'></div>";
+      out+="</div>";
+    }else if(h.i&&!canSend){
+      out+="<span class='hint' style='font-size:11.5px;color:#64748b'>إرسال الإنجاز يحتاج ربطًا بالأستاذ — تحقّق من الشبكة أو أعد مسح رمز QR.</span>";
+    }
+    out+="</div>";
+    return out;
+  }).join(""):"<div class='none'>لا توجد واجبات معلنة</div>";
   paintHwDot();
 }
+
 function pickSched(sc,aid){
   var days=[];sc.forEach(function(day){var filled=(day.slots||[]).filter(function(s){return s.s&&(!aid||!s.i||String(s.i)===aid)});if(filled.length)days.push({day:day.day,slots:filled})});
   if(!days.length)return "";

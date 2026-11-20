@@ -333,6 +333,49 @@ async function portalHandler(req,res){
     res.end(JSON.stringify({meta:pd&&pd.meta?pd.meta:null,student:safe}));
     return;
   }
+  /* ===== استلام إنجاز مصوّر من «مواكبتي» =====
+     نفس تحقّق الدخول (رمز + رمز سري) قبل قبول أي صورة، ثم يُحال الطلب إلى
+     واجهة التطبيق ليُخزَّن «بانتظار اعتماد الأستاذ». لا يمسّ هذا المسار
+     دخولَ المتعلمين: لا يُنادى إلا عند ضغط زر الإرسال في صفحته. */
+  if(u==='/api/hw/submit'){
+    const corsS={'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*','Access-Control-Allow-Methods':'POST,OPTIONS','Access-Control-Allow-Headers':'Content-Type'};
+    if(req.method!=='POST'){res.writeHead(405,corsS);res.end(JSON.stringify({error:'post_only'}));return;}
+    if(portalLocked(ip)){res.writeHead(429,corsS);res.end(JSON.stringify({error:'busy'}));return;}
+    const MAXB=24*1024*1024;
+    let body='',tooBig=false;
+    req.on('data',c=>{if(tooBig)return;body+=c;if(body.length>MAXB){tooBig=true;try{req.destroy()}catch(e){}}});
+    req.on('end',async()=>{
+      if(tooBig){res.writeHead(413,corsS);res.end(JSON.stringify({error:'too_big'}));return;}
+      try{
+        const j=JSON.parse(body||'{}');
+        const lat=v=>String(v==null?'':v).replace(/[\u0660-\u0669\u06F0-\u06F9\uFF10-\uFF19]/g,c=>{const o=c.charCodeAt(0);return String(o-(o>=0xFF10?0xFF10:(o>=0x06F0?0x06F0:0x0660)))}).replace(/[\uFBF1-\uFBF9]/g,c=>String(c.charCodeAt(0)-0xFBF0));
+        const unbidi=v=>String(v==null?'':v).replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u206F\u061C\uFEFF]/g,'');
+        const nCode=v=>lat(unbidi(v)).replace(/\uFF0F/g,'/').replace(/\s+/g,'').toLowerCase();
+        const nSec=v=>lat(unbidi(v)).replace(/[\s\-\u005F.\u00B7\u060C,\u2010-\u2015]/g,'');
+        const nc=nCode(j.code),ns=nSec(j.sec);
+        if(!nc||ns.length<4){res.writeHead(400,corsS);res.end(JSON.stringify({error:'need_code'}));return;}
+        const pd=await portalDataOrBuild();
+        const list=(pd&&pd.studs)?(pd.studs||[]):[];
+        const st=list.find(x=>x.code&&nCode(x.code)===nc);
+        if(!st||!st.sec||!ctEq(ns,nSec(String(st.sec)))){
+          portalDeny(res,ip);await sleepMs(THROT_MS);
+          res.writeHead(404,corsS);res.end(JSON.stringify({error:'bad_credentials'}));return;
+        }
+        const imgs=(Array.isArray(j.images)?j.images:[]).filter(d=>typeof d==='string'&&/^data:image\/(jpeg|jpg|png|webp);base64,/.test(d)).slice(0,6);
+        if(!imgs.length){res.writeHead(400,corsS);res.end(JSON.stringify({error:'no_images'}));return;}
+        let total=0;for(const d of imgs)total+=d.length;
+        if(total>20*1024*1024){res.writeHead(413,corsS);res.end(JSON.stringify({error:'too_big'}));return;}
+        if(!win||!win.webContents||win.webContents.isDestroyed()){res.writeHead(503,corsS);res.end(JSON.stringify({error:'app_closed'}));return;}
+        const payload={code:String(st.code||''),homeworkId:String(j.homeworkId||''),images:imgs,note:String(j.note||'').slice(0,600),source:'lan'};
+        const out=await win.webContents.executeJavaScript('(typeof window.handleHwSubmitAsPortal==="function")?window.handleHwSubmitAsPortal('+JSON.stringify(payload)+'):({ok:false,error:"not_ready"})').catch(e=>({ok:false,error:String(e&&e.message||e)}));
+        portalClear(ip);
+        res.writeHead(out&&out.ok?200:200,corsS);
+        res.end(JSON.stringify(out&&out.ok?{ok:true,id:out.id}:{ok:false,error:(out&&out.error)||'rejected'}));
+      }catch(e){
+        res.writeHead(400,corsS);res.end(JSON.stringify({error:'bad_request'}));
+      }
+    });return;
+  }
   if(u.indexOf('/vendor/')===0||u.indexOf('/app/vendor/')===0){if(serveVendor(res,u))return;}
   if(u==='/app'||u==='/app/'||u.indexOf('/app/')===0){serveAppHtml(res);return;}
   if(u==='/manifest.webmanifest'){res.writeHead(200,{'Content-Type':'application/manifest+json; charset=utf-8','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(manifestJson());return;}

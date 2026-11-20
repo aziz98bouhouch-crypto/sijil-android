@@ -1319,7 +1319,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       <div class="field"><label>مفتاح النشر (سري)</label><input id="privAk" type="password" autocomplete="off" placeholder="مفتاح النشر والحذف"></div>
       <div class="field"><label>حالة المستودع</label><div id="privStatus" class="muted">غير مفعّل</div></div>
     </div>
-    <div class="actions"><button class="btn" id="cloudSave">حفظ الإعدادات</button><button class="btn primary" id="cloudPush">نشر الآن إلى السحابة</button><button class="btn" id="privProbe">فحص المستودع الخاص</button></div>
+    <div class="actions"><button class="btn" id="cloudSave">حفظ الإعدادات</button><button class="btn primary" id="cloudPush">نشر الآن إلى السحابة</button><button class="btn" id="hwCloudPullBtn" title="إنجازات أرسلها المتعلمون عبر الإنترنت بانتظار اعتمادك">📷 سحب إنجازات المتعلمين</button><button class="btn" id="privProbe">فحص المستودع الخاص</button></div>
     <p class="muted" style="font-size:11px;margin-top:8px">الأمان: كل سجلّ يُنشر تحت مفتاح <code>rowkey</code> = تجزئة (رمز دخول التلميذ + رمزه الخاص + معرّف المؤسسة). لا يظهر الرمز الخاص داخل البيانات المنشورة، ولا يستطيع تلميذ حساب مفتاح تلميذ آخر دون رمزه الخاص، فلا تُقرأ بياناته حتى لو عُرف رقم مساره. أنشئ جدول <code>portal_students</code> في Supabase — أو في مستودعك الخاص (خدمة «مواكبتي» المركزية) — بأعمدة: <code>inst</code> (نص) و<code>rowkey</code> (نص، فريد — ويُفضَّل جعله المفتاح الأساسي PRIMARY KEY) و<code>payload</code> (jsonb) و<code>meta</code> (jsonb) و<code>updated_at</code>، وفعّل RLS بسياسة قراءة عامة على المفتاح. رمز كل تلميذ الخاص تجده في ملفه وتُنطعه إياه مع رمز QR. <b>الترحيل بلا إعادة طباعة:</b> إذا فعّلت مستودعك الخاص ومفاتيحه، تُضمَّن إشارة إليه داخل بيانات النشر، فيتوصّل إليه تطبيق التلميذ من نفسه ويجعله أولًا في القراءة؛ ورموز QR الجديدة تحمل عنوانه ومفتاح قراءته صراحةً.</p>
   </div></div>
 
@@ -1541,7 +1541,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 
 <script>
 (()=>{'use strict';
-const CORE={appId:'sijil-taqyim-pro',version:'1.0.0-phase12',schemaVersion:1,db:'SijilTaqyimPro_Phase12',stores:['institutions','academicYears','levels','branches','tracks','classes','students','studentProfiles','subjects','assessments','scores','attendance','behaviorRecords','participation','notebookCare','homework','homeworkSubmissions','competencies','competencyAssessments','supportPlans','reassessments','diagDomains','diagMatrixScores','motivation','badges','xpHistory','resources','resourceLinks','lessons','commLog','examModels','schedules','teacherSchedules','scheduleSessions','curriculum','trash','appMeta']};
+const CORE={appId:'sijil-taqyim-pro',version:'1.0.0-phase12',schemaVersion:1,db:'SijilTaqyimPro_Phase12',stores:['institutions','academicYears','levels','branches','tracks','classes','students','studentProfiles','subjects','assessments','scores','attendance','behaviorRecords','participation','notebookCare','homework','homeworkSubmissions','competencies','competencyAssessments','supportPlans','reassessments','diagDomains','diagMatrixScores','motivation','badges','xpHistory','resources','resourceLinks','lessons','commLog','examModels','schedules','teacherSchedules','scheduleSessions','curriculum','trash','appMeta','hwPhotos']};
 const $=x=>document.getElementById(x), uid=p=>p+'_'+(crypto&&crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36)), now=()=>new Date().toISOString(), stCmp=(a,b)=>(a.seq??Infinity)-(b.seq??Infinity)||(a.createdAt||'').localeCompare(b.createdAt||'')||(a.id||'').localeCompare(b.id||'');
 const today=()=>new Date().toISOString().split('T')[0];
 const V={required:(o,a)=>a.filter(k=>!String(o[k]??'').trim())};
@@ -1565,9 +1565,9 @@ return{now:now,recv:recv,cmp:cmp,valid:s=>!!dec(s),wall:s=>{const m=dec(s);retur
    هنا: نتخلّص من الاتصال فور إغلاقه، ونعيد الفتح مرة واحدة تلقائيًا عند أول عملية فاشلة. */
 const DB=(()=>{
   let db=null,opening=null,useLocal=false;
-  const LK='SJX_'+CORE.db+'_',VERSION=7;
+  const LK='SJX_'+CORE.db+'_',VERSION=8;
   /* stores ضخمة (أرشيف النسخ التلقائية والسلة) لا تُخزَّن في الذاكرة */
-  const NO_CACHE={appMeta:1,trash:1};
+  const NO_CACHE={appMeta:1,trash:1,hwPhotos:1};
   const cache=new Map();
   function lsAll(s){try{return JSON.parse(localStorage.getItem(LK+s)||'[]')}catch(e){return[]}}
   function lsPutAll(s,a){try{localStorage.setItem(LK+s,JSON.stringify(a))}catch(e){}}
@@ -4454,6 +4454,248 @@ async function hwqSaveMark(sid){
   HWQ.byStu[sid]=rec;hwqDirty();
   return true;
 }
+/* ================= إنجازات المتعلمين المصوّرة (من «مواكبتي») =================
+   المتعلم يصوّر تمرينه المنجز بهاتفه فيصل إلى هنا: يُسجَّل «بانتظار التأكيد»،
+   ولا تُحتسب النقطة ولا التسليم إلا بعد اعتماد الأستاذ. الصور تُخزَّن في
+   مخزن منفصل (hwPhotos) حتى لا تتضخم بيانات البوابة والنسخ الاحتياطي. */
+function hwSubIsPending(x){return !!(x&&x.pending&&!x.submitted);}
+function hwSubPhotoIds(x){return (x&&x.photoIds)||[];}
+async function hwPhotosGet(id){
+  try{const r=await DB.get('hwPhotos',id);return (r&&r.photos)||[]}catch(e){return[]}
+}
+function hwSubTime(ts){if(!ts)return'';const d=new Date(ts);const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());}
+async function hwPendingList(){
+  const subs=await DB.all('homeworkSubmissions');
+  return (subs||[]).filter(hwSubIsPending).sort((a,b)=>(b.submittedAt||0)-(a.submittedAt||0));
+}
+/* استيراد إنجاز قادم من البوابة/السحابة — التحقق من رمز الدخول والرمز السري
+   جرى قبل الاستدعاء، فلا يمكن انتحال متعلم آخر. */
+async function hwImportSubmission(p){
+  p=p||{};
+  const [students,homework]=await Promise.all([DB.all('students'),DB.all('homework')]);
+  const norm=v=>String(v==null?'':v).replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u2069\u206F\u061C\uFEFF]/g,'').replace(/[\u0660-\u0669\u06F0-\u06F9\uFF10-\uFF19]/g,c=>{const o=c.charCodeAt(0);return String(o-(o>=0xFF10?0xFF10:(o>=0x06F0?0x06F0:0x0660)))}).replace(/[\uFBF1-\uFBF9]/g,c=>String(c.charCodeAt(0)-0xFBF0)).replace(/\s+/g,'').toLowerCase();
+  const nc=norm(p.code);
+  const st=(students||[]).find(x=>norm(x.externalId||x.code)===nc||norm(x.code)===nc);
+  if(!st)return{ok:false,error:'student_not_found'};
+  const hw=(homework||[]).find(h=>String(h.id)===String(p.homeworkId)&&String(h.classId)===String(st.classId));
+  if(!hw)return{ok:false,error:'homework_not_found'};
+  const nowMs=Date.now();
+  let sub=(await DB.all('homeworkSubmissions')).find(x=>String(x.homeworkId)===String(hw.id)&&String(x.studentId)===String(st.id))||null;
+  /* لا نسمح لإرسال جديد أن يمحو اعتمادًا سابقًا للأستاذ */
+  if(sub&&sub.submitted&&!sub.pending)return{ok:false,error:'already_graded'};
+  const imgs=(p.images||[]).filter(d=>/^data:image\//.test(String(d||''))).slice(0,6).map(d=>({t:(String(d).match(/^data:([^;,]+)/)||[])[1]||'image/jpeg',d:String(d)}));
+  if(!imgs.length)return{ok:false,error:'no_images'};
+  const rec=Object.assign({id:sub?sub.id:uid('hwsub'),createdAt:sub&&sub.createdAt?sub.createdAt:now()},sub||{},
+    {homeworkId:hw.id,studentId:st.id,submitted:false,late:false,at:null,pending:true,
+     submittedAt:nowMs,source:String(p.source||'portal'),studentNote:String(p.note||'').slice(0,600),
+     photoIds:[],photoCount:imgs.length,updatedAt:now()});
+  const pid='hwp_'+rec.id;
+  try{await DB.put('hwPhotos',{id:pid,subId:rec.id,studentId:st.id,homeworkId:hw.id,photos:imgs,at:nowMs,updatedAt:now()});}
+  catch(e){return{ok:false,error:'photo_store_failed'};}
+  rec.photoIds=[pid];
+  await DB.put('homeworkSubmissions',rec);
+  try{HWQ.byStu[st.id]=rec;}catch(e){}
+  try{toast('📷 وصل إنجاز '+String(st.name||'متعلم')+' — «'+String(hw.title||'واجب')+'» بانتظار اعتمادك');}catch(e){}
+  try{if(typeof Bus!=='undefined'&&Bus.emit)Bus.emit('hwsub:new',{id:rec.id});}catch(e){}
+  try{if(typeof hwqRefreshToolbar==='function')hwqRefreshToolbar();}catch(e){}
+  try{if(typeof hwqRender==='function'&&HWQ.hwId&&String(HWQ.hwId)===String(hw.id))hwqRender();}catch(e){}
+  return{ok:true,id:rec.id,student:String(st.name||''),homework:String(hw.title||'')};
+}
+window.__hwImport=hwImportSubmission;
+window.handleHwSubmitAsPortal=hwImportSubmission;
+window.__hwPendingCount=async()=>{try{return (await hwPendingList()).length}catch(e){return 0}};
+
+/* فتح ملف الإنجاز: الصور + الملاحظة + الاعتماد أو الرفض */
+async function hwSubReview(subId){
+  const subs=await DB.all('homeworkSubmissions');
+  const sub=(subs||[]).find(x=>String(x.id)===String(subId));
+  if(!sub)return toast('لم يُعثر على الإنجاز');
+  const [students,homework]=await Promise.all([DB.all('students'),DB.all('homework')]);
+  const st=(students||[]).find(x=>String(x.id)===String(sub.studentId))||{};
+  const hw=(homework||[]).find(h=>String(h.id)===String(sub.homeworkId))||{};
+  const photos=(await Promise.all(hwSubPhotoIds(sub).map(hwPhotosGet))).flat();
+  const mx=Number(hw.maxScore)||20;
+  const lateHw=!!(hw.deadline&&String(hw.deadline)<today());
+  const imgs=photos.length?photos.map((ph,i)=>'<figure style="margin:0"><img src="'+esc(ph.d)+'" alt="صفحة '+(i+1)+'" data-hwphoto="'+i+'" style="width:100%;border:1px solid var(--l);border-radius:10px;cursor:zoom-in;display:block"><figcaption class="muted" style="font-size:11px;margin-top:3px">صفحة '+(i+1)+' — اضغط للتكبير</figcaption></figure>').join(''):'<p class="muted">لم تُحفظ صور لهذا الإرسال.</p>';
+  let html='<div style="display:flex;flex-direction:column;gap:10px">';
+  html+='<div class="actions" style="flex-wrap:wrap;gap:8px;align-items:center">';
+  html+='<span class="chip">'+esc(st.name||'متعلم')+'</span>';
+  html+='<span class="chip">'+esc(hw.title||'واجب')+'</span>';
+  html+='<span class="chip">أُرسل: '+esc(hwSubTime(sub.submittedAt||0))+'</span>';
+  if(lateHw)html+='<span class="chip" style="background:#fef3c7;color:#92400e">بعد الأجل</span>';
+  html+='</div>';
+  if(sub.studentNote)html+='<div style="padding:8px 10px;border-radius:10px;background:rgba(120,120,120,.10);font-size:13px"><b>ملاحظة المتعلم:</b> '+esc(sub.studentNote)+'</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">'+imgs+'</div>';
+  html+='<div class="actions" style="flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px">';
+  html+='<label style="font-weight:700;font-size:13px">النقطة (من '+mx+')</label>';
+  html+='<input id="hwsScore" type="number" min="0" max="'+mx+'" step="0.5" value="'+(sub.score!==null&&sub.score!==undefined?Number(sub.score):'')+'" style="width:90px;text-align:center">';
+  html+='<label style="font-weight:700;font-size:13px">ملاحظة للأستاذ</label>';
+  html+='<input id="hwsNote" type="text" value="'+esc(sub.note||'')+'" placeholder="اختيارية" style="flex:1;min-width:140px">';
+  html+='</div>';
+  html+='<div class="actions" style="gap:8px;flex-wrap:wrap">';
+  html+='<button class="btn primary" type="button" id="hwsOk">✔ اعتماد الإنجاز'+(lateHw?' (متأخر)':'')+'</button>';
+  html+='<button class="btn" type="button" id="hwsRetry">📷 طلب إعادة الإرسال</button>';
+  html+='<button class="btn danger" type="button" id="hwsDrop">حذف الإرسال</button>';
+  html+='<button class="btn" type="button" id="hwsClose">إغلاق</button></div>';
+  html+='<p class="muted" style="font-size:12px;margin:0">الاعتماد يسجّل التسليم'+(lateHw?' متأخرًا':' في الأجل')+' ويضيف النقطة إن أدخلتها، ثم تُزامَن مع نتائج القسم عند الضغط على «مزامنة النقط» في اللوحة.</p>';
+  html+='</div>';
+  openDrawer('إنجاز مصوّر — '+String(st.name||''),html);
+  const close=()=>closeDrawer();
+  const sc=$('hwsScore'),nt=$('hwsNote');
+  document.querySelectorAll('[data-hwphoto]').forEach(im=>{im.onclick=()=>{const i=Number(im.dataset.hwphoto);const ph=photos[i];if(ph)openDrawer('صفحة '+(i+1)+' — '+String(st.name||''),'<img src="'+esc(ph.d)+'" style="width:100%;border-radius:10px" alt="">');};});
+  if($('hwsClose'))$('hwsClose').onclick=close;
+  if($('hwsDrop'))$('hwsDrop').onclick=async()=>{
+    const ok=await hwqAsk('سيُحذف هذا الإرسال وصوره، ويبقى الواجب «لم يسلّم».','نعم، احذف الإرسال','حذف إنجاز مصوّر').catch(()=>false);
+    if(!ok)return;
+    try{for(const pid of hwSubPhotoIds(sub))await DB.remove('hwPhotos',pid);}catch(e){}
+    const fresh=Object.assign({},sub,{pending:false,submitted:false,submittedAt:null,photoIds:[],photoCount:0,updatedAt:now()});
+    await DB.put('homeworkSubmissions',fresh);
+    try{if(HWQ.byStu[sub.studentId])HWQ.byStu[sub.studentId]=fresh;}catch(e){}
+    closeDrawer();toast('حُذف الإرسال');try{hwqRender();}catch(e){}try{hwqRefreshToolbar();}catch(e){}
+  };
+  if($('hwsRetry'))$('hwsRetry').onclick=async()=>{
+    const v=String((nt&&nt.value)||'').trim();
+    const rec=Object.assign({},sub,{pending:false,submittedAt:null,retryMsg:v,photoIds:[],photoCount:0,updatedAt:now()});
+    try{for(const pid of hwSubPhotoIds(sub))await DB.remove('hwPhotos',pid);}catch(e){}
+    await DB.put('homeworkSubmissions',rec);
+    try{if(HWQ.byStu[sub.studentId])HWQ.byStu[sub.studentId]=rec;}catch(e){}
+    closeDrawer();toast('طُلب من المتعلم إعادة الإرسال');try{hwqRender();}catch(e){}try{hwqRefreshToolbar();}catch(e){}
+  };
+  if($('hwsOk'))$('hwsOk').onclick=async()=>{
+    const raw=parseFloat(String(sc&&sc.value||'').trim());
+    const score=(isNaN(raw)?null:Math.max(0,Math.min(mx,raw)));
+    const rec=Object.assign({},sub,{submitted:true,pending:false,late:lateHw,at:sub.submittedAt||Date.now(),
+      score:score,note:String((nt&&nt.value)||''),approvedAt:Date.now(),updatedAt:now()});
+    await DB.put('homeworkSubmissions',rec);
+    try{HWQ.byStu[sub.studentId]=rec;}catch(e){}
+    closeDrawer();
+    toast('اعتُمد إنجاز '+String(st.name||'')+(score!==null?(' — النقطة '+score):''));
+    try{hwqRender();}catch(e){}
+    try{refreshActivityFeeds();}catch(e){}
+    try{renderAssessment();}catch(e){}
+    try{if(typeof __portalSchedule==='function')__portalSchedule();}catch(e){}
+    try{hwqRefreshToolbar();}catch(e){}
+  };
+}
+window.hwSubReview=hwSubReview;
+
+/* لوحة كل الإنجازات المعلّقة (عبر الأقسام) */
+async function hwSubsPanel(onlyHw){
+  const [subs,students,homework,classes]=await Promise.all([DB.all('homeworkSubmissions'),DB.all('students'),DB.all('homework'),DB.all('classes')]);
+  const stMap=Object.fromEntries((students||[]).map(x=>[String(x.id),x]));
+  const hwMap=Object.fromEntries((homework||[]).map(x=>[String(x.id),x]));
+  const clMap=Object.fromEntries((classes||[]).map(x=>[String(x.id),x.name||'']));
+  let list=(subs||[]).filter(hwSubIsPending);
+  if(onlyHw)list=list.filter(x=>String(x.homeworkId)===String(onlyHw));
+  list.sort((a,b)=>(b.submittedAt||0)-(a.submittedAt||0));
+  let html='<div style="display:flex;flex-direction:column;gap:8px">';
+  if(!list.length){
+    html+='<p class="muted" style="font-size:13.5px;margin:0">لا توجد إنجازات بانتظار الاعتماد الآن. حين يصوّر المتعلم تمرينه في «مواكبتي» ويُرسله، يظهر هنا مباشرة مع الصور.</p>';
+    html+='<p class="muted" style="font-size:12.5px;margin:0">شرط الوصول: أن يكون رمز الدخول والرمز السري صحيحين (نفس دخول البوابة)، وأن يكون الواجب منشورًا لقسم المتعلم.</p>';
+  }else{
+    html+='<div class="muted" style="font-size:12.5px">'+list.length+' إنجازًا بانتظار قرارك. الاعتماد يسجّل التسليم ويضيف النقطة.</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px">';
+    for(const x of list){
+      const s=stMap[String(x.studentId)]||{};const h=hwMap[String(x.homeworkId)]||{};
+      html+='<div style="border:1px solid var(--l);border-radius:12px;padding:9px;display:flex;flex-direction:column;gap:6px;background:var(--panel,#fff)">';
+      html+='<b style="font-size:13.5px">'+esc(s.name||'متعلم')+'</b>';
+      html+='<span class="muted" style="font-size:12px">'+esc(h.title||'واجب')+(s.classId?(' — '+esc(clMap[String(s.classId)]||'')):'')+'</span>';
+      html+='<span class="muted" style="font-size:11.5px">أُرسل: '+esc(hwSubTime(x.submittedAt||0))+' — '+(x.photoCount||0)+' صورة</span>';
+      html+='<div class="actions" style="gap:6px"><button class="btn primary" type="button" data-hws-open="'+esc(x.id)+'">مراجعة واعتماد</button></div>';
+      html+='</div>';
+    }
+    html+='</div>';
+  }
+  html+='</div>';
+  openDrawer('📷 إنجازات المتعلمين المصوّرة',html);
+  document.querySelectorAll('[data-hws-open]').forEach(b=>{b.onclick=()=>{hwSubReview(b.dataset.hwsOpen);};});
+}
+window.hwSubsPanel=hwSubsPanel;
+
+function hwqRefreshToolbar(){
+  const host=$('hwqSubsBtn');if(!host)return;
+  hwPendingList().then(list=>{
+    const n=list.length;
+    host.innerHTML='📷 إنجازات المتعلمين'+(n?(' ('+n+')'):'');
+    host.classList.toggle('warning',n>0);
+  }).catch(()=>{});
+}
+
+/* سحب الإنجازات من سحابة الأستاذ (Supabase) — للهواتف خارج شبكة القسم */
+async function hwCloudPull(){
+  let sv=null;
+  try{sv=await loadCloud();}catch(e){}
+  const c=sv?cloudLive(sv):null;
+  if(!c||!c.url||!c.key)return toast('أكمل إعدادات السحابة أولًا (اتصال المشروع)');
+  const base=String(c.url).replace(/\/+$/,'');
+  const inst=String(c.inst||'');
+  const st=$('hwCloudStatus');if(st)st.textContent='جارٍ السحب…';
+  try{
+    const r=await fetch(base+'/rest/v1/portal_submissions?select=*&status=eq.pending'+(inst?('&inst=eq.'+encodeURIComponent(inst)):''),{headers:{apikey:c.key,Authorization:'Bearer '+c.key}});
+    if(r.status===404||r.status===400){
+      const t=await r.text().catch(()=> '');
+      if(/42P01|does not exist|schema cache/i.test(t))return hwCloudSql();
+      throw new Error(t.slice(0,120)||('HTTP '+r.status));
+    }
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const rows=await r.json();
+    if(!Array.isArray(rows)||!rows.length){if(st)st.textContent='لا جديد في السحابة';toast('لا توجد إنجازات معلّقة في السحابة');return;}
+    const students=await DB.all('students');
+    const norm=v=>String(v==null?'':v).trim().toLowerCase();
+    let ok=0,skip=0;
+    for(const row of rows){
+      const st0=(students||[]).find(x=>norm(x.externalId||x.code)===norm(row.code))||null;
+      if(!st0){skip++;continue;}
+      /* تحقّق من البصمة: لا يُقبل إرسال إلا من جهاز يملك الرمز السري الصحيح */
+      try{
+        const exp=await sha256h(String(st0.externalId||st0.code||'')+'::'+String(st0.portalSecret||'')+'::'+String(inst||''));
+        if(exp&&row.rowkey&&String(row.rowkey)!==String(exp)){skip++;continue;}
+        if(!row.rowkey){skip++;continue;}
+      }catch(e){}
+      if(!st0.portalSecret){skip++;continue;}
+      const pl=row.payload||{};
+      const res=await hwImportSubmission({code:st0.externalId||st0.code,homeworkId:pl.homeworkId||row.homework_id,images:pl.images||[],note:pl.note||'',source:'cloud'});
+      if(res&&res.ok)ok++;else skip++;
+      try{await fetch(base+'/rest/v1/portal_submissions?id=eq.'+encodeURIComponent(row.id),{method:'PATCH',headers:{apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json'},body:JSON.stringify({status:res&&res.ok?'imported':'ignored'})});}catch(e){}
+    }
+    if(st)st.textContent='استُورد '+ok+(skip?(' — تجاهُل '+skip):'');
+    toast('استُورد '+ok+' إنجازًا'+(skip?(' — تجاهُل '+skip+' (تلميذ غير موجود أو واجب مغلق)'):''));
+    try{hwqRender();}catch(e){}try{hwqRefreshToolbar();}catch(e){}
+  }catch(e){
+    if(st)st.textContent='';
+    toast('تعذّر السحب: '+String((e&&e.message)||e));
+  }
+}
+/* شاشة تعريف جدول الاستلام — تُعرض مرة واحدة عند غيابه */
+function hwCloudSql(){
+  const ddl=[
+    "create table if not exists public.portal_submissions (",
+    "  id uuid primary key default gen_random_uuid(),",
+    "  inst text not null default '',",
+    "  rowkey text not null default '',",
+    "  code text not null default '',",
+    "  homework_id text not null default '',",
+    "  status text not null default 'pending',",
+    "  payload jsonb not null default '{}'::jsonb,",
+    "  created_at timestamptz not null default now()",
+    ");",
+    "create index if not exists portal_submissions_inst_idx on public.portal_submissions (inst, status);",
+    "alter table public.portal_submissions enable row level security;",
+    "create policy ps_ins on public.portal_submissions for insert to anon with check (true);",
+    "create policy ps_sel on public.portal_submissions for select to anon using (true);",
+    "create policy ps_upd on public.portal_submissions for update to anon using (true) with check (true);"
+  ].join('\n');
+  const html='<div style="display:flex;flex-direction:column;gap:10px">'+
+    '<p style="font-size:13.5px;margin:0">استلام الإنجازات عبر الإنترنت يحتاج جدولًا واحدًا في مشروع Supabase. انسخ التعليمة التالية والصقها في <b>SQL Editor</b> ثم اضغط RUN مرة واحدة فقط:</p>'+
+    '<textarea readonly rows="14" style="width:100%;font-family:monospace;font-size:12px;direction:ltr;text-align:left">'+esc(ddl)+'</textarea>'+
+    '<div class="actions"><button class="btn primary" type="button" id="hwSqlCopy">نسخ التعليمة</button><button class="btn" type="button" id="hwSqlDone">تمّ — أعد السحب</button></div>'+
+    '<p class="muted" style="font-size:12px;margin:0">بدون هذا الجدول يظل استلام الإنجازات يعمل على الشبكة المحلية (خادم الأستاذ) فقط، ودخول المتعلمين لا يتغيّر إطلاقًا.</p></div>';
+  openDrawer('تهيئة استلام الإنجازات في السحابة',html);
+  if($('hwSqlCopy'))$('hwSqlCopy').onclick=()=>{try{navigator.clipboard.writeText(ddl).then(()=>toast('نُسخت التعليمة'),()=>toast('انسخها يدويًا'));}catch(e){toast('انسخها يدويًا');}};
+  if($('hwSqlDone'))$('hwSqlDone').onclick=()=>{closeDrawer();hwCloudPull();};
+}
+window.hwCloudPull=hwCloudPull;
+
 async function hwqBulk(st){
   if(!HWQ.hw)return toast('اختر الواجب أولاً');
   if(!HWQ.rows.length)return toast('لا يوجد متعلمون في هذا القسم');
@@ -4683,13 +4925,16 @@ async function hwqRender(){
     h+='<button class="btn" type="button" data-hwq-act="reset">تصفير</button>';
     h+='<button class="btn" type="button" data-hwq-act="xls">تصدير Excel</button>';
     h+='<button class="btn" type="button" data-hwq-act="qrprint" title="ورقة A4 بملصقات تُقصّ وتُوزَّع">🖨 طباعة رموز المتعلمين</button>';
+    h+='<button class="btn" type="button" id="hwqSubsBtn" data-hwq-act="subs" title="صور إنجازات أرسلها المتعلمون من «مواكبتي»">📷 إنجازات المتعلمين</button>';
     h+='<button class="btn info" type="button" data-hwq-act="sync">مزامنة النقط مع نتائج القسم</button>';
     h+='<button class="btn'+(HWQ.marks?' primary':'')+'" type="button" data-hwq-act="marks">'+(HWQ.marks?'إخفاء خانات العلامة':'إدخال العلامات')+'</button></div>';
     h+='<div style="height:5px;border-radius:4px;background:rgba(120,120,120,.18);margin-top:8px;overflow:hidden"><div id="hwqBar" style="height:100%;width:0;background:#22c55e;transition:width .25s"></div></div>';
     h+='<p class="muted" style="font-size:12px;margin:8px 0 0">الأجل: <b>'+esc(HWQ.hw.deadline||'بلا أجل')+'</b>'+(late?' <span style="color:#f59e0b">(تجاوز الأجل: كل تسليم جديد يُعلَّم متأخرًا)</span>':'')+' — اضغط أيقونة المتعلم عند استلام كرّاسته، أو بمسح رمزه؛ يُحفظ كل شيء تلقائيًا. خانات العلامة اختيارية عبر زر «إدخال العلامات»، وأي تعديل فيها يُزامَن مباشرة مع نتائج القسم.</p>';
     h+='<div id="hwqRows" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px;margin-top:10px">';
     h+=HWQ.rows.length?HWQ.rows.map(r=>{const st=hwqStatusOf(r.id);
-      return '<div class="att-row" data-hwq-stu="'+r.id+'"'+(HWQ.marks?' style="flex-wrap:wrap"':'')+'><span class="att-name">'+rankChip(r.rank)+esc(r.name)+' <span class="hwq-at muted" style="font-size:11px">'+hwqChipText(r.id)+'</span></span>'+
+      const mysub=HWQ.byStu[r.id];
+      const subChip=(mysub&&mysub.pending&&!mysub.submitted)?('<button type="button" class="chip" data-hws-open="'+esc(mysub.id)+'" title="صور إنجاز أرسلها المتعلم — اضغط للمراجعة والاعتماد" style="border:1px solid #f59e0b;background:#fffbeb;color:#92400e;font-size:11px;padding:1px 7px;border-radius:99px;cursor:pointer">📷 إنجاز مُرسَل</button>'):'';
+      return '<div class="att-row" data-hwq-stu="'+r.id+'"'+(HWQ.marks?' style="flex-wrap:wrap"':'')+'><span class="att-name">'+rankChip(r.rank)+esc(r.name)+' '+subChip+' <span class="hwq-at muted" style="font-size:11px">'+hwqChipText(r.id)+'</span></span>'+
         ['present','late','absent'].map(x=>'<button type="button" class="att-st'+(st===x?' on':'')+'" data-st="'+x+'" title="'+(x==='present'?'سلّم في الأجل':x==='late'?'سلّم متأخرًا':'لم يسلّم')+'">'+(x==='present'?'✅':x==='late'?'🕐':'⛔')+'</button>').join('')+hwqMarksHtml(r.id)+'</div>';
     }).join(''):'<span class="muted">لا يوجد متعلمون في هذا القسم.</span>';
     h+='</div>';
@@ -4698,9 +4943,12 @@ async function hwqRender(){
     if(classId)h+='<div class="actions" style="margin-top:10px"><button class="btn" type="button" data-hwq-act="qrprint">🖨 طباعة رموز المتعلمين</button></div>';
   }
   box.innerHTML=h;
+  try{hwqRefreshToolbar();}catch(e){}
   hwqCounters();
 }
 document.addEventListener('click',e=>{
+  const subBtn=e.target&&e.target.closest?e.target.closest('[data-hws-open]'):null;
+  if(subBtn&&subBtn.closest&&subBtn.closest('#hwqBody')){e.preventDefault();e.stopPropagation();hwSubReview(subBtn.dataset.hwsOpen);return;}
   const b=e.target&&e.target.closest?e.target.closest('[data-hwq-act]'):null;
   if(b){
     const a=b.dataset.hwqAct;
@@ -4709,6 +4957,7 @@ document.addEventListener('click',e=>{
     else if(a==='xls')hwqXls();
     else if(a==='qrprint')hwqPrintQr();
     else if(a==='sync')syncTrackingToResults('الواجبات');
+    else if(a==='subs')hwSubsPanel(HWQ.hw?HWQ.hw.id:'');
     else if(a==='marks'){HWQ.marks=!HWQ.marks;hwqRender();}
     else if(a==='reset')hwqAsk('سيُعلَّم جميع متعلمي هذا الواجب «لم يسلّم» وتُحفظ الحالة. النقط والملاحظات لا تتغيّر، ويمكن إعادة التسليم بنقرة واحدة.','نعم، صفّر اللوحة','تصفير لوحة التسليم').then(ok=>{if(ok)hwqBulk('absent')});
     return;
@@ -5475,7 +5724,8 @@ async function buildPortalSnapshot(){
     subsOut.sort((a,b)=>(String(a.s)).localeCompare(String(b.s),'ar'));
     const avg=wSum?Math.round(wAvg/wSum*100)/100:null;
     const myHw=homework.filter(h=>h.classId===st.classId);
-    const hwOut=myHw.map(h=>({t:h.title||'واجب',s:(subMap[h.subjectId]||{}).name||'—',d:h.deadline||'',sub:!!(hwSubMap[st.id+'_'+h.id]&&hwSubMap[st.id+'_'+h.id].submitted)})).sort((a,b)=>String(a.d).localeCompare(String(b.d),'ar'));
+    const hwOut=myHw.map(h=>{const sb=hwSubMap[st.id+'_'+h.id]||null;return {i:String(h.id),t:h.title||'واجب',s:(subMap[h.subjectId]||{}).name||'—',d:h.deadline||'',mx:Number(h.maxScore)||20,
+      sub:!!(sb&&sb.submitted),st:(sb&&sb.submitted)?'done':(sb&&sb.pending)?'pending':''};}).sort((a,b)=>String(a.d).localeCompare(String(b.d),'ar'));
     const mine=attendance.filter(a=>a.studentId===st.id&&effD(a)>=cutIso);
     const ab=mine.filter(a=>a.type==='absent').length,la=mine.filter(a=>a.type==='late').length,ex=mine.filter(a=>a.type==='excused').length,px=mine.filter(a=>a.type==='present').length;
     if(!st.portalSecret){st.portalSecret=genPortalSecret();try{DB.put('students',st);}catch(e){}}
@@ -5527,6 +5777,7 @@ async function renderPortal(){
   await saveCloud({url:url,key:key,inst:inst,enabled:!!$('cloudOn').checked,sweep:$('cloudSweep')?!!$('cloudSweep').checked:cur.sweep!==false,lastAt:cur.lastAt,lastOk:cur.lastOk,privOn:!!($('privOn')&&$('privOn').checked),privUrl:privUrl,privRk:privRk,privAk:privAk,privLastAt:cur.privLastAt,privLastOk:cur.privLastOk,enc:!!($('encOn')&&$('encOn').checked)});
   toast('حُفظت إعدادات السحابة');renderPortal()};
   if($('cloudPush'))$('cloudPush').onclick=async()=>{const d=await buildPortalSnapshot();await cloudPublish(d)};
+  if($('hwCloudPullBtn'))$('hwCloudPullBtn').onclick=()=>hwCloudPull();
   if($('privProbe'))$('privProbe').onclick=()=>cloudProbePriv();
   const contact=await loadContact();
   if($('portalWhats'))$('portalWhats').value=contact.whats||'';
