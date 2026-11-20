@@ -76,10 +76,13 @@ function createWindow(){
 Menu.setApplicationMenu(null);
 
 ipcMain.handle('print-pdf', async (event, html, name, opts)=>{
-  let w=null;
+  let w=null,tmp=null;
   try{
     w=new BrowserWindow({show:false,webPreferences:{sandbox:true,contextIsolation:true}});
-    await w.loadURL('data:text/html;charset=utf-8,'+encodeURIComponent(html));
+    // ملف مؤقت بدل data: URL: وثائق الامتحانات تحمل تنسيقات وصورًا فتُتجاوز حدود عنوان data: فيفشل التحميل
+    tmp=path.join(app.getPath('temp'),'sijil-print-'+Date.now()+'.html');
+    fs.writeFileSync(tmp,String(html||''),'utf8');
+    await w.loadFile(tmp);
     // cssPage=true: احترام @page في الورقة (الهوامش والاتجاه) — يُستعمل لأوراق الامتحانات
     const pdfOpts={printBackground:true,pageSize:'A4'};
     if(opts&&opts.cssPage)pdfOpts.preferCSSPageSize=true;
@@ -95,6 +98,7 @@ ipcMain.handle('print-pdf', async (event, html, name, opts)=>{
     return{ok:false,error:String((e&&e.message)||e)};
   }finally{
     if(w){try{w.destroy()}catch(e){}}
+    if(tmp){try{fs.unlinkSync(tmp)}catch(e){}}
   }
 });
 

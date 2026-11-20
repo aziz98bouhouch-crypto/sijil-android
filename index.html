@@ -304,7 +304,7 @@ thead{display:table-header-group}
 .ex-paper .q .q-title{font-weight:800}
 .ex-paper .q .q-txt{margin-top:4px}
 .ex-paper .q .q-cap{font-size:12.5px;color:#666;margin-top:4px}
-.ex-paper .q .q-ans{margin-top:8px;border:1px dashed #888;border-radius:6px;background:#fff}
+.ex-paper .q .q-ans{margin-top:0;border:1px dashed #888;border-radius:0 0 6px 6px;background:#fff}
 .ex-paper .essay{border:1.5px dashed #555;border-radius:10px;padding:12px 14px;margin:12px 0}
 .ex-paper .essay .essay-title{font-weight:900;text-align:center;font-size:17px;margin-bottom:8px}
 .ex-paper .foot{text-align:center;font-weight:900;font-size:16px;margin-top:20px;padding-top:10px;border-top:2px solid #333}
@@ -314,13 +314,13 @@ thead{display:table-header-group}
 /* ===== EXAM STUDIO v2: تنسيق الورقة، الأعمدة، سلم التنقيط، أنواع الأسئلة ===== */
 .ex-paper{font-size:var(--ex-fs,16px);line-height:var(--ex-lh,1.5)}
 .ex-paper p{margin:.12em 0}
-.ex-paper .q{margin:0 0 var(--ex-qgap,1.2mm);padding:1.2mm 2mm;border-radius:5px;background:#fff}
-.ex-paper .q .q-title{margin-bottom:.4mm}
-.ex-paper .q .q-txt{margin-top:.3mm}
+.ex-paper .q{margin:0 0 var(--ex-qgap,1.2mm);padding:0 2mm .4mm;border-radius:5px;background:#fff}
+.ex-paper .q .q-title{margin-bottom:0}
+.ex-paper .q .q-txt{margin:0}
 .ex-paper .q .q-cap{margin-top:.3mm;font-size:.86em}
 .ex-paper .q .mcq{margin-top:.8mm;gap:.6mm 5mm}
 .ex-paper .q .tf{margin-top:.8mm;gap:8mm}
-.ex-paper .q .q-ans{margin-top:1mm;border-radius:4px;background:#fff;border:1px dashed #999}
+.ex-paper .q .q-ans{margin-top:0;border-radius:0 0 4px 4px;background:#fff;border:1px dashed #999}
 .ex-paper .q .q-ans.lines{border:none;background:none;box-shadow:none}
 .ex-paper .q .q-ans.lines i{display:block;height:7.2mm;border-bottom:1px dotted #555}
 .ex-paper .q .q-ans.blank{background:#fff;border:1px dashed #999}
@@ -351,7 +351,9 @@ thead{display:table-header-group}
 .ex-paper.compact .ph-exam{font-size:1.22em;margin-bottom:.8mm}
 .ex-paper.compact .ph-meta th,.ex-paper.compact .ph-meta td{padding:1px 5px;font-size:.92em}
 .ex-paper.compact .pap-part{margin:3mm 0 1.5mm}
-.ex-paper .q .q-title{display:flex;justify-content:space-between;gap:6px;align-items:baseline;flex-wrap:wrap}
+.ex-paper .q .q-title{display:flex;gap:0 5px;align-items:baseline;flex-wrap:wrap}
+.ex-paper .q .q-title .q-txt{flex:1 1 auto;min-width:0;font-weight:400;margin:0}
+.ex-paper .q .q-title .qp{margin-inline-start:auto}
 .ex-paper .q .q-title .qp{font-size:.85em;white-space:nowrap;font-weight:800}
 .ex-paper .q .q-docref{color:#0b57a8;font-weight:700;font-size:.92em}
 .ex-paper .q .mcq{display:grid;grid-template-columns:1fr 1fr;gap:1mm 6mm;margin-top:1.5mm}
@@ -1019,53 +1021,33 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
 <div id="exams" class="page">
   <div class="hero"><span class="badge">EXAM MODELS</span><h1>منشئ نماذج الامتحانات</h1><p>بناء نماذج امتحانات متكاملة تُصمَّم وفق الترتيب الإداري والتربوي، تعتمد على وثائق متنوعة (نصوص، صور، خرائط، جداول، خطوط زمنية بسيطة ومركبة، خطاطات، مبيانات دائرية ونصف دائرية وبالأعمدة وبالمنحنى...) مع أسئلة مرتبطة بوثائق وأسئلة مستقلة، وموضوع إنشائي (المقال).</p></div>
 
-  <div class="grid">
-    <div class="card stat"><span class="muted">الوثائق</span><strong id="exDocCount">0</strong></div>
-    <div class="card stat"><span class="muted">الأسئلة</span><strong id="exQCount">0</strong></div>
-    <div class="card stat"><span class="muted">مجموع النقط</span><strong id="exTotalPts">0</strong></div>
-    <div class="card stat"><span class="muted">النماذج المحفوظة</span><strong id="exSavedCount">0</strong></div>
-  </div>
-
-  <!-- MODEL TOOLBAR -->
-  <div class="card">
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-        <input id="exName" placeholder="اسم النموذج" style="min-width:240px">
-        <select id="exList" style="min-width:200px"></select>
-        <button class="btn primary" id="exNew">➕ نموذج جديد</button>
-        <button class="btn success" id="exSave">💾 حفظ النموذج</button>
-        <button class="btn" id="exDup">⧉ نسخ كنموذج</button>
-        <button class="btn danger" id="exDel">🗑️ حذف الحالي</button>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn" id="exImportBtn">⬆️ استيراد JSON</button>
-        <button class="btn" id="exExportBtn">⬇️ تصدير JSON</button>
-        <input id="exImportFile" type="file" accept=".json,application/json" hidden>
-        <button class="btn primary" id="exPrintBtn">🖨️ طباعة</button>
-        <button class="btn success" id="exKeyBtn">🗝️ سلم التنقيط</button>
-        <button class="btn" id="exWordBtn">📄 تصدير Word</button>
-        <button class="btn success" id="exPdfBtn">📕 تصدير PDF</button>
+  <!-- شريط النموذج: التحديد + الحفظ + المؤشرات -->
+  <div class="card ex-bar">
+    <div class="ex-bar-top">
+      <input id="exName" placeholder="اسم النموذج" class="ex-bar-name">
+      <select id="exList" class="ex-bar-list"></select>
+      <div class="ex-bar-btns">
+        <button class="btn primary" id="exNew">➕ جديد</button>
+        <button class="btn success" id="exSave">💾 حفظ</button>
+        <button class="btn" id="exDup">⧉ نسخ</button>
+        <button class="btn danger" id="exDel">🗑️ حذف</button>
       </div>
     </div>
+    <div class="ex-bar-sub">
+      <button class="btn" id="exImportBtn">⬆️ استيراد JSON</button>
+      <button class="btn" id="exExportBtn">⬇️ تصدير JSON</button>
+      <input id="exImportFile" type="file" accept=".json,application/json" hidden>
+    </div>
+    <div class="ex-metrics">
+      <span class="ex-metric">الوثائق <b id="exDocCount">0</b></span>
+      <span class="ex-metric">الأسئلة <b id="exQCount">0</b></span>
+      <span class="ex-metric">مجموع النقط <b id="exTotalPts">0</b></span>
+      <span class="ex-metric">النماذج المحفوظة <b id="exSavedCount">0</b></span>
+    </div>
   </div>
 
-  <!-- أوراق الفرض لكل قسم: QR مبسّط + شريط التنقيط في الترويسة -->
-  <div class="card" id="exDsCard">
-    <div class="section-title"><h2>أوراق الفرض المحروس لكل قسم — رمز QR مبسّط + شريط التنقيط في الترويسة</h2></div>
-    <div class="form three">
-      <div class="field"><label>رقم الفرض المحروس</label><input id="exDsNum" type="number" min="1" max="99" value="1"></div>
-      <div class="field"><label>القسم</label><select id="exDsClass"><option value="">كل الأقسام</option></select></div>
-      <div class="field"><label>تسمية الملفات (فرنسية)</label><div class="muted" style="font-size:11.5px;line-height:1.6">Devoir_Surveille_&lt;الرقم&gt;_Classe_&lt;القسم&gt;_Niveau_&lt;المستوى&gt;.pdf</div></div>
-    </div>
-    <div class="actions" style="margin-top:10px">
-      <button class="btn success" id="exDsPdf">📕 توليد PDF (ملف لكل قسم)</button>
-      <button class="btn primary" id="exDsPrint">🖨️ طباعة كل الأوراق</button>
-    </div>
-    <p class="muted" style="margin-top:8px">لكل تلميذ ورقة واحدة: يُضاف داخل الترويسة نفسها صفٌّ واحد يحمل رمز QR المبسّط (يُقرأ بماسح المتعلمين) وبجانبه شريط النقطة مصغّرًا إلى ٤٥٪ (76×16مم) — دون صفحة إضافية ودون أخذ أي مساحة من متن الأسئلة.</p>
-  </div>
-
-  <!-- ADMIN HEADER -->
-  <div class="section-title"><h2>الترويسة الإدارية والتربوية للنموذج</h2></div>
+  <details class="ex-sec">
+    <summary><span class="ex-step">1</span> الترويسة الإدارية والتربوية <span class="ex-sum">الجمهورية · الوزارة · المؤسسة · المادة · الدورة · المدة</span></summary>
   <div class="card ex-header-card">
     <div class="exh-grid">
       <div class="exh-cell"><span class="exh-l">الجمهورية / الدولة</span><input id="exRepublic" class="exh-i" value="المملكة المغربية"></div>
@@ -1076,7 +1058,6 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       <div class="exh-cell"><span class="exh-l">اسم الامتحان / نوعه</span><input id="exExamTitle" class="exh-i" placeholder="مثال: الامتحان الموحد المحلي"></div>
       <div class="exh-cell"><span class="exh-l">المادة</span><input id="exSubject" class="exh-i" placeholder="مثال: التاريخ والجغرافيا"></div>
       <div class="exh-cell"><span class="exh-l">المستوى</span><input id="exLevel" class="exh-i"></div>
-      <div class="exh-cell"><span class="exh-l">الشعبة / المسلك</span><input id="exTrack" class="exh-i"></div>
       <div class="exh-cell"><span class="exh-l">السنة الدراسية</span><input id="exSeason" class="exh-i" value="2025-2026"></div>
       <div class="exh-cell"><span class="exh-l">الدورة</span><select id="exSession" class="exh-i"><option>الدورة الأولى</option><option>الدورة الثانية</option><option>الدورة الاستدراكية</option></select></div>
       <div class="exh-cell"><span class="exh-l">مدة الإنجاز</span><input id="exDuration" class="exh-i" placeholder="مثال: ساعة ونصف"></div>
@@ -1096,7 +1077,6 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
   </div>
 
   <!-- PRESETS -->
-  <div class="section-title"><h2>قوالب فروض جاهزة</h2></div>
   <div class="card">
     <div class="form three">
       <div class="field"><label>القالب</label><select id="exPreset">
@@ -1115,59 +1095,16 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
   </div>
 
   <!-- DOCUMENTS -->
-  <div class="section-title"><h2>الوثائق</h2></div>
+  </details>
+
+  <details class="ex-sec" open>
+    <summary><span class="ex-step">2</span> الوثائق <span class="ex-sum">نص · صورة · خريطة · جدول · خط زمني · خطاطة · مبيان</span></summary>
   <div class="card">
     <div class="field"><label>إضافة وثيقة جديدة من نوع:</label><div class="ex-chips" id="exAddDocs"></div></div>
     <div id="exDocs" style="margin-top:10px"></div>
   </div>
 
   <!-- QUESTIONS -->
-  <div class="section-title"><h2>الأسئلة</h2></div>
-  <div class="card">
-    <div id="exQs" style="margin-bottom:10px"></div>
-    <div class="ex-chips" style="margin-top:8px">
-      <span class="ex-chip on" id="exAddQnormal">➕ سؤال عادي</span>
-      <span class="ex-chip" id="exAddQlinked">🔗 سؤال مرتبط بوثيقة</span>
-      <span class="ex-chip" id="exAddQmcq">☑️ اختيار من متعدد</span>
-      <span class="ex-chip" id="exAddQtf">✓✗ صح / خطأ</span>
-      <span class="ex-chip" id="exAddQblank">✍️ ملء الفراغ</span>
-      <span class="ex-chip" id="exAddQessay">📝 موضوع إنشائي (مقال)</span>
-    </div>
-  </div>
-
-  <!-- PREVIEW + LAYOUT + QUALITY CHECK -->
-  <div class="ex-layout2">
-    <div>
-      <div class="section-title"><h2>المعاينة الحية</h2></div>
-      <div class="card">
-        <div class="ex-zoombar">
-          <button class="btn" id="exZoomOut" type="button">➖</button>
-          <span id="exZoomVal" style="min-width:52px;text-align:center;font-weight:700">100%</span>
-          <button class="btn" id="exZoomIn" type="button">➕</button>
-          <button class="btn" id="exZoomFit" type="button">⤢ ملء العرض</button>
-        </div>
-        <div class="ex-preview-scroll" style="margin-top:8px"><div class="ex-preview-holder" id="exPreviewWrap"><div id="exPreview"></div></div></div>
-      </div>
-    </div>
-    <div class="ex-sidecol">
-      <div class="section-title"><h2>تنسيق الورقة</h2></div>
-      <div class="card">
-        <div class="ex-lay">
-          <div class="field"><label>اتجاه الصفحة</label><select id="exOrient"><option value="portrait">عامودي A4</option><option value="landscape">أفقي A4</option></select></div>
-          <div class="field"><label>الهوامش</label><select id="exMargin"><option value="tight">ضيّقة (8مم) — مساحة أكبر</option><option value="normal">عادية (12مم)</option><option value="wide">واسعة (18مم)</option></select></div>
-          <div class="field"><label>أعمدة الأسئلة</label><select id="exCols"><option value="1">عمود واحد</option><option value="2">عمودان</option></select></div>
-          <div class="field"><label>حجم الخط (<span id="exFontVal">16</span>px)</label><input id="exFont" type="range" min="11" max="20" step="0.5" value="16"></div>
-          <div class="field"><label>تباعد الأسطر (<span id="exLineHVal">1.5</span>)</label><input id="exLineH" type="range" min="1.15" max="2" step="0.05" value="1.5"></div>
-          <div class="field"><label>الفراغ بين الأسئلة (<span id="exQgapVal">1.2مم</span>)</label><input id="exQgap" type="range" min="0" max="6" step="0.2" value="1.2"></div>
-        </div>
-        <div class="field opt" style="margin-top:6px"><label class="opt"><input type="checkbox" id="exCompact" checked> ترويسة مضغوطة (مساحة أكبر للأسئلة)</label></div>
-        <div class="field opt"><label class="opt"><input type="checkbox" id="exShowFoot" checked> إظهار عبارة «انتهت الأسئلة — بالتوفيق»</label></div>
-        <p class="muted" style="font-size:11px;margin:6px 0 0">هذه الإعدادات تُحفظ مع النموذج وتُطبق على المعاينة والطباعة وPDF وWord.</p>
-      </div>
-      <div class="section-title"><h2>فحص الجودة</h2></div>
-      <div class="card"><div id="exCheck"></div></div>
-    </div>
-  </div>
   <div class="card" id="exDocSizeBar">
     <div class="section-title" style="margin-top:0"><h2>حجم الوثائق — تحكم يدوي</h2></div>
     <div class="form three">
@@ -1188,6 +1125,21 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       </div>
     </div>
     <p class="muted" style="margin:8px 0 0;font-size:12px">المدى من 0٪ إلى 400٪ من عرض الورقة (100٪ = العرض الكامل، و0٪ = إخفاء الوثيقة). يطبَّق هذا الحجم العام على الوثائق التي لم تُحدَّد لها قيمة خاصة، والقيم فوق 100٪ تجعل الوثيقة أعرض من الورقة فتُقتطع عند الطباعة. لكل وثيقة إعدادها الخاص في «إعدادات الوثيقة».</p>
+  </div>
+  </details>
+
+  <details class="ex-sec" open>
+    <summary><span class="ex-step">3</span> الأسئلة وفضاء الإجابة <span class="ex-sum">عادي · مرتبط بوثيقة · اختيار متعدد · صح/خطأ · ملء الفراغ · إنشائي</span></summary>
+  <div class="card">
+    <div id="exQs" style="margin-bottom:10px"></div>
+    <div class="ex-chips" style="margin-top:8px">
+      <span class="ex-chip on" id="exAddQnormal">➕ سؤال عادي</span>
+      <span class="ex-chip" id="exAddQlinked">🔗 سؤال مرتبط بوثيقة</span>
+      <span class="ex-chip" id="exAddQmcq">☑️ اختيار من متعدد</span>
+      <span class="ex-chip" id="exAddQtf">✓✗ صح / خطأ</span>
+      <span class="ex-chip" id="exAddQblank">✍️ ملء الفراغ</span>
+      <span class="ex-chip" id="exAddQessay">📝 موضوع إنشائي (مقال)</span>
+    </div>
   </div>
   <div class="card" id="exAnsBar">
     <div class="section-title" style="margin-top:0"><h2>فضاء الإجابة — تحكم يدوي</h2></div>
@@ -1216,6 +1168,68 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
     </div>
     <p class="muted" style="margin:8px 0 0;font-size:12px">مساحة فارغة تُضاف بعد كل سؤال ليكتب فيها المتعلم إجابته (بالملّيمتر). يسري هذا الارتفاع على كل سؤال لم تُحدَّد له قيمة خاصة، و0 = بلا فضاء. تُحفظ القيمة مع النموذج فتظهر في المعاينة والطباعة وPDF وWord.</p>
   </div>
+  </details>
+
+  <details class="ex-sec" open>
+    <summary><span class="ex-step">4</span> المعاينة والتصدير <span class="ex-sum">الورقة كما ستُطبع + تنسيقها وفحص جودتها</span></summary>
+    <div class="card">
+      <div class="ex-actions">
+        <button class="btn primary" id="exPrintBtn">🖨️ طباعة</button>
+        <button class="btn success" id="exKeyBtn">🗝️ سلم التنقيط</button>
+        <button class="btn" id="exWordBtn">📄 Word</button>
+        <button class="btn success" id="exPdfBtn">📕 PDF</button>
+      </div>
+    </div>
+  <!-- PREVIEW + LAYOUT + QUALITY CHECK -->
+  <div class="ex-layout2">
+    <div>
+      <div class="card">
+        <div class="ex-zoombar">
+          <button class="btn" id="exZoomOut" type="button">➖</button>
+          <span id="exZoomVal" style="min-width:52px;text-align:center;font-weight:700">100%</span>
+          <button class="btn" id="exZoomIn" type="button">➕</button>
+          <button class="btn" id="exZoomFit" type="button">⤢ ملء العرض</button>
+        </div>
+        <div class="ex-preview-scroll" style="margin-top:8px"><div class="ex-preview-holder" id="exPreviewWrap"><div id="exPreview"></div></div></div>
+      </div>
+    </div>
+    <div class="ex-sidecol">
+      <div class="card">
+        <div class="ex-lay">
+          <div class="field"><label>اتجاه الصفحة</label><select id="exOrient"><option value="portrait">عامودي A4</option><option value="landscape">أفقي A4</option></select></div>
+          <div class="field"><label>الهوامش</label><select id="exMargin"><option value="tight">ضيّقة (8مم) — مساحة أكبر</option><option value="normal">عادية (12مم)</option><option value="wide">واسعة (18مم)</option></select></div>
+          <div class="field"><label>أعمدة الأسئلة</label><select id="exCols"><option value="1">عمود واحد</option><option value="2">عمودان</option></select></div>
+          <div class="field"><label>حجم الخط (<span id="exFontVal">16</span>px)</label><input id="exFont" type="range" min="11" max="20" step="0.5" value="16"></div>
+          <div class="field"><label>تباعد الأسطر (<span id="exLineHVal">1.5</span>)</label><input id="exLineH" type="range" min="1.15" max="2" step="0.05" value="1.5"></div>
+          <div class="field"><label>الفراغ بين الأسئلة (<span id="exQgapVal">1.2مم</span>)</label><input id="exQgap" type="range" min="0" max="6" step="0.2" value="1.2"></div>
+        </div>
+        <div class="field opt" style="margin-top:6px"><label class="opt"><input type="checkbox" id="exCompact" checked> ترويسة مضغوطة (مساحة أكبر للأسئلة)</label></div>
+        <div class="field opt"><label class="opt"><input type="checkbox" id="exShowFoot" checked> إظهار عبارة «انتهت الأسئلة — بالتوفيق»</label></div>
+        <p class="muted" style="font-size:11px;margin:6px 0 0">هذه الإعدادات تُحفظ مع النموذج وتُطبق على المعاينة والطباعة وPDF وWord.</p>
+      </div>
+      <div class="card"><div id="exCheck"></div></div>
+    </div>
+  </div>
+  </details>
+
+  <details class="ex-sec">
+    <summary><span class="ex-step">5</span> أوراق الفرض المحروس لكل قسم <span class="ex-sum">QR + شريط النقطة في ترويسة كل ورقة</span></summary>
+  <!-- أوراق الفرض لكل قسم: QR مبسّط + شريط التنقيط في الترويسة -->
+  <div class="card" id="exDsCard">
+    <div class="form three">
+      <div class="field"><label>رقم الفرض المحروس</label><input id="exDsNum" type="number" min="1" max="99" value="1"></div>
+      <div class="field"><label>القسم</label><select id="exDsClass"><option value="">كل الأقسام</option></select></div>
+      <div class="field"><label>تسمية الملفات (فرنسية)</label><div class="muted" style="font-size:11.5px;line-height:1.6">Devoir_Surveille_&lt;الرقم&gt;_Classe_&lt;القسم&gt;_Niveau_&lt;المستوى&gt;.pdf</div></div>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="btn success" id="exDsPdf">📕 توليد PDF (ملف لكل قسم)</button>
+      <button class="btn primary" id="exDsPrint">🖨️ طباعة كل الأوراق</button>
+    </div>
+    <p class="muted" style="margin-top:8px">لكل تلميذ ورقة واحدة: يُضاف داخل الترويسة نفسها صفٌّ واحد يحمل رمز QR المبسّط (يُقرأ بماسح المتعلمين) وبجانبه شريط النقطة مصغّرًا إلى ٤٥٪ (76×16مم) — دون صفحة إضافية ودون أخذ أي مساحة من متن الأسئلة.</p>
+  </div>
+
+  <!-- ADMIN HEADER -->
+  </details>
 </div>
 
 <!-- HEALTH -->
@@ -1497,6 +1511,31 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       if(P.Share){try{await P.Share.share({title:name||'تقرير PDF',url:uri});}catch(e){}}
       return{ok:true,uri:uri,name:safe};
     }catch(e){try{var _h=document.getElementById('__pdfHost');if(_h)_h.remove();[].slice.call(document.body.children).forEach(function(d){if(d.style&&/-10000px/.test(d.style.left))d.remove();});}catch(_){}return{ok:false,err:String((e&&e.message)||e)};}
+  };
+  window.__pdfViaHtml2pdf=async function(html,name){
+    try{
+      if(typeof window.html2pdf!=='function')return{ok:false,err:'مولّد PDF غير محمّل'};
+      var d=new DOMParser().parseFromString(String(html||''),'text/html');
+      var styleEl=d.querySelector('style');
+      var bodyHtml=d.body?d.body.innerHTML:String(html||'');
+      var host=document.createElement('div');
+      host.style.cssText='position:fixed;left:-10000px;top:0;width:794px;background:#ffffff;color:#000;z-index:-1;overflow:visible';
+      host.innerHTML=(styleEl?'<style>'+styleEl.textContent+'</style>':'')
+        +'<style>#__pdfApp{display:block!important;background:#fff!important;color:#000!important}#__pdfApp,#__pdfApp *{filter:none!important;box-shadow:none!important;backdrop-filter:none!important;animation:none!important;transition:none!important}#__pdfApp .page,#__pdfApp .page.active{display:block!important}#__pdfApp .ex-paper{width:100%!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:#fff!important}#__pdfApp button,#__pdfApp .btn{display:none!important}#__pdfApp .ds-pg{break-after:page;page-break-after:always}</style>'
+        +'<div id="__pdfApp" dir="rtl" style="width:794px;background:#ffffff;padding:0">'+bodyHtml+'</div>';
+      document.body.appendChild(host);
+      try{if(document.fonts&&document.fonts.ready)await document.fonts.ready;}catch(e){}
+      var tgt=host.querySelector('#__pdfApp');
+      var safe=String(name||'تقرير').replace(/[\\/:*?"<>|]/g,'_')+'.pdf';
+      var opt={margin:[10,10,10,10],filename:safe,image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,imageTimeout:0},jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true},pagebreak:{mode:['css','legacy'],avoid:'tr,.doc,.q,.essay,table,img,svg,.ds-pg'}};
+      await window.html2pdf().set(opt).from(tgt).save();
+      try{host.remove();}catch(e){}
+      return{ok:true,name:safe};
+    }catch(e){
+      try{host.remove();}catch(_){}
+      try{[].slice.call(document.body.children).forEach(function(x){if(x.style&&/-10000px/.test(x.style.left))x.remove();});}catch(_){}
+      return{ok:false,err:String((e&&e.message)||e)};
+    }
   };
   if(isNative()){try{
     window.print=function(){try{
@@ -6127,9 +6166,21 @@ async function exportReportHtmlPdf(html,title){
     try{const r=await window.__nativePdfFromHtml(html,nm);if(r&&r.ok)toast('تم إنشاء PDF — اختر تطبيقًا لفتحه أو الطباعة');else if(r&&r.cancelled){}else toast('فشل إنشاء PDF'+(r&&r.err?': '+r.err:''));}catch(err){toast('فشل إنشاء PDF: '+String(err));}
     return;
   }
-  if(!window.sijilAPI){toast('PDF يتطلب تشغيل التطبيق عبر Electron');window.print();return;}
-  toast('جارٍ إنشاء PDF...');
-  try{const r=await window.sijilAPI.printPdf(html,String(title||'تقرير').replace(/[\\/:*?"<>|]/g,'_')+'.pdf');if(r&&r.ok)toast('تم حفظ PDF');else if(r&&r.cancelled)toast('أُلغيت العملية');else toast('فشل إنشاء PDF'+(r&&r.error?': '+r.error:''));}catch(err){toast('فشل إنشاء PDF: '+String(err));}
+  if(window.sijilAPI&&typeof window.sijilAPI.printPdf==='function'){
+    try{
+      toast('جارٍ إنشاء PDF...');
+      const r=await window.sijilAPI.printPdf(html,nm+'.pdf');
+      if(r&&r.ok){toast('تم حفظ PDF');return;}
+      if(r&&r.cancelled)return;
+    }catch(err){}
+  }
+  if(typeof window.__pdfViaHtml2pdf==='function'){
+    toast('جارٍ إنشاء PDF...');
+    try{const r=await window.__pdfViaHtml2pdf(html,nm);if(r&&r.ok){toast('تم تنزيل PDF: '+r.name);return;}toast('تعذّر إنشاء PDF'+(r&&r.err?': '+r.err:'')+' — سيُفتح خيار الطباعة');}catch(err){toast('فشل إنشاء PDF: '+String(err));}
+  }else{
+    toast('PDF غير متاح هنا — سيُفتح خيار الطباعة (حفظ كـ PDF)');
+  }
+  try{window.print()}catch(e){}
 }
 function reportFileNameFromView(rv){
   const t=rv.querySelector('.ph-exam')||rv.querySelector('.r-header h2')||rv.querySelector('.ped-title h3, h3, h1');
@@ -6557,8 +6608,8 @@ async function renderExams(){
  sel.innerHTML='<option value="">(اختر نموذجًا محفوظًا...)</option>'+EX.list.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.name)+'</option>').join('');
  if(!EX.cur){EX.cur=exNewModel();try{const cx=(await DB.all('appMeta')).find(a=>a.id==='context')?.value||{};if(cx&&cx.inst){const h=EX.cur.header;if(h)Object.assign(h,{academy:cx.academy||h.academy,directorate:cx.directorate||h.directorate,institution:h.institution||cx.inst,level:h.level||cx.level||'',track:h.track||([cx.branch,cx.track].filter(Boolean).join(' / ')||'')});}}catch(e){}}
  const h=EX.cur.header||{};
- const imap={exRepublic:'republic',exMinistry:'ministry',exAcademy:'academy',exDirectorate:'directorate',exInstitution:'institution',exExamTitle:'examTitle',exSubject:'subject',exLevel:'level',exTrack:'track',exSeason:'season',exDuration:'duration'};
- ['exRepublic','exMinistry','exAcademy','exDirectorate','exInstitution','exExamTitle','exSubject','exLevel','exTrack','exSeason','exDuration'].forEach(id=>{const el=$(id);if(el&&h[imap[id]]!==undefined)el.value=h[imap[id]];});
+ const imap={exRepublic:'republic',exMinistry:'ministry',exAcademy:'academy',exDirectorate:'directorate',exInstitution:'institution',exExamTitle:'examTitle',exSubject:'subject',exLevel:'level',exSeason:'season',exDuration:'duration'};
+ ['exRepublic','exMinistry','exAcademy','exDirectorate','exInstitution','exExamTitle','exSubject','exLevel','exSeason','exDuration'].forEach(id=>{const el=$(id);if(el&&h[imap[id]]!==undefined)el.value=h[imap[id]];});
  try{const _act=activeSubjectId();if(_act){const _nm=_subjName(_act);const _ex=$('exSubject');if(_ex&&_nm){_ex.value=_nm;if(EX.cur&&EX.cur.header)EX.cur.header.subject=_nm;const _f=_ex.closest('.exh-cell');if(_f)_f.style.display='none';}}}catch(e){}
  const ss=$('exSession');if(ss&&h.session)ss.value=h.session;
  exLogoThumb('exEmblemPrev',h.emblem);exLogoThumb('exLogoPrev',h.logo);
@@ -7099,8 +7150,10 @@ function exQPaper(q,num,docNum,L,key){
  const pts=exPts(q.points);
  const docNo=q.docId?(docNum[q.docId]||null):null;
  let s='<div class="q">';
- s+='<div class="q-title"><span class="qn">السؤال '+num+(docNo?' <span class="q-docref">(انطلاقًا من الوثيقة رقم '+docNo+')</span>':'')+(q.kind==='mcq'?' (اختر الإجابة الصحيحة)':q.kind==='tf'?' (قيم العبارة)':q.kind==='blank'?' (أكمل الفراغات)':'')+'</span><span class="qp">('+pts+' نقط)</span></div>';
- if(String(q.text||'').trim())s+='<div class="q-txt">'+(q.kind==='blank'?exBlankFmt(q.text):exFmt(q.text))+'</div>';
+ let _qh='<span class="qn">السؤال '+num+(docNo?' <span class="q-docref">(انطلاقًا من الوثيقة رقم '+docNo+')</span>':'')+(q.kind==='mcq'?' (اختر الإجابة الصحيحة)':q.kind==='tf'?' (قيم العبارة)':q.kind==='blank'?' (أكمل الفراغات)':'')+'</span>';
+ if(String(q.text||'').trim())_qh+='<span class="q-txt">'+(q.kind==='blank'?exBlankFmt(q.text):exFmt(q.text))+'</span>';
+ _qh+='<span class="qp">('+pts+' نقط)</span>';
+ s+='<div class="q-title">'+_qh+'</div>';
  if(q.kind==='mcq'){
   const os=Array.isArray(q.options)?q.options:[];
   const single=os.some(o=>String(o.text||'').length>34);
@@ -7418,10 +7471,17 @@ $('exPdfBtn').onclick=async()=>{
    if(r&&r.ok)toast('تم إنشاء PDF');else if(r&&r.cancelled){}else toast('فشل إنشاء PDF'+(r&&r.err?': '+r.err:''));
    return;
   }
-  if(!window.sijilAPI||typeof window.sijilAPI.printPdf!=='function')return toast('PDF يتطلب الإصدار المثبّت (Electron) أو تطبيق الهاتف');
-  toast('جارٍ إنشاء PDF...');
-  const r=await window.sijilAPI.printPdf(html,nm+'.pdf',{cssPage:true});
-  if(r&&r.ok)toast('تم حفظ PDF');else if(r&&r.cancelled)toast('أُلغيت العملية');else toast('فشل إنشاء PDF'+(r&&r.error?': '+r.error:''));
+  if(window.sijilAPI&&typeof window.sijilAPI.printPdf==='function'){
+   toast('جارٍ إنشاء PDF...');
+   try{
+    const r=await window.sijilAPI.printPdf(html,nm+'.pdf',{cssPage:true});
+    if(r&&r.ok){toast('تم حفظ PDF');return;}
+    if(r&&r.cancelled)return;
+   }catch(e){}
+  }
+  // في المتصفح وحده (بلا Electron ولا تطبيق الهاتف): الطباعة مع «حفظ كـ PDF» أسرع وأدق من تحويل الورقة إلى صورة
+  toast('سيُفتح خيار الطباعة — اختر «حفظ كـ PDF»');
+  exPrintPaper(false);return;
  }catch(err){toast('فشل إنشاء PDF: '+String(err));}
 };
 // ============ EXAM MODEL BINDINGS (wired inside engine) ============
@@ -10269,6 +10329,32 @@ html[data-layout="smart"] .page.active>.sec-group:has(.exh-grid){grid-column:1/-
 html[data-layout="smart"] .page.active>.sec-group:has(#exPreview){grid-column:1/-1}
 html[data-layout="smart"] .page.active>.sec-group:has(#exPreview) .ex-svgbox{max-width:100%}
 #exPreview .ex-paper{width:210mm;max-width:100%;margin-inline:auto}
+/* منشئ الامتحانات — شريط النموذج + أقسام مطوية مرقّمة */
+.ex-bar{padding:12px 14px}
+.ex-bar-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.ex-bar-name{flex:1 1 220px;min-width:170px}
+.ex-bar-list{flex:1 1 200px;min-width:170px;max-width:340px}
+.ex-bar-btns{display:flex;gap:6px;flex-wrap:wrap;margin-inline-start:auto}
+.ex-bar-btns .btn,.ex-bar-sub .btn{min-height:34px;padding:8px 12px}
+.ex-bar-sub{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.ex-metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ex-metric{font-size:11.5px;font-weight:700;color:var(--m);background:var(--bg2);border:1px solid var(--l);border-radius:20px;padding:3px 10px;display:inline-flex;align-items:center;gap:6px}
+.ex-metric b{color:var(--t);font-size:13px}
+.ex-sec{background:var(--p);border:1px solid var(--l);border-radius:var(--r);box-shadow:var(--card-shadow);margin:10px 0;overflow:hidden}
+.ex-sec>summary{cursor:pointer;list-style:none;padding:11px 14px;display:flex;align-items:center;gap:9px;font-weight:800;font-size:14px;transition:background .15s ease}
+.ex-sec>summary::-webkit-details-marker{display:none}
+.ex-sec>summary:hover{background:var(--bg2)}
+.ex-sec>summary::after{content:'⌄';margin-inline-start:auto;color:var(--m);font-weight:700;transition:transform .2s ease}
+.ex-sec[open]>summary::after{transform:rotate(180deg)}
+.ex-sec[open]>summary{border-bottom:1px solid var(--l);background:var(--bg2)}
+.ex-step{flex:0 0 auto;width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+.ex-sum{font-weight:600;font-size:11.5px;color:var(--m);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-sec>.card{border:0;border-radius:0;box-shadow:none;background:transparent}
+.ex-sec>.card+.card{border-top:1px dashed var(--l)}
+.ex-sec>.ex-layout2{padding:10px 14px}
+.ex-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ex-sec .ex-actions{padding:10px 14px 0}
+@media(max-width:560px){.ex-sum{display:none}.ex-actions .btn{flex:1 1 45%}}
 /* exam emblem + institution logo upload boxes */
 .exh-logos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:10px}
 .exh-logo-box{display:flex;flex-direction:column;gap:6px;cursor:pointer}
