@@ -2,6 +2,9 @@ name: Build Signed Student APK (مواكبتي)
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'student-v*'
 
 permissions:
   contents: write
