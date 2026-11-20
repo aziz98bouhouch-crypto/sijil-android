@@ -426,21 +426,13 @@ thead{display:table-header-group}
 }
 @page{size:A4;margin:12mm}
 @page qcmSheet{size:A4;margin:0}
-@page exPT{size:A4;margin:8mm}
-@page exPT12{size:A4;margin:12mm}
-@page exPT18{size:A4;margin:18mm}
-@page exPL{size:A4 landscape;margin:8mm}
-@page exPL12{size:A4 landscape;margin:12mm}
-@page exPL18{size:A4 landscape;margin:18mm}
+/* هوامش ورقة الامتحان: قيمة واحدة (--ex-mg بالمليمتر) تحكم الحشو الداخلي للورقة،
+   ويولّد التصدير قاعدة @page مطابقة لها — فتعمل في المعاينة والطباعة وPDF وWord وأندرويد. */
+.ex-print-root .ex-paper{padding:var(--ex-mg,8mm)}
 @media print{
- .ex-print-root.p8{page:exPT}
- .ex-print-root.p12{page:exPT12}
- .ex-print-root.p18{page:exPT18}
- .ex-print-root.l8{page:exPL}
- .ex-print-root.l12{page:exPL12}
- .ex-print-root.l18{page:exPL18}
- .ex-print-root .ex-paper{min-height:277mm}
- .ex-print-root.l8 .ex-paper,.ex-print-root.l12 .ex-paper,.ex-print-root.l18 .ex-paper{min-height:184mm}
+ /* الهامش في الطباعة يأتي من @page وحده، فلا يتضاعف مع حشو الشاشة */
+ .ex-print-root .ex-paper{padding:0;min-height:calc(297mm - 2 * var(--ex-mg,8mm));border-radius:0;box-shadow:none}
+ .ex-print-root.land .ex-paper{min-height:calc(210mm - 2 * var(--ex-mg,8mm))}
 }
 
 /* ===== QCM (MCQ + OMR) ===== */
@@ -1197,7 +1189,12 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       <div class="card">
         <div class="ex-lay">
           <div class="field"><label>اتجاه الصفحة</label><select id="exOrient"><option value="portrait">عامودي A4</option><option value="landscape">أفقي A4</option></select></div>
-          <div class="field"><label>الهوامش</label><select id="exMargin"><option value="tight">ضيّقة (8مم) — مساحة أكبر</option><option value="normal">عادية (12مم)</option><option value="wide">واسعة (18مم)</option></select></div>
+          <div class="field ex-mg-field"><label>الهوامش (<span id="exMarginVal">8</span>مم)</label>
+            <div class="ex-mg-row">
+              <select id="exMargin"><option value="tight">ضيّقة 8مم</option><option value="normal">عادية 12مم</option><option value="wide">واسعة 18مم</option><option value="custom">مخصّصة</option></select>
+              <input id="exMarginMm" type="range" min="4" max="30" step="1" value="8" aria-label="هامش الصفحة بالمليمتر">
+            </div>
+          </div>
           <div class="field"><label>أعمدة الأسئلة</label><select id="exCols"><option value="1">عمود واحد</option><option value="2">عمودان</option></select></div>
           <div class="field"><label>حجم الخط (<span id="exFontVal">16</span>px)</label><input id="exFont" type="range" min="11" max="20" step="0.5" value="16"></div>
           <div class="field"><label>تباعد الأسطر (<span id="exLineHVal">1.5</span>)</label><input id="exLineH" type="range" min="1.15" max="2" step="0.05" value="1.5"></div>
@@ -1205,7 +1202,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
         </div>
         <div class="field opt" style="margin-top:6px"><label class="opt"><input type="checkbox" id="exCompact" checked> ترويسة مضغوطة (مساحة أكبر للأسئلة)</label></div>
         <div class="field opt"><label class="opt"><input type="checkbox" id="exShowFoot" checked> إظهار عبارة «انتهت الأسئلة — بالتوفيق»</label></div>
-        <p class="muted" style="font-size:11px;margin:6px 0 0">هذه الإعدادات تُحفظ مع النموذج وتُطبق على المعاينة والطباعة وPDF وWord.</p>
+        <p class="muted" style="font-size:11px;margin:6px 0 0">هذه الإعدادات تُحفظ مع النموذج وتُطبق على المعاينة والطباعة وPDF وWord. هامش الصفحة يُقاس من حافة الورقة ويظهر أثره فورًا في المعاينة.</p>
       </div>
       <div class="card"><div id="exCheck"></div></div>
     </div>
@@ -1479,6 +1476,8 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
         }catch(e){}
       }
       if(!P||!P.Filesystem)return{ok:false,err:'الملفات الأصلية غير متاحة'};
+      if(typeof window.html2pdf!=='function'){try{await window.loadVendor('html2pdf')}catch(e){}}
+      if(typeof window.html2pdf!=='function'){try{await window.loadVendor('html2pdf')}catch(e){}}
       if(typeof window.html2pdf!=='function')return{ok:false,err:'مولّد PDF غير محمّل'};
       try{if(typeof window.confirm==='function'){var go=window.confirm('هل تسمح بإنشاء ملف PDF للطباعة/الحفظ؟\nسيتم بعد ذلك فتح نافذة النظام لاختيار مكان الحفظ أو تطبيق الطباعة.');if(!go)return{ok:false,cancelled:true};}}catch(e){}
       var doc=new DOMParser().parseFromString(String(fullHtml||''),'text/html');
@@ -1757,7 +1756,7 @@ const DB=(()=>{
 })();
 
 const toast=(m,t)=>{const el=$('toast');let tv=t;const s=String(m);if(!tv){tv=/^تم/.test(s)?'ok':/^(تعذ|خطأ|فشل|معرّف مستعمل|القسم غير|لا توجد)/.test(s)?'err':/^(اختر|أكمل|لا )/.test(s)?'warn':'n';}const ic={ok:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',err:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',warn:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>',n:''};el.dataset.t=tv||'n';el.innerHTML='<span class="toast-ico">'+(ic[tv]||'')+'</span><span class="toast-tx">'+esc(s)+'</span><span class="toast-bar"></span>';el.classList.add('show');clearTimeout(toast._h);toast._h=setTimeout(()=>el.classList.remove('show'),3200)};
-const Router={go(p){const titles={home:'الرئيسية',academic:'الهوية الأكاديمية',curriculum:'المنهاج الدراسي',management:'الأقسام',students:'ملفات المتعلمين',studentProfile:'ملف المتعلم',assessment:'التقويم والنتائج',tracking:'المتابعة',schedule:'استعمال الزمان والحصص',diagnosis:'التشخيص والدعم',motivation:'التحفيز والإنجاز',resources:'الموارد والتعلم',reports:'التقارير والمؤشرات',analytics:'التحليلات والإحصاء',evolution:'تتبع التطور',communication:'سجل التواصل',exams:'منشئ نماذج الامتحانات',qcm:'امتحانات QCM والتصحيح الآلي',health:'فحص النظام',backup:'النسخ الاحتياطي',trash:'السلة',settings:'الإعدادات',portal:'بوابة المتعلمين',sync:'المزامنة'};p=titles[p]?p:'home';document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('title').textContent='سجل التقييم PRO — '+titles[p];try{localStorage.setItem('corePage',p)}catch(e){}const fns={academic:renderAcademic,curriculum:renderCurriculum,management:renderManagement,students:renderStudents,studentProfile:renderStudentProfile,assessment:renderAssessment,tracking:renderTracking,schedule:renderSchedule,diagnosis:renderDiagnosis,motivation:renderMotivation,resources:renderResources,reports:renderReports,analytics:renderAnalytics,evolution:renderEvolution,communication:renderCommunication,exams:renderExams,qcm:function(){if(window.renderQcm)window.renderQcm();},health:health,backup:renderBackup,trash:renderTrash,settings:function(){renderInstCard();try{renderTeacherSubjects()}catch(e){}},portal:renderPortal,sync:()=>renderSync()};if(fns[p])fns[p]();try{renderSubjectSwitch()}catch(e){}try{Router.current={page:p};window.dispatchEvent(new Event('appnav'))}catch(e){}}};
+const Router={go(p){const titles={home:'الرئيسية',academic:'الهوية الأكاديمية',curriculum:'المنهاج الدراسي',management:'الأقسام',students:'ملفات المتعلمين',studentProfile:'ملف المتعلم',assessment:'التقويم والنتائج',tracking:'المتابعة',schedule:'استعمال الزمان والحصص',diagnosis:'التشخيص والدعم',motivation:'التحفيز والإنجاز',resources:'الموارد والتعلم',reports:'التقارير والمؤشرات',analytics:'التحليلات والإحصاء',evolution:'تتبع التطور',communication:'سجل التواصل',exams:'منشئ نماذج الامتحانات',qcm:'امتحانات QCM والتصحيح الآلي',health:'فحص النظام',backup:'النسخ الاحتياطي',trash:'السلة',settings:'الإعدادات',portal:'بوابة المتعلمين',sync:'المزامنة'};p=titles[p]?p:'home';document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p));$('title').textContent='سجل التقييم PRO — '+titles[p];try{localStorage.setItem('corePage',p)}catch(e){}const fns={home:()=>{try{renderHome()}catch(e){}},academic:renderAcademic,curriculum:renderCurriculum,management:renderManagement,students:renderStudents,studentProfile:renderStudentProfile,assessment:renderAssessment,tracking:renderTracking,schedule:renderSchedule,diagnosis:renderDiagnosis,motivation:renderMotivation,resources:renderResources,reports:renderReports,analytics:renderAnalytics,evolution:renderEvolution,communication:renderCommunication,exams:renderExams,qcm:function(){if(window.renderQcm)window.renderQcm();},health:health,backup:renderBackup,trash:renderTrash,settings:function(){renderInstCard();try{renderTeacherSubjects()}catch(e){}},portal:renderPortal,sync:()=>renderSync()};if(fns[p])fns[p]();try{renderSubjectSwitch()}catch(e){}try{Router.current={page:p};window.dispatchEvent(new Event('appnav'))}catch(e){}}};
 /* الفرض المولَّد من المتابعة: مصدره + كبت إعادة التوليد بعد حذفه يدويًا (مرحلة 40) */
 const TIED_SRC={srcAttId:'attendance',srcBehId:'behaviorRecords',srcHomeworkId:'homework'};
 function tiedSrcOf(a){for(const f in TIED_SRC){if(a&&a[f])return{field:f,id:a[f],store:TIED_SRC[f]};}return null;}
@@ -2736,13 +2735,16 @@ async function renderHome(){
   const clsMap=Object.fromEntries(classes.map(c=>[c.id,c]));
   const subMap=Object.fromEntries(subjects.map(s=>[s.id,s]));
   const scoreMap={};scores.forEach(s=>{scoreMap[s.studentId+'_'+s.assessmentId]=s.value});
+  /* فهرس التقييمات مرة واحدة: كان كل متعلم×مادة يمسح كل التقييمات (786×) */
+  const assIdx={};for(const a of assessments){if(!a)continue;const k=String(a.classId)+'|'+String(a.subjectId)+'|'+String(a.type);(assIdx[k]=assIdx[k]||[]).push(a);}
   const subAvg={},stuFinal={};
   for(const st of active){
     const per={};
     const track=await classTrackOf(st.classId);
     for(const sub of subjects){
-      const acts=assessments.filter(a=>a.classId===st.classId&&a.subjectId===sub.id&&a.type==='activity');
-      const exams=assessments.filter(a=>a.classId===st.classId&&a.subjectId===sub.id&&a.type==='exam').map(a=>scoreMap[st.id+'_'+a.id]).filter(v=>v!=null);
+      const _k=String(st.classId)+'|'+String(sub.id)+'|';
+      const acts=assIdx[_k+'activity']||[];
+      const exams=(assIdx[_k+'exam']||[]).map(a=>scoreMap[st.id+'_'+a.id]).filter(v=>v!=null);
       const aa=actSum20(acts,scoreMap,attendance,behavior,st.id,0);
       const ea=exams.length?exams.reduce((a,b)=>a+b,0)/exams.length:null;
       const f=gradeFinal(track,aa,ea,exams.length,sub.id);
@@ -2806,14 +2808,15 @@ async function renderHome(){
   let classRows;
   if(classes.length){
     const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);const weekStr=weekAgo.toISOString().split('T')[0];
+    const attI=actIdxByStu(attendance);
     classRows=classes.map(cl=>{
       const cs=active.filter(s=>s.classId===cl.id);if(!cs.length)return '<tr><td>'+esc(cl.name)+'</td><td colspan="5" class="muted">لا يوجد متعلمون</td></tr>';
       const finals=cs.map(s=>stuFinal[s.id]).filter(v=>v!==null);
       const avg=finals.length?finals.reduce((a,b)=>a+b,0)/finals.length:null;
       const pass=finals.filter(v=>passFn(v)).length;
-      const absW=cs.reduce((n,s)=>n+attendance.filter(a=>a.studentId===s.id&&(a.type==='absent'||a.type==='excused')&&a.date>=weekStr).length,0);
+      const absW=cs.reduce((n,s)=>n+(attI[s.id]||[]).filter(a=>(a.type==='absent'||a.type==='excused')&&String(a.date||'')>=weekStr).length,0);
       const hwOf=homework.filter(h=>h.classId===cl.id);
-      const uns=cs.reduce((n,s)=>n+hwOf.filter(h=>!homeworkSubmissions.some(x=>x.homeworkId===h.id&&x.studentId===s.id&&x.submitted)).length,0);
+      const uns=cs.reduce((n,s)=>n+hwOf.filter(h=>!subSet.has(h.id+'_'+s.id)).length,0);
       return '<tr><td>'+esc(cl.name)+'</td><td>'+cs.length+'</td><td><b>'+(avg?avg.toFixed(2)+'/20':'—')+'</b></td><td>'+(finals.length?Math.round(pass/finals.length*100)+'%':'—')+'</td><td>'+absW+'</td><td>'+uns+'</td></tr>';
     }).join('');
     if($('homeClasses'))$('homeClasses').innerHTML='<div class="card tablewrap"><div class="actions home-sec-head"><b>ملخص الأقسام</b><span style="flex:1"></span><button class="btn home-diag-btn" id="homeDiagGo">تشخيص القسم ↓</button></div><table class="table"><thead><tr><th>القسم</th><th>المتعلمون</th><th>المعدل العام</th><th>نسبة النجاح</th><th>غياب هذا الأسبوع</th><th>واجبات غير مسلّمة</th></tr></thead><tbody>'+classRows+'</tbody></table></div>';
@@ -3932,14 +3935,16 @@ async function renderAssessment(){
    const rows=[];
    if(!classes.length){rows.push('<tr><td colspan="7">أنشئ الأقسام أولاً</td></tr>');}
    else if(!list.length){rows.push('<tr><td colspan="7">لا توجد تقييمات مطابقة للتصفية</td></tr>');}
+   /* عدد العلامات لكل تقييم مرة واحدة: كان يُعاد مسح كل العلامات لكل تقييم (O(تقييم×علامة)) */
+   const scoreN={};for(const x of scores){if(x&&x.assessmentId)scoreN[x.assessmentId]=(scoreN[x.assessmentId]||0)+1;}
    const clsOrd=classes.slice().sort((a,b)=>{const la=(a.levelId&&lvName[a.levelId])||'بدون مستوى',lb=(b.levelId&&lvName[b.levelId])||'بدون مستوى';const l=String(la).localeCompare(String(lb),'ar');return l||String(a.name).localeCompare(String(b.name),'ar');});
    for(const c of clsOrd){
     const group=list.filter(a=>a.classId===c.id);if(!group.length)continue;
-    const nf=group.reduce((n,a)=>n+scores.filter(x=>x.assessmentId===a.id).length,0);
+    const nf=group.reduce((n,a)=>n+(scoreN[a.id]||0),0);
     const clv=(c.levelId&&lvName[c.levelId])||'بدون مستوى';
     rows.push('<tr class="lg-head"><td colspan="7">🗂 '+esc(c.name)+' <span class="lv">— '+esc(clv)+'</span> · '+group.length+' تقييم'+(nf?' · '+nf+' علامة':'')+'</td></tr>');
     for(const a of group){
-      const nm=scores.filter(x=>x.assessmentId===a.id).length;
+      const nm=scoreN[a.id]||0;
       const tied=!!(a.srcAttId||a.srcBehId||a.srcHomeworkId);
       const ask='سيُحذف «'+esc(a.title)+'»'+(nm?(' مع '+nm+' علامة مرتبطة به'):'')+'. ينتقل إلى السلة ويمكن استرجاعه'+(tied?' — هذا السجل مولَّد من المتابعة، وحذفه من هنا يوقف إعادة توليده تلقائيًا إلى أن تستعيده من السلة':'')+'. هل تريد المتابعة؟';
       rows.push('<tr><td></td><td>'+esc(subjectMap[a.subjectId]||'—')+'</td><td>'+esc(typeLabel(a))+'</td><td>'+esc(a.title)+'</td><td>'+esc(cycleLabel(a))+'</td><td>'+esc(a.maxScore)+'</td><td><button class="btn btn-sm" data-enter-score="'+a.id+'" data-class="'+a.classId+'">أدخل العلامات</button> <button class="btn btn-sm" data-edit-ass="'+a.id+'">تعديل</button> <button class="btn danger" data-del-ass="'+a.id+'" data-ask="'+ask+'">حذف</button></td></tr>');
@@ -3978,8 +3983,11 @@ let TRACK_POINTS={present:0.5,participation:2,notebook:1,homework:1,absent:1,lat
 let ACT_FEED={part:{},nb:{},hw:{}};
 async function refreshActivityFeeds(){try{const [part,nb,hw,hwSubs]=await Promise.all([DB.all('participation'),DB.all('notebookCare'),DB.all('homework'),DB.all('homeworkSubmissions')]);const P={},N={},H={};(part||[]).forEach(r=>{if(r&&r.studentId!=null&&r.marked!==false)P[r.studentId+'_'+(r.cycle||0)]=(P[r.studentId+'_'+(r.cycle||0)]||0)+1;});const Q={};(nb||[]).forEach(r=>{if(r&&r.studentId!=null&&r.marked!==false){const k=r.studentId+'_'+(r.cycle||0);N[k]=(N[k]||0)+1;Q[k]=(Q[k]||0)+nbFactor(r);}});const hwCycle={};(hw||[]).forEach(h=>{hwCycle[h.id]=h.cycle||0;});(hwSubs||[]).forEach(s=>{if(!s||!s.studentId||!s.submitted)return;const c=hwCycle[s.homeworkId]||0;const k=s.studentId+'_'+c;H[k]=(H[k]||0)+1;});ACT_FEED={part:P,nb:N,nbp:Q,hw:H};}catch(e){}}
 function actFeedMark(kind,studentId,cycle){return actFeedCount(kind,studentId,cycle)>0;}
-function actFeedCount(kind,studentId,cycle){const m=ACT_FEED[kind]||{};if(cycle===0){let n=0;for(const k in m){if(k.indexOf(studentId+'_')===0)n+=m[k];}return n;}return m[studentId+'_'+cycle]||0;}
-function actFeedHwCount(studentId,cycle){const m=ACT_FEED.hw||{};if(cycle===0){let n=0;for(const k in m){if(k.indexOf(studentId+'_')===0)n+=m[k];}return n;}return m[studentId+'_'+cycle]||0;}
+/* مجموع الدورة 0 لكل متعلم يُحسب مرة واحدة لكل خريطة (كان يُمسح كل مفتاح لكل متعلم×مادة = ملايين العمليات) */
+const _FEEDSUM=new WeakMap();
+function feedCycleZero(m){let sums=_FEEDSUM.get(m);if(sums)return sums;sums={};for(const k in m){const i=k.lastIndexOf('_');const sid=i>0?k.slice(0,i):k;sums[sid]=(sums[sid]||0)+m[k];}_FEEDSUM.set(m,sums);return sums;}
+function actFeedCount(kind,studentId,cycle){const m=ACT_FEED[kind]||{};if(cycle===0)return feedCycleZero(m)[studentId]||0;return m[studentId+'_'+cycle]||0;}
+function actFeedHwCount(studentId,cycle){const m=ACT_FEED.hw||{};if(cycle===0)return feedCycleZero(m)[studentId]||0;return m[studentId+'_'+cycle]||0;}
 async function loadTrackingPoints(){try{const meta=await DB.all('appMeta');const v=(meta.find(a=>a.id==='trackingPoints')||{}).value||{};TRACK_POINTS={present:v.present!=null?Number(v.present):0.5,participation:v.participation!=null?Number(v.participation):2,notebook:v.notebook!=null?Number(v.notebook):1,homework:v.homework!=null?Number(v.homework):1,absent:v.absent!=null&&isFinite(Number(v.absent))?Number(v.absent):1,late:v.late!=null&&isFinite(Number(v.late))?Number(v.late):0.5,excused:v.excused!=null&&isFinite(Number(v.excused))?Number(v.excused):0,lateToAbsent:v.lateToAbsent!=null&&isFinite(Number(v.lateToAbsent))?Number(v.lateToAbsent):3,absentGrace:v.absentGrace!=null&&isFinite(Number(v.absentGrace))?Number(v.absentGrace):0,nb_excellent:v.nb_excellent!=null&&isFinite(Number(v.nb_excellent))?Math.min(100,Math.max(0,Number(v.nb_excellent))):100,nb_good:v.nb_good!=null&&isFinite(Number(v.nb_good))?Math.min(100,Math.max(0,Number(v.nb_good))):95,nb_mid:v.nb_mid!=null&&isFinite(Number(v.nb_mid))?Math.min(100,Math.max(0,Number(v.nb_mid))):50,nb_weak:v.nb_weak!=null&&isFinite(Number(v.nb_weak))?Math.min(100,Math.max(0,Number(v.nb_weak))):25,nb_none:v.nb_none!=null&&isFinite(Number(v.nb_none))?Math.min(100,Math.max(0,Number(v.nb_none))):0};}catch(e){}if($('tpPresent'))$('tpPresent').value=TRACK_POINTS.present;if($('tpParticipation'))$('tpParticipation').value=TRACK_POINTS.participation;if($('tpNotebook'))$('tpNotebook').value=TRACK_POINTS.notebook;if($('tpHomework'))$('tpHomework').value=TRACK_POINTS.homework;if($('tpAbsent'))$('tpAbsent').value=TRACK_POINTS.absent;if($('tpLate'))$('tpLate').value=TRACK_POINTS.late;if($('tpExcused'))$('tpExcused').value=TRACK_POINTS.excused;if($('tpLateToAbsent'))$('tpLateToAbsent').value=TRACK_POINTS.lateToAbsent;if($('tpAbsentGrace'))$('tpAbsentGrace').value=TRACK_POINTS.absentGrace;if($('tpNbExcellent'))$('tpNbExcellent').value=TRACK_POINTS.nb_excellent;if($('tpNbGood'))$('tpNbGood').value=TRACK_POINTS.nb_good;if($('tpNbMid'))$('tpNbMid').value=TRACK_POINTS.nb_mid;if($('tpNbWeak'))$('tpNbWeak').value=TRACK_POINTS.nb_weak;if($('tpNbNone'))$('tpNbNone').value=TRACK_POINTS.nb_none;try{if($('absentLockChk'))$('absentLockChk').checked=!!(await absentLockGet());}catch(e){}}
 async function saveTrackingPoints(){const g=id=>Math.max(0,Math.min(20,parseFloat($(id)?.value)||0));const gi=id=>Math.max(0,Math.floor(parseFloat($(id)?.value)||0));const gpct=(id,d)=>{const el=$(id);if(!el||el.value==='')return d;const x=parseFloat(el.value);return isFinite(x)?Math.max(0,Math.min(100,x)):d;};TRACK_POINTS={present:g('tpPresent'),participation:g('tpParticipation'),notebook:g('tpNotebook'),homework:g('tpHomework'),absent:g('tpAbsent'),late:g('tpLate'),excused:g('tpExcused'),lateToAbsent:gi('tpLateToAbsent'),absentGrace:gi('tpAbsentGrace'),nb_excellent:gpct('tpNbExcellent',100),nb_good:gpct('tpNbGood',95),nb_mid:gpct('tpNbMid',50),nb_weak:gpct('tpNbWeak',25),nb_none:gpct('tpNbNone',0)};const meta=await DB.all('appMeta');let e=meta.find(a=>a.id==='trackingPoints');if(e)await DB.put('appMeta',{...e,value:TRACK_POINTS,updatedAt:now()});else await DB.put('appMeta',{id:'trackingPoints',value:TRACK_POINTS,createdAt:now()});try{await absentLockSet(!!($('absentLockChk')&&$('absentLockChk').checked));}catch(e){}await absRerenderPanels();await refreshActivityFeeds();toast('تم حفظ نقط المتابعة — '+(($('absentLockChk')&&$('absentLockChk').checked)?'الحظر مفعّل':'الحظر متوقف'));try{renderAssessment()}catch(x){}}
 function passFn(v){return v!==null&&v!==undefined&&v>=PASS;}
@@ -3992,7 +4000,17 @@ const generalSubObj={id:GENERAL_SUB,name:'الأنشطة المندمجة (عا�
 function bucketAss(subResults,ass,v){if(ass.type==='diagnostic')return;const key=ass.subjectId||GENERAL_SUB;if(!subResults[key])subResults[key]={ass:[],exams:[]};if(ass.type==='activity')subResults[key].ass.push(ass);else if(v!=null)subResults[key].exams.push(v);}
 function bucketClassActs(subResults,myAss,cyc){if(Object.keys(subResults).length)return;for(const ass of myAss){if(ass.type!=='activity')continue;if(cyc!==0&&Number(ass.cycle)!==Number(cyc))continue;bucketAss(subResults,ass,null);}}
 function gradeLabels(track){return {act:'النشاط (وزن '+WEIGHTS.activity+'%)',exam:'متوسط الفروض (وزن '+WEIGHTS.exam+'%)',formula:'المعدل = (مجموع الأنشطة × وزنها + (مجموع الفروض ÷ عددها) × وزن الفروض) ÷ مجموع الوزنين'};}
-function actSumRaw(acts,scoreMap,attendance,behavior,studentId,cycle){let sum=0,has=false;for(const a of acts){const v=scoreMap[studentId+'_'+a.id];if(v==null)continue;sum+=Number(v);has=true;}const myAtt=(attendance||[]).filter(a=>a.studentId===studentId&&(cycle===0||a.cycle===cycle));const presentCount=myAtt.filter(a=>a.type==='present').length;if(presentCount>0&&TRACK_POINTS.present){sum+=presentCount*TRACK_POINTS.present;has=true;}{const pc=actFeedCount('part',studentId,cycle);if(pc){sum+=pc*(TRACK_POINTS.participation||0);has=true;}}{const nc=actFeedCount('nbp',studentId,cycle);if(nc){sum+=nc*(TRACK_POINTS.notebook||0);has=true;}}const hwDone=actFeedHwCount(studentId,cycle);if(hwDone>0&&TRACK_POINTS.homework){sum+=hwDone*TRACK_POINTS.homework;has=true;}{const pen=[];for(const r of myAtt){if(!(r.type==='absent'||r.type==='late'||r.type==='excused'))continue;const tied=r.score!=null&&!isNaN(r.score)&&acts.some(a=>a.srcAttId===r.id&&scoreMap[studentId+'_'+a.id]!=null);if(tied)continue;pen.push(r.type);}const nA=pen.filter(x=>x==='absent').length,nL=pen.filter(x=>x==='late').length,nE=pen.filter(x=>x==='excused').length,gr=Math.max(0,Math.floor(Number(TRACK_POINTS.absentGrace)||0)),l2a=Math.max(0,Math.floor(Number(TRACK_POINTS.lateToAbsent)||0));let uA=Math.max(0,nA-gr),uL=nL;if(l2a>0&&uL>=l2a){uA+=Math.floor(uL/l2a);uL=uL%l2a;}const penV=(isFinite(Number(TRACK_POINTS.absent))?Number(TRACK_POINTS.absent):1)*uA+(isFinite(Number(TRACK_POINTS.late))?Number(TRACK_POINTS.late):0.5)*uL+(Number(TRACK_POINTS.excused)||0)*nE;if(penV>0){sum-=penV;has=true;}}const myBeh=(behavior||[]).filter(b=>b.studentId===studentId&&(cycle===0||b.cycle===cycle));for(const r of myBeh){if(r.type!=='negative')continue;const tied=acts.some(a=>a.srcBehId===r.id&&scoreMap[studentId+'_'+a.id]!=null);if(tied)continue;sum-=Math.abs(Number(r.points)||1);has=true;}if(!has)return null;return Math.max(0,sum);}function actSum20(acts,scoreMap,attendance,behavior,studentId,cycle){const raw=actSumRaw(acts,scoreMap,attendance,behavior,studentId,cycle);if(raw===null)return null;return Math.min(20,raw);}
+/* فهرس السجلات حسب المتعلم: كان كل حساب لمعدل متعلم يمسح كل سجلات الغياب (آلاف)
+   وبالتالي O(متعلمون×سجلات). الفهرس يُبنى مرة لكل مصفوفة (WeakMap) فيصير البحث ثابتًا. */
+const _ACTIDX=new WeakMap();
+function actIdxByStu(arr){
+ if(!arr||!arr.length)return{};
+ let m=_ACTIDX.get(arr);if(m)return m;
+ m={};
+ for(const r of arr){if(!r||r.studentId==null)continue;const k=r.studentId;(m[k]=m[k]||[]).push(r);}
+ _ACTIDX.set(arr,m);return m;
+}
+function actSumRaw(acts,scoreMap,attendance,behavior,studentId,cycle){let sum=0,has=false;for(const a of acts){const v=scoreMap[studentId+'_'+a.id];if(v==null)continue;sum+=Number(v);has=true;}const myAtt=(actIdxByStu(attendance)[studentId]||[]).filter(a=>cycle===0||a.cycle===cycle);const presentCount=myAtt.filter(a=>a.type==='present').length;if(presentCount>0&&TRACK_POINTS.present){sum+=presentCount*TRACK_POINTS.present;has=true;}{const pc=actFeedCount('part',studentId,cycle);if(pc){sum+=pc*(TRACK_POINTS.participation||0);has=true;}}{const nc=actFeedCount('nbp',studentId,cycle);if(nc){sum+=nc*(TRACK_POINTS.notebook||0);has=true;}}const hwDone=actFeedHwCount(studentId,cycle);if(hwDone>0&&TRACK_POINTS.homework){sum+=hwDone*TRACK_POINTS.homework;has=true;}{const pen=[];for(const r of myAtt){if(!(r.type==='absent'||r.type==='late'||r.type==='excused'))continue;const tied=r.score!=null&&!isNaN(r.score)&&acts.some(a=>a.srcAttId===r.id&&scoreMap[studentId+'_'+a.id]!=null);if(tied)continue;pen.push(r.type);}const nA=pen.filter(x=>x==='absent').length,nL=pen.filter(x=>x==='late').length,nE=pen.filter(x=>x==='excused').length,gr=Math.max(0,Math.floor(Number(TRACK_POINTS.absentGrace)||0)),l2a=Math.max(0,Math.floor(Number(TRACK_POINTS.lateToAbsent)||0));let uA=Math.max(0,nA-gr),uL=nL;if(l2a>0&&uL>=l2a){uA+=Math.floor(uL/l2a);uL=uL%l2a;}const penV=(isFinite(Number(TRACK_POINTS.absent))?Number(TRACK_POINTS.absent):1)*uA+(isFinite(Number(TRACK_POINTS.late))?Number(TRACK_POINTS.late):0.5)*uL+(Number(TRACK_POINTS.excused)||0)*nE;if(penV>0){sum-=penV;has=true;}}const myBeh=(actIdxByStu(behavior)[studentId]||[]).filter(b=>cycle===0||b.cycle===cycle);for(const r of myBeh){if(r.type!=='negative')continue;const tied=acts.some(a=>a.srcBehId===r.id&&scoreMap[studentId+'_'+a.id]!=null);if(tied)continue;sum-=Math.abs(Number(r.points)||1);has=true;}if(!has)return null;return Math.max(0,sum);}function actSum20(acts,scoreMap,attendance,behavior,studentId,cycle){const raw=actSumRaw(acts,scoreMap,attendance,behavior,studentId,cycle);if(raw===null)return null;return Math.min(20,raw);}
 async function loadWeights(){try{const meta=await DB.all('appMeta');const w=(meta.find(a=>a.id==='weights')||{}).value;if(w&&w.activity!=null&&w.exam!=null){WEIGHTS={activity:Number(w.activity)||25,exam:Number(w.exam)||75};}if(w&&w.pass!=null)PASS=Number(w.pass)||10;if($('wActivity'))$('wActivity').value=WEIGHTS.activity;if($('wExam'))$('wExam').value=WEIGHTS.exam;if($('passThreshold'))$('passThreshold').value=PASS;}catch(e){}}
 async function saveWeights(){const activity=Math.max(0,Math.min(100,parseFloat($('wActivity').value)||0));const exam=Math.max(0,Math.min(100,parseFloat($('wExam').value)||0));const pass=Math.max(0,Math.min(20,parseFloat($('passThreshold')?.value)||0));if(activity+exam===0)return toast('اختر أوزانًا صحيحة');if(pass<=0)return toast('اختر عتبة نجاح صحيحة');const meta=await DB.all('appMeta');let entry=meta.find(a=>a.id==='weights');if(entry){await DB.put('appMeta',{...entry,value:{activity,exam,pass},updatedAt:now()});}else{await DB.put('appMeta',{id:'weights',value:{activity,exam,pass},createdAt:now()});}WEIGHTS={activity,exam};PASS=pass;toast('تم حفظ الأوزان وعتبة النجاح — تُطبَّق على كل التقارير');invalidateReportCaches();}
 async function loadBadgeThresholds(){try{const meta=await DB.all('appMeta');const b=(meta.find(a=>a.id==='badgeThresholds')||{}).value||{};if(b.top!=null&&b.dil!=null){BADGE_TOP=b.top;BADGE_DIL=b.dil;}if(BADGE_DEFS){BADGE_DEFS.excellent.condition='avg>='+BADGE_TOP;BADGE_DEFS.hardworking.condition='avg>='+BADGE_DIL;}if($('badgeTop'))$('badgeTop').value=BADGE_TOP;if($('badgeDil'))$('badgeDil').value=BADGE_DIL;}catch(e){}}
@@ -4174,6 +4192,20 @@ function rosterOrder(list){return (list||[]).slice().sort(stCmp);}
 function rosterRankMap(list){const byCls={},m={};(list||[]).forEach(s=>{if(!s||s.status==='archived')return;const c=String(s.classId||'');(byCls[c]=byCls[c]||[]).push(s);});Object.keys(byCls).forEach(c=>{rosterOrder(byCls[c]).forEach((s,i)=>{m[s.id]=i+1;});});return m;}
 function rankChip(r){return '<span class="rk">'+(r?r:'—')+'.</span>';}
 function stuCellR(rk,id,name,bold){return rankChip(rk&&rk[id])+stuCell(id,name,bold);}
+/* سقوف عرض السجلات الطويلة + زر «عرض المزيد» المشترك */
+const LOG_LIMIT={attendance:60,behaviorRecords:60,homework:100,participation:60,notebookCare:60};
+document.addEventListener('click',e=>{
+ const b=e.target&&e.target.closest?e.target.closest('[data-more-log]'):null;if(!b)return;
+ const s=b.dataset.moreLog;if(!s)return;
+ LOG_LIMIT[s]=(LOG_LIMIT[s]||200)+300;
+ try{
+  if(s==='attendance')renderAttendanceList();
+  else if(s==='behaviorRecords')renderBehaviorList();
+  else if(s==='homework')renderHomeworkList();
+  else if(s==='participation')renderParticipation();
+  else if(s==='notebookCare')renderNotebook();
+ }catch(err){}
+});
 function logRankThenDate(rk){return (a,b)=>{const x=(rk&&rk[a.studentId])||1e9,y=(rk&&rk[b.studentId])||1e9;return x-y||new Date(b.date||0)-new Date(a.date||0);};}
 /* ===== المرحلة 13: ترتيب اللائحة من الملف المرفوع — الصفوف المرفوعة أولًا ثم مَن لم يَرِد ذكره ===== */
 async function applyRosterOrder(classId,orderedIds){
@@ -4197,11 +4229,15 @@ function groupLogByClassLevel(rows,opts){
   if(!order.length)return '<tr><td colspan="'+cols+'">'+(opts.empty||'لا توجد سجلات.')+'</td></tr>';
   order.sort((a,b)=>{const A=meta(a),B=meta(b);const l=String(A.lv).localeCompare(String(B.lv),'ar');return l||String(A.name).localeCompare(String(B.name),'ar');});
   const byDate=(a,b)=>new Date(b.date||0)-new Date(a.date||0);
-  let out='';
+  /* سقف عرض لكل قسم: جداول السجلات الضخمة (آلاف الصفوف) تُبطئ الرسم والتنقل،
+     فتُعرض أحدث N سجل ويظهر زر «عرض المزيد». limit=0 يعني بلا سقف. */
+  let out='';const lim=Math.max(0,Number(opts.limit)||0);let hidden=0;
   for(const cid of order){const g=groups[cid];g.sort(opts.sort||byDate);const m=meta(cid);
-    out+='<tr class="lg-head" data-lg="'+esc(cid)+'"><td colspan="'+cols+'">🏫 '+esc(m.name)+' <span class="lv">— '+esc(m.lv)+'</span> <small>('+g.length+')</small></td></tr>';
-    out+=g.map(renderRow).join('');
+    const total=g.length;const shown=(lim>0&&total>lim)?g.slice(0,lim):g;hidden+=total-shown.length;
+    out+='<tr class="lg-head" data-lg="'+esc(cid)+'"><td colspan="'+cols+'">🏫 '+esc(m.name)+' <span class="lv">— '+esc(m.lv)+'</span> <small>('+total+')</small></td></tr>';
+    out+=shown.map(renderRow).join('');
   }
+  if(hidden>0&&opts.store)out+='<tr class="log-more"><td colspan="'+cols+'"><button type="button" class="btn" data-more-log="'+esc(opts.store)+'">عرض المزيد · يظهر '+(rows.length-hidden)+' من '+rows.length+'</button></td></tr>';
   return out;
 }
 /* ================= لوحة المراقبة (مرحلة 16) =================
@@ -5079,10 +5115,10 @@ renderParticipation=monWrap('part',MON_FN.part);
 renderNotebook=monWrap('nb',MON_FN.nb);
 const MON_WRAPPED={att:renderAttendanceList,beh:renderBehaviorList,hw:renderHomeworkList,part:renderParticipation,nb:renderNotebook};
 
-async function renderAttendanceList(){const [attendance,students,classes,subjects,levels]=await Promise.all([DB.all('attendance'),DB.all('students'),DB.all('classes'),DB.all('subjects'),DB.all('levels')]);const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const stuMap=Object.fromEntries(students.map(s=>[s.id,s.name]));const clsMap=Object.fromEntries(classes.map(c=>[c.id,c.name]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));const typeMap={present:'حاضر',absent:'غائب',excused:'مبرر',late:'متأخر'};const rk=rosterRankMap(students);const attRow=a=>'<tr><td>'+stuCellR(rk,a.studentId,stuMap[a.studentId])+'</td><td>'+esc(a.date)+'</td><td>'+esc(a.session?('الحصة '+a.session):'اليوم كامل')+'</td><td>'+esc(typeMap[a.type]||a.type)+(a.note?' <span class="muted" style="font-size:11px">('+esc(a.note)+')</span>':'')+'</td><td>'+esc(subMap[a.subjectId]||'—')+'</td><td>'+esc(a.cycle?('الدورة '+a.cycle):'—')+'</td><td>'+(a.score!==null&&a.score!==undefined?a.score:'—')+'</td><td>'+esc(clsMap[a.classId]||'—')+'</td><td><button class="btn" data-edit-att="'+a.id+'">تعديل</button> <button class="btn danger" data-del-att="'+a.id+'">حذف</button></td></tr>';$('attendanceRows').innerHTML=groupLogByClassLevel(attendance,{classOf:a=>a.classId,cols:9,classes,lvName,renderRow:attRow,empty:'لا توجد سجلات غياب.',sort:logRankThenDate(rk)});document.querySelectorAll('[data-edit-att]').forEach(b=>b.onclick=()=>editAttendance(b.dataset.editAtt));document.querySelectorAll('[data-del-att]').forEach(b=>b.onclick=async()=>{const rec=await DB.get('attendance',b.dataset.delAtt);await DB.remove('attendance',b.dataset.delAtt);if(rec&&rec.subjectId){const tied=(await DB.all('assessments')).filter(a=>a.srcAttId===b.dataset.delAtt);for(const a of tied){const scs=await DB.all('scores');for(const sc of scs)if(sc.assessmentId===a.id)await DB.remove('scores',sc.id);await DB.remove('assessments',a.id);}}renderAttendanceList();renderAssessment();refreshTrackingStats();toast('تم الحذف')});}
-async function renderBehaviorList(){const [behavior,students,subjects,classes,levels]=await Promise.all([DB.all('behaviorRecords'),DB.all('students'),DB.all('subjects'),DB.all('classes'),DB.all('levels')]);const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const stuMap=Object.fromEntries(students.map(s=>[s.id,s.name]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));const typeMap={positive:'إيجابي',negative:'سلبي'};const rk=rosterRankMap(students);const behRow=b=>'<tr><td>'+stuCellR(rk,b.studentId,stuMap[b.studentId])+'</td><td>'+esc(b.date)+'</td><td>'+(b.type==='negative'?(b.negType?esc(b.negType):'سلبي'):'إيجابي')+'</td><td>'+esc(b.points)+'</td><td>'+esc(subMap[b.subjectId]||'—')+'</td><td>'+esc(b.cycle?('الدورة '+b.cycle):'—')+'</td><td>'+(b.score!==null&&b.score!==undefined?b.score:'—')+'</td><td>'+esc(b.reason||'—')+'</td><td>'+(b.type==='negative'?'<button class="btn" data-beh-report="'+b.studentId+'" style="font-size:11px;padding:4px 8px;">تقرير الاستدعاء</button> ':'')+'<button class="btn" data-edit-beh="'+b.id+'">تعديل</button> <button class="btn danger" data-del-beh="'+b.id+'">حذف</button></td></tr>';$('behaviorRows').innerHTML=groupLogByClassLevel(behavior,{classOf:b=>b.classId,cols:9,classes,lvName,renderRow:behRow,empty:'لا توجد سجلات سلوك.',sort:logRankThenDate(rk)});document.querySelectorAll('[data-edit-beh]').forEach(b=>b.onclick=()=>editBehavior(b.dataset.editBeh));document.querySelectorAll('[data-del-beh]').forEach(b=>b.onclick=async()=>{const rec=await DB.get('behaviorRecords',b.dataset.delBeh);await DB.remove('behaviorRecords',b.dataset.delBeh);if(rec&&rec.subjectId){const tied=(await DB.all('assessments')).filter(a=>a.srcBehId===b.dataset.delBeh);for(const a of tied){const scs=await DB.all('scores');for(const sc of scs)if(sc.assessmentId===a.id)await DB.remove('scores',sc.id);await DB.remove('assessments',a.id);}}renderBehaviorList();renderAssessment();refreshTrackingStats();toast('تم الحذف')});document.querySelectorAll('[data-beh-report]').forEach(btn=>btn.onclick=()=>behaviorSummonReport(btn.dataset.behReport));const syncBtn=document.getElementById('syncBehaviorToCalendar');if(syncBtn)syncBtn.onclick=async()=>{const behavior=await DB.all('behaviorRecords');const students=await DB.all('students');const classes=await DB.all('classes');const subjects=await DB.all('subjects');const stuMap=Object.fromEntries(students.map(s=>[s.id,s]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));let count=0;for(const b of behavior){const student=stuMap[b.studentId];if(!student)continue;const cls=classes.find(c=>c.id===student.classId);if(!cls)continue;const assScore=b.score!==null&&b.score!==undefined&&!isNaN(b.score)?b.score:b.points;await feedActivityFromTracking({srcField:'srcBehId',srcId:b.id,studentId:b.studentId,classId:b.classId,subjectId:b.subjectId||'',cycle:b.cycle||1,title:'السلوك والمواظبة — '+b.date,score:assScore});count++;}toast('تم مزامنة '+count+' سجل سلوك مع التقويم');renderAssessment();};
+async function renderAttendanceList(){const [attendance,students,classes,subjects,levels]=await Promise.all([DB.all('attendance'),DB.all('students'),DB.all('classes'),DB.all('subjects'),DB.all('levels')]);const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const stuMap=Object.fromEntries(students.map(s=>[s.id,s.name]));const clsMap=Object.fromEntries(classes.map(c=>[c.id,c.name]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));const typeMap={present:'حاضر',absent:'غائب',excused:'مبرر',late:'متأخر'};const rk=rosterRankMap(students);const attRow=a=>'<tr><td>'+stuCellR(rk,a.studentId,stuMap[a.studentId])+'</td><td>'+esc(a.date)+'</td><td>'+esc(a.session?('الحصة '+a.session):'اليوم كامل')+'</td><td>'+esc(typeMap[a.type]||a.type)+(a.note?' <span class="muted" style="font-size:11px">('+esc(a.note)+')</span>':'')+'</td><td>'+esc(subMap[a.subjectId]||'—')+'</td><td>'+esc(a.cycle?('الدورة '+a.cycle):'—')+'</td><td>'+(a.score!==null&&a.score!==undefined?a.score:'—')+'</td><td>'+esc(clsMap[a.classId]||'—')+'</td><td><button class="btn" data-edit-att="'+a.id+'">تعديل</button> <button class="btn danger" data-del-att="'+a.id+'">حذف</button></td></tr>';$('attendanceRows').innerHTML=groupLogByClassLevel(attendance,{classOf:a=>a.classId,cols:9,classes,lvName,renderRow:attRow,empty:'لا توجد سجلات غياب.',sort:logRankThenDate(rk),store:'attendance',limit:LOG_LIMIT.attendance});document.querySelectorAll('[data-edit-att]').forEach(b=>b.onclick=()=>editAttendance(b.dataset.editAtt));document.querySelectorAll('[data-del-att]').forEach(b=>b.onclick=async()=>{const rec=await DB.get('attendance',b.dataset.delAtt);await DB.remove('attendance',b.dataset.delAtt);if(rec&&rec.subjectId){const tied=(await DB.all('assessments')).filter(a=>a.srcAttId===b.dataset.delAtt);for(const a of tied){const scs=await DB.all('scores');for(const sc of scs)if(sc.assessmentId===a.id)await DB.remove('scores',sc.id);await DB.remove('assessments',a.id);}}renderAttendanceList();renderAssessment();refreshTrackingStats();toast('تم الحذف')});}
+async function renderBehaviorList(){const [behavior,students,subjects,classes,levels]=await Promise.all([DB.all('behaviorRecords'),DB.all('students'),DB.all('subjects'),DB.all('classes'),DB.all('levels')]);const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const stuMap=Object.fromEntries(students.map(s=>[s.id,s.name]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));const typeMap={positive:'إيجابي',negative:'سلبي'};const rk=rosterRankMap(students);const behRow=b=>'<tr><td>'+stuCellR(rk,b.studentId,stuMap[b.studentId])+'</td><td>'+esc(b.date)+'</td><td>'+(b.type==='negative'?(b.negType?esc(b.negType):'سلبي'):'إيجابي')+'</td><td>'+esc(b.points)+'</td><td>'+esc(subMap[b.subjectId]||'—')+'</td><td>'+esc(b.cycle?('الدورة '+b.cycle):'—')+'</td><td>'+(b.score!==null&&b.score!==undefined?b.score:'—')+'</td><td>'+esc(b.reason||'—')+'</td><td>'+(b.type==='negative'?'<button class="btn" data-beh-report="'+b.studentId+'" style="font-size:11px;padding:4px 8px;">تقرير الاستدعاء</button> ':'')+'<button class="btn" data-edit-beh="'+b.id+'">تعديل</button> <button class="btn danger" data-del-beh="'+b.id+'">حذف</button></td></tr>';$('behaviorRows').innerHTML=groupLogByClassLevel(behavior,{classOf:b=>b.classId,cols:9,classes,lvName,renderRow:behRow,empty:'لا توجد سجلات سلوك.',sort:logRankThenDate(rk),store:'behaviorRecords',limit:LOG_LIMIT.behaviorRecords});document.querySelectorAll('[data-edit-beh]').forEach(b=>b.onclick=()=>editBehavior(b.dataset.editBeh));document.querySelectorAll('[data-del-beh]').forEach(b=>b.onclick=async()=>{const rec=await DB.get('behaviorRecords',b.dataset.delBeh);await DB.remove('behaviorRecords',b.dataset.delBeh);if(rec&&rec.subjectId){const tied=(await DB.all('assessments')).filter(a=>a.srcBehId===b.dataset.delBeh);for(const a of tied){const scs=await DB.all('scores');for(const sc of scs)if(sc.assessmentId===a.id)await DB.remove('scores',sc.id);await DB.remove('assessments',a.id);}}renderBehaviorList();renderAssessment();refreshTrackingStats();toast('تم الحذف')});document.querySelectorAll('[data-beh-report]').forEach(btn=>btn.onclick=()=>behaviorSummonReport(btn.dataset.behReport));const syncBtn=document.getElementById('syncBehaviorToCalendar');if(syncBtn)syncBtn.onclick=async()=>{const behavior=await DB.all('behaviorRecords');const students=await DB.all('students');const classes=await DB.all('classes');const subjects=await DB.all('subjects');const stuMap=Object.fromEntries(students.map(s=>[s.id,s]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));let count=0;for(const b of behavior){const student=stuMap[b.studentId];if(!student)continue;const cls=classes.find(c=>c.id===student.classId);if(!cls)continue;const assScore=b.score!==null&&b.score!==undefined&&!isNaN(b.score)?b.score:b.points;await feedActivityFromTracking({srcField:'srcBehId',srcId:b.id,studentId:b.studentId,classId:b.classId,subjectId:b.subjectId||'',cycle:b.cycle||1,title:'السلوك والمواظبة — '+b.date,score:assScore});count++;}toast('تم مزامنة '+count+' سجل سلوك مع التقويم');renderAssessment();};
 }
-async function renderHomeworkList(){const [homework,classes,subjects,levels]=await Promise.all([DB.all('homework'),DB.all('classes'),DB.all('subjects'),DB.all('levels')]);await instScope({classes});const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const clsMap=Object.fromEntries(classes.map(c=>[c.id,c.name]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));const hwRow=h=>'<tr><td>'+esc(h.title)+'</td><td>'+esc(clsMap[h.classId]||'—')+'</td><td>'+esc(subMap[h.subjectId]||'—')+'</td><td>'+esc(h.cycle?('الدورة '+h.cycle):'—')+'</td><td>'+esc(h.deadline||'—')+'</td><td><button class="btn" data-edit-hw="'+h.id+'">تعديل</button> <button class="btn danger" data-del-hw="'+h.id+'">حذف</button></td></tr>';$('homeworkRows').innerHTML=groupLogByClassLevel(homework,{classOf:h=>h.classId,cols:6,classes,lvName,renderRow:hwRow,empty:'لا توجد واجبات.',sort:(a,b)=>String(b.deadline||'').localeCompare(String(a.deadline||''))||(b.createdAt||0)-(a.createdAt||0)});document.querySelectorAll('[data-edit-hw]').forEach(b=>b.onclick=()=>editHomework(b.dataset.editHw));document.querySelectorAll('[data-del-hw]').forEach(b=>b.onclick=async()=>{const tied=(await DB.all('assessments')).filter(a=>a.srcHomeworkId===b.dataset.delHw);for(const a of tied){const scs=await DB.all('scores');for(const sc of scs)if(sc.assessmentId===a.id)await DB.remove('scores',sc.id);await DB.remove('assessments',a.id);}await DB.remove('homework',b.dataset.delHw);renderHomeworkList();renderAssessment();refreshTrackingStats();toast('تم الحذف')});}
+async function renderHomeworkList(){const [homework,classes,subjects,levels]=await Promise.all([DB.all('homework'),DB.all('classes'),DB.all('subjects'),DB.all('levels')]);await instScope({classes});const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const clsMap=Object.fromEntries(classes.map(c=>[c.id,c.name]));const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));const hwRow=h=>'<tr><td>'+esc(h.title)+'</td><td>'+esc(clsMap[h.classId]||'—')+'</td><td>'+esc(subMap[h.subjectId]||'—')+'</td><td>'+esc(h.cycle?('الدورة '+h.cycle):'—')+'</td><td>'+esc(h.deadline||'—')+'</td><td><button class="btn" data-edit-hw="'+h.id+'">تعديل</button> <button class="btn danger" data-del-hw="'+h.id+'">حذف</button></td></tr>';$('homeworkRows').innerHTML=groupLogByClassLevel(homework,{classOf:h=>h.classId,cols:6,classes,lvName,renderRow:hwRow,empty:'لا توجد واجبات.',store:'homework',limit:LOG_LIMIT.homework,sort:(a,b)=>String(b.deadline||'').localeCompare(String(a.deadline||''))||(b.createdAt||0)-(a.createdAt||0)});document.querySelectorAll('[data-edit-hw]').forEach(b=>b.onclick=()=>editHomework(b.dataset.editHw));document.querySelectorAll('[data-del-hw]').forEach(b=>b.onclick=async()=>{const tied=(await DB.all('assessments')).filter(a=>a.srcHomeworkId===b.dataset.delHw);for(const a of tied){const scs=await DB.all('scores');for(const sc of scs)if(sc.assessmentId===a.id)await DB.remove('scores',sc.id);await DB.remove('assessments',a.id);}await DB.remove('homework',b.dataset.delHw);renderHomeworkList();renderAssessment();refreshTrackingStats();toast('تم الحذف')});}
 let editHwId=null;
 async function editHomework(id){const rec=await DB.get('homework',id);if(!rec)return;editHwId=id;$('hwClass').value=rec.classId;$('hwSubject').value=rec.subjectId||'';$('hwTitle').value=rec.title||'';$('hwCycle').value=String(rec.cycle||1);$('hwDeadline').value=rec.deadline||today();$('hwDesc').value=rec.desc||'';$('hwMax').value=rec.maxScore||20;$('saveHomework').textContent='حفظ التعديل';$('hwClass').dispatchEvent(new Event('change'));document.querySelector('#tab-homework').closest('.page')?.scrollIntoView({behavior:'smooth',block:'start'});}
 let ATT_ROLL={};
@@ -5137,7 +5173,7 @@ async function showRiskReport(){$('riskReportContainer').style.display='block';c
  if(!list.length)toast('لا متعلم مطابق للمعايير المختارة');}
 function exportRiskReport(){if(!RISK_ROWS.length)return toast('أنشئ التقرير أولًا');exportXls('تقرير المتعثرين','المتعثرون',[RISK_HEAD].concat(RISK_ROWS));}
 async function renderTrackingMark(store,boxId,logId,classSelId){const ds=$(classSelId.replace('Class','Date'));loadStudentCheckboxes($(classSelId).value,$(boxId),false,ds?ds.value:'');await renderTrackingMarkLog(store,logId,classSelId);}
-async function renderTrackingMarkLog(store,logId,classSelId){const el=$(logId);if(!el)return;const classId=$(classSelId).value;const [recs,students,classes,levels]=await Promise.all([DB.all(store),DB.all('students'),DB.all('classes'),DB.all('levels')]);const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const stuMap=Object.fromEntries(students.map(s=>[s.id,s.name]));const clsMap=Object.fromEntries(classes.map(c=>[c.id,c.name]));const rk=rosterRankMap(students);let rows=(recs||[]).filter(r=>r&&r.studentId!=null);if(classId)rows=rows.filter(r=>r.classId===classId);const markRow=r=>'<tr><td>'+stuCellR(rk,r.studentId,stuMap[r.studentId])+'</td><td>'+esc(r.date||'—')+(r.nbLevel?('<br><span class="muted">'+esc(r.nbLevel)+'</span>'):'')+((store==='notebookCare'&&r.createdAt)?('<br><span class="muted" title="وقت تسجيل السجل">🕒 '+nbClock(r.createdAt)+'</span>'):'')+'</td><td>'+esc(clsMap[r.classId]||'—')+'</td><td>'+esc(r.cycle?('الدورة '+r.cycle):'—')+'</td><td><span class="ra-actions"><button class="btn" data-edit-rec="'+store+'|'+r.id+'">تعديل</button> <button class="btn danger" data-del-mark="'+store+'|'+r.id+'">حذف</button></span></td></tr>';el.innerHTML=groupLogByClassLevel(rows,{classOf:r=>r.classId,cols:5,classes,lvName,renderRow:markRow,empty:'لا توجد سجلات.',sort:logRankThenDate(rk)});document.querySelectorAll('[data-del-mark]').forEach(b=>b.onclick=async()=>{const parts=b.dataset.delMark.split('|');await DB.remove(parts[0],parts[1]);await refreshActivityFeeds();try{renderAssessment()}catch(e){}renderParticipation();renderNotebook();toast('تم حذف السجل');});}
+async function renderTrackingMarkLog(store,logId,classSelId){const el=$(logId);if(!el)return;const classId=$(classSelId).value;const [recs,students,classes,levels]=await Promise.all([DB.all(store),DB.all('students'),DB.all('classes'),DB.all('levels')]);const lvName={};(levels||[]).forEach(l=>{lvName[l.id]=l.name;});const stuMap=Object.fromEntries(students.map(s=>[s.id,s.name]));const clsMap=Object.fromEntries(classes.map(c=>[c.id,c.name]));const rk=rosterRankMap(students);let rows=(recs||[]).filter(r=>r&&r.studentId!=null);if(classId)rows=rows.filter(r=>r.classId===classId);const markRow=r=>'<tr><td>'+stuCellR(rk,r.studentId,stuMap[r.studentId])+'</td><td>'+esc(r.date||'—')+(r.nbLevel?('<br><span class="muted">'+esc(r.nbLevel)+'</span>'):'')+((store==='notebookCare'&&r.createdAt)?('<br><span class="muted" title="وقت تسجيل السجل">🕒 '+nbClock(r.createdAt)+'</span>'):'')+'</td><td>'+esc(clsMap[r.classId]||'—')+'</td><td>'+esc(r.cycle?('الدورة '+r.cycle):'—')+'</td><td><span class="ra-actions"><button class="btn" data-edit-rec="'+store+'|'+r.id+'">تعديل</button> <button class="btn danger" data-del-mark="'+store+'|'+r.id+'">حذف</button></span></td></tr>';el.innerHTML=groupLogByClassLevel(rows,{classOf:r=>r.classId,cols:5,classes,lvName,renderRow:markRow,empty:'لا توجد سجلات.',sort:logRankThenDate(rk),store:store,limit:(LOG_LIMIT[store]||200)});document.querySelectorAll('[data-del-mark]').forEach(b=>b.onclick=async()=>{const parts=b.dataset.delMark.split('|');await DB.remove(parts[0],parts[1]);await refreshActivityFeeds();try{renderAssessment()}catch(e){}renderParticipation();renderNotebook();toast('تم حذف السجل');});}
 async function saveTrackingMark(store,prefix,boxId,classSelId,cycleSelId,dateSelId,logId,label){const classId=$(classSelId).value,date=$(dateSelId).value,cycle=parseInt($(cycleSelId).value)||1;if(!classId)return toast('اختر القسم أولاً');if(!date)return toast('اختر التاريخ');const checked0=[...document.querySelectorAll('#'+boxId+' input:checked')];if(!checked0.length)return toast('اختر متعلمًا واحدًا على الأقل');const checked=await absFilterBlocked(checked0,date,label);if(!checked.length)return;for(const cb of checked){await DB.put(store,{id:uid(prefix),studentId:cb.value,classId,cycle,date,createdAt:now()});}checked.forEach(cb=>cb.checked=false);await refreshActivityFeeds();try{renderAssessment()}catch(e){}await renderTrackingMarkLog(store,logId,classSelId);toast('تم تسجيل '+label+' — '+checked.length+' متعلم');}
 function renderParticipation(){return renderTrackingMark('participation','partStudents','partLogRows','partClass');}
 function renderNotebook(){return renderTrackingMark('notebookCare','nbStudents','nbLogRows','nbClass');}
@@ -6475,7 +6511,11 @@ function exNewQ(kind){
  if(kind==='essay'){q.preamble='';q.topics=[];q.numField=true;q.topicCount=2;}
  return q;}
 function exPts(v){const p=parseFloat(v);return isFinite(p)&&p>0?p:0;}
-function exLay(m){const l=(m&&m.layout)||{};return Object.assign({orient:'portrait',margin:'tight',cols:1,font:16,compact:true,footer:true,lh:1.5,gap:1.2},l||{});}
+function exLay(m){const l=(m&&m.layout)||{};return Object.assign({orient:'portrait',margin:'tight',marginMm:0,cols:1,font:16,compact:true,footer:true,lh:1.5,gap:1.2},l||{});}
+function exMarginPresetMm(v){return v==='wide'?18:v==='normal'?12:8;}
+function exMarginPresetOf(mm){const v=Math.round(mm);return v===18?'wide':v===12?'normal':v===8?'tight':'custom';}
+/* هامش الصفحة الفعلي بالمليمتر: القيمة الدقيقة إن وُجدت، وإلا مقدار المختصر المحفوظ */
+function exPageMm(m){const L=exLay(m);let v=parseFloat(L.marginMm);if(!(v>=4&&v<=30))v=exMarginPresetMm(L.margin);return Math.round(v);}
 /* تحرير نصّي مبسّط: **عريض** __تحته خط__ *مائل* — مع حماية من HTML */
 function exFmt(v){
  let s=esc(String(v??''));
@@ -6577,6 +6617,7 @@ function exReadLayout(){
  const L=EX.cur.layout=exLay(EX.cur);
  const o=$('exOrient');if(o&&o.value)L.orient=o.value;
  const mg=$('exMargin');if(mg&&mg.value)L.margin=mg.value;
+ const mm=$('exMarginMm');if(mm&&mm.value!==''){const v=parseFloat(mm.value);if(v>=4&&v<=30)L.marginMm=Math.round(v);}
  const cs=$('exCols');if(cs&&cs.value)L.cols=parseInt(cs.value,10)||1;
  const fs=$('exFont');if(fs&&fs.value)L.font=parseFloat(fs.value)||16;
  const cp=$('exCompact');if(cp&&cp.type==='checkbox')L.compact=!!cp.checked;
@@ -6587,7 +6628,9 @@ function exApplyLayout(){
  if(typeof EX==='undefined'||!EX||!EX.cur)return;
  const L=exLay(EX.cur);
  const o=$('exOrient');if(o)o.value=L.orient;
- const mg=$('exMargin');if(mg)mg.value=L.margin;
+ const mg=$('exMargin');if(mg)mg.value=(parseFloat(L.marginMm)>=4)?exMarginPresetOf(L.marginMm):L.margin;
+ const mm=$('exMarginMm');if(mm)mm.value=exPageMm(EX.cur);
+ const ml=$('exMarginVal');if(ml)ml.textContent=exPageMm(EX.cur);
  const cs=$('exCols');if(cs)cs.value=String(L.cols||1);
  const fs=$('exFont');if(fs)fs.value=L.font;
  const fv=$('exFontVal');if(fv)fv.textContent=L.font;
@@ -6849,7 +6892,13 @@ $('exImportFile').onchange=ev=>{
  rd.onerror=()=>{toast('تعذّر قراءة الملف');ev.target.value='';};
  rd.readAsText(f);
 };
-['exOrient','exMargin','exCols'].forEach(id=>{const el=$(id);if(el)el.onchange=()=>{exReadLayout();exDebounced();};});
+['exOrient','exCols'].forEach(id=>{const el=$(id);if(el)el.onchange=()=>{exReadLayout();exDebounced();};});
+/* الهوامش: المختصر يضبط الشريط الدقيق، والشريط يضبط المختصر (أو «مخصّصة») — والقيمة نفسها تسري على المعاينة والطباعة */
+(function(){
+ const sel=$('exMargin'),rng=$('exMarginMm'),lab=$('exMarginVal');
+ if(sel)sel.onchange=()=>{if(sel.value!=='custom'&&rng)rng.value=exMarginPresetMm(sel.value);if(lab)lab.textContent=rng?rng.value:exPageMm(EX.cur);exReadLayout();exDebounced();};
+ if(rng)rng.oninput=()=>{const v=Math.min(30,Math.max(4,parseFloat(rng.value)||8));if(lab)lab.textContent=v;if(sel)sel.value=exMarginPresetOf(v);exReadLayout();exDebounced();};
+})();
 const _exFontEl=$('exFont');if(_exFontEl)_exFontEl.oninput=()=>{const fv=$('exFontVal');if(fv)fv.textContent=_exFontEl.value;exReadLayout();exDebounced();};
 ['exCompact','exShowFoot'].forEach(id=>{const el=$(id);if(el)el.onchange=()=>{exReadLayout();exDebounced();};});
 [['exLineH','exLineHVal',v=>v],['exQgap','exQgapVal',v=>v+'مم']].forEach(([id,labId,fmt])=>{
@@ -6992,7 +7041,8 @@ async function exDsGenerate(printMode){
   if(!files.length)return toast('لا يوجد متعلمون في الأقسام المختارة');
   if(printMode){
    const store=$('exPaperStore');
-   store.innerHTML=files.map(f=>f.html.replace(/^[\s\S]*<body>/i,'').replace(/<\/body>[\s\S]*$/i,'')).join('');
+   // الهوامش المختارة تسري على أوراق الفرض أيضًا (الطباعة تمرّ عبر @page لا عبر حشو الورقة)
+   store.innerHTML='<style>@page{size:A4;margin:'+exPageMm(EX.cur)+'mm}.ex-paper{--ex-mg:'+exPageMm(EX.cur)+'mm}</style>'+files.map(f=>f.html.replace(/^[\s\S]*<body>/i,'').replace(/<\/body>[\s\S]*$/i,'')).join('');
    document.body.classList.add('ex-printing');
    toast('طباعة '+total+' ورقة في '+files.length+' قسم');
    setTimeout(()=>{try{window.print()}catch(e){}},140);
@@ -7087,9 +7137,9 @@ function exPaperHTML(opts){
  const total=qs.reduce((s,q)=>s+exPts(q.points),0);
  const vis=docs.map((d,i)=>({d,i})).filter(x=>exDocShow(x.d));
  const docNum={};vis.forEach((x,n)=>{docNum[x.d.id]=n+1;});
- const paperStyle=' style="--ex-fs:'+L.font+'px;--ex-lh:'+L.lh+';--ex-qgap:'+L.gap+'mm"';
+ const paperStyle=' style="--ex-fs:'+L.font+'px;--ex-lh:'+L.lh+';--ex-qgap:'+L.gap+'mm;--ex-mg:'+exPageMm(m)+'mm"';
  let s='';
- s+='<div class="ex-paper'+(L.compact?' compact':'')+(key?' key':'')+'"'+paperStyle+'>';
+ s+='<div class="ex-paper'+(L.compact?' compact':'')+(L.orient==='landscape'?' land':'')+(key?' key':'')+'"'+paperStyle+'>';
  s+='<table class="pap-head2"><tr>';
  s+='<td class="ph-admin"><div class="ph-a1">'+exEsc(h.republic)+'</div>'+(h.emblem?'<img class="ph-emblem" src="'+safeImgSrc(h.emblem)+'" alt="">':'')+'<div>'+exEsc(h.ministry)+'</div><div>'+exEsc(h.academy)+'</div>'+(h.directorate?'<div>المديرية الإقليمية: '+exEsc(h.directorate)+'</div>':'')+(h.institution?'<div>المؤسسة: '+exEsc(h.institution)+'</div>':'')+'</td>';
  s+='<td class="ph-main"><div class="ph-exam">'+exEsc(h.examTitle||'نموذج الامتحان')+(h.subject?' — '+exEsc(h.subject):'')+'</div>';
@@ -7366,23 +7416,29 @@ function exPaperDiv(m,key){
  return exPaperHTML({key:key});
 }
 function exPrintRoot(m,key){
- return '<div class="ex-print-root '+exPageCls(m)+'">'+exPaperDiv(m,key)+'</div>';
+ const L=exLay(m);
+ return '<div class="ex-print-root'+(L.orient==='landscape'?' land':'')+'" style="--ex-mg:'+exPageMm(m)+'mm">'+exPaperDiv(m,key)+'</div>';
 }
-function exPageCls(m){const L=exLay(m);return ((L.orient==='landscape'?'l':'p')+(L.margin==='normal'?'12':L.margin==='wide'?'18':'8'));}
-function exExportCss(){
- let out='html,body{margin:0;padding:0;background:#fff}@page{size:A4;margin:8mm}';
+function exExportCss(m){
+ const mdl=(m&&m.layout)?m:((typeof EX!=='undefined'&&EX)?EX.cur:null);
+ const L=exLay(mdl);const mg=exPageMm(mdl);
+ let out='html,body{margin:0;padding:0;background:#fff}@page{size:A4'+(L.orient==='landscape'?' landscape':'')+';margin:'+mg+'mm}';
+ // على الشاشة/Word: الهامش حشو داخل الورقة. في الطباعة: الهامش من @page فقط (بلا تضاعف).
+ out+='.ex-print-root .ex-paper{padding:'+mg+'mm}';
+ out+='.ex-paper{--ex-mg:'+mg+'mm}';
+ out+='@media print{.ex-print-root .ex-paper{padding:0;min-height:calc('+(L.orient==='landscape'?'210mm':'297mm')+' - 2 * '+mg+'mm)}}';
  try{
   for(const sh of document.styleSheets){
    let rules=null;try{rules=sh.cssRules}catch(e){continue}
    if(!rules)continue;
-   for(const r of rules){const t=r.cssText||'';if(/\.ex-paper|\.ex-print-root|\.cstrip|\.ds-band|\.ds-pg|@page exP/.test(t))out+='\n'+t;}
+   for(const r of rules){const t=r.cssText||'';if(/\.ex-paper|\.ex-print-root|\.cstrip|\.ds-band|\.ds-pg/.test(t))out+='\n'+t;}
   }
  }catch(e){}
  return out;
 }
 function exExportHtml(m,key){
  m=m||EX.cur;if(!m)return'';
- return '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(m.name||'نموذج امتحان')+'</title><style>'+exExportCss()+'</style></head><body>'+exPrintRoot(m,key)+'</body></html>';
+ return '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(m.name||'نموذج امتحان')+'</title><style>'+exExportCss(m)+'</style></head><body>'+exPrintRoot(m,key)+'</body></html>';
 }
 function exSafeName(v){return String(v||'نموذج امتحان').replace(/[\/:*?"<>|]/g,'_');}
 window.addEventListener('afterprint',()=>document.body.classList.remove('ex-printing'));
@@ -7852,46 +7908,33 @@ async function identitySubjectNames(){
 async function classCurriculumSubjects(classId){
  if(!classId)return[];
  const cls=await DB.get('classes',classId);
- if(!cls){console.error('[CCS] No class found for',classId);return[];}
- console.error('[CCS] Class:',cls);
+ if(!cls)return[];
  const[levels,branches,tracks]=await Promise.all([DB.all('levels'),DB.all('branches'),DB.all('tracks')]);
  const lv=levels.find(l=>l.id===cls.levelId);
  const br=branches.find(b=>b.id===cls.branchId);
  const tr=tracks.find(t=>t.id===cls.trackId);
- console.error('[CCS] Level:',lv,'Branch:',br,'Track:',tr);
- if(!lv){console.error('[CCS] No level found for levelId',cls.levelId);return[];}
- if(!_cgDoc){try{_cgDoc=await DB.get('curriculum','main');console.error('[CCS] Loaded _cgDoc:',!!_cgDoc);}catch(e){console.error('[CCS] Failed to load _cgDoc',e);}}
- if(!SCN_ALL_SUBJ||!SCN_ALL_SUBJ.length){try{SCN_ALL_SUBJ=await DB.all('subjects');console.error('[CCS] Loaded SCN_ALL_SUBJ:',SCN_ALL_SUBJ.length);}catch(e){console.error('[CCS] Failed to load SCN_ALL_SUBJ',e);}}
+ if(!lv)return[];
+ if(!_cgDoc){try{_cgDoc=await DB.get('curriculum','main');}catch(e){}}
+ if(!SCN_ALL_SUBJ||!SCN_ALL_SUBJ.length){try{SCN_ALL_SUBJ=await DB.all('subjects');}catch(e){}}
  const cyc=lv.cycle==='college'?'college':'qualifying';
- console.error('[CCS] Cycle:',cyc,'Level name:',lv.name,'Branch name:',br?br.name:'','Track name:',tr?tr.name:'');
  let subjects=cgIdentitySubjects(cyc,lv.name,br?br.name:'',tr?tr.name:'');
- console.error('[CCS] Initial subjects from curriculum:',subjects.length,subjects.map(s=>s.name));
  if(!subjects.length&&br&&!tr){
   const cycleRoot=_cgCycleRoot(cyc);
-  console.error('[CCS] Cycle root:',cycleRoot?'found':'NOT FOUND');
   const lvNode=_cgChild(cycleRoot,lv.name,'level');
-  console.error('[CCS] Level node in curriculum:',lvNode?'found':'NOT FOUND');
   const brNode=_cgChild(lvNode,br.name,'branch');
-  console.error('[CCS] Branch node in curriculum:',brNode?'found':'NOT FOUND');
   const trackChildren=((brNode&&brNode.children)||[]).filter(c=>c.kind==='track');
-  console.error('[CCS] Track children:',trackChildren.length,trackChildren.map(t=>t.name));
   if(trackChildren.length){
    const seen=new Set();
    subjects=[];
    for(const tc of trackChildren){
     const ts=cgIdentitySubjects(cyc,lv.name,br.name,tc.name);
-    console.error('[CCS] Track',tc.name,'subjects:',ts.length,ts.map(s=>s.name));
     for(const s of ts){if(!seen.has(s.name)){seen.add(s.name);subjects.push(s);}}
    }
-   console.error('[CCS] Combined subjects from all tracks:',subjects.length,subjects.map(s=>s.name));
   }
  }
  const allSubj=SCN_ALL_SUBJ||[];
- console.error('[CCS] All subjects in DB:',allSubj.length,allSubj.map(s=>s.name));
  const matched=subjects.map(s=>{const match=allSubj.find(as=>as.name===s.name);return match?{id:match.id,name:match.name}:null;}).filter(Boolean);
- console.error('[CCS] Matched subjects:',matched.length,matched.map(s=>s.name));
  if(matched.length)return matched;
- console.error('[CCS] FALLBACK: returning all',allSubj.length,'subjects');
  return allSubj.length?allSubj.map(s=>({id:s.id,name:s.name})):[];
 }
 async function refreshIdentitySubjects(){try{_idSubNames=await identitySubjectNames();}catch(e){_idSubNames=null;}}
@@ -8058,7 +8101,8 @@ async function cgSyncSubjects(silent){
  for(const s of stale){try{if(await _subjReferenced(s.id))continue;}catch(e){}await DB.remove('subjects',s.id,{permanent:true});removed++;}
  _curCgCache={};
  if(!silent)toast('تمت المزامنة: '+added+' مادة جديدة، '+upd+' تحديث معامل'+(removed?('، '+removed+' إزالة'):''));
- if(typeof renderAssessment==='function'){try{await renderAssessment();}catch(e){}}
+ /* في المزامنة الصامتة (الإقلاع) الصفحة لم تُفتح بعد — لا حاجة لرسمها */
+ if(!silent&&typeof renderAssessment==='function'){try{await renderAssessment();}catch(e){}}
 }
 async function _subjReferenced(subId){
  const STORES=['assessments','attendance','behaviorRecords','homework','homeworkSubmissions','lessons','resources','resourceLinks','competencies','competencyAssessments','schedules','teacherSchedules','scheduleSessions','examModels'];
@@ -8283,10 +8327,8 @@ if(window.addEventListener)window.addEventListener('error',function(e){try{toast
     try{await refreshIdentitySubjects()}catch(e){console.error('idsubj',e)}
     try{await getTeacherSubjects()}catch(e){console.error('tsubj',e)}
     try{SCN_ALL_SUBJ=await DB.all('subjects')}catch(e){}
-    const renders=[renderHome,renderAcademic,renderCurriculum,renderManagement,renderStudents,renderAssessment,renderTracking,renderDiagnosis,renderDiagMatrix,renderMotivation,renderResources,renderBackup,renderExams,renderInstCard];
-    for(const f of renders){
-      try{await f()}catch(e){console.error('render fail',f.name,e)}
-    }
+    /* كان الإقلاع يرسم 14 صفحة كاملة (آلاف الصفوف) قبل عرض أي شيء ثم يعيد رسم الصفحة المطلوبة.
+       الآن كل صفحة ترسم عند أول زيارة عبر Router.go أدناه — فيظهر التطبيق فورًا. */
     try{await cgSyncSubjects(true)}catch(e){console.error('sync fail',e)}
     try{await refreshIdentitySubjects()}catch(e){}
     try{SCN_ALL_SUBJ=await DB.all('subjects')}catch(e){}
@@ -8313,8 +8355,9 @@ if(window.addEventListener)window.addEventListener('error',function(e){try{toast
     try{$('portalFwAllow').onclick=portalFwAllowUI;}catch(e){}
     try{$('portalFwRecheck').onclick=portalFwCheckUI;}catch(e){}
     try{await updateHeaderChip()}catch(e){console.error(e)}
-    try{await health()}catch(e){console.error(e)}
     try{Router.go(localStorage.getItem('corePage')||readSettings().defaultPage||'home')}catch(e){console.error('nav fail',e)}
+    /* فحص سلامة البيانات (يمسح كل السجلات) لا يلزم قبل أول رسم — يُؤجّل إلى وقت الفراغ */
+    try{(window.requestIdleCallback||function(f){setTimeout(f,2000)})(function(){try{health().catch(function(){})}catch(e){}})}catch(e){}
     try{await initSecurity()}catch(e){console.error('sec init fail',e)}
     try{wireReportPdf()}catch(e){console.error('pdf wire fail',e)}
     if(DB.mode()==='local'){
@@ -8333,8 +8376,37 @@ window.renderScores=renderScores;window.renderAssessment=renderAssessment;window
 window.__syncSnapshot=async function(){const C=window.SijilTaqyimCore;const out={};for(const st of (C.CORE.stores||[])){try{out[st]=(await C.DB.all(st,{inactive:true}))||[];}catch(e){out[st]=[];}}return out;};
 })();
 </script>
-<script src="vendor/jsqr.js"></script>
-<script src="vendor/html2pdf.bundle.min.js"></script>
+<!-- المكتبات الثقيلة تُحمَّل عند الحاجة فقط: تحميلها عند الإقلاع كان يؤخّر أول رسم بمقدار 1.2م.ب من الشيفرة -->
+<script>
+window.__vendorQueue={};
+window.loadVendor=function(name){
+ if(name==='html2pdf'&&typeof window.html2pdf==='function')return Promise.resolve(true);
+ if(name==='jsqr'&&typeof window.jsQR==='function')return Promise.resolve(true);
+ const src=name==='html2pdf'?'vendor/html2pdf.bundle.min.js':name==='jsqr'?'vendor/jsqr.js':'';
+ if(!src)return Promise.reject(new Error('unknown vendor: '+name));
+ if(window.__vendorQueue[name])return window.__vendorQueue[name];
+ window.__vendorQueue[name]=new Promise((res,rej)=>{
+  const s=document.createElement('script');s.src=src;s.async=true;
+  s.onload=()=>res(true);
+  s.onerror=()=>{window.__vendorQueue[name]=null;rej(new Error('failed '+name));};
+  document.head.appendChild(s);
+ });
+ return window.__vendorQueue[name];
+};
+/* ضمان توفّر jsQR قبل أي قراءة: الدوال المتزامنة (bsQrFromCanvas، decodeSheet) تُرجع null
+   إن لم تكن المكتبة جاهزة، لذلك كل مسار يستدعيها ينتظر هذا الضمان أولًا. */
+window.ensureJsQR=async function(){
+ if(typeof window.jsQR==='function')return true;
+ try{await window.loadVendor('jsqr')}catch(e){}
+ if(typeof window.jsQR!=='function'){try{window.__vendorQueue.jsqr=null}catch(e){}return false;}
+ return true;
+};
+/* jsQR خفيف نسبيًا ويحتاجه الماسح: يُحمَّل بعد الإقلاع حتى لا يؤخّر أول رسم */
+(function(){
+ function warm(){setTimeout(function(){try{window.loadVendor('jsqr')}catch(e){}},400);}
+ if(document.readyState==='complete')warm();else window.addEventListener('load',warm,{once:true});
+})();
+</script>
 <script>
 /* ===== SYNC — المجتمع حقيقية، بدون إنترنت (يعمل على الهاتف والمتصفح والحاسوب) ===== */
 const SYNC_DEFAULT_PORT=8050;
@@ -8455,7 +8527,9 @@ document.addEventListener('click',function(e){
   if(k==='sc_next'){try{if(window.__scoreScanNext)window.__scoreScanNext();}catch(err){}return;}
   if(k==='retry'){scanActs([]);try{openScanner(__scanLastOpts||{});}catch(err){}}
 });
-async function openScanner(opts){opts=opts||{};__scanLastOpts=opts;var ov=document.getElementById('syncScanOverlay'),vid=document.getElementById('syncScanVideo');if(!ov||!vid)return;if(ov.parentNode!==document.body){try{document.body.appendChild(ov)}catch(e){}}var hasBD=(typeof BarcodeDetector!=='undefined');var hasJSQR=(typeof window.jsQR==='function');if(!hasBD&&!hasJSQR){scanShow('قارئ الرموز غير متاح في هذه البيئة.');scanActs([]);return;}if(!window.isSecureContext&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){scanShow('يحتاج الكاميرا اتصالًا آمنًا (HTTPS). استعمل تطبيق أندرويد أو localhost.');scanActs([]);return;}if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){toast('الكاميرا غير متاحة في هذه البيئة');return;}__scanOnText=opts.onText||null;__scanFrameHook=opts.frameHook||null;__scanOnClose=opts.onClose||null;
+async function openScanner(opts){opts=opts||{};__scanLastOpts=opts;
+ if(typeof window.jsQR!=='function'&&typeof BarcodeDetector==='undefined'){try{await window.loadVendor('jsqr')}catch(e){}}
+ var ov=document.getElementById('syncScanOverlay'),vid=document.getElementById('syncScanVideo');if(!ov||!vid)return;if(ov.parentNode!==document.body){try{document.body.appendChild(ov)}catch(e){}}var hasBD=(typeof BarcodeDetector!=='undefined');var hasJSQR=(typeof window.jsQR==='function');if(!hasBD&&!hasJSQR){scanShow('قارئ الرموز غير متاح في هذه البيئة.');scanActs([]);return;}if(!window.isSecureContext&&location.hostname!=='localhost'&&location.hostname!=='127.0.0.1'){scanShow('يحتاج الكاميرا اتصالًا آمنًا (HTTPS). استعمل تطبيق أندرويد أو localhost.');scanActs([]);return;}if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){toast('الكاميرا غير متاحة في هذه البيئة');return;}__scanOnText=opts.onText||null;__scanFrameHook=opts.frameHook||null;__scanOnClose=opts.onClose||null;
   try{var gd0=document.getElementById('syncScanGuide');if(gd0){if(opts.guide==='strip'){gd0.style.inset='31% 2%';gd0.style.borderRadius='8px';}else{gd0.style.inset='16%';gd0.style.borderRadius='12px';}}}catch(e){}
   scanSetTitle(opts.title||'امسح الرمز');ov.style.display='flex';scanActs([]);
   /* طلب إذن النظام أولًا (تطبيق أندرويد فقط) — بدونه يرفض WebView بصمت */
@@ -9394,6 +9468,8 @@ window.handleSyncImport=window.handleSyncImport||function(payload){return (async
     return 'لم يُقرأ شريط النقطة';
   }
   async function bsDecodeFile(file){
+    /* جسر الحجب المتوقّع: لا نقرأ رمزًا قبل أن تكتمل مكتبة jsQR */
+    try{if(window.ensureJsQR)await window.ensureJsQR();}catch(e){}
     var img=await bsLoadImage(file);
     if(!img)return {reason:'تعذّر فتح الصورة'};
     var qr=bsQrFromCanvas(bsCanvas(img,1500)),big=null;
@@ -9774,6 +9850,8 @@ async function gradeFiles(files){const exam=Q.cur;
  let all=[];try{all=await DB.all('students');}catch(e){}
  Q.gradeStudents=all.filter(s=>s.classId===Q.gradeClassId&&s.status!=='archived');Q._gsClass=Q.gradeClassId;
  const results=[];const arr=Array.prototype.slice.call(files);
+ /* decodeSheet متزامنة وتحتاج jsQR جاهزة: ننتظرها مرة واحدة قبل الحلقة */
+ try{if(window.ensureJsQR)await window.ensureJsQR();}catch(e){}
  for(const f of arr){
   try{const canvas=await fileToCanvas(f);const r=decodeSheet(canvas,exam,{fillThr:Q.fillThr});
    let st=null;if(r.ok&&r.studentId)st=all.find(s=>s.id===r.studentId)||null;
@@ -10328,7 +10406,13 @@ select.exh-i{cursor:pointer}
 html[data-layout="smart"] .page.active>.sec-group:has(.exh-grid){grid-column:1/-1}
 html[data-layout="smart"] .page.active>.sec-group:has(#exPreview){grid-column:1/-1}
 html[data-layout="smart"] .page.active>.sec-group:has(#exPreview) .ex-svgbox{max-width:100%}
-#exPreview .ex-paper{width:210mm;max-width:100%;margin-inline:auto}
+#exPreview .ex-paper{width:210mm;max-width:100%;margin-inline:auto;padding:var(--ex-mg,8mm)}
+#exPreview .ex-paper.land{width:297mm}
+/* تحكم الهوامش: قائمة مختصرات + شريط دقيق بالمليمتر */
+.ex-lay .ex-mg-field{grid-column:1/-1}
+.ex-mg-row{display:flex;gap:8px;align-items:center}
+.ex-mg-row select{flex:0 0 118px}
+.ex-mg-row input[type=range]{flex:1 1 auto;min-width:90px}
 /* منشئ الامتحانات — شريط النموذج + أقسام مطوية مرقّمة */
 .ex-bar{padding:12px 14px}
 .ex-bar-top{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
