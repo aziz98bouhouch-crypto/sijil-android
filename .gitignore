@@ -41,3 +41,5 @@ __sync_payload.html
 # مجلد أندرويد المولّد محليًا (إعادة توليده في السحابة)
 cap/android/
 cap/node_modules/
+.portal/
+cap-student/www/
