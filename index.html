@@ -1479,7 +1479,6 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       }
       if(!P||!P.Filesystem)return{ok:false,err:'الملفات الأصلية غير متاحة'};
       if(typeof window.html2pdf!=='function'){try{await window.loadVendor('html2pdf')}catch(e){}}
-      if(typeof window.html2pdf!=='function'){try{await window.loadVendor('html2pdf')}catch(e){}}
       if(typeof window.html2pdf!=='function')return{ok:false,err:'مولّد PDF غير محمّل'};
       try{if(typeof window.confirm==='function'){var go=window.confirm('هل تسمح بإنشاء ملف PDF للطباعة/الحفظ؟\nسيتم بعد ذلك فتح نافذة النظام لاختيار مكان الحفظ أو تطبيق الطباعة.');if(!go)return{ok:false,cancelled:true};}}catch(e){}
       var __g=window.__exPdfGeom?window.__exPdfGeom(fullHtml):null;
@@ -1488,7 +1487,6 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
       var __land=!!(__g&&__g.land);
       var __wpx=(__exam&&__g&&__g.px)?__g.px:794;
       var doc=new DOMParser().parseFromString(String(fullHtml||''),'text/html');
-      var styleEl=doc.querySelector('style');
       var styleAll=[].slice.call(doc.querySelectorAll('style')).map(function(s){return s.textContent||'';}).join('\n');
       var bodyHtml=doc.body?doc.body.innerHTML:String(fullHtml||'');
       var host=document.createElement('div');
@@ -7041,31 +7039,37 @@ async function exDsGenerate(printMode){
   const [classes,levels,students]=await Promise.all([DB.all('classes'),DB.all('levels'),DB.all('students')]);
   const lv={};(levels||[]).forEach(l=>lv[l.id]=l.name);
   const list=(classes||[]).filter(c=>!pick||String(c.id)===pick);
-  const files=[];let total=0;
+  const files=[];const failed=[];let total=0;
   for(const cls of list){
-   const sts=rosterOrder((students||[]).filter(s=>String(s.classId)===String(cls.id)&&s.status!=='archived'));
-   if(!sts.length)continue;
-   const levelName=lv[cls.levelId]||(EX.cur.header&&EX.cur.header.level)||'';
-   const ctx={name:cls.name||'',levelName:levelName};
-   const pages=sts.map(st=>'<div class="ds-pg">'+exPaperHTML({student:st,cls:ctx,num:num})+'</div>').join('');
-   const base='Devoir_Surveille_'+num+'_Classe_'+(latinSlug(cls.name)||'Sans_nom')+'_Niveau_'+(latinSlug(levelName)||'Sans_niveau');
-   /* مستند الورقة: تنسيق التطبيق كامل (فتظهر الورقة كما في المعاينة) + قواعد @page والهوامش */
-   files.push({name:base,count:sts.length,pages:pages,html:'<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+exEsc(base)+'</title><style>'+window.__sijilAllCss()+'</style><style>'+exExportCss(EX.cur)+'</style></head><body>'+exPaperRootWrap(pages)+'</body></html>'});
-   total+=sts.length;
+   /* قسم واحد معطوب لا يوقف بقية الأقسام: نلتقط الخطأ ونسجّله ثم نُكمل */
+   try{
+    const sts=rosterOrder((students||[]).filter(s=>String(s.classId)===String(cls.id)&&s.status!=='archived'));
+    if(!sts.length)continue;
+    const levelName=lv[cls.levelId]||(EX.cur.header&&EX.cur.header.level)||'';
+    const ctx={name:cls.name||'',levelName:levelName};
+    const pages=sts.map(st=>'<div class="ds-pg">'+exPaperHTML({student:st,cls:ctx,num:num})+'</div>').join('');
+    const base='Devoir_Surveille_'+num+'_Classe_'+(latinSlug(cls.name)||'Sans_nom')+'_Niveau_'+(latinSlug(levelName)||'Sans_niveau');
+    /* مستند الورقة: تنسيق التطبيق كامل (فتظهر الورقة كما في المعاينة) + قواعد @page والهوامش */
+    files.push({name:base,count:sts.length,pages:pages,html:exPaperDoc(base,exPaperRootWrap(pages,EX.cur),EX.cur)});
+    total+=sts.length;
+   }catch(e){failed.push(String((cls&&cls.name)||'قسم'));}
   }
-  if(!files.length)return toast('لا يوجد متعلمون في الأقسام المختارة');
+  if(!files.length){
+   return toast(failed.length?('تعذّر تجهيز الأوراق في '+failed.length+' قسم: '+failed.join('، ')):'لا يوجد متعلمون في الأقسام المختارة');
+  }
   if(printMode){
-   const store=$('exPaperStore');
    // الهوامش المختارة تسري على أوراق الفرض أيضًا (الطباعة تمرّ عبر @page لا عبر حشو الورقة)
-   store.innerHTML='<style>'+exExportCss(EX.cur)+'</style>'+files.map(f=>exPaperRootWrap(f.pages)).join('');
-   document.body.classList.add('ex-printing');
-   toast('طباعة '+total+' ورقة في '+files.length+' قسم');
-   setTimeout(()=>{try{window.print()}catch(e){}},140);
+   exPrintHtml('<style>'+exExportCss(EX.cur)+'</style>'+files.map(f=>exPaperRootWrap(f.pages,EX.cur)).join(''));
+   toast('طباعة '+total+' ورقة في '+files.length+' قسم'+(failed.length?' — تعذّر قسم: '+failed.join('، '):''));
    return;
   }
   toast('جارٍ توليد PDF...');
-  for(const f of files)await exPdfExport(f.html,f.name);
-  toast('تم توليد '+files.length+' ملف PDF — '+total+' ورقة');
+  let made=0;
+  for(const f of files){
+   try{await exPdfExport(f.html,f.name);made++;}
+   catch(e){failed.push(f.name);}
+  }
+  toast('تم توليد '+made+' ملف PDF — '+total+' ورقة'+(failed.length?' — تعذّر '+failed.length+' قسم: '+failed.join('، '):''));
  }catch(e){toast('تعذّر التوليد: '+String((e&&e.message)||e));}
 }
 /* تحكّم في عرض كل وثيقة وموقعها وحجم خطها ودرجة سواد حبرها — يُحفظ داخل النموذج */
@@ -7436,8 +7440,8 @@ function exPrintRoot(m,key){
  return '<div class="ex-print-root'+(L.orient==='landscape'?' land':'')+'" style="--ex-mg:'+exPageMm(m)+'mm">'+exPaperDiv(m,key)+'</div>';
 }
 /* غلاف أوراق الفرض: كل قسم ملف واحد، وكل ورقة تلميذ في صفحتها (ds-pg) */
-function exPaperRootWrap(pages){
- const m=(typeof EX!=='undefined'&&EX)?EX.cur:null;const L=exLay(m);
+function exPaperRootWrap(pages,m){
+ m=m||((typeof EX!=='undefined'&&EX)?EX.cur:null);const L=exLay(m);
  return '<div class="ex-print-root'+(L.orient==='landscape'?' land':'')+'" style="--ex-mg:'+exPageMm(m)+'mm">'+(pages||'')+'</div>';
 }
 /* تصدير PDF لورقة امتحان/فرض: Electron بنافذة طباعة تحترم @page، وأندرويد بالمسار الأصلي،
@@ -7462,12 +7466,9 @@ async function exPdfExport(html,name){
   try{
    const d=new DOMParser().parseFromString(String(html||''),'text/html');
    const styles=[].slice.call(d.querySelectorAll('style')).map(function(s){return s.textContent||'';});
-   const store=$('exPaperStore');
-   if(store){
-    store.innerHTML='<style>'+(styles.length?styles[styles.length-1]:'')+'</style>'+(d.body?d.body.innerHTML:'');
-    document.body.classList.add('ex-printing');
+   if($('exPaperStore')){
+    exPrintHtml('<style>'+(styles.length?styles[styles.length-1]:'')+'</style>'+(d.body?d.body.innerHTML:''));
     toast('سيُفتح خيار الطباعة — اختر «حفظ كـ PDF»');
-    setTimeout(function(){try{window.print()}catch(e){}},140);
     return{ok:true,printed:true};
    }
   }catch(e){}
@@ -7492,13 +7493,38 @@ function exExportCss(m){
  }catch(e){}
  return out;
 }
+/* مستند التصدير الوحيد: تنسيق التطبيق كامل أوّلًا (فيخرج الورق في Word/PDF مطابقًا للمعاينة)
+   ثم قواعد @page والهوامش فوقه، والجسم هو أوراق النموذج أو أوراق الفرض. */
+function exPaperDoc(title,bodyHtml,m){
+ m=m||((typeof EX!=='undefined'&&EX)?EX.cur:null);
+ return '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(title||'نموذج امتحان')+'</title><style>'+window.__sijilAllCss()+'</style><style>'+exExportCss(m)+'</style></head><body>'+(bodyHtml||'')+'</body></html>';
+}
 function exExportHtml(m,key){
  m=m||EX.cur;if(!m)return'';
- /* تنسيق التطبيق كامل أوّلًا، فيخرج الورق في Word/PDF مطابقًا للمعاينة، ثم قواعد @page والهوامش */
- return '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>'+esc(m.name||'نموذج امتحان')+'</title><style>'+window.__sijilAllCss()+'</style><style>'+exExportCss(m)+'</style></head><body>'+exPrintRoot(m,key)+'</body></html>';
+ return exPaperDoc(m.name,exPrintRoot(m,key),m);
+}
+/* الطباعة تُخفي الواجهة لتظهر الأوراق وحدها. كان الإخفاء يُرفع على afterprint وحده،
+   فإذا لم يصل الحدث (طباعة أصلية/إلغاء/خطأ) بقي التطبيق مخفيًا وبدت كل أزراره معطّلة. */
+let exPrintUnlockTimer=null;
+function exPrintUnlock(){
+ if(exPrintUnlockTimer){clearTimeout(exPrintUnlockTimer);exPrintUnlockTimer=null;}
+ try{document.body.classList.remove('ex-printing');}catch(e){}
+}
+function exPrintHtml(html){
+ const store=$('exPaperStore');
+ if(!store)return false;
+ store.innerHTML=html;
+ exPrintUnlock();
+ try{document.body.classList.add('ex-printing');}catch(e){}
+ exPrintUnlockTimer=setTimeout(exPrintUnlock,60000);
+ setTimeout(function(){
+  try{window.print();}catch(e){toast('تعذّرت الطباعة — '+String(e));}
+  setTimeout(exPrintUnlock,400);
+ },140);
+ return true;
 }
 function exSafeName(v){return String(v||'نموذج امتحان').replace(/[\/:*?"<>|]/g,'_');}
-window.addEventListener('afterprint',()=>document.body.classList.remove('ex-printing'));
+window.addEventListener('afterprint',exPrintUnlock);
 if($('exDsPdf'))$('exDsPdf').onclick=()=>exDsGenerate(false);
 if($('exDsPrint'))$('exDsPrint').onclick=()=>exDsGenerate(true);
 /* طباعة موثوقة: نطبع مستندًا مستقلًا داخل إطار مخفي بدل إخفاء التطبيق،
