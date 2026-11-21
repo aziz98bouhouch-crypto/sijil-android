@@ -258,14 +258,14 @@ a{color:#000!important;text-decoration:none}
 <div class="card" id="auth">
   <label>الرمز الخاص بك</label><input id="pin" type="password" inputmode="numeric" autocomplete="one-time-code" autocorrect="off" spellcheck="false" dir="ltr" placeholder="الأرقام الاثنا عشر المطبوعة في بطاقتك">
   <label>رقم دخولك</label><input id="code" type="text" inputmode="latin" autocomplete="username" autocorrect="off" autocapitalize="off" spellcheck="false" dir="ltr" placeholder="مثال: 2025/01">
-  <div class="row2"><button onclick=\\"S.login()\\"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>دخول</button><button class="secondary" onclick=\\"S.scan()" title="مسح رمز الربط\\"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></button></div>
+  <div class="row2"><button onclick="S.login()"><svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>دخول</button><button class="secondary" onclick="S.scan()" title="مسح رمز الربط"><svg viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg></button></div>
   <div class="err" id="err"></div>
   <div class="evnote" id="landHint" style="display:none;margin-top:8px"></div>
-  <div class="row2" style="margin-top:4px"><button class="secondary" style="font-size:12px;padding:9px" onclick=\\"S.diag()\\">فحص الاتصال</button><button class="secondary" style="font-size:12px;padding:9px" onclick=\\"S.forget()\\">إعادة الربط</button></div>
+  <div class="row2" style="margin-top:4px"><button class="secondary" style="font-size:12px;padding:9px" onclick="S.diag()">فحص الاتصال</button><button class="secondary" style="font-size:12px;padding:9px" onclick="S.forget()">إعادة الربط</button></div>
 </div>
 <div id="appWrap" style="display:none">
   <div class="card">
-    <div class="headrow"><div class="nm"><img class="logo" src="logo.png" alt="شعار مواكبتي" onerror="this.style.display='none'"/><span id="vname"></span></div><div style="display:flex;gap:6px"><button class="secondary" id="themeBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.theme()" title="الوضع الليلي\\"></button><button class="secondary" id="refreshBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.refresh()" title="جلب آخر البيانات من الأستاذ\\"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>تحديث</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.diag()" title="فحص الاتصال\\"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg>فحص</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick=\\"S.logout()\\"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>خروج</button></div></div>
+    <div class="headrow"><div class="nm"><img class="logo" src="logo.png" alt="شعار مواكبتي" onerror="this.style.display='none'"/><span id="vname"></span></div><div style="display:flex;gap:6px"><button class="secondary" id="themeBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.theme()" title="الوضع الليلي"></button><button class="secondary" id="refreshBtn" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.refresh()" title="جلب آخر البيانات من الأستاذ"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>تحديث</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.diag()" title="فحص الاتصال"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/><path d="M12 7v6"/><path d="M12 16h.01"/></svg>فحص</button><button class="secondary" style="width:auto;padding:6px 10px;font-size:12px" onclick="S.logout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>خروج</button></div></div>
     <div class="meta" id="vmeta"></div>
     <div class="fresh" id="vfresh"></div>
   </div>
@@ -275,11 +275,11 @@ a{color:#000!important;text-decoration:none}
     <div class="card">
       <div class="kpis"><div class="kpi"><b id="vavg">—</b><span>المعدل العام</span></div><div class="kpi"><b id="vres">—</b><span>النتيجة</span></div><div class="kpi"><b id="vgrade">—</b><span>التقدير</span></div></div>
       <div class="rankline" id="vrank" style="display:none"></div>
-      <button class="secondary" id="celebrateReplay" onclick=\\"S.celebrateReplay()\\">عرض بطاقة التهنئة</button>
+      <button class="secondary" id="celebrateReplay" onclick="S.celebrateReplay()">عرض بطاقة التهنئة</button>
       <h3>الحضور — آخر 30 يوماً</h3>
       <div class="att"><div><b id="aab">0</b><span>غائب</span></div><div><b id="ala">0</b><span>متأخر</span></div><div><b id="aex">0</b><span>مبرر</span></div><div><b id="apx">0</b><span>حاضر</span></div></div>
       <div class="atbar" id="vattbar"></div><div class="atnote" id="vattnote"></div>
-      <button class="secondary printbtn" onclick=\\"S.print()\\"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة كشف النقط / حفظ PDF</button>
+      <button class="secondary printbtn" onclick="S.print()"><svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>طباعة كشف النقط / حفظ PDF</button>
     </div>
 <div class="card"><h3 id="vsubhead">نتيجتي</h3><div id="vsub1"></div><div id="vbeh"></div><div class="beh" id="vpartnb" style="margin-top:8px"></div>
 <div style="overflow-x:auto" id="vsubWrap"><table><thead><tr><th>المادة</th><th>معامل</th><th>نشاط</th><th>فرض</th><th>العلامة</th><th>النتيجة</th></tr></thead><tbody id="vsubs"></tbody></table></div>
@@ -289,7 +289,7 @@ a{color:#000!important;text-decoration:none}
 <div class="page" id="pg-sched"><div class="card"><h3 id="vschedh">جدول حصصي</h3><div id="vsched"></div></div><div class="card"><h3>حصص الدعم والتعويض</h3><div id="vsup"></div></div></div>
 <div class="page" id="pg-evo"><div class="card"><h3 id="vevoh">تطوّر نشاطي في الحصص</h3><div id="vtrend"></div><div class="kpis k4" id="vekpi"></div><div id="vevo"></div><div class="vbest" id="vbest"></div><div id="vedays"></div></div></div>
   <div class="page" id="pg-lessons"><div class="card"><h3>الدروس والموارد</h3><div id="vlessons"></div></div></div>
-  <div class="page" id="pg-contact"><div class="card"><h3>التواصل مع الأستاذ</h3><div id="contactHint" style="font-size:12px;color:#64748b;margin-bottom:10px"></div><div id="contactForm"><label style="font-size:12px;color:#334155">نص رسالتك</label><textarea id="msgBody" placeholder="اكتب سؤالك أو طلبك للأستاذ هنا…" style="width:100%;min-height:120px;margin:6px 0 12px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font:inherit;font-size:14px;line-height:1.6;resize:vertical;box-sizing:border-box"></textarea><button onclick=\\"S.sendMsg()\\"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>إرسال عبر واتساب</button><div style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">ستُفتح رسالة واتساب لدى أستاذك تتضمّن اسمك ورقم مسارك وقسمك مع نص رسالتك.</div></div></div></div>
+  <div class="page" id="pg-contact"><div class="card"><h3>التواصل مع الأستاذ</h3><div id="contactHint" style="font-size:12px;color:#64748b;margin-bottom:10px"></div><div id="contactForm"><label style="font-size:12px;color:#334155">نص رسالتك</label><textarea id="msgBody" placeholder="اكتب سؤالك أو طلبك للأستاذ هنا…" style="width:100%;min-height:120px;margin:6px 0 12px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font:inherit;font-size:14px;line-height:1.6;resize:vertical;box-sizing:border-box"></textarea><button onclick="S.sendMsg()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>إرسال عبر واتساب</button><div style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">ستُفتح رسالة واتساب لدى أستاذك تتضمّن اسمك ورقم مسارك وقسمك مع نص رسالتك.</div></div></div></div>
 </div>
 <div style="text-align:center;margin:6px 0"><span class="lock" style="color:#64748b"><svg viewBox="0 0 24 24" style="stroke:#64748b"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>تطبيق محمي — عرض بياناتك أنت فقط</span></div>
 <div id="diagBox" style="display:none"></div>
@@ -304,7 +304,7 @@ a{color:#000!important;text-decoration:none}
 </nav>
 <div class="celebrate" id="celebrate" role="dialog" aria-modal="true" aria-labelledby="celebrateTitle" aria-hidden="true">
   <div class="celebrate-card">
-    <button class="celebrate-x" onclick=\\"S.celebrateClose()" aria-label="إغلاق التهنئة\\">×</button>
+    <button class="celebrate-x" onclick="S.celebrateClose()" aria-label="إغلاق التهنئة">×</button>
     <div class="celebrate-character" aria-hidden="true">
       <svg viewBox="0 0 180 160">
         <ellipse cx="90" cy="149" rx="51" ry="7" fill="#0f172a" opacity=".12"/>
@@ -325,7 +325,7 @@ a{color:#000!important;text-decoration:none}
     <h2 id="celebrateTitle"></h2>
     <p id="celebrateMessage"></p>
     <div class="celebrate-reasons" id="celebrateReasons"></div>
-    <button id="celebrateDone" onclick=\\"S.celebrateClose()\\">أواصل الاجتهاد</button>
+    <button id="celebrateDone" onclick="S.celebrateClose()">أواصل الاجتهاد</button>
   </div>
 </div>
 <script>
@@ -1246,7 +1246,8 @@ try{(function(){var rm=window.matchMedia&&matchMedia("(prefers-reduced-motion: r
   if(window.Capacitor)return;
   if(!("serviceWorker" in navigator))return;
   if(location.protocol!=="https:")return;
-  if(String(location.pathname).indexOf("/app")!==0)return;
-  navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(){})
+  if(!document.querySelector("link[rel=manifest]"))return;
+  // مسارات نسبية: تعمل على /app في خادم المعلّم وعلى صفحة GitHub Pages تحت مجلد فرعي
+  navigator.serviceWorker.register("sw.js",{scope:"./"}).catch(function(){})
 }catch(e){}})();
 </script></body></html>`;
