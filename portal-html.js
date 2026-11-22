@@ -1200,8 +1200,13 @@ function srcAdopt(){
   if(window.__srcReady)return window.__srcReady;
   if(CFG.su&&CFG.sk)return Promise.resolve(false);
   window.__srcReady=fetch('src.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.json():null}).then(function(j){
-    if(!j||!j.su||!j.sk)return false;
-    CFG.su=String(j.su);CFG.sk=String(j.sk);if(j.in)CFG.inst=String(j.in);saveCfg();return true;
+    if(!j)return false;
+    // كافية المؤسسة وحدها: بها تُحسب بصمة الرمز والسرّ، فيعمل الدخول اليدوي بلا مسح QR
+    var ch=false;
+    if(j.su&&j.sk){CFG.su=String(j.su);CFG.sk=String(j.sk);ch=true}
+    if(j.in&&!CFG.inst){CFG.inst=String(j.in);ch=true}
+    if(ch)saveCfg();
+    return ch;
   }).catch(function(){return false});
   return window.__srcReady;
 }
