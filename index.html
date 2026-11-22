@@ -2192,16 +2192,37 @@ function histSvg(vals){
 }
 async function renderAnalytics(){const classes=await DB.all('classes');await instScope({classes});if($('anClass'))$('anClass').innerHTML='<option value="">كل الأقسام</option>'+classes.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('');await analyticsCharts();}
 async function analyticsCharts(){
+  try{await loadTrackingPoints()}catch(_){}
+  try{await refreshActivityFeeds()}catch(_){}
   const type=$('anChartType')?.value||'hist';
   const classId=$('anClass')?.value||'',cycle=parseInt($('anCycle')?.value)||0;
   const [students,classes,subjects,assessments,scores,attendance,supportPlans,motivations,behavior,homework,homeworkSubmissions]=await Promise.all([DB.all('students'),DB.all('classes'),DB.all('subjects'),DB.all('assessments'),DB.all('scores'),DB.all('attendance'),DB.all('supportPlans'),DB.all('motivation'),DB.all('behaviorRecords'),DB.all('homework'),DB.all('homeworkSubmissions')]);
   const classStudents=classId?students.filter(s=>s.classId===classId&&s.status!=='archived'):students.filter(s=>s.status!=='archived');
   const myAss=assessments.filter(a=>(!classId||a.classId===classId)&&(cycle===0||a.cycle===cycle));
   const scoreMap={};scores.forEach(s=>{scoreMap[s.studentId+'_'+s.assessmentId]=s.value});
-  const avgs=classStudents.map(st=>{let sum=0,cnt=0;for(const a of myAss){const v=scoreMap[st.id+'_'+a.id];if(v!=null){sum+=v;cnt++}}return {avg:cnt?sum/cnt:null}}).filter(r=>r.avg!==null);
-  const allVals=[];for(const a of myAss)for(const st of classStudents){const v=scoreMap[st.id+'_'+a.id];if(v!=null)allVals.push(v)}
-  const mean=avgs.length?avgs.reduce((s,r)=>s+r.avg,0)/avgs.length:0;
-  const passN=avgs.filter(r=>passFn(r.avg)).length;
+  /* المعدل هنا هو المعدل النهائي نفسه المعتمد في «نتائج القسم» (أنشطة + فروض بالأوزان)،
+     فتدخل نقط المشاركة والدفتر والواجبات والسلوك والغياب في التحليلات ولا يبقى الرقم جامدًا. */
+  const subjFinal={},finals={};
+  const byClass={};for(const st of classStudents){(byClass[st.classId]||(byClass[st.classId]=[])).push(st);}
+  for(const cid of Object.keys(byClass)){
+    let cc={},track=null;try{cc=await classCoeffFor(cid,subjects)}catch(_){}
+    try{track=await classTrackOf(cid)}catch(_){}
+    const subs=subjects.filter(sub=>myAss.some(a=>a.classId===cid&&a.subjectId===sub.id));
+    for(const st of byClass[cid]){let wAvg=0,wSum=0;
+      for(const sub of subs){
+        const acts=myAss.filter(a=>a.classId===cid&&a.subjectId===sub.id&&a.type==='activity');
+        const examVals=myAss.filter(a=>a.classId===cid&&a.subjectId===sub.id&&a.type==='exam').map(a=>scoreMap[st.id+'_'+a.id]).filter(v=>v!=null);
+        const aa=actSum20(acts,scoreMap,attendance,behavior,st.id,cycle);
+        const ea=examVals.length?examVals.reduce((a,b)=>a+b,0)/examVals.length:null;
+        const f=gradeFinal(track,aa,ea,examVals.length,sub.id);
+        if(f!==null){const coeff=cc[sub.id]||1;wAvg+=f*coeff;wSum+=coeff;(subjFinal[sub.id]||(subjFinal[sub.id]=[])).push(f);}
+      }
+      if(wSum)finals[st.id]=wAvg/wSum;
+    }
+  }
+  const allVals=Object.values(finals);
+  const mean=allVals.length?allVals.reduce((s,v)=>s+v,0)/allVals.length:0;
+  const passN=allVals.filter(v=>passFn(v)).length;
   const atts=classId?attendance.filter(a=>a.classId===classId):attendance;
   const attRate=atts.length?Math.round((atts.length-atts.filter(a=>a.type==='absent').length)/atts.length*100):0;
   const plans=supportPlans.filter(p=>p.status==='planned'||p.status==='in_progress').length;
@@ -2213,12 +2234,12 @@ async function analyticsCharts(){
   const absIssues=trackAtt.filter(a=>a.type==='absent'||a.type==='excused'||a.type==='late').length;
   const behPosN=trackBeh.filter(b=>b.type==='positive').length,behNegN=trackBeh.filter(b=>b.type==='negative').length;
   const hwSubRate=trackSubs.length?Math.round(trackSubs.filter(s=>s.submitted).length/trackSubs.length*100):0;
-  if($('anCards'))$('anCards').innerHTML='<div class="card stat"><span class="muted">المتعلمون</span><strong>'+classStudents.length+'</strong></div><div class="card stat"><span class="muted">معدل عام</span><strong>'+mean.toFixed(2)+'</strong></div><div class="card stat"><span class="muted">نسبة النجاح</span><strong>'+(avgs.length?Math.round(passN/avgs.length*100):0)+'%</strong></div><div class="card stat"><span class="muted">نسبة الحضور</span><strong>'+attRate+'%</strong></div><div class="card stat"><span class="muted">غياب وتأخر</span><strong>'+absIssues+'</strong></div><div class="card stat"><span class="muted">السلوك +/−</span><strong>'+behPosN+' / '+behNegN+'</strong></div><div class="card stat"><span class="muted">تسليم الواجبات</span><strong>'+hwSubRate+'%</strong></div><div class="card stat"><span class="muted">خطط الدعم النشطة</span><strong>'+plans+'</strong></div><div class="card stat"><span class="muted">مجموع XP</span><strong>'+xpTotal+'</strong></div>';
+  if($('anCards'))$('anCards').innerHTML='<div class="card stat"><span class="muted">المتعلمون</span><strong>'+classStudents.length+'</strong></div><div class="card stat"><span class="muted">معدل عام</span><strong>'+mean.toFixed(2)+'</strong></div><div class="card stat"><span class="muted">نسبة النجاح</span><strong>'+(allVals.length?Math.round(passN/allVals.length*100):0)+'%</strong></div><div class="card stat"><span class="muted">نسبة الحضور</span><strong>'+attRate+'%</strong></div><div class="card stat"><span class="muted">غياب وتأخر</span><strong>'+absIssues+'</strong></div><div class="card stat"><span class="muted">السلوك +/−</span><strong>'+behPosN+' / '+behNegN+'</strong></div><div class="card stat"><span class="muted">تسليم الواجبات</span><strong>'+hwSubRate+'%</strong></div><div class="card stat"><span class="muted">خطط الدعم النشطة</span><strong>'+plans+'</strong></div><div class="card stat"><span class="muted">مجموع XP</span><strong>'+xpTotal+'</strong></div>';
   const cont=$('anChart');if(!cont)return;
   if(type==='hist'){cont.innerHTML=histSvg(allVals);}
   else if(type==='subj'){
-    const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));const items=[];
-    for(const sub of subjects){if(!myAss.some(a=>a.subjectId===sub.id))continue;let sum=0,cnt=0;for(const st of classStudents)for(const a of myAss){if(a.subjectId!==sub.id)continue;const v=scoreMap[st.id+'_'+a.id];if(v!=null){sum+=v;cnt++}}if(cnt)items.push({label:subMap[sub.id]||sub.name,value:sum/cnt});}
+    const subMap=Object.fromEntries(subjects.map(s=>[s.id,s.name]));
+    const items=Object.keys(subjFinal).map(k=>({label:subMap[k]||k,value:subjFinal[k].reduce((a,b)=>a+b,0)/subjFinal[k].length})).sort((a,b)=>b.value-a.value);
     cont.innerHTML=hBars(items,'/20');
   }
   else if(type==='att'){
@@ -2252,7 +2273,7 @@ async function analyticsCharts(){
   }
   else if(type==='succ'){
     const items=[];
-    for(const cl of classes){const cs=students.filter(s=>s.classId===cl.id&&s.status!=='archived');if(!cs.length)continue;const ass=assessments.filter(a=>a.classId===cl.id);if(!ass.length)continue;let cnt=0,pass=0;for(const st of cs){let sum=0,n=0;for(const a of ass){const v=scoreMap[st.id+'_'+a.id];if(v!=null){sum+=v;n++}}if(n){cnt++;if(passFn(sum/n))pass++}}if(cnt)items.push({label:cl.name,value:Math.round(pass/cnt*100)});}
+    for(const cl of classes){const cs=students.filter(s=>s.classId===cl.id&&s.status!=='archived');if(!cs.length)continue;const vals=cs.map(s=>finals[s.id]).filter(v=>v!=null);if(!vals.length)continue;items.push({label:cl.name,value:Math.round(vals.filter(v=>passFn(v)).length/vals.length*100)});}
     cont.innerHTML=hBars(items,'%');
   }
 }
@@ -2311,6 +2332,8 @@ async function studentFinalByCycle(studentId,classId,cycle){
   return _evStudentFinal(ctx, studentId, classId, cycle);
 }
 async function _evBuildCtx(){
+  try{await loadTrackingPoints()}catch(_){}
+  try{await refreshActivityFeeds()}catch(_){}
   const [assessments,scores,subjects,attendance,behavior,students,classes]=await Promise.all([DB.all('assessments'),DB.all('scores'),DB.all('subjects'),DB.all('attendance'),DB.all('behaviorRecords'),DB.all('students'),DB.all('classes')]);
   const scoreMap={}; for(const s of (scores||[])) scoreMap[s.studentId+"_"+s.assessmentId]=s.value;
   const attBy={}, behBy={};
@@ -2358,16 +2381,18 @@ async function evCompute(){
     for(const st of pool){
       const c1=_evStudentFinal(ctx, st.id, st.classId, 1);
       const c2=_evStudentFinal(ctx, st.id, st.classId, 2);
-      if(c1!==null&&c2!==null){const diff=c2-c1;rows.push({name:st.name,className:ctx.clsMap[st.classId]||'—',c1,c2,diff});}
+      if(c1!==null||c2!==null){const diff=(c1!==null&&c2!==null)?c2-c1:null;rows.push({name:st.name,className:ctx.clsMap[st.classId]||'—',c1,c2,diff});}
     }
-    if(mode==='best')rows.sort((a,b)=>b.diff-a.diff);else if(mode==='worry')rows.sort((a,b)=>a.diff-b.diff);else rows.sort((a,b)=>b.diff-a.diff);
-    const improving=rows.filter(r=>r.diff>=1).length;
-    const regressing=rows.filter(r=>r.diff<=-1).length;
-    const stable=rows.length-improving-regressing;
-    const avgDiff=rows.length?rows.reduce((s,r)=>s+r.diff,0)/rows.length:0;
-    if($('evCards'))$('evCards').innerHTML='<div class="card stat"><span class="muted">قيد المقارنة</span><strong>'+rows.length+'</strong></div><div class="card stat"><span class="muted">متحسنون (+1)</span><strong>'+improving+'</strong></div><div class="card stat"><span class="muted">مستقرون</span><strong>'+stable+'</strong></div><div class="card stat"><span class="muted">متراجعون (-1)</span><strong>'+regressing+'</strong></div><div class="card stat"><span class="muted">متوسط الفارق</span><strong>'+avgDiff.toFixed(2)+'</strong></div>';
-    if($('evRows'))$('evRows').innerHTML=rows.length?rows.map(r=>{const arrow=r.diff>=1?'⬆️ تحسن':r.diff<=-1?'⬇️ تراجع':'➖ مستقر';const col=r.diff>=1?'var(--s)':r.diff<=-1?'var(--d)':'var(--m)';return '<tr><td>'+esc(r.name)+' <small class="muted">('+esc(r.className)+')</small></td><td>'+r.c1.toFixed(2)+'</td><td>'+r.c2.toFixed(2)+'</td><td style="color:'+col+';font-weight:700">'+(r.diff>=0?'+':'')+r.diff.toFixed(2)+'</td><td style="color:'+col+'">'+arrow+'</td></tr>';}).join(''):'<tr><td colspan="5">لا توجد بيانات في الدورتين معاً</td></tr>';
-    if($('evChart')){const items=rows.slice(0,25).map(r=>({label:r.name,value:r.diff}));$('evChart').innerHTML=hBars(items,' نقطة');}
+    const _byDiff=(a,b,desc)=>{const an=a.diff===null,bn=b.diff===null;if(an!==bn)return an?1:-1;if(an&&bn)return 0;return desc?b.diff-a.diff:a.diff-b.diff;};
+    if(mode==='worry')rows.sort((a,b)=>_byDiff(a,b,false));else rows.sort((a,b)=>_byDiff(a,b,true));
+    const cmp=rows.filter(r=>r.diff!==null); /* المقارنة تحتاج دورتين، لكن الصف يظهر إن وُجدت بيانات في إحداهما */
+    const improving=cmp.filter(r=>r.diff>=1).length;
+    const regressing=cmp.filter(r=>r.diff<=-1).length;
+    const stable=cmp.length-improving-regressing;
+    const avgDiff=cmp.length?cmp.reduce((s,r)=>s+r.diff,0)/cmp.length:0;
+    if($('evCards'))$('evCards').innerHTML='<div class="card stat"><span class="muted">قيد المقارنة</span><strong>'+cmp.length+'</strong></div><div class="card stat"><span class="muted">بيانات دورة واحدة</span><strong>'+(rows.length-cmp.length)+'</strong></div><div class="card stat"><span class="muted">متحسنون (+1)</span><strong>'+improving+'</strong></div><div class="card stat"><span class="muted">مستقرون</span><strong>'+stable+'</strong></div><div class="card stat"><span class="muted">متراجعون (-1)</span><strong>'+regressing+'</strong></div><div class="card stat"><span class="muted">متوسط الفارق</span><strong>'+avgDiff.toFixed(2)+'</strong></div>';
+    if($('evRows'))$('evRows').innerHTML=rows.length?rows.map(r=>{const both=r.diff!==null;const arrow=!both?'🕓 دورة واحدة':r.diff>=1?'⬆️ تحسن':r.diff<=-1?'⬇️ تراجع':'➖ مستقر';const col=!both?'var(--m)':r.diff>=1?'var(--s)':r.diff<=-1?'var(--d)':'var(--m)';const f=v=>v===null?'—':v.toFixed(2);return '<tr><td>'+esc(r.name)+' <small class="muted">('+esc(r.className)+')</small></td><td>'+f(r.c1)+'</td><td>'+f(r.c2)+'</td><td style="color:'+col+';font-weight:700">'+(both?(r.diff>=0?'+':'')+r.diff.toFixed(2):'—')+'</td><td style="color:'+col+'">'+arrow+'</td></tr>';}).join(''):'<tr><td colspan="5">لا توجد بيانات في الدورتين</td></tr>';
+    if($('evChart')){const items=rows.filter(r=>r.diff!==null).slice(0,25).map(r=>({label:r.name,value:r.diff}));$('evChart').innerHTML=hBars(items,' نقطة');}
   }catch(e){ console.error('evCompute',e); try{toast('تعذّر حساب التطور: '+(e&&e.message?e.message:e));}catch(_){} if($('evRows'))$('evRows').innerHTML='<tr><td colspan="5">تعذّر حساب التطور</td></tr>'; }
 }
 
