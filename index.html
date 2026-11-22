@@ -990,7 +990,7 @@ kbd{background:var(--bg2);border:1px solid var(--l);border-radius:7px;padding:3p
 
 <!-- ANALYTICS -->
 <div id="analytics" class="page"><div class="hero"><span class="badge">PHASE 10 · ANALYTICS</span><h1>التحليلات والإحصاء</h1><p>رسوم بيانية مرئية للنتائج والحضور والنجاح، مع تصدير احترافي للنقط إلى Excel وCSV.</p></div>
-<div class="card"><div class="form"><div class="field"><label>القسم</label><select id="anClass"></select></div><div class="field"><label>الدورة</label><select id="anCycle"><option value="1">الدورة الأولى</option><option value="2">الدورة الثانية</option><option value="0">السنوية</option></select></div><div class="field"><label>نوع العرض</label><select id="anChartType"><option value="hist">توزيع العلامات</option><option value="subj">متوسطات المواد</option><option value="att">نسب الحضور</option><option value="succ">نسب النجاح</option><option value="absSubj">الغياب حسب المادة</option><option value="behNet">رصيد السلوك</option><option value="hwSub">متوسط الواجبات حسب المادة</option><option value="hwSubm">نسبة تسليم الواجبات</option></select></div></div><div class="actions"><button class="btn primary" id="anRender">عرض التحليل</button><button class="btn" onclick="window.print()">طباعة</button></div></div>
+<div class="card"><div class="form"><div class="field"><label>القسم</label><select id="anClass"></select></div><div class="field"><label>الدورة</label><select id="anCycle"><option value="1">الدورة الأولى</option><option value="2">الدورة الثانية</option><option value="0">السنوية</option></select></div><div class="field"><label>نوع العرض</label><select id="anChartType"><option value="hist">توزيع العلامات</option><option value="subj">متوسطات المواد</option><option value="att">نسب الحضور</option><option value="succ">نسب النجاح</option><option value="examPass">نسب التحصل على المعدل في كل فرض</option><option value="actPass">نسب التحصل على نقط الأنشطة المندمجة</option><option value="lvClasses">مقارنة الأقسام داخل كل مستوى</option><option value="absSubj">الغياب حسب المادة</option><option value="behNet">رصيد السلوك</option><option value="hwSub">متوسط الواجبات حسب المادة</option><option value="hwSubm">نسبة تسليم الواجبات</option></select></div></div><div class="actions"><button class="btn primary" id="anRender">عرض التحليل</button><button class="btn" onclick="window.print()">طباعة</button></div></div>
 <div class="grid" id="anCards"></div>
 <div class="section-title"><h2>الرسم البياني</h2></div>
 <div class="card"><div id="anChart"></div></div>
@@ -2196,14 +2196,16 @@ async function analyticsCharts(){
   try{await refreshActivityFeeds()}catch(_){}
   const type=$('anChartType')?.value||'hist';
   const classId=$('anClass')?.value||'',cycle=parseInt($('anCycle')?.value)||0;
-  const [students,classes,subjects,assessments,scores,attendance,supportPlans,motivations,behavior,homework,homeworkSubmissions]=await Promise.all([DB.all('students'),DB.all('classes'),DB.all('subjects'),DB.all('assessments'),DB.all('scores'),DB.all('attendance'),DB.all('supportPlans'),DB.all('motivation'),DB.all('behaviorRecords'),DB.all('homework'),DB.all('homeworkSubmissions')]);
-  const classStudents=classId?students.filter(s=>s.classId===classId&&s.status!=='archived'):students.filter(s=>s.status!=='archived');
+  const [students,classes,levels,subjects,assessments,scores,attendance,supportPlans,motivations,behavior,homework,homeworkSubmissions]=await Promise.all([DB.all('students'),DB.all('classes'),DB.all('levels'),DB.all('subjects'),DB.all('assessments'),DB.all('scores'),DB.all('attendance'),DB.all('supportPlans'),DB.all('motivation'),DB.all('behaviorRecords'),DB.all('homework'),DB.all('homeworkSubmissions')]);
+  const activeStudents=students.filter(s=>s.status!=='archived');
+  const classStudents=classId?activeStudents.filter(s=>s.classId===classId):activeStudents;
   const myAss=assessments.filter(a=>(!classId||a.classId===classId)&&(cycle===0||a.cycle===cycle));
   const scoreMap={};scores.forEach(s=>{scoreMap[s.studentId+'_'+s.assessmentId]=s.value});
   /* المعدل هنا هو المعدل النهائي نفسه المعتمد في «نتائج القسم» (أنشطة + فروض بالأوزان)،
      فتدخل نقط المشاركة والدفتر والواجبات والسلوك والغياب في التحليلات ولا يبقى الرقم جامدًا. */
   const subjFinal={},finals={};
-  const byClass={};for(const st of classStudents){(byClass[st.classId]||(byClass[st.classId]=[])).push(st);}
+  /* نحسب المعدلات لكل الأقسام حتى تعمل مقارنة الأقسام داخل كل مستوى، ثم نرشّح حسب القسم المختار. */
+  const byClass={};for(const st of activeStudents){(byClass[st.classId]||(byClass[st.classId]=[])).push(st);}
   for(const cid of Object.keys(byClass)){
     let cc={},track=null;try{cc=await classCoeffFor(cid,subjects)}catch(_){}
     try{track=await classTrackOf(cid)}catch(_){}
@@ -2215,12 +2217,12 @@ async function analyticsCharts(){
         const aa=actSum20(acts,scoreMap,attendance,behavior,st.id,cycle);
         const ea=examVals.length?examVals.reduce((a,b)=>a+b,0)/examVals.length:null;
         const f=gradeFinal(track,aa,ea,examVals.length,sub.id);
-        if(f!==null){const coeff=cc[sub.id]||1;wAvg+=f*coeff;wSum+=coeff;(subjFinal[sub.id]||(subjFinal[sub.id]=[])).push(f);}
+        if(f!==null){const coeff=cc[sub.id]||1;wAvg+=f*coeff;wSum+=coeff;if(!classId||cid===classId)(subjFinal[sub.id]||(subjFinal[sub.id]=[])).push(f);}
       }
       if(wSum)finals[st.id]=wAvg/wSum;
     }
   }
-  const allVals=Object.values(finals);
+  const allVals=classStudents.map(s=>finals[s.id]).filter(v=>v!=null);
   const mean=allVals.length?allVals.reduce((s,v)=>s+v,0)/allVals.length:0;
   const passN=allVals.filter(v=>passFn(v)).length;
   const atts=classId?attendance.filter(a=>a.classId===classId):attendance;
@@ -2275,6 +2277,33 @@ async function analyticsCharts(){
     const items=[];
     for(const cl of classes){const cs=students.filter(s=>s.classId===cl.id&&s.status!=='archived');if(!cs.length)continue;const vals=cs.map(s=>finals[s.id]).filter(v=>v!=null);if(!vals.length)continue;items.push({label:cl.name,value:Math.round(vals.filter(v=>passFn(v)).length/vals.length*100)});}
     cont.innerHTML=hBars(items,'%');
+  }
+  else if(type==='examPass'){
+    /* لكل فرض: نسبة من حصل على نصف العلامة (المعدل) مقابل من لم يحصل عليها. */
+    const exams=myAss.filter(a=>a.type==='exam').sort((a,b)=>(Number(a.cycle)-Number(b.cycle))||String(a.title||'').localeCompare(String(b.title||''),'ar')).slice(0,24);
+    const items=[];
+    for(const a of exams){
+      const half=(Number(a.maxScore)||20)/2;let ok=0,tot=0;
+      for(const st of classStudents){const v=scoreMap[st.id+'_'+a.id];if(v==null)continue;tot++;if(Number(v)>=half)ok++;}
+      if(!tot)continue;
+      const p=Math.round(ok/tot*100),t=a.title||('فرض '+(a.cycle||''));
+      items.push({label:t+' — متحصلون ('+ok+'/'+tot+')',value:p});
+      items.push({label:t+' — غير متحصلين ('+(tot-ok)+'/'+tot+')',value:100-p});
+    }
+    cont.innerHTML=items.length?hBars(items,'%'):'<div class="muted">لا توجد فروض بنقط بعد</div>';
+  }
+  else if(type==='actPass'){
+    /* نسبة من بلغ معدل نقط الأنشطة المندمجة (مشاركة/دفتر/واجبات/سلوك/غياب) مقابل من لم يبلغه. */
+    let ok=0,tot=0;
+    for(const st of classStudents){const aa=actSum20(myAss.filter(a=>a.classId===st.classId&&a.type==='activity'),scoreMap,attendance,behavior,st.id,cycle);if(aa==null)continue;tot++;if(aa>=PASS)ok++;}
+    if(!tot)cont.innerHTML='<div class="muted">لا توجد نقط أنشطة مندمجة بعد</div>';
+    else{const p=Math.round(ok/tot*100);cont.innerHTML=hBars([{label:'متحصلون على معدل الأنشطة ('+ok+'/'+tot+')',value:p},{label:'غير متحصلين ('+(tot-ok)+'/'+tot+')',value:100-p}],'%');}
+  }
+  else if(type==='lvClasses'){
+    /* مقارنة الأقسام داخل كل مستوى بنسبة المتحصلين على المعدل. */
+    const items=[];
+    for(const lv of levels){for(const cl of classes.filter(c=>c.levelId===lv.id)){const cs=students.filter(s=>s.classId===cl.id&&s.status!=='archived');const vals=cs.map(s=>finals[s.id]).filter(v=>v!=null);if(!vals.length)continue;items.push({label:(lv.name||'—')+' — '+cl.name+' ('+vals.length+')',value:Math.round(vals.filter(v=>passFn(v)).length/vals.length*100)});}}
+    cont.innerHTML=items.length?hBars(items,'%'):'<div class="muted">لا توجد بيانات كافية للمقارنة</div>';
   }
 }
 async function exportKashf(){
