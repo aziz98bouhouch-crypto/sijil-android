@@ -87,6 +87,10 @@ jobs:
         working-directory: cap
         run: node add-camera-plugin.js
 
+      - name: Inject in-app APK updater plugin
+        working-directory: cap
+        run: node add-updater-plugin.js
+
       - name: Inject release signingConfig into build.gradle
         working-directory: cap
         run: node add-signing.js
