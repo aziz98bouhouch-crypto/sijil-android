@@ -1,6 +1,6 @@
 {
   "name": "mawakibati-android",
-  "version": "1.0.101",
+  "version": "1.0.102",
   "private": true,
   "description": "غلاف أندرويد (Capacitor) لتطبيق مواكبتي — بوابة التلميذ",
   "scripts": {
