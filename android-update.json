@@ -1,5 +1,5 @@
 {
   "version": "1.0.102",
-  "url": "https://github.com/aziz98bouh-crypto/sijil-android/releases/download/android-latest/sijil-taqyim-release.apk",
+  "url": "https://github.com/aziz98bouhouch-crypto/sijil-android/releases/download/android-latest/sijil-taqyim-release.apk",
   "notes": "إصدار 1.0.102 — إصلاح تداخل النصوص والنسب مع أعمدة مخططات «التحليلات» بتثبيت اتجاه SVG، وتوحيد مقياس النسب على 100% والمعدلات على /20، وتصحيح احتساب الحضور حسب الدورة، والغياب حسب المادة، وتطبيع متوسط الواجبات، وحساب معدلات كل الأقسام لمقارنة المستويات. متوافق مع مرآة مواكبتي (لا تغيير في مخطط بيانات البوابة). يتضمّن 1.0.101: عروض تحصيل الفروض والأنشطة ومقارنة أقسام كل مستوى، و1.0.100: توحيد حساب المعدلات في التحليلات والتطور."
 }
