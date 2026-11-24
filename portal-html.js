@@ -86,6 +86,63 @@ nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-
 nav.tabs button.on{color:#0f766e}
 .dot{position:absolute;top:6px;left:26%;width:8px;height:8px;background:#dc2626;border-radius:50%;display:none;border:2px solid #fff}
 .page{display:none}.page.on{display:block}
+/* ===== سلم المواكبة + سلسلة الالتزام + لعبة المفاهيم ===== */
+.lad-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.lad-badge{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;background:#ecfdf5;border:1px solid #99f6e4;flex:0 0 46px}
+.lad-name{font-size:15px;font-weight:800;color:#0f172a}
+.lad-sub{font-size:11.5px;color:#64748b;line-height:1.6}
+.lad-bar{height:12px;border-radius:99px;background:#e2e8f0;overflow:hidden;margin:8px 0 6px}
+.lad-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#0f766e,#14b8a6);transition:width .5s ease}
+.lad-pts{font-size:11.5px;color:#334155;display:flex;justify-content:space-between;gap:8px}
+.lad-mets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.lad-met{background:#f8fafc;border:1px solid #eef2f7;border-radius:12px;padding:8px;text-align:center}
+.lad-met b{display:block;font-size:15px;color:#0f172a}
+.lad-met span{font-size:10.5px;color:#64748b}
+.lad-hint{font-size:12px;color:#0f766e;background:#ecfdf5;border:1px solid #ccfbf1;border-radius:12px;padding:8px 10px;margin-top:10px;line-height:1.7}
+.streak{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;padding:9px 10px;border-radius:12px;border:1px dashed #fcd34d;background:#fffbeb;font-size:12px;color:#92400e;line-height:1.7}
+.streak b{font-size:16px}
+.game-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.game-lv{display:flex;gap:6px;flex-wrap:wrap}
+.game-lv button{font-size:11.5px;padding:6px 10px;border-radius:99px;border:1px solid #e2e8f0;background:#fff;color:#475569;font-weight:700}
+.game-lv button.on{background:#0f766e;border-color:#0f766e;color:#fff}
+.game-clock{margin-inline-start:auto;font-weight:800;font-size:14px;color:#0f766e;background:#ecfdf5;border:1px solid #ccfbf1;border-radius:10px;padding:4px 10px;min-width:62px;text-align:center}
+.game-clock.low{color:#b91c1c;background:#fef2f2;border-color:#fecaca}
+.game-tip{font-size:11.5px;color:#64748b;margin-bottom:8px;line-height:1.7}
+.game-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+.gcol h4{margin:0 0 2px;font-size:11px;color:#94a3b8;font-weight:700;text-align:center}
+.gtile{width:100%;text-align:center;font:inherit;font-size:12px;font-weight:700;line-height:1.5;padding:10px 8px;border-radius:12px;border:1.5px solid #e2e8f0;background:#fff;color:#0f172a;cursor:pointer;transition:transform .12s ease,border-color .15s,background .15s;min-height:52px;display:flex;align-items:center;justify-content:center;overflow-wrap:anywhere}
+.gtile:active{transform:scale(.97)}
+.gtile.sel{border-color:#0f766e;background:#ecfdf5;color:#0f766e;box-shadow:0 0 0 3px rgba(15,118,110,.12)}
+.gtile.ok{border-color:#34d399;background:#ecfdf5;color:#047857;opacity:.6;cursor:default}
+.gtile.bad{border-color:#fca5a5;background:#fef2f2;color:#b91c1c;animation:gshake .28s}
+@keyframes gshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.game-fb{font-size:12px;line-height:1.7;margin-top:10px;padding:8px 10px;border-radius:12px;background:#f8fafc;border:1px solid #eef2f7;color:#334155;min-height:38px}
+.game-fb.ok{background:#ecfdf5;border-color:#ccfbf1;color:#047857}
+.game-fb.no{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+.game-res{margin-top:10px;border-radius:14px;border:1px solid #e2e8f0;background:#f8fafc;padding:12px;text-align:center}
+.game-res b{font-size:15px;color:#0f172a;display:block;margin-bottom:2px}
+.game-res .stars{font-size:22px;letter-spacing:3px;color:#f59e0b;margin:4px 0}
+.game-res .gbtns{display:flex;gap:8px;margin-top:10px}
+.game-res .gbtns button{flex:1;font-size:12.5px}
+.gstats{display:flex;gap:10px;justify-content:center;font-size:11.5px;color:#64748b;margin-top:4px;flex-wrap:wrap}
+html.dark .lad-badge{background:#134e4a;border-color:#115e59}
+html.dark .lad-name{color:#e2e8f0}
+html.dark .lad-bar{background:#334155}
+html.dark .lad-met{background:#0f172a;border-color:#334155}
+html.dark .lad-met b{color:#e2e8f0}
+html.dark .gtile{background:#0f172a;border-color:#334155;color:#e2e8f0}
+html.dark .gtile.sel{background:#134e4a;border-color:#14b8a6;color:#5eead4}
+html.dark .gtile.ok{background:#064e3b;border-color:#059669;color:#6ee7b7}
+html.dark .gtile.bad{background:#4c1d24;border-color:#b91c1c;color:#fca5a5}
+html.dark .game-lv button{background:#0f172a;border-color:#334155;color:#cbd5e1}
+html.dark .game-lv button.on{background:#0f766e;border-color:#14b8a6;color:#fff}
+html.dark .game-clock{background:#134e4a;border-color:#115e59;color:#5eead4}
+html.dark .game-fb{background:#0f172a;border-color:#334155;color:#cbd5e1}
+html.dark .game-res{background:#0f172a;border-color:#334155}
+html.dark .game-res b{color:#e2e8f0}
+html.dark .streak{background:#3b2c12;border-color:#78350f;color:#fcd34d}
+html.dark .lad-hint{background:#134e4a;border-color:#115e59;color:#5eead4}
 .chart{width:100%;height:160px}
 .lock{display:inline-flex;align-items:center;gap:4px;font-size:10px;opacity:.9}
 .lock svg{width:12px;height:12px;stroke:#fff;fill:none;stroke-width:2}
@@ -288,6 +345,8 @@ a{color:#000!important;text-decoration:none}
   <div class="page" id="pg-hw"><div class="card"><h3>الواجبات المنزلية</h3><div class="hwsum" id="vhwsum"></div><div id="vhw"></div></div></div>
 <div class="page" id="pg-sched"><div class="card"><h3 id="vschedh">جدول حصصي</h3><div id="vsched"></div></div><div class="card"><h3>حصص الدعم والتعويض</h3><div id="vsup"></div></div></div>
 <div class="page" id="pg-evo"><div class="card"><h3 id="vevoh">تطوّر نشاطي في الحصص</h3><div id="vtrend"></div><div class="kpis k4" id="vekpi"></div><div id="vevo"></div><div class="vbest" id="vbest"></div><div id="vedays"></div></div></div>
+  <div class="page" id="pg-game"><div class="card" id="ladderCard"></div>
+  <div class="card"><h3>تحدي المفاهيم</h3><div class="game-head"><div class="game-lv" id="gLevels"></div><span class="game-clock" id="gClock">0:00</span></div><div class="game-tip">اختر مفهومًا من العمود الأيمن، ثم انقر تعريفه المطابق في العمود الأيسر. بعد كل مطابقة صحيحة يظهر لك تذكير قصير يثبّت المعلومة.</div><div class="game-cols"><div class="gcol"><h4>المفاهيم</h4><div id="gColC"></div></div><div class="gcol"><h4>التعريفات</h4><div id="gColD"></div></div></div><div class="game-fb" id="gFb">اختر مفهومًا للبدء…</div><div id="gRes"></div></div></div>
   <div class="page" id="pg-lessons"><div class="card"><h3>الدروس والموارد</h3><div id="vlessons"></div></div></div>
   <div class="page" id="pg-contact"><div class="card"><h3>التواصل مع الأستاذ</h3><div id="contactHint" style="font-size:12px;color:#64748b;margin-bottom:10px"></div><div id="contactForm"><label style="font-size:12px;color:#334155">نص رسالتك</label><textarea id="msgBody" placeholder="اكتب سؤالك أو طلبك للأستاذ هنا…" style="width:100%;min-height:120px;margin:6px 0 12px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:12px;font:inherit;font-size:14px;line-height:1.6;resize:vertical;box-sizing:border-box"></textarea><button onclick="S.sendMsg()"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>إرسال عبر واتساب</button><div style="font-size:11px;color:#94a3b8;margin-top:10px;text-align:center">ستُفتح رسالة واتساب لدى أستاذك تتضمّن اسمك ورقم مسارك وقسمك مع نص رسالتك.</div></div></div></div>
 </div>
@@ -299,6 +358,7 @@ a{color:#000!important;text-decoration:none}
   <button data-pg="hw"><svg viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12l1.5 1.5L13 11M9 16h6"/></svg>واجباتي<span class="dot" id="dot-hw"></span></button>
   <button data-pg="sched"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>حصصي</button>
   <button data-pg="evo"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>تطوّري</button>
+  <button data-pg="game"><svg viewBox="0 0 24 24"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.9 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>اللعب</button>
   <button data-pg="lessons"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>الدروس<span class="dot" id="dot-lessons"></span></button>
   <button data-pg="contact"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>تواصلي</button>
 </nav>
@@ -705,7 +765,7 @@ function show(changed,prev){
   $x("auth").style.display="none";$x("appWrap").style.display="block";$x("tabs").style.display="flex";
   $x("vname").textContent=D.name||"متعلم";
   paintMeta();
-  renderGrades();renderHw();renderSched();renderSup();renderEvo();renderLessons();renderContact();
+  renderGrades();renderHw();renderSched();renderSup();renderEvo();renderLessons();renderContact();renderGame();
   if(changed){var nhw=(D.hw||[]).filter(function(h){return !h.sub}).length;notify("مستجدات في بوابة نقطتي","علامات أو واجبات جديدة — الواجبات المعلّقة: "+nhw);paintHwDot()}
   startPoll();
 }
@@ -1061,14 +1121,182 @@ S.sendMsg=function(){
   try{var C=window.Capacitor;if(C&&C.Plugins&&C.Plugins.Browser&&C.Plugins.Browser.open){C.Plugins.Browser.open({url:url}).catch(function(){try{window.open(url,"_blank")}catch(e){window.location.href=url}});return}}catch(e){}
   try{var win=window.open(url,"_blank");if(!win)window.location.href=url}catch(e){window.location.href=url}
 };
+/* ================= سلم المواكبة + سلسلة الالتزام + لعبة المفاهيم =================
+   كل الحساب محلي من بيانات البوابة الواردة (D): المعدل، الحضور، الواجبات، النشاط.
+   اللعبة لا تؤثر إطلاقًا على نقط الفروض؛ مكافآتها نجوم وأفضل نتيجة محفوظة على الهاتف. */
+var LSST='sjc_streak',LSGM='sjc_game';
+function lsGet(k,d){try{var v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v}catch(e){return d}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function lsKey(base){var c=(D&&D.code)||currentCode()||'student';return base+'|'+c}
+function dayKey(o){o=o||new Date();function p(n){return n<10?'0'+n:''+n}return o.getFullYear()+'-'+p(o.getMonth()+1)+'-'+p(o.getDate())}
+function ladderCalc(){
+  var avg=(D&&D.avg!=null&&isFinite(Number(D.avg)))?Math.max(0,Math.min(20,Number(D.avg))):null;
+  var att=(D&&D.att)||{};var px=+att.px||0,ab=+att.ab||0,la=+att.la||0,ex=+att.ex||0;
+  var atT=px+ab+la+ex,attPct=atT?Math.round(((px+la*0.5)/atT)*100):null;
+  var hw=(D&&D.hw)||[],hwDone=0,i;
+  for(i=0;i<hw.length;i++){if(hw[i]&&(hw[i].sub||hw[i].st==='done'))hwDone++}
+  var hwPct=hw.length?Math.round(hwDone/hw.length*100):null;
+  var part=(D&&D.part!=null)?(+D.part||0):0,nb=(D&&D.nb!=null)?(+D.nb||0):0;
+  var bp=(D&&D.beh)?(+D.beh.pos||0):0,bn=(D&&D.beh)?(+D.beh.neg||0):0;
+  var eng=part*0.5+nb*0.5+bp*0.5-bn;if(eng<0)eng=0;if(eng>12)eng=12;
+  var pts=(avg==null?0:avg/20*40)+(attPct==null?0:attPct/100*25)+(hwPct==null?0:hwPct/100*20)+eng/12*15;
+  return {avg:avg,attPct:attPct,hwPct:hwPct,pts:Math.max(0,Math.min(100,Math.round(pts))),eng:Math.round(eng),hwTotal:hw.length,hwDone:hwDone};
+}
+var RANKS=[{n:'مستكشف',ic:'🧭'},{n:'مثابر',ic:'🔥'},{n:'رائد',ic:'🏅'}];
+function rankOf(p){return p>=75?2:(p>=50?1:0)}
+function ladderHint(L){
+  var g=[];
+  if(L.avg==null)g.push('لم تُسجَّل لك نقطة بعد — أول نقطة تفتح لك سلم المواكبة');
+  else if(L.avg<14)g.push('ارفع معدلك ('+L.avg.toFixed(2)+'/20) — كل نقطتين تكسبك نحو 4 نقاط في السلم');
+  if(L.hwPct==null)g.push('لم يُعلن بعدُ واجب — سلّم كل واجب يظهر لتكسب 20 نقطة كاملة');
+  else if(L.hwPct<100)g.push('بقي '+(L.hwTotal-L.hwDone)+' واجبًا غير مسلَّم — إتمامها يرفع رتبتك فورًا');
+  if(L.attPct!=null&&L.attPct<90)g.push('حضورك '+L.attPct+'٪ — كل 10٪ إضافية تكسبك 2.5 نقطة');
+  if(L.eng<6)g.push('سجّل مشاركاتك وعناية دفترك — نقط النشاط تكسبك حتى 15 نقطة');
+  return g[0]||'واصل: أنت في أعلى رتبة — حافظ على سلسلتك وأرقامك';
+}
+function streakTick(){
+  var st=lsGet(lsKey(LSST),{d:{},b:0});if(!st.d)st.d={};
+  var hw=(D&&D.hw)||[],pend=0,i;
+  for(i=0;i<hw.length;i++){if(hw[i]&&!hw[i].sub&&hw[i].st!=='done')pend++}
+  var k=dayKey();if(!pend)st.d[k]=1;
+  var cur=0,d0=new Date();if(!st.d[k])d0.setDate(d0.getDate()-1);
+  for(;;){var kk=dayKey(d0);if(!st.d[kk])break;cur++;d0.setDate(d0.getDate()-1);if(cur>4000)break}
+  if(cur>(st.b||0))st.b=cur;
+  var keys=Object.keys(st.d);if(keys.length>500){keys.sort();for(i=0;i<keys.length-400;i++)delete st.d[keys[i]]}
+  lsSet(lsKey(LSST),st);
+  return {cur:cur,best:st.b||cur,pend:pend};
+}
+var GAME_BANK=[
+ {n:'سهل',secs:55,pairs:[
+  ['الرباط','عاصمة المملكة المغربية','الرباط عاصمة سياسية وإدارية للمملكة.'],
+  ['جبال الأطلس','أعلى سلسلة جبلية في المغرب','تمتد الأطلس من الجنوب الغربي إلى الشمال الشرقي.'],
+  ['المحيط الأطلسي','مجال مائي يمتد غرب المغرب','يفصل المغرب عن القارتين الأمريكيتين.'],
+  ['البحر الأبيض المتوسط','مجال مائي يمتد شمال المغرب','يفصل المغرب عن أوروبا.'],
+  ['واد ملوية','نهر يشكّل الحدود الشرقية للمغرب','ملوية أطول وادٍ في المغرب.'],
+  ['الصحراء','مجال مناخي حار وجاف في الجنوب','تنخفض فيه التساقطات وترتفع الحرارة.']]},
+ {n:'متوسط',secs:65,pairs:[
+  ['معاهدة فاس','1912 — فرض الحماية الفرنسية على المغرب','وقّعت في فاس وأدخلت المغرب في الحماية.'],
+  ['معركة أنوال','1921 — مقاومة محمد بن عبد الكريم الخطابي','هزيمة عسكرية إسبانية في الريف.'],
+  ['استقلال المغرب','1956 — نهاية الحماية','أُعلن الاستقلال بعد حركة وطنية.'],
+  ['المسيرة الخضراء','1975 — استرجاع الصحراء','مسيرة سلمية بمشاركة 350 ألف متطوع.'],
+  ['الدستور','أسمى قانون في الدولة','يحدد المؤسسات والحقوق والواجبات.'],
+  ['مجلس النواب','مؤسسة تشريعية منتخبة','يصوّت على القوانين ويراقب الحكومة.']]},
+ {n:'صعب',secs:75,pairs:[
+  ['التنمية المستدامة','تلبية حاجيات الحاضر دون إضرار بالمستقبل','توازن بين الاقتصاد والبيئة والمجتمع.'],
+  ['الجهوية','تقسيم إداري يمنح الجهات صلاحيات','تقرب القرار من المواطن.'],
+  ['الهجرة القروية','الانتقال من البادية إلى المدينة','سببها البحث عن العمل والخدمات.'],
+  ['التصحر','تدهور الأراضي الخصبة إلى أراضٍ قاحلة','يزحف على الأطراف الجنوبية للمغرب.'],
+  ['الموارد الطبيعية','عناصر تمنحها الطبيعة كالماء والمعادن','تُستغل بعقلانية لأنها محدودة.'],
+  ['المبادرة الوطنية للتنمية البشرية','برنامج لمحاربة الفقر والإقصاء','أُطلقت سنة 2005 لتحسين ظروف العيش.']]}
+];
+var G={lvl:0,sel:{c:null,d:null},left:0,errs:0,rem:0,tid:null,started:false,round:false,over:false};
+function gameShuffle(a){var b=a.slice(),i,j,t;for(i=b.length-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=b[i];b[i]=b[j];b[j]=t}return b}
+function gameBest(){return lsGet(lsKey(LSGM),{})}
+function paintLevels(){
+  var el=$x('gLevels');if(!el)return;var best=gameBest();
+  el.innerHTML=GAME_BANK.map(function(B,i){var b=best[i]||{},st=b.stars?(' '+new Array((+b.stars||0)+1).join('★')):'';return '<button type="button" class="'+(i===G.lvl?'on':'')+'" onclick="S.gameStart('+i+')">مستوى '+(i+1)+st+'</button>'}).join('');
+}
+function paintClock(){
+  var el=$x('gClock');if(!el)return;
+  var B=GAME_BANK[G.lvl]||{secs:60},left=G.round?G.rem:B.secs;
+  var m=Math.floor(left/60),s=left%60;
+  el.textContent=m+':'+(s<10?'0'+s:s);
+  el.className='game-clock'+(left<=10?' low':'');
+}
+function gameStart(lvl){
+  clearInterval(G.tid);
+  lvl=(lvl==null?G.lvl:+lvl)||0;if(lvl<0||lvl>=GAME_BANK.length)lvl=0;
+  G.lvl=lvl;G.sel={c:null,d:null};G.errs=0;G.over=false;G.round=true;G.started=false;G.t0=0;
+  var B=GAME_BANK[lvl];G.left=B.pairs.length;G.rem=B.secs;
+  var cc=gameShuffle(B.pairs.map(function(p,i){return {k:i,t:p[0]}}));
+  var dd=gameShuffle(B.pairs.map(function(p,i){return {k:i,t:p[1]}}));
+  var tile=function(x){return '<button type="button" class="gtile" data-k="'+x.k+'">'+esc(x.t)+'</button>'};
+  var C=$x('gColC'),Dd=$x('gColD');
+  if(!C||!Dd)return;
+  C.innerHTML=cc.map(tile).join('');Dd.innerHTML=dd.map(tile).join('');
+  C.onclick=function(e){gameTap(e,'c')};Dd.onclick=function(e){gameTap(e,'d')};
+  $x('gRes').innerHTML='';
+  var fb=$x('gFb');if(fb){fb.className='game-fb';fb.textContent='المؤقّت يبدأ عند أول نقرة — رتّب كل الأزواج قبل انتهاء الوقت.'}
+  paintLevels();paintClock();
+  G.tid=setInterval(gameTick,1000);
+}
+S.gameStart=function(l){gameStart(l)};
+function gameTick(){
+  if(!G.round||!G.started)return;
+  var pg=$x('pg-game');if(pg&&!pg.classList.contains('on'))return;
+  G.rem--;paintClock();
+  if(G.rem<=0){G.rem=0;gameEnd(false)}
+}
+function gameTap(e,side){
+  var t=e.target;while(t&&t!==document.body&&!t.classList.contains('gtile'))t=t.parentNode;
+  if(!t||!t.classList||!t.classList.contains('gtile'))return;
+  if(!G.round||G.over||t.classList.contains('ok'))return;
+  if(!G.started){G.started=true;G.t0=Date.now()}
+  var k=+t.getAttribute('data-k'),col=$x(side==='c'?'gColC':'gColD');
+  var old=col?col.querySelector('.gtile.sel'):null;if(old)old.classList.remove('sel');
+  G.sel[side]=k;t.classList.add('sel');
+  if(G.sel.c==null||G.sel.d==null)return;
+  var c=G.sel.c,dd=G.sel.d,cs=$x('gColC')?$x('gColC').querySelector('.gtile.sel'):null,ds=$x('gColD')?$x('gColD').querySelector('.gtile.sel'):null;
+  var fb=$x('gFb');
+  if(c===dd){
+    if(cs){cs.classList.remove('sel');cs.classList.add('ok')}
+    if(ds){ds.classList.remove('sel');ds.classList.add('ok')}
+    G.sel={c:null,d:null};G.left--;
+    var why=(GAME_BANK[G.lvl].pairs[c]||[])[2]||'';
+    if(fb){fb.className='game-fb ok';fb.textContent='✔ صحيح — '+(why||'أحسنت!')}
+    if(G.left<=0)gameEnd(true);
+  }else{
+    G.errs++;
+    if(cs){cs.classList.remove('sel');cs.classList.add('bad')}
+    if(ds){ds.classList.remove('sel');ds.classList.add('bad')}
+    G.sel={c:null,d:null};
+    if(fb){fb.className='game-fb no';fb.textContent='✘ ليس التوفيق الصحيح — اقرأ التعريف مرة أخرى ثم أعد المحاولة.'}
+    setTimeout(function(){if(cs)cs.classList.remove('bad');if(ds)ds.classList.remove('bad')},620);
+  }
+}
+function gameEnd(won){
+  G.over=true;G.round=false;clearInterval(G.tid);
+  var B=GAME_BANK[G.lvl],used=G.t0?Math.max(0,Math.round((Date.now()-G.t0)/1000)):Math.max(0,B.secs-G.rem);
+  var stars=won?(G.errs<=1?3:(G.errs<=3?2:1)):0;
+  var all=gameBest(),b=all[G.lvl]||{stars:0,time:null,plays:0};
+  b.plays=(b.plays||0)+1;
+  if(won&&(stars>(+b.stars||0)||(stars===+b.stars&&(b.time==null||used<b.time)))){b.stars=stars;b.time=used}
+  all[G.lvl]=b;lsSet(lsKey(LSGM),all);
+  var nx=G.lvl<GAME_BANK.length-1;
+  var starsTxt='';for(var i=0;i<3;i++)starsTxt+=i<stars?'★':'☆';
+  var res=$x('gRes');
+  if(res)res.innerHTML='<div class="game-res"><b>'+(won?(stars===3?'ممتاز! أتقنت المستوى':'أحسنت! أكملت المستوى'):'انتهى الوقت قبل إتمام كل الأزواج')+'</b><div class="stars">'+starsTxt+'</div><div class="gstats"><span>أخطاء: '+G.errs+'</span><span>الزمن: '+used+' ثانية</span><span>أفضل نتيجة: '+(+b.stars||0)+'★</span></div><div class="gbtns"><button type="button" onclick="S.gameStart('+G.lvl+')">إعادة المستوى</button>'+(nx?'<button type="button" onclick="S.gameStart('+(G.lvl+1)+')">المستوى التالي</button>':'')+'</div></div>';
+  paintLevels();paintClock();
+  if(won)toast(stars===3?'ثلاث نجوم! أحسنت ⭐⭐⭐':'أحسنت — أكملت مستوى «'+B.n+'»');
+}
+function renderGame(){
+  paintLadder();
+  if(!G.round&&!G.over)gameStart(G.lvl||0);
+  else{paintLevels();paintClock()}
+}
+function paintLadder(){
+  var box=$x('ladderCard');if(!box)return;
+  if(!D){box.innerHTML='';return}
+  var L=ladderCalc(),rk=rankOf(L.pts),R=RANKS[rk],NX=RANKS[rk+1],st=streakTick();
+  var lo=rk===0?0:(rk===1?50:75),hi=rk===0?50:(rk===1?75:100);
+  var pct=rk>=2?100:Math.max(3,Math.min(99,Math.round((L.pts-lo)/(hi-lo)*100)));
+  var nextTxt=NX?('تبقّى '+(hi-L.pts)+' نقطة لرتبة '+NX.n):'أنت في أعلى رتبة';
+  box.innerHTML='<div class="lad-top"><div class="lad-badge">'+R.ic+'</div><div style="flex:1;min-width:0"><div class="lad-name">رتبتي: '+R.n+'</div><div class="lad-sub">'+L.pts+' من 100 نقطة · '+nextTxt+'</div></div></div>'+
+   '<div class="lad-bar"><i style="width:'+pct+'%"></i></div>'+
+   '<div class="lad-pts"><span>سلم المواكبة</span><span>'+pct+'٪ نحو '+(NX?NX.n:'القمة')+'</span></div>'+
+   '<div class="lad-mets"><div class="lad-met"><b>'+(L.avg==null?'—':L.avg.toFixed(2))+'</b><span>معدلي /20</span></div><div class="lad-met"><b>'+(L.attPct==null?'—':L.attPct+'٪')+'</b><span>حضوري</span></div><div class="lad-met"><b>'+(L.hwPct==null?'—':L.hwPct+'٪')+'</b><span>تسليم الواجبات</span></div></div>'+
+   '<div class="lad-hint">💡 '+esc(ladderHint(L))+'</div>'+
+   '<div class="streak">🔥 سلسلة الالتزام: <b>' +st.cur+'</b> يوم'+(st.pend?(' · عندك '+arCount(st.pend,'واجب','واجبات','واجبين')+' غير مُسلَّم — سلّمه لتحافظ على سلسلتك'):' · لا واجب معلّق اليوم')+' · أفضل سلسلة: '+st.best+'</div>';
+}
 S.tab=function(pg){
   document.querySelectorAll("nav.tabs button").forEach(function(b){b.classList.toggle("on",b.getAttribute("data-pg")===pg)});
   document.querySelectorAll(".page").forEach(function(p){p.classList.toggle("on",p.id==="pg-"+pg)});
   if(pg==="lessons"){$x("dot-lessons").style.display="none"}
   if(pg==="evo")renderEvo();
+  if(pg==="game")renderGame();
 };
 document.querySelectorAll("nav.tabs button").forEach(function(b){b.onclick=function(){S.tab(b.getAttribute("data-pg"))}});
-S.logout=function(){hideCelebration(false);_celeKey='';var cr=$x("celebrateReplay");if(cr)cr.classList.remove("on");_dk=null;_dkSig="";_ses=null;try{localStorage.removeItem(LSS)}catch(e){};D=null;$x("appWrap").style.display="none";$x("tabs").style.display="none";$x("auth").style.display="block";banner("")};
+S.logout=function(){try{G.round=false;G.over=false;clearInterval(G.tid);['gRes','gColC','gColD'].forEach(function(k){var el=$x(k);if(el)el.innerHTML=''});var _lb=$x('ladderCard');if(_lb)_lb.innerHTML=''}catch(e){}hideCelebration(false);_celeKey='';var cr=$x("celebrateReplay");if(cr)cr.classList.remove("on");_dk=null;_dkSig="";_ses=null;try{localStorage.removeItem(LSS)}catch(e){};D=null;$x("appWrap").style.display="none";$x("tabs").style.display="none";$x("auth").style.display="block";banner("")};
 var _refreshing=false;
 S.refresh=function(){
   var fc=$x("code")?$x("code").value.trim():"",fp=$x("pin")?$x("pin").value.trim():"";
