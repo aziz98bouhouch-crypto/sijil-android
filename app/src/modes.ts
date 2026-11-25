@@ -227,14 +227,14 @@ function quick(lesson: Lesson, lex: Lexicon): Q[] {
 }
 
 export const MODES: ModeDef[] = [
-  { id: "diagnostic", name: "تشخيص", icon: "◎", desc: "أسئلة الدرس الرسمية", gen: diagnostic },
-  { id: "duel", name: "مبارزة المفاهيم", icon: "⚔", desc: "طابق المفهوم بتعريفه", gen: duel },
-  { id: "trap", name: "اصطد الخطأ", icon: "✗", desc: "عبارة واحدة خاطئة بين أربع", gen: trap },
-  { id: "sort", name: "صنّف", icon: "▤", desc: "خانات جدول المقارنة", gen: sort },
-  { id: "order", name: "رتّب الأحداث", icon: "⏱", desc: "الأسبق زمنياً", gen: order },
-  { id: "cloze", name: "أكمل الخاتمة", icon: "✎", desc: "كلمة محجوبة من الخاتمة", gen: cloze },
-  { id: "who", name: "من؟", icon: "☺", desc: "الأعلام فقط", gen: who },
-  { id: "quick", name: "اختبار سريع", icon: "⚡", desc: "خليط من كل الأطوار", gen: quick },
+  { id: "diagnostic", name: "تشخيص", icon: "target", desc: "أسئلة الدرس الرسمية", gen: diagnostic },
+  { id: "duel", name: "مبارزة المفاهيم", icon: "swords", desc: "طابق المفهوم بتعريفه", gen: duel },
+  { id: "trap", name: "اصطد الخطأ", icon: "alert", desc: "عبارة واحدة خاطئة بين أربع", gen: trap },
+  { id: "sort", name: "صنّف", icon: "layers", desc: "خانات جدول المقارنة", gen: sort },
+  { id: "order", name: "رتّب الأحداث", icon: "clock", desc: "الأسبق زمنياً", gen: order },
+  { id: "cloze", name: "أكمل الخاتمة", icon: "pencil", desc: "كلمة محجوبة من الخاتمة", gen: cloze },
+  { id: "who", name: "من؟", icon: "user", desc: "الأعلام فقط", gen: who },
+  { id: "quick", name: "اختبار سريع", icon: "bolt", desc: "خليط من كل الأطوار", gen: quick },
 ];
 
 export function buildMode(modeId: string, lesson: Lesson, lex: Lexicon): Q[] {

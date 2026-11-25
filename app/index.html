@@ -3,14 +3,39 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#0f766e" />
+    <meta name="theme-color" content="#0e9488" />
     <meta name="description" content="مرشدي HG — تعلّم التاريخ والجغرافيا باللعب: ثمانية أطوار، دليل منهجي، وأوراق تحرير مرمزة بكود QR." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
     <title>مرشدي HG — التاريخ والجغرافيا</title>
+    <style>
+      html { background: #f4faf9; }
+      #splash {
+        position: fixed; inset: 0; display: grid; place-items: center;
+        background: #f4faf9; font-family: "IBM Plex Sans Arabic", Tahoma, sans-serif;
+        color: #0e9488; gap: 14px; z-index: 99;
+      }
+      #splash .dot {
+        width: 46px; height: 46px; border-radius: 14px;
+        background: linear-gradient(140deg, #0e9488, #14b8a6);
+        animation: pulse 1.4s ease-in-out infinite;
+      }
+      #splash small { font-size: 13px; color: #5b7b78; }
+      @keyframes pulse {
+        0%, 100% { transform: scale(0.92) rotate(0deg); opacity: 0.85; }
+        50% { transform: scale(1.04) rotate(6deg); opacity: 1; }
+      }
+    </style>
   </head>
   <body>
+    <div id="splash"><div class="dot"></div><small>مرشدي HG</small></div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
