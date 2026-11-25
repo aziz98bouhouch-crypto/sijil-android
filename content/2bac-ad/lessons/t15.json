@@ -69,7 +69,7 @@
         "cells": [
           "حرب النكبة",
           "1948",
-          "تهجير نحو 400 ألف فلسطيني واستيلاء إسرائيل على 78% من فلسطين وانضمامها إلى الأمم المتحدة 1949"
+          "تهجير نحو 700 ألف فلسطيني واستيلاء إسرائيل على 78% من فلسطين وانضمامها إلى الأمم المتحدة 1949"
         ]
       },
       {
@@ -393,12 +393,7 @@
         "1969"
       ],
       "answer": 3,
-      "distractors": [
-        {
-          "i": 0,
-          "misconceptionId": "m-resistance-1948-start"
-        }
-      ],
+      "distractors": [],
       "skillId": "know",
       "difficulty": 2
     },
@@ -413,12 +408,7 @@
         "2000"
       ],
       "answer": 1,
-      "distractors": [
-        {
-          "i": 3,
-          "misconceptionId": "m-oslo-palestinian-state"
-        }
-      ],
+      "distractors": [],
       "skillId": "know",
       "difficulty": 2
     },
@@ -498,10 +488,8 @@
   ],
   "closing": "لا تزال القضية الفلسطينية بدون حل رغم التحولات الدولية، ولعل السبب الرئيسي في ذلك هو الدعم الأمريكي المطلق لتجاوزات الصهاينة الذي يستهدف الهيمنة الغربية على العالم الإسلامي.",
   "sourceRef": {
-    "file": "source/sources_hist_h2/hist_h2.pdf",
-    "pages": [
-      1
-    ],
+    "file": "source/part2.txt",
+    "pages": [],
     "credit": "part2.docx — ملخصات الأستاذ صلاح الدين الهجهوجي (2024/2025)"
   },
   "sheetTemplates": [

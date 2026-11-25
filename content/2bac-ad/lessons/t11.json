@@ -196,8 +196,8 @@
       "conceptId": "c-new-world-order"
     },
     {
-      "date": "1993",
-      "label": "توسيع منطقة أمريكا الشمالية للتبادل الحر",
+      "date": "1994",
+      "label": "دخول اتفاق ألينا حيز التنفيذ",
       "conceptId": "c-new-world-order"
     },
     {
@@ -279,12 +279,7 @@
         "1993"
       ],
       "answer": 1,
-      "distractors": [
-        {
-          "i": 0,
-          "misconceptionId": "m-ussr-collapse-1990"
-        }
-      ],
+      "distractors": [],
       "skillId": "know",
       "difficulty": 2
     },
@@ -447,10 +442,8 @@
   ],
   "closing": "ساهمت نهاية عصر الحرب الباردة وانبعاث دور الأمم المتحدة في عودة المجتمع الدولي إلى تركيز اهتمامه من جديد على موضوع حقوق الإنسان لما يكتسيه من أهمية في حياة الأفراد والمجتمعات.",
   "sourceRef": {
-    "file": "source/sources_hist_h2/hist_h2.pdf",
-    "pages": [
-      1
-    ],
+    "file": "source/part2.txt",
+    "pages": [],
     "credit": "part2.docx — ملخصات الأستاذ صلاح الدين الهجهوجي (2024/2025)"
   },
   "sheetTemplates": [
