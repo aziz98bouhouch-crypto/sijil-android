@@ -3,6 +3,7 @@ import data from "./content.json";
 import type { Content, Lesson, Concept, Q } from "./types";
 import { MODES, buildMode, availableModes } from "./modes";
 import { guideIndexView, guideTopicView, guideTestView, bindGuide } from "./guideView";
+import { mapsIndexView, mapExerciseView, bindMaps } from "./mapView";
 import { recordRun, markSeen, stats, resetAll, type MissRecord } from "./store";
 import {
   buildSpec,
@@ -51,6 +52,7 @@ const NAV = [
   { href: "#/", label: "الدروس", key: "home", ic: "book" },
   { href: "#/lexicon", label: "المعجم", key: "lexicon", ic: "library" },
   { href: "#/guide", label: "الدليل", key: "guide", ic: "compass" },
+  { href: "#/maps", label: "الخرائط", key: "maps", ic: "target" },
   { href: "#/report", label: "تقريري", key: "report", ic: "chart" },
 ];
 
@@ -610,6 +612,9 @@ function render() {
             : guideIndexView(),
       );
       break;
+    case "maps":
+      html = screen("maps", seg[1] ? mapExerciseView(seg[1]) : mapsIndexView());
+      break;
     case "report":
       html = reportView();
       break;
@@ -643,6 +648,11 @@ function bind(view: string, seg: string[], needsSearch: boolean) {
         }, 220);
       });
     }
+  }
+
+  if (view === "maps") {
+    bindMaps();
+    return;
   }
 
   if (view === "guide") {

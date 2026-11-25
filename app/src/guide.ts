@@ -26,6 +26,7 @@ export interface GuideTopic {
   pitfalls: string[];
   example: GuideExample;
   exercises: GuideExercise[];
+  visual?: "timeline" | "map" | "bar" | "pie" | "curve";
 }
 
 export const SUBJECTS: { id: GuideSubject; name: string; intro: string }[] = [
@@ -173,6 +174,7 @@ export const TOPICS: GuideTopic[] = [
     title: "الخطوط الزمنية واللوحات الكرونولوجية",
     tagline: "ترتيب، تدريج، وحسابات زمنية.",
     icon: "clock",
+    visual: "timeline",
     intro:
       "الخط الزمني واللوحة الكرونولوجية أداتان لترتيب الأحداث وكشف التسلسل والانقطاع والاستمرارية. المسافات يجب أن تعكس المدد الحقيقية، والحسابات الزمنية شرط لضبط المراحل.",
     steps: [
@@ -345,6 +347,7 @@ export const TOPICS: GuideTopic[] = [
     title: "منهجية التوطين على الخريطة",
     tagline: "المفتاح، المقياس، وتوزيع الظواهر.",
     icon: "compass",
+    visual: "map",
     intro:
       "التوطين على الخريطة ليس حفظ مواقع، بل قراءة توزيع: أين تتركز الظاهرة؟ ولماذا؟ تقرأ الخريطة بالمفتاح والمقياس، وتصف التوزيع، ثم تفسره بالعوامل.",
     steps: [
@@ -402,6 +405,7 @@ export const TOPICS: GuideTopic[] = [
     title: "إنجاز مبيان بالأشرطة أو الأعمدة",
     tagline: "للمقارنة بين مجموعات أو فترات.",
     icon: "chart",
+    visual: "bar",
     intro:
       "مبيان الأعمدة/الأشرطة مناسب للمقارنة بين دول أو جهات أو فئات. يُنجز بمحورين، سلّم منتظم، أعمدة متساوية العرض، ثم يُقرأ بالمقارنة والترتيب.",
     steps: [
@@ -460,6 +464,7 @@ export const TOPICS: GuideTopic[] = [
     title: "إنجاز المبيان الدائري ونصف الدائري",
     tagline: "النسب من مجموع 100%.",
     icon: "target",
+    visual: "pie",
     intro:
       "المبيان الدائري/نصف الدائري يمثل توزيع مجموع (100%) إلى أجزاء. كل نسبة تتحول إلى زاوية: النسبة × 3.6 = الدرجات في الدائرة الكاملة، والنسبة × 1.8 في نصف الدائرة.",
     steps: [
@@ -517,6 +522,7 @@ export const TOPICS: GuideTopic[] = [
     title: "إنجاز المبيان بالمنحنى",
     tagline: "تطور ظاهرة عبر الزمن.",
     icon: "chart",
+    visual: "curve",
     intro:
       "المنحنى يمثل تطور ظاهرة متصلة عبر الزمن (السكان، الإنتاج، الحرارة…). يُنجز بنقاط تُوصل بخط، ويُقرأ بالاتجاه والفترات والانقطاعات.",
     steps: [
