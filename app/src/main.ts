@@ -317,7 +317,7 @@ function playView(lessonId: string, modeId: string): string {
           <button class="btn" data-again>${icon("refresh")} أعد الطور</button>
           <a class="btn ghost" href="#/lesson/${l.id}">${icon("arrow")} رجوع للدرس</a>
         </div>
-        <p class="muted small">هذا مؤشر تدريبي لا علامة نهائية: التنقيط الرسمي 3 + 7 بقلم المصحّح.</p>
+        <p class="muted small">هذا مؤشر تدريبي لا علامة نهائية: التنقيط النهائي بقلم المصحّح وفق معايير النشاط (3+7 لأسئلة الوثائق، ومعايير المقال لموضوع مقالي).</p>
       </div>`,
     );
   }
@@ -455,7 +455,7 @@ function guideView(): string {
   return screen(
     "guide",
     `<h1 class="page">الدليل المنهجي</h1>
-    <p class="lead">ثلاثة مسارات: كيف تقرأ وثيقة، كيف تبني مقالاً، وكيف تُصحَّح إجابتك بثلاث طبقات.</p>
+    <p class="lead">أربعة مسارات للعمل المطلوب في الامتحان — الوثيقة، المقال، المبيان، والخط الزمني — ومسار خامس للتصحيح الذاتي، مستندة إلى دليل «مرشدي».</p>
     ${GUIDE.map(
       (g) => `<section class="panel">
         <h2>${icon(g.icon)} ${esc(g.title)}</h2>
@@ -468,12 +468,12 @@ function guideView(): string {
       </section>`,
     ).join("")}
     <section class="panel">
-      <h2>${icon("chart")} شبكة التنقيط 3 + 7</h2>
+      <h2>${icon("chart")} شبكة تنقيط الاشتغال على الوثائق 3 + 7</h2>
       <div class="tablewrap"><table class="mtable"><thead><tr><th>المحور</th><th>النقط</th><th>المضمون</th></tr></thead>
       <tbody>${RUBRIC_3_7.map(
         (r) => `<tr><th>${esc(r.axis)}</th><td class="c"><b>${r.points}</b></td><td>${esc(r.detail)}</td></tr>`,
       ).join("")}</tbody></table></div>
-      <p class="muted small">التطبيق لا يمنح نقطة نهائية آلية: الاختيار من متعدد مؤشر تشخيصي فقط.</p>
+      <p class="muted small">هذه الشبكة خاصة بأسئلة الوثائق؛ أما المقال فله معاييره (الفهم، الاستثمار، المفاهيم، البنية، اللغة، التركيب). والتطبيق لا يمنح نقطة نهائية آلية: الاختيار من متعدد مؤشر تشخيصي فقط.</p>
     </section>`,
   );
 }
