@@ -1,0 +1,126 @@
+name: Marhadi HG — PWA + APK
+
+on:
+  push:
+    branches: [marhadi-hg, marhadi]
+    paths:
+      - 'app/**'
+      - 'content/**'
+      - 'tools/**'
+      - '.github/workflows/marhadi-hg.yml'
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "نشر الـAPK على Releases (true/false)"
+        required: false
+        default: "true"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: marhadi-hg-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pwa:
+    name: بناء PWA
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      - name: تثبيت التبعيات
+        run: npm ci --no-audit --no-fund
+
+      - name: تحقّق من محتوى الدروس
+        working-directory: .
+        run: python3 tools/validate-lessons.py || true
+
+      - name: بناء الويب (يولّد content.json ثم tsc ثم vite)
+        run: npm run build
+
+      - name: أرشفة dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: marhadi-hg-web
+          path: app/dist
+          if-no-files-found: error
+
+  apk:
+    name: بناء APK
+    needs: pwa
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      - name: تثبيت وبناء الويب
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
+      - name: تهيئة Capacitor
+        run: |
+          npm i -D @capacitor/cli@6 @capacitor/core@6 @capacitor/android@6 --no-audit --no-fund
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.marhadi.hg",
+            "appName": "مرشدي HG",
+            "webDir": "dist",
+            "bundledWebRuntime": false,
+            "android": { "allowMixedContent": false }
+          }
+          EOF
+          npx cap add android
+          npx cap sync android
+
+      - name: بناء APK (debug)
+        working-directory: app/android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs=-Xmx2g
+
+      - name: أرشفة APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: marhadi-hg-apk
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+      - name: نسخ الـAPK باسم واضح
+        run: cp app/android/app/build/outputs/apk/debug/app-debug.apk ./marhadi-hg.apk
+        working-directory: .
+
+      - name: نشر Release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.release == 'true' || github.event_name == 'push' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: marhadi-v${{ github.run_number }}
+          name: "مرشدي HG — نسخة ${{ github.run_number }}"
+          files: marhadi-hg.apk
+          prerelease: true
+          token: ${{ secrets.GITHUB_TOKEN }}

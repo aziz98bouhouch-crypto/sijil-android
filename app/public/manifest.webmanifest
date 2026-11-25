@@ -1,0 +1,16 @@
+{
+  "name": "مرشدي HG — التاريخ والجغرافيا",
+  "short_name": "مرشدي HG",
+  "description": "تعلّم التاريخ والجغرافيا باللعب: أطوار متعددة، دليل منهجي، وأوراق تحرير مرمزة بكود QR.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7fbfa",
+  "theme_color": "#0f766e",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

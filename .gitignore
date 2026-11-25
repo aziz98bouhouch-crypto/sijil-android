@@ -1,0 +1,15 @@
+# تبعيات وبناء
+node_modules/
+app/node_modules/
+app/dist/
+app/src/content.json
+app/android/
+*.log
+
+# نسخ مؤقتة ونُسخ بعيدة
+.remote/
+.DS_Store
+Thumbs.db
+
+# ملفات المصدر الأصلية (كتب ودليل محمية بحقوق النشر — لا تُنشر)
+source/

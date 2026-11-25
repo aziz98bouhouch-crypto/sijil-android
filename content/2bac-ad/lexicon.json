@@ -1,0 +1,2504 @@
+{
+  "meta": {
+    "curriculum": "MA-HG",
+    "level": "الثانية باكالوريا — آداب وعلوم إنسانية",
+    "framework": "الإطار المرجعي 2025 + الكتاب المدرسي 2025–2026",
+    "version": "1.1",
+    "updatedAt": "2026-11-25",
+    "count": 95,
+    "countActive": 83,
+    "countUnmapped": 21,
+    "bySubject": {
+      "history": 52,
+      "geography": 43
+    },
+    "byKind": {
+      "concept": 91,
+      "figure": 4
+    },
+    "misconceptions": 96,
+    "sources": [
+      {
+        "id": "lexicon",
+        "name": "معجم أ. عزيز بهوش — مصطلحات التاريخ والجغرافيا حسب الإطار المرجعي",
+        "path": "source/2bac-lexicon.pdf",
+        "contribution": 54
+      },
+      {
+        "id": "resumes-geo",
+        "name": "ملخصات كتاب المسار في الجغرافيا (المحوران الأول والثاني)",
+        "path": "source/sources_geo_h1/",
+        "contribution": 23
+      },
+      {
+        "id": "resumes-hist",
+        "name": "ملخصات كتاب الجديد في التاريخ (المحوران الأول والثاني)",
+        "path": "source/sources_hist_h1/",
+        "contribution": 27
+      }
+    ],
+    "rules": {
+      "def": "منسوخ أو مصوغ أميناً للمصدر، لا تعريف مخترع",
+      "lessons": "ربط ثنائي الاتجاه: lessons[] هنا و conceptIds[] في الدرس",
+      "figure": "kind=figure لا يدخل اختبار المفاهيم بل سؤال «من؟» وطور اصطد الخطأ",
+      "unmapped": "status=unmapped تعني غير مرتبط بأي من الدروس الـ15؛ تُستبعد من اللعب افتراضياً",
+      "link": "link=core (المفهوم محور الدرس) | evoked (مذكور في خاتمة الدرس أو هامشه) — يمكن للعبة استبعاد evoked في المستوى المبتدئ",
+      "status": "status=proposed (تحتاج وحدة اختيارية) — البطاقات المؤرشفة في lexicon.archive.json"
+    },
+    "countLinked": 94,
+    "countProposed": 1,
+    "countArchived": 9,
+    "archive": "content/2bac-ad/lexicon.archive.json"
+  },
+  "domains": [
+    {
+      "id": "h-world",
+      "subject": "history",
+      "name": "تاريخ العالم",
+      "order": 1
+    },
+    {
+      "id": "h-mashriq",
+      "subject": "history",
+      "name": "تاريخ المشرق العربي",
+      "order": 2
+    },
+    {
+      "id": "h-maghreb",
+      "subject": "history",
+      "name": "تاريخ المغرب الكبير",
+      "order": 3
+    },
+    {
+      "id": "g-world",
+      "subject": "geography",
+      "name": "تدبير المجال العالمي",
+      "order": 1
+    },
+    {
+      "id": "g-blocs",
+      "subject": "geography",
+      "name": "التكتلات الاقتصادية الكبرى",
+      "order": 2
+    },
+    {
+      "id": "g-powers",
+      "subject": "geography",
+      "name": "نماذج من القوى الاقتصادية الكبرى",
+      "order": 3
+    },
+    {
+      "id": "g-dev",
+      "subject": "geography",
+      "name": "نماذج من اقتصادات البلدان النامية",
+      "order": 4
+    }
+  ],
+  "lessons": [
+    {
+      "id": "hist-2bac-ad-t01",
+      "code": "T1",
+      "subject": "history",
+      "order": 1,
+      "unit": "المحور الأول",
+      "title": "العالم غداة الحرب العالمية الأولى"
+    },
+    {
+      "id": "hist-2bac-ad-t02",
+      "code": "T2",
+      "subject": "history",
+      "order": 2,
+      "unit": "المحور الأول",
+      "title": "الثورة الروسية وأزمات الديمقراطيات الليبرالية"
+    },
+    {
+      "id": "hist-2bac-ad-t03",
+      "code": "T3",
+      "subject": "history",
+      "order": 3,
+      "unit": "المحور الأول",
+      "title": "أزمة العالم الرأسمالي الكبرى لسنة 1929"
+    },
+    {
+      "id": "hist-2bac-ad-t04",
+      "code": "T4",
+      "subject": "history",
+      "order": 4,
+      "unit": "المحور الأول",
+      "title": "الحرب العالمية الثانية 1939–1945"
+    },
+    {
+      "id": "hist-2bac-ad-t05",
+      "code": "T5",
+      "subject": "history",
+      "order": 5,
+      "unit": "المحور الثاني",
+      "title": "المغرب تحت نظام الحماية"
+    },
+    {
+      "id": "hist-2bac-ad-t06",
+      "code": "T6",
+      "subject": "history",
+      "order": 6,
+      "unit": "المحور الثاني",
+      "title": "المغرب: الاستغلال الاستعماري في عهد الحماية"
+    },
+    {
+      "id": "hist-2bac-ad-t07",
+      "code": "T7",
+      "subject": "history",
+      "order": 7,
+      "unit": "المحور الثاني",
+      "title": "سقوط الإمبراطورية العثمانية وتوغل الاستعمار بالمشرق العربي"
+    },
+    {
+      "id": "hist-2bac-ad-t08",
+      "code": "T8",
+      "subject": "history",
+      "order": 8,
+      "unit": "المحور الثاني",
+      "title": "القضية الفلسطينية"
+    },
+    {
+      "id": "geo-2bac-ad-g01",
+      "code": "G1",
+      "subject": "geography",
+      "order": 1,
+      "unit": "المحور الأول",
+      "title": "العولمة: المفهوم – الآليات – الفاعلون"
+    },
+    {
+      "id": "geo-2bac-ad-g02",
+      "code": "G2",
+      "subject": "geography",
+      "order": 2,
+      "unit": "المحور الأول",
+      "title": "تنظيم المجال العالمي في إطار العولمة"
+    },
+    {
+      "id": "geo-2bac-ad-g03",
+      "code": "G3",
+      "subject": "geography",
+      "order": 3,
+      "unit": "المحور الأول",
+      "title": "تفاوت النمو بين الشمال والجنوب: المجال المتوسطي نموذجاً"
+    },
+    {
+      "id": "geo-2bac-ad-g04",
+      "code": "G4",
+      "subject": "geography",
+      "order": 4,
+      "unit": "المحور الأول",
+      "title": "المجال العالمي والتحديات الكبرى"
+    },
+    {
+      "id": "geo-2bac-ad-g05",
+      "code": "G5",
+      "subject": "geography",
+      "order": 5,
+      "unit": "المحور الثاني",
+      "title": "الاتحاد الأوروبي نحو اندماج شامل"
+    },
+    {
+      "id": "geo-2bac-ad-g06",
+      "code": "G6",
+      "subject": "geography",
+      "order": 6,
+      "unit": "المحور الثاني",
+      "title": "مجموعة أمريكا الشمالية: التبادل الحر والاندماج الجهوي"
+    },
+    {
+      "id": "geo-2bac-ad-g07",
+      "code": "G7",
+      "subject": "geography",
+      "order": 7,
+      "unit": "المحور الثاني",
+      "title": "دول جنوب شرق آسيا"
+    }
+  ],
+  "concepts": [
+    {
+      "id": "c-peace-conference",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-world",
+      "term": "مؤتمر السلام / الصلح",
+      "def": "عُقد بقصر فرساي بباريس 1919 بإشراف الدول المنتصرة في الحرب العالمية الأولى (إنجلترا وفرنسا و.م.أ)، في غياب الدول المنهزمة ودون استدعاء روسيا، لتنظيم الوضع الدولي وتحقيق السلم العالمي.",
+      "when": "1919",
+      "where": "باريس",
+      "actors": [
+        "بريطانيا",
+        "فرنسا",
+        "الولايات المتحدة"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t01"
+      ],
+      "misconceptions": [
+        "m-peace-conference-unanimous"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-versailles",
+      "kind": "concept",
+      "type": "معاهدة",
+      "domainId": "h-world",
+      "term": "معاهدة فرساي",
+      "def": "فرضتها الدول المنتصرة على ألمانيا في 28 يونيو 1919 في إطار مؤتمر السلام، وتضمنت اقتطاعات ترابية وغرامة مالية وعقوبات عسكرية.",
+      "when": "28 يونيو 1919",
+      "where": "فرساي",
+      "actors": [
+        "ألمانيا",
+        "فرنسا",
+        "بريطانيا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t01"
+      ],
+      "misconceptions": [
+        "m-versailles-negotiated"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-peace-treaties",
+      "kind": "concept",
+      "type": "معاهدات",
+      "domainId": "h-world",
+      "term": "معاهدات الصلح",
+      "def": "المعاهدات التي وُقعت بعد الحرب العالمية الأولى ما بين 1919 و1920 لتنظيم الوضع على الصعيد الأوربي، وهي فرساي وسان جرمان وتريانون ونويي وسيفر.",
+      "when": "1919–1920",
+      "where": "أوروبا",
+      "lessons": [
+        "hist-2bac-ad-t01"
+      ],
+      "misconceptions": [
+        "m-peace-treaties-one"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-soviet-socialism",
+      "kind": "concept",
+      "type": "نظام",
+      "domainId": "h-world",
+      "term": "النظام الاشتراكي السوفياتي",
+      "def": "أقامه لينين بعد القضاء على النظام القيصري وعزّزه ستالين في الاتحاد السوفياتي، وهو نظام سياسي واقتصادي واجتماعي يقوم على الملكية الجماعية لوسائل الإنتاج الأساسية من أجل تلبية حاجات المجتمع على الوجه الأمثل.",
+      "when": "1917–1991",
+      "where": "روسيا / الاتحاد السوفياتي",
+      "actors": [
+        "لينين",
+        "ستالين"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-soviet-socialism-stalin"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "f-lenin",
+      "kind": "figure",
+      "type": "علم",
+      "domainId": "h-world",
+      "term": "لينين",
+      "def": "تبنّى الفكر الماركسي، وهو زعيم البلاشفة وقائد الثورة البولشفية في 1917.",
+      "when": "1870–1924",
+      "where": "روسيا",
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-lenin-stalin"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "f-stalin",
+      "kind": "figure",
+      "type": "علم",
+      "domainId": "h-world",
+      "term": "ستالين",
+      "def": "شارك في الثورة الروسية 1917، تولّى الحكم بعد لينين ونهج سياسة التخطيط.",
+      "when": "1878–1953",
+      "where": "الاتحاد السوفياتي",
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-stalin-1917-leader"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-nep",
+      "kind": "concept",
+      "type": "سياسة",
+      "domainId": "h-world",
+      "term": "السياسة الاقتصادية الجديدة (NEP)",
+      "def": "السياسة التي نهجها لينين سنة 1921 لتجاوز المشاكل التي واجهت الثورة الروسية، وكانت تهدف إلى تحسين الأوضاع الاقتصادية.",
+      "when": "1921",
+      "where": "روسيا السوفياتية",
+      "actors": [
+        "لينين"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-nep-stalin"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-five-year-plans",
+      "kind": "concept",
+      "type": "سياسة",
+      "domainId": "h-world",
+      "term": "سياسة التخطيط",
+      "def": "نهجها ستالين منذ 1928، وتقوم على المخططات الخماسية لتقوية الاقتصاد وتدارك تأخر الاتحاد السوفياتي.",
+      "when": "منذ 1928",
+      "where": "الاتحاد السوفياتي",
+      "actors": [
+        "ستالين"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-planning-lenin"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-liberal-democracies",
+      "kind": "concept",
+      "type": "نظام",
+      "domainId": "h-world",
+      "term": "الديمقراطيات الليبرالية",
+      "def": "وتسمى الديمقراطيات الدستورية، وهي نظام تكون فيه السلطة السياسية للحكومة مقيّدة بدستور يحمي حقوق وحريات الأفراد؛ والمقصود هنا الدول الأوربية التي تأثرت أنظمتها الديمقراطية عقب الحرب العالمية الأولى.",
+      "when": "ما بين الحربين",
+      "where": "أوروبا الغربية",
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-liberal-authoritarian"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-crisis-1929",
+      "kind": "concept",
+      "type": "أزمة",
+      "domainId": "h-world",
+      "term": "الأزمة الاقتصادية الكبرى",
+      "def": "انطلقت من بورصة وول ستريت بنيويورك بالولايات المتحدة الأمريكية سنة 1929 بسبب انخفاض مفاجئ لأسعار الأسهم، وهزّت باقي الأنظمة الرأسمالية في العالم ككل بسبب ارتباطها بالولايات المتحدة الأمريكية.",
+      "when": "1929",
+      "where": "الولايات المتحدة ثم العالم الرأسمالي",
+      "lessons": [
+        "hist-2bac-ad-t03"
+      ],
+      "misconceptions": [
+        "m-1929-europe-origin"
+      ],
+      "source": "المعجم، ص1"
+    },
+    {
+      "id": "c-new-deal",
+      "kind": "concept",
+      "type": "سياسة",
+      "domainId": "h-world",
+      "term": "الخطة الاقتصادية الجديدة (النيوديل)",
+      "def": "برنامج إصلاحي شامل طُبق ما بين 1933 و1937، وضعه الرئيس الأمريكي روزفلت لإصلاح الاختلالات المترتبة عن أزمة 1929، ويقوم على تدخل الدولة لتوجيه الاقتصاد.",
+      "when": "1933–1937",
+      "where": "الولايات المتحدة",
+      "actors": [
+        "روزفلت"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t03"
+      ],
+      "misconceptions": [
+        "m-newdeal-socialist"
+      ],
+      "source": "المعجم، ص2"
+    },
+    {
+      "id": "c-mandate",
+      "kind": "concept",
+      "type": "نظام",
+      "domainId": "h-mashriq",
+      "term": "الانتداب",
+      "def": "من أشكال الاستعمار، وهو استعمار مباشر يرتكز على قيام دولة قوية بتقديم توجيه ومساعدة لدولة ناشئة (لتغطية وتبرير استغلالها)، وطُبّق على الأراضي المنتزعة من الدولة العثمانية بالمشرق العربي (سوريا، العراق، فلسطين).",
+      "when": "بعد 1920",
+      "where": "المشرق العربي",
+      "lessons": [
+        "hist-2bac-ad-t07"
+      ],
+      "misconceptions": [
+        "m-mandate-independence"
+      ],
+      "source": "المعجم، ص2"
+    },
+    {
+      "id": "c-zionism",
+      "kind": "concept",
+      "type": "حركة",
+      "domainId": "h-mashriq",
+      "term": "الحركة الصهيونية",
+      "def": "حركة سياسية ذات إيديولوجية استعمارية عنصرية استهدفت إنشاء وطن قومي لليهود في فلسطين، انبثقت عن مؤتمر بال بسويسرا سنة 1897.",
+      "when": "1897",
+      "where": "بال بسويسرا",
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-zionism-religious-only"
+      ],
+      "source": "المعجم، ص2"
+    },
+    {
+      "id": "f-herzl",
+      "kind": "figure",
+      "type": "علم",
+      "domainId": "h-mashriq",
+      "term": "تيودور هرتزل",
+      "def": "سياسي ومفكر يهودي، مؤسس الحركة الصهيونية بعد مؤتمر بال (بازل بسويسرا سنة 1897).",
+      "when": "1860–1904",
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-herzl-balfour"
+      ],
+      "source": "المعجم، ص2"
+    },
+    {
+      "id": "c-palestinian-resistance",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "h-mashriq",
+      "term": "المقاومة الفلسطينية",
+      "def": "مصطلح يشير إلى نضال الشعب الفلسطيني المسلح والسلمي الذي برز منذ وضع فلسطين تحت الانتداب البريطاني، وقد تحوّل مساره بعد خروج بريطانيا وإعلان دولة إسرائيل سنة 1948.",
+      "when": "منذ 1920",
+      "where": "فلسطين",
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-resistance-1948-start"
+      ],
+      "source": "المعجم، ص3"
+    },
+    {
+      "id": "f-arafat",
+      "kind": "figure",
+      "type": "علم",
+      "domainId": "h-mashriq",
+      "term": "ياسر عرفات",
+      "def": "الزعيم التاريخي للشعب الفلسطيني وقائد منظمة التحرير، وأصبح أول رئيس للسلطة الوطنية الفلسطينية.",
+      "when": "1929–2004",
+      "where": "فلسطين",
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-arafat-state-founder"
+      ],
+      "source": "المعجم، ص3"
+    },
+    {
+      "id": "c-independence-movements",
+      "kind": "concept",
+      "type": "حركات",
+      "domainId": "h-mashriq",
+      "term": "الحركات الاستقلالية",
+      "def": "حركات نضال خاضتها دول المشرق والمغرب العربي خلال فترة الاحتلال الأوربي لهذه الدول، وقد تنوّعت من النضال السلمي السياسي إلى النضال المسلح.",
+      "when": "القرن 20",
+      "where": "المشرق والمغرب العربي",
+      "lessons": [
+        "hist-2bac-ad-t07"
+      ],
+      "note": "T7 يعالج ردود فعل السكان بالمشرق على الانتداب",
+      "misconceptions": [
+        "m-independence-armed-only"
+      ],
+      "source": "المعجم، ص3",
+      "link": "core"
+    },
+    {
+      "id": "c-arab-israeli-conflict",
+      "kind": "concept",
+      "type": "صراع",
+      "domainId": "h-mashriq",
+      "term": "الصراع العربي الإسرائيلي",
+      "def": "صراع عسكري وسياسي خاضته الدول العربية ضد إسرائيل منذ نشأتها سنة 1948، وتعتبر النكبة الأولى سنة 1948 والنكبة الثانية سنة 1967 أحد أوجه هذا الصراع.",
+      "when": "منذ 1948",
+      "where": "فلسطين والمنطقة العربية",
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-conflict-1967-start"
+      ],
+      "source": "المعجم، ص3"
+    },
+    {
+      "id": "c-protectorate-treaty",
+      "kind": "concept",
+      "type": "معاهدة",
+      "domainId": "h-maghreb",
+      "term": "عقد الحماية",
+      "def": "أو معاهدة فاس أو معاهدة 30 مارس: تم بمقتضاه فرض الحماية على المغرب ما بين 1912 و1956، وقّعه عن المغرب السلطان المولى عبد الحفيظ وعن فرنسا السفير رينيو بفاس في 30 مارس 1912، ويتكون من تسع فصول.",
+      "when": "30 مارس 1912",
+      "where": "فاس",
+      "actors": [
+        "المولى عبد الحفيظ",
+        "رينيو"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t05"
+      ],
+      "misconceptions": [
+        "m-protectorate-annexation"
+      ],
+      "source": "المعجم، ص3"
+    },
+    {
+      "id": "c-protectorate-regime",
+      "kind": "concept",
+      "type": "نظام",
+      "domainId": "h-maghreb",
+      "term": "نظام الحماية",
+      "def": "نوع من الاستعمار غير المباشر، وهو أن يحتفظ البلد المحمي بمؤسساته مع إشراف بسيط لقوة أوربية، وقد فُرض على المغرب سنة 1912.",
+      "when": "1912–1956",
+      "where": "المغرب",
+      "lessons": [
+        "hist-2bac-ad-t05"
+      ],
+      "misconceptions": [
+        "m-protectorate-direct-rule"
+      ],
+      "source": "المعجم، ص3"
+    },
+    {
+      "id": "c-colonial-exploitation",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "h-maghreb",
+      "term": "الاستغلال الاستعماري",
+      "def": "مصطلح يُلخّص ما تعرّض له المغرب من نهب واستنزاف لثرواته الطبيعية والبشرية لمصلحة الرأسمال الأجنبي في ظل الحماية (1912–1956)، وكانت له عدة مظاهر وانعكاسات سلبية على المغاربة.",
+      "when": "1912–1956",
+      "where": "المغرب",
+      "lessons": [
+        "hist-2bac-ad-t06"
+      ],
+      "misconceptions": [
+        "m-exploitation-only-mining"
+      ],
+      "source": "المعجم، ص3"
+    },
+    {
+      "id": "c-national-movement",
+      "kind": "concept",
+      "type": "تيار",
+      "domainId": "h-maghreb",
+      "term": "الحركة الوطنية",
+      "def": "تيار شعبي ظهر خلال الثلاثينيات من القرن 20 اعتمد المقاومة السياسية على يد نخبة مثقفة، وعمل على تعبئة الشعب لمناهضة المستعمر وتحقيق الاستقلال.",
+      "when": "الثلاثينيات",
+      "where": "المغرب",
+      "lessons": [
+        "hist-2bac-ad-t06"
+      ],
+      "note": "خاتمة T6 تنص على دخول المغرب مسلسل المطالبة بالإصلاحات والاستقلال، والحركة الوطنية هي الفاعل",
+      "misconceptions": [
+        "m-national-movement-armed"
+      ],
+      "source": "المعجم، ص3",
+      "link": "evoked"
+    },
+    {
+      "id": "c-reform-demands",
+      "kind": "concept",
+      "type": "مطلب",
+      "domainId": "h-maghreb",
+      "term": "المطالبة بالإصلاحات",
+      "def": "مطالب معتدلة تقدّمت بها الحركة الوطنية سنة 1934، تطالب فيها سلطات الحماية بإدخال إصلاحات سياسية وإدارية واقتصادية واجتماعية، والالتزام بروح معاهدة فاس.",
+      "when": "1934",
+      "where": "المغرب",
+      "lessons": [
+        "hist-2bac-ad-t06"
+      ],
+      "note": "مطالب 1934 مذكورة ضمناً في خاتمة T6",
+      "misconceptions": [
+        "m-reforms-1934-independence"
+      ],
+      "source": "المعجم، ص3",
+      "link": "evoked"
+    },
+    {
+      "id": "c-independence-manifesto",
+      "kind": "concept",
+      "type": "وثيقة",
+      "domainId": "h-maghreb",
+      "term": "المطالبة بالاستقلال",
+      "def": "مطلب تبنّته الحركة الوطنية خلال الأربعينيات أملته ظروف داخلية وخارجية، وتجسّد في وثيقة المطالبة بالاستقلال التي حُرّرت بفاس وقُدّمت في 11 يناير 1944 إلى السلطان والإقامة العامة، ويطالب فيها الوطنيون بمنح المغرب استقلاله.",
+      "when": "11 يناير 1944",
+      "where": "فاس",
+      "lessons": [
+        "hist-2bac-ad-t06"
+      ],
+      "note": "وثيقة 1944 مذكورة ضمناً في خاتمة T6",
+      "misconceptions": [
+        "m-manifesto-1956"
+      ],
+      "source": "المعجم، ص3",
+      "link": "evoked"
+    },
+    {
+      "id": "c-territorial-unity",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "h-maghreb",
+      "term": "استكمال الوحدة الترابية",
+      "def": "عملية استكمال استرجاع المناطق المغربية المحتلة إلى السيادة المغربية، عن طريق المقاومة والمفاوضات منذ 1956 إلى اليوم.",
+      "when": "منذ 1956",
+      "where": "المغرب",
+      "lessons": [],
+      "status": "proposed",
+      "note": "موضوع ما بعد 1956؛ لا يدخل في أي من الدروس الـ15، لكنه موضوع وطني يتكرر في الامتحانات والمحيط ⇒ يستحق وحدة اختيارية لا حذفاً.",
+      "misconceptions": [
+        "m-unity-1956-done"
+      ],
+      "source": "المعجم، ص3",
+      "link": "future",
+      "proposedLesson": {
+        "id": "hist-2bac-ad-n01",
+        "title": "المغرب: من الاستقلال إلى استكمال الوحدة الترابية",
+        "module": "وحدة اختيارية خارج الـ15"
+      }
+    },
+    {
+      "id": "c-league-of-nations",
+      "kind": "concept",
+      "type": "مؤسسة",
+      "domainId": "h-world",
+      "term": "عصبة الأمم",
+      "def": "منظمة تأسست سنة 1919 باقتراح من الرئيس الأمريكي ولسون، انطلاقاً من مبادئه الأربعة عشر، من أجل تنظيم العلاقات الدولية وضمان الاستقرار والسلم العالميين.",
+      "when": "1919",
+      "where": "جنيف",
+      "actors": [
+        "ولسون"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t01"
+      ],
+      "misconceptions": [
+        "m-league-united-nations"
+      ],
+      "source": "ملخص T1، ص3"
+    },
+    {
+      "id": "c-fourteen-points",
+      "kind": "concept",
+      "type": "وثيقة",
+      "domainId": "h-world",
+      "term": "المبادئ الأربعة عشر",
+      "def": "مبادئ أعلنها الرئيس الأمريكي ولسون وأصبحت أساساً لمؤتمر السلام ولميثاق عصبة الأمم.",
+      "when": "1918",
+      "actors": [
+        "ولسون"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t01"
+      ],
+      "misconceptions": [
+        "m-fourteen-points-treaty"
+      ],
+      "source": "ملخص T1، ص3"
+    },
+    {
+      "id": "c-bolsheviks",
+      "kind": "concept",
+      "type": "حزب",
+      "domainId": "h-world",
+      "term": "البلاشفة",
+      "def": "الحزب الذي قاد ثورة أكتوبر 1917 المسلحة، واحتل مؤسسات الدولة وحاصر المجلس التشريعي ومقر الحكومة المؤقتة، وأنشأ حكومة بلشفية شرعت في بناء النظام الاشتراكي.",
+      "when": "1917",
+      "where": "روسيا",
+      "actors": [
+        "لينين"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-bolsheviks-february"
+      ],
+      "source": "ملخص T2، ص4"
+    },
+    {
+      "id": "c-war-communism",
+      "kind": "concept",
+      "type": "سياسة",
+      "domainId": "h-world",
+      "term": "شيوعية الحرب",
+      "def": "سياسة اقتصادية نهجها لينين في مرحلة أولى لمواجهة الحرب الأهلية (1918–1921) والأوضاع الاقتصادية والاجتماعية المترتبة عنها، قبل أن ينتقل إلى السياسة الاقتصادية الجديدة.",
+      "when": "1918–1921",
+      "where": "روسيا السوفياتية",
+      "actors": [
+        "لينين"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-war-communism-after-nep"
+      ],
+      "source": "ملخص T2، ص4"
+    },
+    {
+      "id": "c-sovkhoz-kolkhoz",
+      "kind": "concept",
+      "type": "مؤسسة",
+      "domainId": "h-world",
+      "term": "السفوخوزات والكلوخوزات",
+      "def": "تعاونيات فلاحية اعتمدها ستالين لتطوير الفلاحة في إطار بناء النظام الاشتراكي السوفياتي.",
+      "when": "منذ 1928",
+      "where": "الاتحاد السوفياتي",
+      "actors": [
+        "ستالين"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t02"
+      ],
+      "misconceptions": [
+        "m-kolkhoz-private"
+      ],
+      "source": "ملخص T2، ص4"
+    },
+    {
+      "id": "c-black-thursday",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-world",
+      "term": "الخميس الأسود",
+      "def": "يوم 24 أكتوبر 1929، تهافت فيه المضاربون على بورصة وول ستريت للتخلص من الأسهم فانهارت أسعارها بشكل كبير، لتنتقل الأزمة بعدها إلى القطاع البنكي ثم إلى باقي القطاعات.",
+      "when": "24 أكتوبر 1929",
+      "where": "وول ستريت، نيويورك",
+      "lessons": [
+        "hist-2bac-ad-t03"
+      ],
+      "misconceptions": [
+        "m-blackthursday-1930"
+      ],
+      "source": "ملخص T3، ص5"
+    },
+    {
+      "id": "c-directed-capitalism",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "h-world",
+      "term": "الرأسمالية الموجهة",
+      "def": "تحوّل الرأسمالية الأمريكية من رأسمالية مطلقة إلى رأسمالية موجهة بتزايد تدخل الدولة في الاقتصاد لإعادة التوازن إلى الاستثمار والإنتاج والاستهلاك، وذلك في حصيلة تطبيق الخطة الجديدة.",
+      "when": "بعد 1933",
+      "where": "الولايات المتحدة",
+      "actors": [
+        "روزفلت"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t03"
+      ],
+      "misconceptions": [
+        "m-directed-capitalism-socialism"
+      ],
+      "source": "ملخص T3، ص5"
+    },
+    {
+      "id": "c-lebensraum",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "h-world",
+      "term": "المجال الحيوي",
+      "def": "مبدأ توسعي للأنظمة الديكتاتورية يبرّر ضمّ أراضي الجيران لتأمين الحدود وتوسيع المجال، وهو الإطار الذي وقع فيه غزو هتلر لبولونيا في فاتح شتنبر 1939.",
+      "when": "1939",
+      "where": "أوروبا الشرقية",
+      "actors": [
+        "هتلر"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t04"
+      ],
+      "misconceptions": [
+        "m-lebensraum-defensive"
+      ],
+      "source": "ملخص T4، ص6"
+    },
+    {
+      "id": "c-axis-powers",
+      "kind": "concept",
+      "type": "تحالف",
+      "domainId": "h-world",
+      "term": "دول المحور",
+      "def": "ألمانيا النازية وإيطاليا الفاشية واليابان، تكوّن محورها الثلاثي سنة 1937، وخاضت الحرب العالمية الثانية ضد دول الحلفاء (فرنسا، بريطانيا، الولايات المتحدة، الاتحاد السوفياتي).",
+      "when": "1937–1945",
+      "actors": [
+        "ألمانيا",
+        "إيطاليا",
+        "اليابان"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t04"
+      ],
+      "misconceptions": [
+        "m-axis-includes-ussr"
+      ],
+      "source": "ملخص T4، ص6"
+    },
+    {
+      "id": "c-stalingrad",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-world",
+      "term": "معركة ستالينغراد",
+      "def": "معركة انتصر فيها الجيش السوفياتي في أواخر 1942، وشرع بعدها في تحرير أراضيه من النفوذ الألماني والاستيلاء على بلدان أوروبا الشرقية؛ وتعتبر نقطة تحوّل الحرب لصالح الحلفاء.",
+      "when": "أواخر 1942",
+      "where": "ستالينغراد",
+      "actors": [
+        "الاتحاد السوفياتي",
+        "ألمانيا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t04"
+      ],
+      "misconceptions": [
+        "m-stalingrad-1944"
+      ],
+      "source": "ملخص T4، ص6"
+    },
+    {
+      "id": "c-normandy",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-world",
+      "term": "إنزال نورماندي",
+      "def": "إنزال الحلفاء في منطقة نورماندي سنة 1944، مكّنهم من تحرير فرنسا وبلجيكا وهولندا واللوكسمبورغ.",
+      "when": "1944",
+      "where": "نورماندي، فرنسا",
+      "actors": [
+        "الحلفاء"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t04"
+      ],
+      "misconceptions": [
+        "m-normandy-1942"
+      ],
+      "source": "ملخص T4، ص6"
+    },
+    {
+      "id": "c-resident-general",
+      "kind": "concept",
+      "type": "وظيفة",
+      "domainId": "h-maghreb",
+      "term": "المقيم العام",
+      "def": "ممثل فرنسا في المغرب المحمي، كان يدير الشؤون الهامة ويشرّع القوانين ويصادق عليها، بينما اكتفى السلطان المغربي بالسلطة الدينية وبالتوقيع على القوانين؛ وأولهم وأهمهم ليوطي.",
+      "when": "1912–1956",
+      "where": "المغرب",
+      "actors": [
+        "ليوطي"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t05"
+      ],
+      "misconceptions": [
+        "m-resident-sultan-power"
+      ],
+      "source": "ملخص T5، ص3"
+    },
+    {
+      "id": "c-khalifian-zone",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "h-maghreb",
+      "term": "المنطقة الخليفية",
+      "def": "منطقة النفوذ الإسباني في شمال المغرب وجنوبه، احتكر فيها المندوب السامي الإسباني السلطة الفعلية تاركاً سلطة شكلية لخليفة السلطان، بينما أشرف القنصل والضابط العسكري الإسبانيان على المدن والبوادي.",
+      "when": "1912–1956",
+      "where": "شمال المغرب وجنوبه",
+      "lessons": [
+        "hist-2bac-ad-t05"
+      ],
+      "misconceptions": [
+        "m-khalifian-real-power"
+      ],
+      "source": "ملخص T5، ص3"
+    },
+    {
+      "id": "c-algeciras-conference",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-maghreb",
+      "term": "مؤتمر الجزيرة الخضراء",
+      "def": "مؤتمر سنة 1906 حصلت بموجبه فرنسا على امتيازات متعددة بالمغرب، بعد اشتداد التنافس الإمبريالي حوله وحسمها له عبر اتفاقيات ثنائية انفردت بموجبها بالمغرب.",
+      "when": "1906",
+      "where": "الجزيرة الخضراء",
+      "actors": [
+        "فرنسا",
+        "ألمانيا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t05"
+      ],
+      "misconceptions": [
+        "m-algeciras-1912"
+      ],
+      "source": "ملخص T5، ص3"
+    },
+    {
+      "id": "c-agadir-crisis",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-maghreb",
+      "term": "أزمة أكادير",
+      "def": "أزمة سنة 1911 تنازلت بعدها ألمانيا لفرنسا عن جزء من الكونغو، في إطار حسم التنافس الإمبريالي حول المغرب.",
+      "when": "1911",
+      "where": "أكادير",
+      "actors": [
+        "فرنسا",
+        "ألمانيا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t05"
+      ],
+      "misconceptions": [
+        "m-agadir-independence"
+      ],
+      "source": "ملخص T5، ص3"
+    },
+    {
+      "id": "c-colonial-settlement",
+      "kind": "concept",
+      "type": "سياسة",
+      "domainId": "h-maghreb",
+      "term": "الاستيطان الفلاحي",
+      "def": "توطين المعمرين على أجود الأراضي الفلاحية المغربية في شكلين (الاستيطان الرسمي والاستيطان الخاص)، بعد إصدار ظهائر التحفيظ العقاري وتشجيع الزراعات التسويقية.",
+      "when": "1912–1956",
+      "where": "المغرب",
+      "lessons": [
+        "hist-2bac-ad-t06"
+      ],
+      "misconceptions": [
+        "m-settlement-desert-land"
+      ],
+      "source": "ملخص T6، ص4"
+    },
+    {
+      "id": "c-land-registration-dahir",
+      "kind": "concept",
+      "type": "وثيقة",
+      "domainId": "h-maghreb",
+      "term": "ظهير التحفيظ العقاري",
+      "def": "إجراء قانوني أصدرته سلطات الحماية سهّل انتقال الأراضي إلى المعمرين واستحواذهم على أجود الأراضي الفلاحية.",
+      "when": "1912–1956",
+      "where": "المغرب",
+      "lessons": [
+        "hist-2bac-ad-t06"
+      ],
+      "misconceptions": [
+        "m-dahir-protects-peasants"
+      ],
+      "source": "ملخص T6، ص4"
+    },
+    {
+      "id": "c-sykes-picot",
+      "kind": "concept",
+      "type": "معاهدة",
+      "domainId": "h-mashriq",
+      "term": "معاهدة سايكس بيكو",
+      "def": "معاهدة سرية وقعتها فرنسا وإنجلترا وروسيا في ماي 1916، تم بموجبها تقسيم منطقة المشرق العربي بين الدول الثلاث.",
+      "when": "ماي 1916",
+      "where": "المشرق العربي",
+      "actors": [
+        "فرنسا",
+        "بريطانيا",
+        "روسيا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t07"
+      ],
+      "misconceptions": [
+        "m-sykespicot-public"
+      ],
+      "source": "ملخص T7، ص5"
+    },
+    {
+      "id": "c-san-remo",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-mashriq",
+      "term": "مؤتمر سان ريمو",
+      "def": "مؤتمر 1920 ثبّت تقسيم المشرق العربي، فخرجت منطقة الشام والعراق من التبعية للإمبراطورية العثمانية ووُضعت تحت نفوذ إنجلترا وفرنسا.",
+      "when": "1920",
+      "where": "سان ريمو",
+      "actors": [
+        "بريطانيا",
+        "فرنسا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t07"
+      ],
+      "misconceptions": [
+        "m-sanremo-independence"
+      ],
+      "source": "ملخص T7، ص5"
+    },
+    {
+      "id": "c-arab-revolt",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-mashriq",
+      "term": "الثورة العربية الكبرى",
+      "def": "ثورة سنة 1916 قادها شريف مكة من بلاد الحجاز بدعم من الإنجليز، ولعبت دوراً كبيراً في تقلّص الوجود العثماني بمنطقة الشام.",
+      "when": "1916",
+      "where": "الحجاز والشام",
+      "actors": [
+        "شريف مكة",
+        "بريطانيا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t07"
+      ],
+      "misconceptions": [
+        "m-arabrevolt-against-britain"
+      ],
+      "source": "ملخص T7، ص5"
+    },
+    {
+      "id": "c-maisalun",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-mashriq",
+      "term": "معركة ميسلون",
+      "def": "معركة سنة 1920 واجه فيها السوريون قوات الاحتلال الفرنسي وكبّدوها خسائر فادحة، بعد بيان مارس 1920 الذي أعلنوا فيه استقلال سوريا.",
+      "when": "1920",
+      "where": "ميسلون، سوريا",
+      "actors": [
+        "سوريا",
+        "فرنسا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t07"
+      ],
+      "misconceptions": [
+        "m-maisalun-ottoman"
+      ],
+      "source": "ملخص T7، ص5"
+    },
+    {
+      "id": "c-balfour",
+      "kind": "concept",
+      "type": "وثيقة",
+      "domainId": "h-mashriq",
+      "term": "وعد بلفور",
+      "def": "وعد بريطاني في 2 نونبر 1917 بمنح اليهود أرض فلسطين لإقامة وطن قومي لهم عليها، حصل عليه الصهاينة باستغلال ظروف الحرب العالمية الأولى.",
+      "when": "2 نونبر 1917",
+      "where": "بريطانيا",
+      "actors": [
+        "بلفور"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-balfour-un"
+      ],
+      "source": "ملخص T8، ص6"
+    },
+    {
+      "id": "c-first-zionist-congress",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-mashriq",
+      "term": "المؤتمر الصهيوني الأول",
+      "def": "مؤتمر عُقد بمدينة بال بسويسرا (29–31 غشت 1897)، أقرّ أن هدف الصهيونية إقامة وطن للشعب اليهودي في فلسطين يضمنه القانون العام، وتوطين فلسطين باليهود المزارعين والحرفيين والمهنيين.",
+      "when": "29–31 غشت 1897",
+      "where": "بال، سويسرا",
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-basel-1917"
+      ],
+      "source": "ملخص T8، ص6"
+    },
+    {
+      "id": "c-mandate-charter",
+      "kind": "concept",
+      "type": "وثيقة",
+      "domainId": "h-mashriq",
+      "term": "صك الانتداب البريطاني",
+      "def": "وثيقة أصدرتها عصبة الأمم في 24 يوليوز 1922 بفرض الانتداب البريطاني على فلسطين، وشرعت بريطانيا بعدها في التمهيد لإقامة «الوطن اليهودي» عبر قوانين تسهّل انتقال الأراضي العربية لليهود وحركة الهجرة.",
+      "when": "24 يوليوز 1922",
+      "where": "فلسطين",
+      "actors": [
+        "عصبة الأمم",
+        "بريطانيا"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-mandate-charter-1947"
+      ],
+      "source": "ملخص T8، ص6"
+    },
+    {
+      "id": "c-partition-resolution-1947",
+      "kind": "concept",
+      "type": "قرار",
+      "domainId": "h-mashriq",
+      "term": "قرار التقسيم",
+      "def": "قرار الجمعية العامة للأمم المتحدة في 29 نونبر 1947 بتقسيم فلسطين إلى دولة عربية وأخرى يهودية، بدعم أمريكي للمشروع الصهيوني؛ وأعلن الصهاينة بعد انسحاب إنجلترا قيام «دولة إسرائيل» في 14 ماي 1948.",
+      "when": "29 نونبر 1947",
+      "where": "الأمم المتحدة",
+      "actors": [
+        "الأمم المتحدة",
+        "الولايات المتحدة"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-partition-1948"
+      ],
+      "source": "ملخص T8، ص6"
+    },
+    {
+      "id": "c-buraq-revolt",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-mashriq",
+      "term": "ثورة البراق",
+      "def": "ثورة اندلعت لحماية حائط البراق الذي حاول الصهاينة الاستيلاء عليه، وانتشرت لتعمّ كافة المدن الفلسطينية، وواجهتها سلطات الانتداب البريطاني بالقوة العسكرية.",
+      "when": "1929",
+      "where": "فلسطين",
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-buraq-peaceful"
+      ],
+      "source": "ملخص T8، ص6"
+    },
+    {
+      "id": "c-great-palestinian-revolt",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "h-mashriq",
+      "term": "الثورة الفلسطينية الكبرى",
+      "def": "ثورة اندلعت سنة 1936 في شكل إضرابات ومظاهرات وعمليات مسلحة لوضع حد لإقامة المؤسسات الصهيونية بفلسطين، ومن أبرز قادتها محمد أمين الحسيني، وواجهتها سلطات الانتداب بقوة.",
+      "when": "1936",
+      "where": "فلسطين",
+      "actors": [
+        "محمد أمين الحسيني"
+      ],
+      "lessons": [
+        "hist-2bac-ad-t08"
+      ],
+      "misconceptions": [
+        "m-greatrevolt-1948"
+      ],
+      "source": "ملخص T8، ص6"
+    },
+    {
+      "id": "c-globalization",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-world",
+      "term": "العولمة",
+      "def": "ظاهرة كونية شمولية تندمج في إطارها أسواق العالم على مستوى التجارة والاستثمارات المباشرة والقوى العاملة والثقافات والتكنولوجيا، في إطار النظام الرأسمالي؛ ظهرت في ثمانينيات القرن الماضي بالولايات المتحدة الأمريكية كمرحلة من مراحل تطور الرأسمالية الليبرالية.",
+      "when": "منذ الثمانينيات، واتسعت بعد 1991",
+      "where": "العالم",
+      "actors": [
+        "الولايات المتحدة",
+        "الشركات المتعددة الجنسية",
+        "المنظمات الدولية"
+      ],
+      "lessons": [
+        "geo-2bac-ad-g01"
+      ],
+      "misconceptions": [
+        "m-globalization-old",
+        "m-globalization-benefits-all"
+      ],
+      "source": "ملخص G1، ص3"
+    },
+    {
+      "id": "c-americanization",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-world",
+      "term": "الأمركة",
+      "def": "اقتران مفهوم العولمة بالهيمنة الأمريكية، لكون الولايات المتحدة الأمريكية أبرز الدول الفاعلة في هذه الظاهرة.",
+      "when": "منذ 1991",
+      "where": "العالم",
+      "actors": [
+        "الولايات المتحدة"
+      ],
+      "lessons": [
+        "geo-2bac-ad-g01"
+      ],
+      "misconceptions": [
+        "m-americanization-europe"
+      ],
+      "source": "ملخص G1، ص3"
+    },
+    {
+      "id": "c-triad",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-world",
+      "term": "الثالوث العالمي",
+      "def": "الدول الثلاث المتحكمة في العولمة والمسيطرة على الاقتصاد العالمي: الولايات المتحدة الأمريكية والاتحاد الأوروبي واليابان، وهي لا تضم سوى نسبة قليلة من سكان العالم لكنها تحتكر حصة كبيرة من الإنتاج والمبادلات.",
+      "where": "أمريكا الشمالية، أوروبا الغربية، اليابان",
+      "lessons": [
+        "geo-2bac-ad-g01",
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-triad-g20"
+      ],
+      "source": "ملخص G1، ص3 وملخص G2، ص4"
+    },
+    {
+      "id": "c-center",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-world",
+      "term": "المركز",
+      "def": "دول الشمال المتقدمة التي تحتكر الثروات الاقتصادية وتمتلك سلطة القرار في المجال العالمي.",
+      "where": "دول الشمال",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-center-geographic"
+      ],
+      "source": "ملخص G2، ص4"
+    },
+    {
+      "id": "c-periphery",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-world",
+      "term": "الهامش",
+      "def": "دول الجنوب النامية التي تعاني من التبعية على جميع المستويات في المجال العالمي.",
+      "where": "دول الجنوب",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-periphery-no-assets"
+      ],
+      "source": "ملخص G2، ص4"
+    },
+    {
+      "id": "c-international-division-of-labour",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-world",
+      "term": "التقسيم الدولي للعمل",
+      "def": "تخصص كل بلد في إنتاج المواد التي يتوفر فيها على ميزة تفاضلية: الدول المتقدمة مختصة في الصناعة، بينما الدول النامية مختصة في الفلاحة واستخراج المعادن ومصادر الطاقة.",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-dit-equal-exchange"
+      ],
+      "source": "ملخص G2، ص4"
+    },
+    {
+      "id": "c-gnp",
+      "kind": "concept",
+      "type": "مؤشر",
+      "domainId": "g-world",
+      "term": "الناتج الوطني الخام الإجمالي",
+      "def": "القيمة المضافة للأنشطة الاقتصادية لبلد معين داخلياً وخارجياً، ويُستعمل معياراً لتصنيف المجالات في إطار العولمة.",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-gnp-income"
+      ],
+      "source": "ملخص G2، ص4"
+    },
+    {
+      "id": "c-fragile-areas",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-world",
+      "term": "المجالات الهشة اقتصادياً",
+      "def": "مجالات ضعيفة الاندماج في العولمة، مثل مالي ومدغشقر والسودان.",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-fragile-deserts"
+      ],
+      "source": "ملخص G2، ص4"
+    },
+    {
+      "id": "c-mediterranean-area",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-world",
+      "term": "المجال المتوسطي",
+      "def": "فضاء جغرافي يتكون من مجموعة البلدان المطلة على البحر الأبيض المتوسط حيث تلتقي قارات إفريقيا وأوروبا وآسيا، وينقسم إلى ضفة شمالية أوروبية قوية اقتصادياً وضفة جنوبية إفريقية وآسيوية نامية.",
+      "where": "حوض البحر الأبيض المتوسط",
+      "lessons": [
+        "geo-2bac-ad-g03"
+      ],
+      "misconceptions": [
+        "m-mediterranean-europe-only"
+      ],
+      "source": "ملخص G3، ص5"
+    },
+    {
+      "id": "c-euro-mediterranean-cooperation",
+      "kind": "concept",
+      "type": "سياسة",
+      "domainId": "g-world",
+      "term": "التعاون الأورو-متوسطي",
+      "def": "سياسة التعاون المشترك بين الاتحاد الأوروبي والبلدان المتوسطية، بدأت منذ 1992 وتوّجت بإصدار إعلان برشلونة سنة 1995 الذي حدّد مجالات التعاون بين الطرفين في ثلاثة محاور كبرى.",
+      "when": "منذ 1992",
+      "actors": [
+        "الاتحاد الأوروبي",
+        "بلدان الجنوب المتوسطي"
+      ],
+      "lessons": [
+        "geo-2bac-ad-g03"
+      ],
+      "misconceptions": [
+        "m-euromed-1995-start"
+      ],
+      "source": "ملخص G3، ص5"
+    },
+    {
+      "id": "c-barcelona-declaration",
+      "kind": "concept",
+      "type": "حدث",
+      "domainId": "g-world",
+      "term": "إعلان برشلونة",
+      "def": "إعلان صدر سنة 1995 في إطار التعاون الأورو-متوسطي، وحدّد مجالات التعاون بين الاتحاد الأوروبي وبلدان الجنوب المتوسطي في ثلاثة محاور كبرى.",
+      "when": "1995",
+      "where": "برشلونة",
+      "lessons": [
+        "geo-2bac-ad-g03"
+      ],
+      "misconceptions": [
+        "m-barcelona-eu-accession"
+      ],
+      "source": "ملخص G3، ص5"
+    },
+    {
+      "id": "c-meda-programme",
+      "kind": "concept",
+      "type": "برنامج",
+      "domainId": "g-world",
+      "term": "برنامج ميدا",
+      "def": "برنامج أوروبي (ميدا 1 وميدا 2) لتمويل المشاريع التنموية في بلدان الضفة الجنوبية للمتوسط، مكّن من إنجاز مشاريع تنموية حققت تطوراً واضحاً.",
+      "actors": [
+        "الاتحاد الأوروبي"
+      ],
+      "lessons": [
+        "geo-2bac-ad-g03"
+      ],
+      "misconceptions": [
+        "m-meda-moroccan"
+      ],
+      "source": "ملخص G3، ص5"
+    },
+    {
+      "id": "c-sustainable-development",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-world",
+      "term": "التنمية المستدامة",
+      "def": "تحسين مستوى عيش السكان في الحاضر دون هدر حقوق الأجيال القادمة، وتُعدّ أكبر تحدٍّ يواجه العالم أمام تجاوز الطلب على الموارد قدرة البيئة على التجديد.",
+      "lessons": [
+        "geo-2bac-ad-g04"
+      ],
+      "misconceptions": [
+        "m-sustainability-zero-growth"
+      ],
+      "source": "ملخص G4، ص6"
+    },
+    {
+      "id": "c-global-warming",
+      "kind": "concept",
+      "type": "ظاهرة",
+      "domainId": "g-world",
+      "term": "الاحتباس الحراري",
+      "def": "ارتفاع متواصل لحرارة كوكب الأرض ونقص كميات التساقطات، بفعل تراكم ثاني أكسيد الكربون الناتج عن الأنشطة الصناعية وخاصة في الدول الصناعية.",
+      "lessons": [
+        "geo-2bac-ad-g04"
+      ],
+      "misconceptions": [
+        "m-warming-natural-cycle"
+      ],
+      "source": "ملخص G4، ص6"
+    },
+    {
+      "id": "c-kyoto-protocol",
+      "kind": "concept",
+      "type": "معاهدة",
+      "domainId": "g-world",
+      "term": "اتفاقية كيوطو",
+      "def": "اتفاقية تُعدّ من الإجراءات الأساسية لمواجهة آثار التغيرات المناخية، وتهدف إلى إلزام الدول الموقعة عليها بتخفيض انبعاث ثاني أكسيد الكربون.",
+      "when": "1997",
+      "lessons": [
+        "geo-2bac-ad-g04"
+      ],
+      "misconceptions": [
+        "m-kyoto-morocco-only"
+      ],
+      "source": "ملخص G4، ص6"
+    },
+    {
+      "id": "c-desertification",
+      "kind": "concept",
+      "type": "ظاهرة",
+      "domainId": "g-world",
+      "term": "التصحر",
+      "def": "تدهور التربة وفقدانها قدرتها الإنتاجية بفعل الضغط السكاني والتغيرات المناخية والجفاف.",
+      "lessons": [
+        "geo-2bac-ad-g04"
+      ],
+      "misconceptions": [
+        "m-desertification-dunes"
+      ],
+      "source": "ملخص G4، ص6"
+    },
+    {
+      "id": "c-food-security",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-world",
+      "term": "الأمن الغذائي",
+      "def": "ضمان غذاء السكان، ويتأثر بالنقص في الموارد المائية واستنزاف الموارد الطبيعية وتدهور الإنتاج الفلاحي.",
+      "lessons": [
+        "geo-2bac-ad-g04"
+      ],
+      "misconceptions": [
+        "m-foodsecurity-selfsufficiency"
+      ],
+      "source": "ملخص G4، ص6"
+    },
+    {
+      "id": "c-eu",
+      "kind": "concept",
+      "type": "تكتل",
+      "domainId": "g-blocs",
+      "term": "الاتحاد الأوروبي",
+      "def": "أقوى تكتل اقتصادي في العالم، تكوّن في ثلاث مراحل: المجموعة الأوروبية للفحم والفولاذ (1951–1957)، المجموعة الاقتصادية الأوروبية/السوق المشتركة (روما 1957–1992)، ثم الاتحاد الأوروبي (ماستريخت 1992)، ويضم 28 دولة صارت 27 بعد انسحاب بريطانيا.",
+      "when": "منذ 1951",
+      "where": "أوروبا",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "misconceptions": [
+        "m-eu-since-1992"
+      ],
+      "source": "ملخص G5، ص3"
+    },
+    {
+      "id": "c-maastricht",
+      "kind": "concept",
+      "type": "معاهدة",
+      "domainId": "g-blocs",
+      "term": "معاهدة ماستريخت",
+      "def": "معاهدة وقّعتها دول المجموعة الاقتصادية الأوروبية سنة 1992 حول إنشاء الاتحاد الأوروبي، وانضمت بعدها دول كان آخرها كرواتيا 2013.",
+      "when": "1992",
+      "where": "ماستريخت، هولندا",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "misconceptions": [
+        "m-maastricht-1957"
+      ],
+      "source": "ملخص G5، ص3"
+    },
+    {
+      "id": "c-monetary-integration",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-blocs",
+      "term": "الاندماج المالي",
+      "def": "توحيد السياسة المالية في إطار الوحدة الاقتصادية والمالية، وإصدار عملة الأورو، وحرية تنقل الأموال والاستثمارات داخل الاتحاد الأوروبي.",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "misconceptions": [
+        "m-euro-all-eu"
+      ],
+      "source": "ملخص G5، ص3"
+    },
+    {
+      "id": "c-cap",
+      "kind": "concept",
+      "type": "سياسة",
+      "domainId": "g-blocs",
+      "term": "السياسة الفلاحية المشتركة",
+      "def": "سياسة أوروبية موحدة في المجال الفلاحي، جعلت الاتحاد الأوروبي قوة فلاحية عالمية تحتل الصدارة في الصادرات الفلاحية.",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "misconceptions": [
+        "m-cap-national"
+      ],
+      "source": "ملخص G5، ص3"
+    },
+    {
+      "id": "c-free-trade-agreement",
+      "kind": "concept",
+      "type": "اتفاق",
+      "domainId": "g-blocs",
+      "term": "اتفاقية التبادل الحر",
+      "def": "المبادلات المرتبطة بالسلع والخدمات التي تتم بين الدول دون قيود جمركية.",
+      "lessons": [
+        "geo-2bac-ad-g06"
+      ],
+      "misconceptions": [
+        "m-fta-political-union"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-regional-integration",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-blocs",
+      "term": "الاندماج الجهوي",
+      "def": "تكوين مجموعة أو منظمة جهوية تسعى للتعاون والتكامل الإقليمي بين الدول من أجل تحقيق أهداف خاصة على المستويين الاقتصادي والاجتماعي.",
+      "lessons": [
+        "geo-2bac-ad-g05",
+        "geo-2bac-ad-g06",
+        "geo-2bac-ad-g07"
+      ],
+      "misconceptions": [
+        "m-integration-same-as-fta"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-full-integration",
+      "kind": "concept",
+      "type": "مفهوم",
+      "domainId": "g-blocs",
+      "term": "الاندماج الشامل",
+      "def": "مرحلة متقدمة من الاندماج الجهوي تتضمن تحقيق الوحدة الشاملة بين الدول في المجالات الاقتصادية والنقدية والاجتماعية والسياسية، وخلق فضاء دون حدود داخلية.",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "misconceptions": [
+        "m-full-integration-everywhere"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-alena",
+      "kind": "concept",
+      "type": "تكتل",
+      "domainId": "g-blocs",
+      "term": "مجموعة أمريكا الشمالية (ألينا)",
+      "def": "مجموعة اقتصادية تضم الولايات المتحدة الأمريكية وكندا والمكسيك، تقوم على اتفاق التبادل الحر الذي وُقع في دجنبر 1992 ودخل حيز التنفيذ في يناير 1994.",
+      "when": "1992/1994",
+      "where": "أمريكا الشمالية",
+      "lessons": [
+        "geo-2bac-ad-g06"
+      ],
+      "misconceptions": [
+        "m-alena-south-america"
+      ],
+      "notes": "تعارض مصدرين: المعجم يقول «وُقّع في يناير 1994»، وملخص إزمران يقول «2 دجنبر 1992». الصيغة المعتمدة: وُقّع دجنبر 1992 ودخل حيز التنفيذ يناير 1994 (فرق توقيع/سريان لا خطأ).",
+      "source": "المعجم، ص4 + ملخص G6، ص4"
+    },
+    {
+      "id": "c-trade-corridors",
+      "kind": "concept",
+      "type": "مشروع",
+      "domainId": "g-blocs",
+      "term": "الممرات التجارية",
+      "def": "مشاريع مشتركة للبنية التحتية في مجال المواصلات أقامتها بلدان مجموعة أمريكا الشمالية لتعزيز التعاون بينها.",
+      "where": "أمريكا الشمالية",
+      "lessons": [
+        "geo-2bac-ad-g06"
+      ],
+      "misconceptions": [
+        "m-corridors-seaways"
+      ],
+      "source": "ملخص G6، ص4"
+    },
+    {
+      "id": "c-asean",
+      "kind": "concept",
+      "type": "تكتل",
+      "domainId": "g-blocs",
+      "term": "تجمع دول جنوب شرق آسيا (آسيان)",
+      "def": "تكتل إقليمي اقتصادي ونموذج لتكتلات بلدان الجنوب لمواجهة تحديات العولمة، يجمع بين عشر دول من بلدان جنوب شرق آسيا، تأسس بمقتضى إعلان بانكوك سنة 1967 بخمس دول مؤسسة.",
+      "when": "1967",
+      "where": "بانكوك",
+      "lessons": [
+        "geo-2bac-ad-g07"
+      ],
+      "misconceptions": [
+        "m-asean-africa"
+      ],
+      "source": "المعجم، ص4 + ملخص G7، ص5"
+    },
+    {
+      "id": "c-non-interference",
+      "kind": "concept",
+      "type": "مبدأ",
+      "domainId": "g-blocs",
+      "term": "مبدأ عدم التدخل",
+      "def": "مبدأ في رابطة آسيان يمنع التدخل في الشؤون الداخلية للبلدان الأعضاء، ويلزم بحل الخلافات والنزاعات بينها بالطرق السلمية والتخلي عن التهديد واستعمال القوة العسكرية.",
+      "lessons": [
+        "geo-2bac-ad-g07"
+      ],
+      "misconceptions": [
+        "m-noninterference-isolation"
+      ],
+      "source": "ملخص G7، ص5"
+    },
+    {
+      "id": "c-world-bank",
+      "kind": "concept",
+      "type": "مؤسسة",
+      "domainId": "g-world",
+      "term": "البنك الدولي",
+      "def": "مؤسسة مالية عالمية تتولى تمويل المشاريع التنموية عبر العالم من خلال منح قروض للدول مقابل الالتزام بشروط محددة.",
+      "lessons": [
+        "geo-2bac-ad-g01"
+      ],
+      "misconceptions": [
+        "m-worldbank-grants"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-imf",
+      "kind": "concept",
+      "type": "مؤسسة",
+      "domainId": "g-world",
+      "term": "صندوق النقد الدولي",
+      "def": "مؤسسة مالية دولية وظيفتها تنظيم المعاملات المالية بين الدول وتقديم الاستشارة للدول التي تواجه مصاعب مالية واقتصادية.",
+      "lessons": [
+        "geo-2bac-ad-g01"
+      ],
+      "misconceptions": [
+        "m-imf-trade"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-wto",
+      "kind": "concept",
+      "type": "مؤسسة",
+      "domainId": "g-world",
+      "term": "منظمة التجارة العالمية (OMC)",
+      "def": "مؤسسة دولية انبثقت عن اتفاق مراكش سنة 1994 ودخلت حيز التطبيق سنة 1995، وحلّت محل GATT؛ أهم مهامها ضبط التجارة العالمية وإدارة الاتفاقيات التجارية وحل النزاعات ثم تحرير القطاعات الاقتصادية.",
+      "when": "1994–1995",
+      "where": "مراكش ثم جنيف",
+      "lessons": [
+        "geo-2bac-ad-g01"
+      ],
+      "misconceptions": [
+        "m-wto-1945"
+      ],
+      "source": "المعجم، ص4 + ملخص G1، ص3"
+    },
+    {
+      "id": "c-multinationals",
+      "kind": "concept",
+      "type": "فاعل",
+      "domainId": "g-world",
+      "term": "الشركات المتعددة الجنسيات",
+      "def": "شركات عملاقة ذات رؤوس أموال ضخمة تتوفر على عدة فروع خارج وطنها الأصلي (كوكا كولا، فولكسفاغن، تويوتا)، وتُعدّ من أهم آليات العولمة الاقتصادية.",
+      "lessons": [
+        "geo-2bac-ad-g01"
+      ],
+      "misconceptions": [
+        "m-mnc-state-owned"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-ngos",
+      "kind": "concept",
+      "type": "فاعل",
+      "domainId": "g-world",
+      "term": "المنظمات غير الحكومية",
+      "def": "جمعيات تطوعية لا حكومية تدافع عن قضايا معينة (كالبيئة والعدالة الاجتماعية)، وتُعدّ من الفاعلين في العولمة.",
+      "lessons": [
+        "geo-2bac-ad-g01"
+      ],
+      "misconceptions": [
+        "m-ngo-intergovernmental"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-dominant-areas",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-world",
+      "term": "المجالات المهيمنة",
+      "def": "المراكز الاقتصادية الرئيسية في العالم: الولايات المتحدة الأمريكية وأوروبا الغربية واليابان، تحتكر معظم الأنشطة الاقتصادية والمبادلات وتسيطر على الأسطول التجاري والمعاملات المالية.",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-dominant-brics"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-integrated-areas",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-world",
+      "term": "المجالات المندمجة",
+      "def": "المجالات ذات الاقتصاد المبني على التصنيع وذات الميزان التجاري الإيجابي والقوى الاقتصادية الصاعدة (كالصين).",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-integrated-africa"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-integrating-areas",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-world",
+      "term": "مجالات في طور الاندماج",
+      "def": "مجالات منتجة للمواد الأساسية كالبترول والنفط، أو قطعت بها التصنيع أشواطاً مهمة، كدول أوروبا الشرقية وأمريكا الجنوبية وشمال إفريقيا.",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "misconceptions": [
+        "m-integrating-equals-integrated"
+      ],
+      "source": "المعجم، ص4"
+    },
+    {
+      "id": "c-great-power",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-powers",
+      "term": "قوة اقتصادية عظمى",
+      "def": "تُطلق على الولايات المتحدة الأمريكية لكونها دولة رائدة في مختلف المجالات الاقتصادية، وتحتل مراتب جد متقدمة عالمياً فيها، خاصة التجارة والخدمات.",
+      "where": "الولايات المتحدة",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "note": "الولايات المتحدة هي قلب المجالات المهيمنة في G2",
+      "misconceptions": [
+        "m-greatpower-eu"
+      ],
+      "source": "المعجم، ص5",
+      "link": "core"
+    },
+    {
+      "id": "c-agricultural-power",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-powers",
+      "term": "قوة فلاحية",
+      "def": "بلد يتميز بفلاحة متطورة تميزه عن باقي البلدان، حيث يحتل مراتب متقدمة في العديد من المنتجات الفلاحية المهمة، ويحقق اكتفاءً ذاتياً وفائضاً موجهاً للتصدير (نموذج فرنسا).",
+      "where": "فرنسا",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "note": "G5 يصف الاتحاد الأوروبي بأنه «قوة فلاحية عالمية»",
+      "misconceptions": [
+        "m-agripower-morocco"
+      ],
+      "source": "المعجم، ص5",
+      "link": "core"
+    },
+    {
+      "id": "c-industrial-power",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-powers",
+      "term": "قوة صناعية",
+      "def": "قوة اقتصادية مرتبطة أساساً بقوة وفعالية قطاعها الصناعي والقدرة العالية لمنتجاتها الصناعية على المنافسة في الأسواق الدولية.",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "note": "G5 يصف الاتحاد الأوروبي بأنه «قوة صناعية كبرى»",
+      "misconceptions": [
+        "m-indpower-resources"
+      ],
+      "source": "المعجم، ص5",
+      "link": "core"
+    },
+    {
+      "id": "c-trade-power",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-powers",
+      "term": "قوة تجارية كبرى",
+      "def": "قوة اقتصادية تعتمد بشكل كبير على قوة أسطولها التجاري وقدرتها على غزو مختلف الأسواق العالمية (نموذج اليابان).",
+      "where": "اليابان",
+      "lessons": [
+        "geo-2bac-ad-g05"
+      ],
+      "note": "G5 يصف الاتحاد الأوروبي بأنه «القوة التجارية الأولى في العالم» (المعجم يعطي اليابان مثالاً)",
+      "misconceptions": [
+        "m-tradepower-exports-only"
+      ],
+      "source": "المعجم، ص5",
+      "link": "core"
+    },
+    {
+      "id": "c-emerging-power",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-dev",
+      "term": "قوة اقتصادية صاعدة",
+      "def": "الدولة التي تعرف نمواً اقتصادياً بوتيرة سريعة بفعل استثمار الموارد الطبيعية والبشرية والتنظيمية، ومن المؤشرات الدالة عليه ارتفاع الناتج الداخلي الإجمالي (الصين نموذجاً).",
+      "where": "الصين",
+      "lessons": [
+        "geo-2bac-ad-g02"
+      ],
+      "note": "G2 يذكر «القوى الاقتصادية الصاعدة (كالصين)» ضمن المجالات المندمجة",
+      "misconceptions": [
+        "m-emerging-developing"
+      ],
+      "source": "المعجم، ص5",
+      "link": "core"
+    },
+    {
+      "id": "c-hdi-disparities",
+      "kind": "concept",
+      "type": "مؤشر",
+      "domainId": "g-dev",
+      "term": "تفاوتات في التنمية البشرية",
+      "def": "التفاوت في عناصر التنمية البشرية وهي الدخل الفردي ومستوى الصحة ومستوى التعليم داخل دولة ما، مثل التفاوت بين جنوب شرق البرازيل ومناطقه الداخلية.",
+      "where": "البرازيل نموذجاً",
+      "lessons": [
+        "geo-2bac-ad-g03"
+      ],
+      "note": "G3 يقارن مؤشرات التنمية بين الضفتين",
+      "misconceptions": [
+        "m-hdi-between-countries"
+      ],
+      "source": "المعجم، ص5",
+      "link": "core"
+    },
+    {
+      "id": "c-late-industrialization",
+      "kind": "concept",
+      "type": "مصطلح",
+      "domainId": "g-dev",
+      "term": "نمو اقتصادي حديث",
+      "def": "إشارة إلى بعض الدول التي حققت التنمية الاقتصادية حديثاً خاصة خلال فترة ما بعد الحرب العالمية الثانية، ويعرف اقتصادها نمواً سريعاً (كوريا الجنوبية).",
+      "where": "كوريا الجنوبية نموذجاً",
+      "lessons": [
+        "geo-2bac-ad-g07"
+      ],
+      "note": "G7 يفسّر النمو الاقتصادي المتفاوت بالتصنيع الحديث (المثال في المعجم: كوريا، خارج الرابطة)",
+      "misconceptions": [
+        "m-lateindustrial-old"
+      ],
+      "source": "المعجم، ص5",
+      "link": "evoked"
+    }
+  ],
+  "misconceptions": [
+    {
+      "id": "m-peace-conference-unanimous",
+      "for": "c-peace-conference",
+      "claim": "حضر مؤتمر السلام جميع الأطراف بما فيها الدول المنهزمة وروسيا.",
+      "fix": "انعقد في غياب الدول المنهزمة ودون استدعاء روسيا، واحتكر الأربعة الكبار مداولاته."
+    },
+    {
+      "id": "m-versailles-negotiated",
+      "for": "c-versailles",
+      "claim": "كانت معاهدة فرساي نتيجة تفاوض متكافئ بين المنتصرين وألمانيا.",
+      "fix": "فُرضت على ألمانيا بالاقتطاعات الترابية والغرامة والعقوبات العسكرية، فاعتُبرت سلاماً مهيناً."
+    },
+    {
+      "id": "m-peace-treaties-one",
+      "for": "c-peace-treaties",
+      "claim": "معاهدات الصلح معاهدة واحدة هي فرساي.",
+      "fix": "خمس معاهدات بين 1919 و1920: فرساي، سان جرمان، تريانون، نويي، سيفر."
+    },
+    {
+      "id": "m-soviet-socialism-stalin",
+      "for": "c-soviet-socialism",
+      "claim": "النظام الاشتراكي السوفياتي من إنجاز ستالين وحده.",
+      "fix": "أقامه لينين بعد القضاء على النظام القيصري، وعزّزه ستالين بعد 1924."
+    },
+    {
+      "id": "m-lenin-stalin",
+      "for": "f-lenin",
+      "claim": "لينين هو من نهج سياسة التخطيط والمخططات الخماسية.",
+      "fix": "لينين نهج السياسة الاقتصادية الجديدة 1921؛ التخطيط والمخططات الخماسية نهجها ستالين منذ 1928."
+    },
+    {
+      "id": "m-stalin-1917-leader",
+      "for": "f-stalin",
+      "claim": "ستالين هو قائد ثورة أكتوبر 1917.",
+      "fix": "قائد الثورة البلشفية هو لينين؛ ستالين شارك فيها وتولى الحكم بعد وفاته 1924."
+    },
+    {
+      "id": "m-nep-stalin",
+      "for": "c-nep",
+      "claim": "السياسة الاقتصادية الجديدة (NEP) من إجراءات ستالين.",
+      "fix": "نهجها لينين سنة 1921 لتجاوز مشاكل الثورة وتحسين الأوضاع الاقتصادية."
+    },
+    {
+      "id": "m-planning-lenin",
+      "for": "c-five-year-plans",
+      "claim": "المخططات الخماسية بدأت مع لينين مباشرة بعد 1917.",
+      "fix": "بدأت مع ستالين منذ 1928 لتقوية الاقتصاد وتدارك تأخر الاتحاد السوفياتي."
+    },
+    {
+      "id": "m-liberal-authoritarian",
+      "for": "c-liberal-democracies",
+      "claim": "الديمقراطيات الليبرالية أنظمة بلا دستور ولا حدود لسلطة الحكومة.",
+      "fix": "هي ديمقراطيات دستورية تُقيَّد فيها سلطة الحكومة بدستور يحمي حقوق الأفراد وحرياتهم."
+    },
+    {
+      "id": "m-1929-europe-origin",
+      "for": "c-crisis-1929",
+      "claim": "أزمة 1929 انطلقت من أوروبا بعد الحرب العالمية الأولى.",
+      "fix": "انطلقت من بورصة وول ستريت بنيويورك بالولايات المتحدة، ثم انتقلت إلى العالم الرأسمالي."
+    },
+    {
+      "id": "m-newdeal-socialist",
+      "for": "c-new-deal",
+      "claim": "الخطة الجديدة (النيوديل) نظام اشتراكي ألغى الرأسمالية.",
+      "fix": "برنامج إصلاحي رأسمالي يقوم على تدخل الدولة لتوجيه الاقتصاد (1933–1937)."
+    },
+    {
+      "id": "m-mandate-independence",
+      "for": "c-mandate",
+      "claim": "الانتداب شكل من أشكال الاستقلال والوصاية الخيرية.",
+      "fix": "شكل من الاستعمار المباشر يغطّي استغلال دولة قوية لدولة ناشئة؛ طُبّق على سوريا والعراق وفلسطين."
+    },
+    {
+      "id": "m-zionism-religious-only",
+      "for": "c-zionism",
+      "claim": "الحركة الصهيونية حركة دينية خيرية لتوطين اليهود.",
+      "fix": "حركة سياسية بإيديولوجية استعمارية عنصرية استهدفت إنشاء وطن قومي في فلسطين (مؤتمر بال 1897)."
+    },
+    {
+      "id": "m-herzl-balfour",
+      "for": "f-herzl",
+      "claim": "هرتزل هو صاحب وعد بلفور.",
+      "fix": "هرتزل مؤسس الحركة الصهيونية (مؤتمر بال 1897)؛ وعد بلفور صدر عن بريطانيا سنة 1917."
+    },
+    {
+      "id": "m-resistance-1948-start",
+      "for": "c-palestinian-resistance",
+      "claim": "المقاومة الفلسطينية بدأت سنة 1948 مع إعلان إسرائيل.",
+      "fix": "برزت منذ وضع فلسطين تحت الانتداب البريطاني، وتحوّل مسارها بعد 1948."
+    },
+    {
+      "id": "m-arafat-state-founder",
+      "for": "f-arafat",
+      "claim": "عرفات أول رئيس لدولة فلسطين المستقلة.",
+      "fix": "أول رئيس للسلطة الوطنية الفلسطينية، وقائد منظمة التحرير."
+    },
+    {
+      "id": "m-independence-armed-only",
+      "for": "c-independence-movements",
+      "claim": "الحركات الاستقلالية كانت كلها مسلحة.",
+      "fix": "تنوّعت بين النضال السلمي السياسي والنضال المسلح في المشرق والمغرب العربي."
+    },
+    {
+      "id": "m-conflict-1967-start",
+      "for": "c-arab-israeli-conflict",
+      "claim": "الصراع العربي الإسرائيلي بدأ سنة 1967.",
+      "fix": "بدأ منذ نشأة إسرائيل 1948؛ والنكبتان 1948 و1967 من أوجهه."
+    },
+    {
+      "id": "m-protectorate-annexation",
+      "for": "c-protectorate-treaty",
+      "claim": "عقد الحماية 1912 ضمّ المغرب لفرنسا وألغى السلطان.",
+      "fix": "نصّ على الحفاظ على سيادة السلطان والعقيدة الإسلامية مع تعيين مقيم عام واحتلال عسكري؛ ويتكون من تسع فصول."
+    },
+    {
+      "id": "m-protectorate-direct-rule",
+      "for": "c-protectorate-regime",
+      "claim": "نظام الحماية استعمار مباشر ألغى مؤسسات البلد.",
+      "fix": "استعمار غير مباشر يحتفظ فيه البلد المحمي بمؤسساته مع إشراف قوة أوروبية."
+    },
+    {
+      "id": "m-exploitation-only-mining",
+      "for": "c-colonial-exploitation",
+      "claim": "الاستغلال الاستعماري للمغرب كان في المعادن فقط.",
+      "fix": "شمل الفلاحة والصيد البحري والصناعة والتجارة والمالية، ومسّ الثروات الطبيعية والبشرية معاً."
+    },
+    {
+      "id": "m-national-movement-armed",
+      "for": "c-national-movement",
+      "claim": "الحركة الوطنية حركة مسلحة ظهرت في الأربعينيات.",
+      "fix": "تيار شعبي ظهر في الثلاثينيات واعتمد المقاومة السياسية على يد نخبة مثقفة."
+    },
+    {
+      "id": "m-reforms-1934-independence",
+      "for": "c-reform-demands",
+      "claim": "مطالب 1934 كانت مطالبة صريحة بالاستقلال.",
+      "fix": "كانت مطالب معتدلة بالإصلاحات والالتزام بروح معاهدة فاس؛ الاستقلال مطلب الأربعينيات (1944)."
+    },
+    {
+      "id": "m-manifesto-1956",
+      "for": "c-independence-manifesto",
+      "claim": "وثيقة المطالبة بالاستقلال صدرت سنة 1956.",
+      "fix": "حُرّرت بفاس وقُدّمت في 11 يناير 1944."
+    },
+    {
+      "id": "m-unity-1956-done",
+      "for": "c-territorial-unity",
+      "claim": "استكمال الوحدة الترابية انتهى باستقلال 1956.",
+      "fix": "عملية مستمرة منذ 1956 بالمقاومة والمفاوضات لاسترجاع المناطق المحتلة."
+    },
+    {
+      "id": "m-league-united-nations",
+      "for": "c-league-of-nations",
+      "claim": "عصبة الأمم هيئة الأمم المتحدة نفسها.",
+      "fix": "عصبة الأمم تأسست 1919 باقتراح ولسون؛ وهيئة الأمم المتحدة جاءت بعد الحرب العالمية الثانية 1945."
+    },
+    {
+      "id": "m-fourteen-points-treaty",
+      "for": "c-fourteen-points",
+      "claim": "المبادئ الأربعة عشر معاهدة وقّعتها الدول المنهزمة.",
+      "fix": "مبادئ أعلنها الرئيس ولسون وأصبحت أساساً للمؤتمر وعصبة الأمم."
+    },
+    {
+      "id": "m-bolsheviks-february",
+      "for": "c-bolsheviks",
+      "claim": "البلاشفة قادوا ثورة فبراير 1917 التي أطاحت بالقيصر.",
+      "fix": "ثورة فبراير أطاحت بالنظام القيصري وشكّلت حكومة مؤقتة؛ البلاشفة قادوا ثورة أكتوبر المسلحة وأطاحوا بالحكومة المؤقتة."
+    },
+    {
+      "id": "m-war-communism-after-nep",
+      "for": "c-war-communism",
+      "claim": "شيوعية الحرب جاءت بعد السياسة الاقتصادية الجديدة.",
+      "fix": "جاءت أولاً (1918–1921) خلال الحرب الأهلية، ثم انتقل لينين إلى NEP."
+    },
+    {
+      "id": "m-kolkhoz-private",
+      "for": "c-sovkhoz-kolkhoz",
+      "claim": "السفوخوزات والكلوخوزات ملكيات فلاحية خاصة.",
+      "fix": "تعاونيات فلاحية جماعية اعتمدها ستالين لتطوير الفلاحة."
+    },
+    {
+      "id": "m-blackthursday-1930",
+      "for": "c-black-thursday",
+      "claim": "الخميس الأسود كان في 1930 وانطلق من البورصة الأوروبية.",
+      "fix": "24 أكتوبر 1929 في بورصة وول ستريت بنيويورك."
+    },
+    {
+      "id": "m-directed-capitalism-socialism",
+      "for": "c-directed-capitalism",
+      "claim": "الرأسمالية الموجهة انتقال إلى النظام الاشتراكي.",
+      "fix": "بقاء الرأسمالية مع تزايد تدخل الدولة في الاقتصاد لتوجيهه."
+    },
+    {
+      "id": "m-lebensraum-defensive",
+      "for": "c-lebensraum",
+      "claim": "المجال الحيوي مبدأ دفاعي لحماية حدود ألمانيا فقط.",
+      "fix": "مبدأ توسعي يبرّر ضم أراضي الجيران، وهو إطار غزو بولونيا 1939."
+    },
+    {
+      "id": "m-axis-includes-ussr",
+      "for": "c-axis-powers",
+      "claim": "الاتحاد السوفياتي كان عضواً في دول المحور.",
+      "fix": "المحور: ألمانيا وإيطاليا واليابان (1937)؛ والاتحاد السوفياتي في صف الحلفاء."
+    },
+    {
+      "id": "m-stalingrad-1944",
+      "for": "c-stalingrad",
+      "claim": "معركة ستالينغراد جرت سنة 1944 مع إنزال نورماندي.",
+      "fix": "ستالينغراد أواخر 1942؛ نورماندي 1944."
+    },
+    {
+      "id": "m-normandy-1942",
+      "for": "c-normandy",
+      "claim": "إنزال نورماندي وقع في 1942 وحرّر ألمانيا.",
+      "fix": "1944، وحرّر فرنسا وبلجيكا وهولندا واللوكسمبورغ."
+    },
+    {
+      "id": "m-resident-sultan-power",
+      "for": "c-resident-general",
+      "claim": "المقيم العام مستشار بلا سلطة، والسلطان هو من يشرّع.",
+      "fix": "المقيم العام يشرّع القوانين ويصادق عليها ويدير الشؤون الهامة؛ والسلطان اكتفى بالسلطة الدينية والتوقيع."
+    },
+    {
+      "id": "m-khalifian-real-power",
+      "for": "c-khalifian-zone",
+      "claim": "الخليفة في المنطقة الخليفية كان يمارس سلطة فعلية.",
+      "fix": "سلطته شكلية؛ السلطة الفعلية للمندوب السامي الإسباني."
+    },
+    {
+      "id": "m-algeciras-1912",
+      "for": "c-algeciras-conference",
+      "claim": "مؤتمر الجزيرة الخضراء هو الذي فرض الحماية سنة 1912.",
+      "fix": "المؤتمر 1906 ومنح فرنسا امتيازات؛ الحماية فُرضت بعقد 30 مارس 1912."
+    },
+    {
+      "id": "m-agadir-independence",
+      "for": "c-agadir-crisis",
+      "claim": "أزمة أكادير كانت انتفاضة مغربية ضد فرنسا.",
+      "fix": "أزمة دبلوماسية 1911 بين فرنسا وألمانيا انتهت بتنازل ألمانيا عن جزء من الكونغو."
+    },
+    {
+      "id": "m-settlement-desert-land",
+      "for": "c-colonial-settlement",
+      "claim": "استوطنت سلطات الحماية المعمرين في أراضٍ بور غير منتجة.",
+      "fix": "استحوذ المعمرون على أجود الأراضي الفلاحية بعد ظهائر التحفيظ العقاري."
+    },
+    {
+      "id": "m-dahir-protects-peasants",
+      "for": "c-land-registration-dahir",
+      "claim": "ظهير التحفيظ العقاري صدر لحماية أراضي الفلاحين المغاربة.",
+      "fix": "سهّل انتقال الأراضي العربية إلى المعمرين واستحواذهم عليها."
+    },
+    {
+      "id": "m-sykespicot-public",
+      "for": "c-sykes-picot",
+      "claim": "سايكس بيكو معاهدة علنية بعد الحرب العالمية الأولى.",
+      "fix": "معاهدة سرية (ماي 1916) بين فرنسا وإنجلترا وروسيا لتقسيم المشرق."
+    },
+    {
+      "id": "m-sanremo-independence",
+      "for": "c-san-remo",
+      "claim": "مؤتمر سان ريمو 1920 منح المشرق العربي استقلاله.",
+      "fix": "ثبّت التقسيم ووضع الشام والعراق تحت النفوذ البريطاني والفرنسي."
+    },
+    {
+      "id": "m-arabrevolt-against-britain",
+      "for": "c-arab-revolt",
+      "claim": "الثورة العربية الكبرى 1916 كانت ضد البريطانيين.",
+      "fix": "كانت ضد الأتراك العثمانيين بدعم إنجليزي، وقادها شريف مكة."
+    },
+    {
+      "id": "m-maisalun-ottoman",
+      "for": "c-maisalun",
+      "claim": "معركة ميسلون 1920 كانت ضد العثمانيين.",
+      "fix": "كانت ضد القوات الفرنسية بعد إعلان استقلال سوريا في مارس 1920."
+    },
+    {
+      "id": "m-balfour-un",
+      "for": "c-balfour",
+      "claim": "وعد بلفور قرار دولي صادر عن عصبة الأمم.",
+      "fix": "وعد بريطاني في 2 نونبر 1917؛ صك الانتداب جاء من عصبة الأمم 1922."
+    },
+    {
+      "id": "m-basel-1917",
+      "for": "c-first-zionist-congress",
+      "claim": "المؤتمر الصهيوني الأول عُقد بعد وعد بلفور.",
+      "fix": "عُقد ببال بسويسرا 29–31 غشت 1897، أي قبل الوعد بعشرين سنة."
+    },
+    {
+      "id": "m-mandate-charter-1947",
+      "for": "c-mandate-charter",
+      "claim": "صك الانتداب البريطاني صدر سنة 1947 مع قرار التقسيم.",
+      "fix": "صدر في 24 يوليوز 1922؛ وقرار التقسيم في 29 نونبر 1947."
+    },
+    {
+      "id": "m-partition-1948",
+      "for": "c-partition-resolution-1947",
+      "claim": "قرار تقسيم فلسطين صدر سنة 1948.",
+      "fix": "صدر في 29 نونبر 1947؛ وإعلان «دولة إسرائيل» في 14 ماي 1948."
+    },
+    {
+      "id": "m-buraq-peaceful",
+      "for": "c-buraq-revolt",
+      "claim": "ثورة البراق كانت حركة احتجاج سلمية فقط.",
+      "fix": "اندلعت لحماية حائط البراق وانتشرت في المدن، وواجهتها سلطات الانتداب بالقوة العسكرية."
+    },
+    {
+      "id": "m-greatrevolt-1948",
+      "for": "c-great-palestinian-revolt",
+      "claim": "الثورة الفلسطينية الكبرى اندلعت سنة 1948.",
+      "fix": "اندلعت سنة 1936 بإضرابات ومظاهرات وعمليات مسلحة."
+    },
+    {
+      "id": "m-globalization-old",
+      "for": "c-globalization",
+      "claim": "العولمة ظاهرة قديمة تعود إلى الرحلات الكبرى والاستعمار.",
+      "fix": "العولمة بالمعنى المعاصر ظهرت في ثمانينيات القرن 20 بالولايات المتحدة واتسعت بعد 1991."
+    },
+    {
+      "id": "m-americanization-europe",
+      "for": "c-americanization",
+      "claim": "الأمركة تعني هيمنة الاتحاد الأوروبي على العالم.",
+      "fix": "الأمركة اقتران العولمة بالهيمنة الأمريكية لكون و.م.أ أبرز فاعليها."
+    },
+    {
+      "id": "m-triad-g20",
+      "for": "c-triad",
+      "claim": "الثالوث العالمي هو مجموعة العشرين بما فيها الصين والبرازيل.",
+      "fix": "الثالوث: الولايات المتحدة والاتحاد الأوروبي واليابان."
+    },
+    {
+      "id": "m-center-geographic",
+      "for": "c-center",
+      "claim": "المركز يعني موقعاً جغرافياً في وسط الكرة الأرضية.",
+      "fix": "المركز مفهوم اقتصادي: دول الشمال المتقدمة المحتكرة للثروات وسلطة القرار."
+    },
+    {
+      "id": "m-periphery-no-assets",
+      "for": "c-periphery",
+      "claim": "الهامش دول بلا موارد طبيعية ولا سكان.",
+      "fix": "الهامش دول الجنوب النامية التابعة، وقد تتوفر على ثروات طبيعية وساكنة كبيرة."
+    },
+    {
+      "id": "m-dit-equal-exchange",
+      "for": "c-international-division-of-labour",
+      "claim": "التقسيم الدولي للعمل علاقات تبادل متكافئة بين الشمال والجنوب.",
+      "fix": "تخصص يكرّس تفاوت القيمة: صناعة في الشمال ومواد أولية في الجنوب."
+    },
+    {
+      "id": "m-gnp-income",
+      "for": "c-gnp",
+      "claim": "الناتج الوطني الخام هو مجموع أجور السكان.",
+      "fix": "هو القيمة المضافة للأنشطة الاقتصادية داخلياً وخارجياً."
+    },
+    {
+      "id": "m-fragile-deserts",
+      "for": "c-fragile-areas",
+      "claim": "المجالات الهشة هي الصحاري غير المأهولة.",
+      "fix": "دول ضعيفة الاندماج في العولمة مثل مالي ومدغشقر والسودان."
+    },
+    {
+      "id": "m-mediterranean-europe-only",
+      "for": "c-mediterranean-area",
+      "claim": "المجال المتوسطي هو البلدان الأوروبية المطلة على المتوسط فقط.",
+      "fix": "يضم ضفتين: أوروبية شمالية وإفريقية-آسيوية جنوبية."
+    },
+    {
+      "id": "m-euromed-1995-start",
+      "for": "c-euro-mediterranean-cooperation",
+      "claim": "التعاون الأورو-متوسطي بدأ بإعلان برشلونة 1995.",
+      "fix": "بدأ منذ 1992 وتوّج بإعلان برشلونة 1995."
+    },
+    {
+      "id": "m-barcelona-eu-accession",
+      "for": "c-barcelona-declaration",
+      "claim": "إعلان برشلونة 1995 ربط انضمام بلدان الجنوب إلى الاتحاد الأوروبي.",
+      "fix": "حدّد مجالات التعاون في ثلاثة محاور كبرى، لا الانضمام."
+    },
+    {
+      "id": "m-meda-moroccan",
+      "for": "c-meda-programme",
+      "claim": "برنامج ميدا برنامج مغربي داخلي للتنمية.",
+      "fix": "برنامج أوروبي لتمويل مشاريع تنموية في الضفة الجنوبية للمتوسط."
+    },
+    {
+      "id": "m-sustainability-zero-growth",
+      "for": "c-sustainable-development",
+      "claim": "التنمية المستدامة تعني توقيف النمو الاقتصادي لحماية البيئة.",
+      "fix": "تحسين عيش الحاضر دون هدر حقوق الأجيال القادمة، لا توقيف النمو."
+    },
+    {
+      "id": "m-warming-natural-cycle",
+      "for": "c-global-warming",
+      "claim": "الاحتباس الحراري ظاهرة طبيعية لا علاقة لها بالنشاط البشري.",
+      "fix": "يتفاقم بفعل ثاني أكسيد الكربون الناتج عن الأنشطة الصناعية."
+    },
+    {
+      "id": "m-kyoto-morocco-only",
+      "for": "c-kyoto-protocol",
+      "claim": "اتفاقية كيوطو خاصة بالبلدان النامية وحدها.",
+      "fix": "تُلزم الدول الموقعة، وأثرها الأكبر على الدول الصناعية الملوِّثة."
+    },
+    {
+      "id": "m-desertification-dunes",
+      "for": "c-desertification",
+      "claim": "التصحر هو زحف الرمال على المدن فقط.",
+      "fix": "تدهور التربة وفقدانها قدرتها الإنتاجية بفعل الضغط السكاني والمناخ."
+    },
+    {
+      "id": "m-foodsecurity-selfsufficiency",
+      "for": "c-food-security",
+      "claim": "الأمن الغذائي يعني الاكتفاء الذاتي الكامل في كل المنتجات.",
+      "fix": "ضمان الغذاء للسكان، ويتأثر بالموارد المائية وتدهور الإنتاج."
+    },
+    {
+      "id": "m-eu-since-1992",
+      "for": "c-eu",
+      "claim": "الاتحاد الأوروبي تأسس سنة 1992 دفعة واحدة.",
+      "fix": "ثلاث مراحل: الفحم والفولاذ 1951، السوق المشتركة 1957، الاتحاد 1992."
+    },
+    {
+      "id": "m-maastricht-1957",
+      "for": "c-maastricht",
+      "claim": "معاهدة ماستريخت هي معاهدة روما 1957.",
+      "fix": "روما 1957 أنشأت السوق المشتركة؛ ماستريخت 1992 أنشأت الاتحاد الأوروبي."
+    },
+    {
+      "id": "m-euro-all-eu",
+      "for": "c-monetary-integration",
+      "claim": "كل دول الاتحاد الأوروبي تستعمل الأورو.",
+      "fix": "الوحدة النقدية إجراء اندماج مالي، لكن دولاً أعضاء لا تستعمل الأورو."
+    },
+    {
+      "id": "m-cap-national",
+      "for": "c-cap",
+      "claim": "السياسة الفلاحية المشتركة سياسة وطنية لكل بلد على حدة.",
+      "fix": "سياسة أوروبية مشتركة موحدة بين دول الاتحاد."
+    },
+    {
+      "id": "m-fta-political-union",
+      "for": "c-free-trade-agreement",
+      "claim": "اتفاقية التبادل الحر تعني وحدة سياسية بين الدول.",
+      "fix": "تحرير المبادلات من القيود الجمركية فقط."
+    },
+    {
+      "id": "m-integration-same-as-fta",
+      "for": "c-regional-integration",
+      "claim": "الاندماج الجهوي مجرد إلغاء رسوم جمركية.",
+      "fix": "تعاون وتكامل إقليمي اقتصادي واجتماعي واسع، يتجاوز التبادل الحر."
+    },
+    {
+      "id": "m-full-integration-everywhere",
+      "for": "c-full-integration",
+      "claim": "كل تكتل جهوي وصل إلى الاندماج الشامل.",
+      "fix": "مرحلة متقدمة لم يصلها إلا الاتحاد الأوروبي تقريباً (وحدة نقدية وسياسية)."
+    },
+    {
+      "id": "m-alena-south-america",
+      "for": "c-alena",
+      "claim": "ألينا تكتل أمريكا اللاتينية ومقره البرازيل.",
+      "fix": "تضم و.م.أ وكندا والمكسيك (أمريكا الشمالية)؛ والميركوسور تكتل أمريكا الجنوبية."
+    },
+    {
+      "id": "m-corridors-seaways",
+      "for": "c-trade-corridors",
+      "claim": "الممرات التجارية ممرات بحرية طبيعية.",
+      "fix": "مشاريع مشتركة للبنية التحتية في المواصلات بين بلدان ألينا."
+    },
+    {
+      "id": "m-asean-africa",
+      "for": "c-asean",
+      "claim": "آسيان تكتل إفريقي تأسس في ستينيات القرن 20.",
+      "fix": "رابطة دول جنوب شرق آسيا، أُعلنت ببانكوك 1967."
+    },
+    {
+      "id": "m-noninterference-isolation",
+      "for": "c-non-interference",
+      "claim": "مبدأ عدم التدخل يمنع أي تعاون اقتصادي بين الأعضاء.",
+      "fix": "يمنع التدخل في الشؤون الداخلية، لا التعاون؛ والرابطة تسعى للتكامل."
+    },
+    {
+      "id": "m-worldbank-grants",
+      "for": "c-world-bank",
+      "claim": "البنك الدولي يمنح هبات بلا شروط.",
+      "fix": "يمنح قروضاً مقابل الالتزام بشروط محددة."
+    },
+    {
+      "id": "m-imf-trade",
+      "for": "c-imf",
+      "claim": "صندوق النقد الدولي ينظّم التجارة العالمية.",
+      "fix": "ينظّم المعاملات المالية ويقدّم الاستشارة؛ والتجارة من اختصاص منظمة التجارة العالمية."
+    },
+    {
+      "id": "m-wto-1945",
+      "for": "c-wto",
+      "claim": "منظمة التجارة العالمية أُنشئت مع الأمم المتحدة 1945.",
+      "fix": "انبثقت عن اتفاق مراكش 1994 وبدأت العمل 1995 وحلّت محل GATT."
+    },
+    {
+      "id": "m-mnc-state-owned",
+      "for": "c-multinationals",
+      "claim": "الشركات المتعددة الجنسيات شركات حكومية تابعة لدولها.",
+      "fix": "شركات خاصة عملاقة برؤوس أموال ضخمة وفروع خارج وطنها الأصلي."
+    },
+    {
+      "id": "m-ngo-intergovernmental",
+      "for": "c-ngos",
+      "claim": "المنظمات غير الحكومية منظمات حكومية دولية مثل الأمم المتحدة.",
+      "fix": "جمعيات تطوعية لا حكومية تدافع عن قضايا كالبيئة والعدالة الاجتماعية."
+    },
+    {
+      "id": "m-dominant-brics",
+      "for": "c-dominant-areas",
+      "claim": "المجالات المهيمنة تشمل الصين والبرازيل والهند.",
+      "fix": "و.م.أ وأوروبا الغربية واليابان؛ والصين من المجالات المندمجة."
+    },
+    {
+      "id": "m-integrated-africa",
+      "for": "c-integrated-areas",
+      "claim": "المجالات المندمجة هي البلدان الإفريقية المصدرة للمواد الأولية.",
+      "fix": "اقتصادها مبني على التصنيع وميزانها إيجابي (كالصين)."
+    },
+    {
+      "id": "m-integrating-equals-integrated",
+      "for": "c-integrating-areas",
+      "claim": "مجالات في طور الاندماج هي نفسها المجالات المندمجة.",
+      "fix": "مرحلة أدنى: إنتاج مواد أساسية أو تصنيع جزئي (أوروبا الشرقية، أمريكا الجنوبية، شمال إفريقيا)."
+    },
+    {
+      "id": "m-greatpower-eu",
+      "for": "c-great-power",
+      "claim": "القوة الاقتصادية العظمى هي الاتحاد الأوروبي.",
+      "fix": "المصطلح يُطلق على الولايات المتحدة لريادتها في مختلف المجالات."
+    },
+    {
+      "id": "m-agripower-morocco",
+      "for": "c-agricultural-power",
+      "claim": "القوة الفلاحية بلد يكتفي ذاتياً فقط ولو بفلاحة تقليدية.",
+      "fix": "فلاحة متطورة ومراتب متقدمة عالمياً واكتفاء ذاتي وفائض موجّه للتصدير (فرنسا)."
+    },
+    {
+      "id": "m-indpower-resources",
+      "for": "c-industrial-power",
+      "claim": "القوة الصناعية تُقاس بوفرة المواد الأولية وحدها.",
+      "fix": "تُقاس بفعالية القطاع الصناعي وقدرة المنتجات على المنافسة الدولية."
+    },
+    {
+      "id": "m-tradepower-exports-only",
+      "for": "c-trade-power",
+      "claim": "القوة التجارية تعني كثرة الصادرات وحدها.",
+      "fix": "تعتمد على قوة الأسطول التجاري والقدرة على غزو الأسواق (اليابان)."
+    },
+    {
+      "id": "m-emerging-developing",
+      "for": "c-emerging-power",
+      "claim": "القوة الصاعدة مرادف للبلد النامي.",
+      "fix": "نمو سريع بفعل استثمار الموارد والتنظيم وارتفاع الناتج الداخلي الإجمالي (الصين)."
+    },
+    {
+      "id": "m-hdi-between-countries",
+      "for": "c-hdi-disparities",
+      "claim": "تفاوتات التنمية البشرية تقاس بين الدول فقط.",
+      "fix": "المصطلح يخص التفاوت داخل الدولة الواحدة (كجنوب شرق البرازيل وداخلها)."
+    },
+    {
+      "id": "m-lateindustrial-old",
+      "for": "c-late-industrialization",
+      "claim": "النمو الاقتصادي الحديث يعني بلداناً صناعية قديمة مثل بريطانيا.",
+      "fix": "دول حققت التنمية حديثاً بعد 1945 ونمت بسرعة (كوريا الجنوبية)."
+    },
+    {
+      "id": "m-globalization-benefits-all",
+      "for": "c-globalization",
+      "claim": "العولمة ظاهرة تفيد كل البلدان بالتساوي.",
+      "fix": "تخدم مصالح الدول العظمى؛ وتُنتج على البلدان النامية تبعية اقتصادية وفقدان تحكم في اقتصادها."
+    }
+  ]
+}

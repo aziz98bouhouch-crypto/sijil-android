@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#0f766e"/>
+  <path d="M96 208 L256 128 L416 208 L256 288 Z" fill="#f7fbfa"/>
+  <path d="M256 128 L416 208 L416 240 L256 320 L96 240 L96 208 Z" fill="#e6f6f4" opacity="0.35"/>
+  <rect x="140" y="248" width="26" height="112" rx="10" fill="#f7fbfa"/>
+  <rect x="346" y="248" width="26" height="112" rx="10" fill="#f7fbfa"/>
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="76" font-weight="700"
+        fill="#f7fbfa" text-anchor="middle">HG</text>
+</svg>

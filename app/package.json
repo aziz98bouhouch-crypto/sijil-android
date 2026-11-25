@@ -1,0 +1,21 @@
+{
+  "name": "marhadi-hg",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "مرشدي HG — التاريخ والجغرافيا: لعبة ودليل منهجي واختبار تشخيصي",
+  "scripts": {
+    "content": "node ../tools/build-content.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "node ../tools/build-content.mjs && tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.5",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
