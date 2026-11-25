@@ -452,28 +452,53 @@ function lexiconView(query: string): string {
 /* ------------------------------ الدليل ------------------------------ */
 
 function guideView(): string {
+  const badge = (subject: string) => {
+    if (subject === "history") return `<span class="tag hist">التاريخ</span>`;
+    if (subject === "geography") return `<span class="tag geo">الجغرافيا</span>`;
+    return `<span class="tag both">التاريخ والجغرافيا</span>`;
+  };
+
+  const card = (g: (typeof GUIDE)[number]) => `<section class="panel" id="guide-${g.id}">
+    <h2>${icon(g.icon)} ${esc(g.title)} ${badge(g.subject)}</h2>
+    <p class="lead">${esc(g.intro)}</p>
+    ${
+      g.bySubject
+        ? `<div class="subject-notes">
+            ${g.bySubject.history ? `<div class="snote hist"><b>في التاريخ</b><p>${esc(g.bySubject.history)}</p></div>` : ""}
+            ${g.bySubject.geography ? `<div class="snote geo"><b>في الجغرافيا</b><p>${esc(g.bySubject.geography)}</p></div>` : ""}
+          </div>`
+        : ""
+    }
+    <div class="steps">${g.steps
+      .map((s) => `<div class="step"><b>${esc(s.title)}</b><p>${esc(s.text)}</p></div>`)
+      .join("")}</div>
+    <h3>أخطاء شائعة</h3>
+    <ul class="bullets bad">${g.pitfalls.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
+  </section>`;
+
+  const common = GUIDE.filter((g) => g.subject === "both" && g.id !== "correct");
+  const history = GUIDE.filter((g) => g.subject === "history");
+  const geography = GUIDE.filter((g) => g.subject === "geography");
+  const correction = GUIDE.find((g) => g.id === "correct");
+
   return screen(
     "guide",
     `<h1 class="page">الدليل المنهجي</h1>
-    <p class="lead">أربعة مسارات للعمل المطلوب في الامتحان — الوثيقة، المقال، المبيان، والخط الزمني — ومسار خامس للتصحيح الذاتي، مستندة إلى دليل «مرشدي».</p>
-    ${GUIDE.map(
-      (g) => `<section class="panel">
-        <h2>${icon(g.icon)} ${esc(g.title)}</h2>
-        <p class="lead">${esc(g.intro)}</p>
-        <div class="steps">${g.steps
-          .map((s) => `<div class="step"><b>${esc(s.title)}</b><p>${esc(s.text)}</p></div>`)
-          .join("")}</div>
-        <h3>أخطاء شائعة</h3>
-        <ul class="bullets bad">${g.pitfalls.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
-      </section>`,
-    ).join("")}
+    <p class="lead">مسارات مشتركة بين المادتين، وأخرى خاصة بكل مادة: الوثيقة والمقال مشتركان، الخط الزمني خاص بالتاريخ، والمبيان والخريطة خاصان بالجغرافيا. أما التصحيح فيميز بين معايير التاريخ ومعايير الجغرافيا.</p>
+    <h2 class="sec">مشترك بين التاريخ والجغرافيا</h2>
+    ${common.map(card).join("")}
+    <h2 class="sec">خاص بمادة التاريخ</h2>
+    ${history.map(card).join("")}
+    <h2 class="sec">خاص بمادة الجغرافيا</h2>
+    ${geography.map(card).join("")}
+    ${correction ? `<h2 class="sec">التصحيح الذاتي</h2>${card(correction)}` : ""}
     <section class="panel">
       <h2>${icon("chart")} شبكة تنقيط الاشتغال على الوثائق 3 + 7</h2>
-      <div class="tablewrap"><table class="mtable"><thead><tr><th>المحور</th><th>النقط</th><th>المضمون</th></tr></thead>
+      <div class="tablewrap"><table class="mtable"><thead><tr><th>المحور</th><th>النقط</th><th>في التاريخ</th><th>في الجغرافيا</th></tr></thead>
       <tbody>${RUBRIC_3_7.map(
-        (r) => `<tr><th>${esc(r.axis)}</th><td class="c"><b>${r.points}</b></td><td>${esc(r.detail)}</td></tr>`,
+        (r) => `<tr><th>${esc(r.axis)}</th><td class="c"><b>${r.points}</b></td><td>${esc(r.history)}</td><td>${esc(r.geography)}</td></tr>`,
       ).join("")}</tbody></table></div>
-      <p class="muted small">هذه الشبكة خاصة بأسئلة الوثائق؛ أما المقال فله معاييره (الفهم، الاستثمار، المفاهيم، البنية، اللغة، التركيب). والتطبيق لا يمنح نقطة نهائية آلية: الاختيار من متعدد مؤشر تشخيصي فقط.</p>
+      <p class="muted small">هذه الشبكة خاصة بأسئلة الوثائق في المادتين؛ أما المقال فله معاييره (الفهم، الاستثمار، المفاهيم، البنية، اللغة، التركيب). والتطبيق لا يمنح نقطة نهائية آلية: الاختيار من متعدد مؤشر تشخيصي فقط.</p>
     </section>`,
   );
 }

@@ -405,6 +405,17 @@ p { margin: 0 0 10px; }
 .step b { font-size: 13.5px; color: var(--brand-ink); font-weight: 600; }
 .step p { margin: 4px 0 0; font-size: 13.3px; color: #28514b; }
 
+.tag.both { background: #dff5f0; color: var(--brand-ink); }
+.tag.hist { background: var(--amber-bg); color: var(--amber); }
+.tag.geo { background: #e8f2fd; color: #24639e; }
+.subject-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin: 11px 0 4px; }
+.snote { border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px; background: #fbfefd; }
+.snote b { display: block; font-size: 12px; margin-bottom: 2px; }
+.snote p { margin: 0; font-size: 13px; color: #28514b; }
+.snote.hist { border-right: 3px solid var(--amber); background: var(--amber-bg); }
+.snote.geo { border-right: 3px solid #2f7fd1; background: #eef6ff; }
+@media (max-width: 640px) { .subject-notes { grid-template-columns: 1fr; } }
+
 /* ============ الأوراق ============ */
 .sheetpreview {
   display: flex; gap: 20px; align-items: center; margin-top: 16px;
