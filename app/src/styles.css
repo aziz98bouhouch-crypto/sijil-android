@@ -416,6 +416,46 @@ p { margin: 0 0 10px; }
 .snote.geo { border-right: 3px solid #2f7fd1; background: #eef6ff; }
 @media (max-width: 640px) { .subject-notes { grid-template-columns: 1fr; } }
 
+.guide-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 4px 0 6px; }
+.gcard {
+  display: flex; flex-direction: column; gap: 6px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 14px; padding: 15px;
+  box-shadow: var(--sh-1); transition: border-color 0.18s var(--ease), transform 0.18s var(--ease);
+}
+.gcard:hover { border-color: #b9e2db; transform: translateY(-2px); }
+.gicon { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: #eaf7f4; color: var(--brand); }
+.gcard b { font-size: 14.5px; color: var(--ink); line-height: 1.5; }
+.gcard small { font-size: 12.5px; color: var(--muted); line-height: 1.65; }
+.gmore { font-size: 11.5px; color: var(--brand); margin-top: auto; padding-top: 4px; }
+.ghead .tag { margin-bottom: 4px; }
+.example .ex-prompt { background: #fbfefd; border-right: 3px solid var(--brand); border-radius: 8px; padding: 10px 12px; font-size: 13.5px; }
+.solution { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #fbfefd; }
+.solution summary { cursor: pointer; font-weight: 600; color: var(--brand-ink); font-size: 13px; }
+.solution p { margin: 8px 0 0; font-size: 13.3px; color: #28514b; }
+.qbox { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; background: #fff; }
+.qstem { font-size: 13.8px; font-weight: 600; margin: 0 0 8px; color: var(--ink); }
+.qopts { display: grid; gap: 6px; }
+.qopt {
+  text-align: right; font: inherit; font-size: 13px; padding: 8px 11px;
+  border: 1px solid var(--line); border-radius: 9px; background: #fbfefd; color: var(--ink); cursor: pointer;
+}
+.qopt:hover:not(:disabled) { border-color: var(--brand); background: #f1fbf8; }
+.qopt:disabled { cursor: default; opacity: 0.92; }
+.qopt.picked { border-color: var(--brand); background: #e9f8f5; font-weight: 600; }
+.qopt.good { border-color: var(--good); background: var(--good-bg); color: #0b6b3d; font-weight: 600; }
+.qopt.bad { border-color: var(--bad); background: var(--bad-bg); color: #9b2020; }
+.qfb { margin: 9px 0 0; font-size: 12.8px; color: #28514b; background: #f6fcfb; border-radius: 8px; padding: 8px 10px; }
+.tq { border-bottom: 1px solid var(--line); padding: 14px 0; }
+.tq:last-child { border-bottom: 0; }
+.texp { margin: 9px 0 0; font-size: 12.8px; color: #28514b; background: #f6fcfb; padding: 8px 10px; border-radius: 8px; }
+.testresult { margin-top: 14px; padding: 14px; border-radius: 12px; font-weight: 600; text-align: center; }
+.testresult.ok { background: var(--good-bg); color: #0b6b3d; }
+.testresult.mid { background: var(--amber-bg); color: var(--amber); }
+.testresult.low { background: var(--bad-bg); color: #9b2020; }
+.gnav { justify-content: space-between; }
+@media (max-width: 860px) { .guide-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .guide-grid { grid-template-columns: 1fr; } }
+
 /* ============ الأوراق ============ */
 .sheetpreview {
   display: flex; gap: 20px; align-items: center; margin-top: 16px;
