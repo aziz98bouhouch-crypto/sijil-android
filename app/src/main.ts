@@ -45,6 +45,7 @@ interface PlayState {
   missed: MissRecord[];
 }
 let play: PlayState | null = null;
+let lastView = "";
 
 /* ------------------------------ الهيكل ------------------------------ */
 
@@ -592,10 +593,14 @@ function render() {
     case "lesson":
       html = lessonView(seg[1] ?? "");
       break;
-    case "play":
-      play = null;
-      html = playView(seg[1] ?? "", seg[2] ?? "diagnostic");
+    case "play": {
+      const lessonId = seg[1] ?? "";
+      const modeId = seg[2] ?? "diagnostic";
+      const sameRun = lastView === "play" && play && play.lessonId === lessonId && play.modeId === modeId;
+      if (!sameRun) play = null;
+      html = playView(lessonId, modeId);
       break;
+    }
     case "lexicon": {
       const params = new URLSearchParams(parts[0]);
       html = lexiconView(params.get("q") ?? "");
@@ -627,6 +632,7 @@ function render() {
 
   app.innerHTML = html;
   bind(view, seg, needsSearch);
+  lastView = view;
   window.scrollTo({ top: 0 });
 }
 
@@ -689,10 +695,7 @@ function bind(view: string, seg: string[], needsSearch: boolean) {
             at: new Date().toISOString(),
           });
         }
-        const keep = { ...st };
         render();
-        play = keep;
-        document.querySelectorAll<HTMLButtonElement>("[data-opt]").forEach((o) => (o.disabled = true));
       });
     });
     document.querySelector("[data-next]")?.addEventListener("click", () => {
