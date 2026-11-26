@@ -489,7 +489,7 @@ input[type="number"] { width: 96px; }
 .mapthumb svg { display: block; width: 100%; height: 150px; }
 .mapcard small { display: block; }
 .mapctx path { fill: #e8f1ef; stroke: #cfe2dd; stroke-width: 0.6; }
-.mapbase { fill: #cfe9e2; stroke: #5d9a90; stroke-width: 1.1; }
+.mapbase { fill: #e3efec; stroke: #5d9a90; stroke-width: 1.2; }
 .mapzones { pointer-events: none; }
 .mapsvg .mapzones { pointer-events: auto; }
 .maps-teaser { margin-top: 10px; }
@@ -509,14 +509,14 @@ input[type="number"] { width: 96px; }
 }
 .mapstage svg { display: block; width: 100%; height: auto; background: #f7fdfb; }
 .mapzone {
-  fill: rgba(47, 111, 179, 0.14); stroke: rgba(47, 111, 179, 0.35); stroke-width: 0.8;
+  fill: rgba(47, 111, 179, 0.24); stroke: #2f6fb3; stroke-width: 1; stroke-linejoin: round;
   cursor: pointer; transition: fill 0.15s, stroke 0.15s;
 }
-.mapzone.mini { fill: rgba(14, 148, 136, 0.18); stroke: rgba(14, 148, 136, 0.45); stroke-width: 1; }
-.mapzone:focus-visible { outline: none; stroke: #0e9488; stroke-width: 2; }
-.mapzone:hover { fill: rgba(47, 111, 179, 0.2); stroke: #2f6fb3; stroke-width: 0.6; }
-.mapzone.right { fill: rgba(31, 138, 80, 0.4); stroke: #1f8a50; stroke-width: 0.8; }
-.mapzone.wrong { fill: rgba(190, 50, 40, 0.4); stroke: #b3261e; stroke-width: 0.8; }
+.mapzone.mini { fill: rgba(14, 148, 136, 0.3); stroke: rgba(14, 148, 136, 0.8); stroke-width: 1; }
+.mapzone:focus-visible { outline: none; stroke: #0e9488; stroke-width: 2.2; }
+.mapzone:hover { fill: rgba(47, 111, 179, 0.42); stroke: #1d4f86; stroke-width: 1.4; }
+.mapzone.right { fill: rgba(31, 138, 80, 0.55); stroke: #1f8a50; stroke-width: 1.4; }
+.mapzone.wrong { fill: rgba(190, 50, 40, 0.55); stroke: #b3261e; stroke-width: 1.4; }
 .mapstage.finished { pointer-events: none; opacity: 0.88; }
 .mapfeedback {
   max-width: 780px; margin: 10px auto 0; padding: 11px 13px; border-radius: 11px;

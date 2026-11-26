@@ -43,7 +43,7 @@ function mapSVG(ex: MapExercise, interactive: boolean): string {
     ? zoneList
         .map(
           (z) =>
-            `<path class="mapzone" data-zone="${esc(z.id)}" d="${z.d}" role="button" tabindex="0" aria-label="${esc(
+            `<path class="mapzone" fill-rule="evenodd" data-zone="${esc(z.id)}" d="${z.d}" role="button" tabindex="0" aria-label="${esc(
               z.label,
             )}"><title>${esc(z.label)}</title></path>`,
         )
@@ -64,14 +64,14 @@ function miniMap(ex: MapExercise): string {
   return `<div class="mapthumb"><svg viewBox="${g.viewBox}" aria-hidden="true">
     <g class="mapctx">${g.context.map((d) => `<path d="${d}" />`).join("")}</g>
     ${g.outline ? `<path class="mapbase" d="${g.outline}" />` : ""}
-    <g class="mapzones">${zoneList.map((z) => `<path class="mapzone mini" d="${z.d}" />`).join("")}</g>
+    <g class="mapzones">${zoneList.map((z) => `<path class="mapzone mini" fill-rule="evenodd" d="${z.d}" />`).join("")}</g>
   </svg></div>`;
 }
 
 export function mapsIndexView(): string {
   state = blank();
   return `<h1 class="page">تمارين التوطين التفاعلي</h1>
-  <p class="lead">خرائط مرسومة من حدود جغرافية حقيقية: اقرأ المطلوب ثم اضغط على المجال الصحيح داخل الخريطة. إن أخطأت يوضح لك التطبيق المجال الذي اخترته والمجال الصحيح. خريطة المغرب تشمل الصحراء المغربية.</p>
+  <p class="lead">خرائط مرسومة من حدود جغرافية حقيقية: اقرأ المطلوب ثم اضغط على المجال الصحيح داخل الخريطة. حدود المقاطعات والجهات الداخلية مخفية، فلا يظهر إلا حدّ كل مجال مستهدف. إن أخطأت يوضح لك التطبيق المجال الذي اخترته والمجال الصحيح، وخريطة المغرب تشمل الصحراء المغربية كاملة.</p>
   <div class="guide-grid maps-grid">
     ${MAPS.map(
       (m) => `<a class="gcard mapcard" href="#/maps/${m.id}">
@@ -82,7 +82,7 @@ export function mapsIndexView(): string {
       </a>`,
     ).join("")}
   </div>
-  <div class="note" style="margin-top:14px">${icon("compass")}<br />النقر داخل المجال هو الإجابة، والمجالات مقصوصة داخل حدود الدولة. لا تُحتسب نقطة نهائية: النتيجة تدريبية.</div>`;
+  <div class="note" style="margin-top:14px">${icon("compass")}<br />النقر داخل المجال هو الإجابة، والمجالات مقصوصة داخل حدود الدولة وحدودها الإدارية الداخلية مدمجة. لا تُحتسب نقطة نهائية: النتيجة تدريبية.</div>`;
 }
 
 export function mapExerciseView(id: string): string {
