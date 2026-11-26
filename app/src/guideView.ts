@@ -1,6 +1,21 @@
 /** عرض صفحات الدليل المنهجي: فهرس، صفحة مجال، واختبار تطبيقي لكل مادة */
 
-import { TOPICS, SUBJECTS, TESTS, RUBRIC_3_7, type GuideTopic } from "./guide";
+import {
+  TOPICS,
+  SUBJECTS,
+  TESTS,
+  RUBRIC_3_7,
+  GOLDEN_RULES,
+  CHART_TYPES,
+  CONCEPTS,
+  type AnswerSource,
+  type DocApplication,
+  type GuideScorePart,
+  type EssayStage,
+  type ModelEssay,
+  type GuideSkill,
+  type GuideTopic,
+} from "./guide";
 import { icon } from "./icons";
 
 const esc = (s: string) =>
@@ -143,6 +158,78 @@ function visualHTML(kind: "timeline" | "map" | "bar" | "pie" | "curve"): string 
   </svg><figcaption>لا تُقرأ الخريطة دون عنوان ومفتاح ومقياس واتجاه شمال.</figcaption></figure>`;
 }
 
+/** تسمية مرجعية الإجابة */
+const srcLabel: Record<AnswerSource, string> = {
+  docs: "من الوثائق حصراً",
+  acquired: "من المكتسبات",
+  both: "الوثائق + المكتسبات",
+};
+
+function skillsHTML(skills: GuideSkill[]): string {
+  return `<div class="tablewrap"><table class="mtable skills">
+    <thead><tr><th>المهارة / السؤال المنهجي</th><th>الوثائق التي تهمها</th><th>مرجعية الإجابة والضوابط</th></tr></thead>
+    <tbody>${skills
+      .map(
+        (s) => `<tr><th>${esc(s.skill)}</th><td>${esc(s.docs)}</td><td><span class="src src-${s.source}">${esc(
+          srcLabel[s.source],
+        )}</span>${esc(s.rule)}</td></tr>`,
+      )
+      .join("")}</tbody></table></div>`;
+}
+
+function applicationHTML(app: DocApplication): string {
+  return `<p class="muted small">${esc(app.title)}</p>
+  <div class="docapp">${app.documents
+    .map((d) => `<article class="doc"><b>${esc(d.label)}</b><p>${esc(d.text)}</p></article>`)
+    .join("")}</div>
+  <h3 class="minihead">الأسئلة وعناصر الإجابة المصححة</h3>
+  <div class="qa">${app.questions
+    .map(
+      (q) => `<details class="qaitem"><summary>${esc(q.q)}</summary><p>${esc(q.a)}</p></details>`,
+    )
+    .join("")}</div>`;
+}
+
+function scoringHTML(parts: GuideScorePart[]): string {
+  return `<div class="scoregrid">${parts
+    .map(
+      (p) => `<div class="scorecard"><div class="scorehead"><b>${esc(p.part)}</b><span>${esc(
+        p.points,
+      )}</span></div><ul class="bullets">${p.criteria.map((c) => `<li>${esc(c)}</li>`).join("")}</ul></div>`,
+    )
+    .join("")}</div>`;
+}
+
+function structureHTML(rows: EssayStage[]): string {
+  return `<div class="tablewrap"><table class="mtable"><thead><tr><th>المرحلة</th><th>في التاريخ</th><th>في الجغرافيا</th></tr></thead>
+  <tbody>${rows
+    .map(
+      (r) => `<tr><th>${esc(r.stage)}</th><td>${esc(r.history)}</td><td>${esc(r.geography)}</td></tr>`,
+    )
+    .join("")}</tbody></table></div>`;
+}
+
+function modelHTML(m: ModelEssay): string {
+  return `<p class="ex-prompt">${esc(m.prompt)}</p>
+  <details class="solution"><summary>اعرض النموذج المصحح كاملاً</summary>
+  <div class="modelessay">${m.sections
+    .map((s) => `<p><b>${esc(s.label)}:</b> ${esc(s.text)}</p>`)
+    .join("")}</div></details>`;
+}
+
+function chartTypesHTML(): string {
+  return `<div class="tablewrap"><table class="mtable"><thead><tr><th>نوع المبيان</th><th>متى يُستعمل؟</th><th>الضوابط</th></tr></thead>
+  <tbody>${CHART_TYPES.map(
+    (c) => `<tr><th>${esc(c.type)}</th><td>${esc(c.when)}</td><td>${esc(c.rules)}</td></tr>`,
+  ).join("")}</tbody></table></div>`;
+}
+
+function conceptsHTML(subject: GuideTopic["subject"]): string {
+  const rows = CONCEPTS.filter((c) => c.subject === subject);
+  return `<div class="tablewrap"><table class="mtable"><thead><tr><th>المفهوم / المصطلح</th><th>التعريف الدقيق وفق الإطار المرجعي</th></tr></thead>
+  <tbody>${rows.map((c) => `<tr><th>${esc(c.term)}</th><td>${esc(c.def)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
 function card(t: GuideTopic): string {
   return `<a class="gcard" href="#/guide/${t.id}">
     <span class="gicon">${icon(t.icon)}</span>
@@ -171,7 +258,13 @@ export function guideIndexView(): string {
       (r) =>
         `<tr><th>${esc(r.axis)}</th><td class="c"><b>${r.points}</b></td><td>${esc(r.history)}</td><td>${esc(r.geography)}</td></tr>`,
     ).join("")}</tbody></table></div>
-    <p class="muted small">الشبكة خاصة بأسئلة الوثائق؛ للمقال معاييره (الفهم، الاستثمار، المفاهيم، البنية، اللغة، التركيب).</p>
+    <p class="muted small">الشبكة خاصة بأسئلة الوثائق؛ للمقال شبكة 8 + 2 نقطة (تصميم 1، لغة 0.5، شكل 0.5). <a href="#/guide/hist-essay">اطّلع على شبكة المقال</a>.</p>
+  </section>
+  <section class="panel">
+    <h2>${icon("alert")} الضوابط المنهجية الذهبية</h2>
+    <div class="rules">${GOLDEN_RULES.map(
+      (r) => `<div class="rule"><b>${esc(r.title)}</b><p>${esc(r.text)}</p></div>`,
+    ).join("")}</div>
   </section>`;
 }
 
@@ -212,6 +305,32 @@ export function guideTopicView(id: string): string {
       .join("")}</div>
   </section>
   ${topic.visual ? `<section class="panel"><h2>${icon("chart")} صورة توضيحية</h2>${visualHTML(topic.visual)}</section>` : ""}
+  ${topic.visual === "bar" || topic.visual === "pie" || topic.visual === "curve"
+    ? `<section class="panel"><h2>${icon("chart")} اختر المبيان المناسب</h2>${chartTypesHTML()}</section>`
+    : ""}
+  ${topic.skills
+    ? `<section class="panel"><h2>${icon("doc")} جدول المهارات ومرجعية الإجابة</h2>
+    <p class="muted small">قبل الكتابة، تحقق من عمود «مرجعية الإجابة»: بعض الأسئلة تُستخرج من الوثائق حصراً، وبعضها من المكتسبات.</p>
+    ${skillsHTML(topic.skills)}</section>`
+    : ""}
+  ${topic.application
+    ? `<section class="panel"><h2>${icon("check")} تطبيق مصحح على الوثائق</h2>${applicationHTML(topic.application)}</section>`
+    : ""}
+  ${topic.scoring
+    ? `<section class="panel"><h2>${icon("target")} شبكة تنقيط الموضوع المقالي (10 نقط)</h2>${scoringHTML(
+        topic.scoring,
+      )}</section>`
+    : ""}
+  ${topic.structure
+    ? `<section class="panel"><h2>${icon("pencil")} خطوات التحرير: التاريخ والجغرافيا</h2>${structureHTML(
+        topic.structure,
+      )}</section>`
+    : ""}
+  ${topic.model
+    ? `<section class="panel example"><h2>${icon("spark")} ${esc(topic.model.title)}</h2>${modelHTML(
+        topic.model,
+      )}</section>`
+    : ""}
   <section class="panel example">
     <h2>${icon("spark")} ${esc(topic.example.title)}</h2>
     <p class="ex-prompt">${esc(topic.example.prompt)}</p>
@@ -230,6 +349,11 @@ export function guideTopicView(id: string): string {
     <h2>${icon("alert")} أخطاء شائعة</h2>
     <ul class="bullets bad">${topic.pitfalls.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
   </section>
+  ${topic.id === "hist-doc" || topic.id === "geo-doc"
+    ? `<section class="panel"><h2>${icon("doc")} مسرد المفاهيم لسؤال التعريف</h2>
+    <p class="muted small">التعريف من المكتسبات أساساً؛ استحضر الزمن والمكان والدلالة، وأغنِه بمعطيات الوثيقة إن وافقت.</p>
+    ${conceptsHTML(topic.subject)}</section>`
+    : ""}
   <div class="row gnav">
     ${prev ? `<a class="btn ghost" href="#/guide/${prev.id}">${icon("arrow")} ${esc(prev.title)}</a>` : ""}
     ${next ? `<a class="btn ghost" href="#/guide/${next.id}">${esc(next.title)} ${icon("arrow")}</a>` : ""}
