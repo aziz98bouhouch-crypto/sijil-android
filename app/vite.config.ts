@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   base: "./",
+  define: {
+    __APP_VERSION__: JSON.stringify(process.env.APP_VERSION ?? "0"),
+  },
   build: {
     target: "es2020",
     outDir: "dist",

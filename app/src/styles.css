@@ -783,3 +783,33 @@ input[type="number"] { width: 96px; }
   .mic-btn, .send-btn { width: 42px; height: 42px; }
 }
 
+
+/* بطاقة التحديث الذاتي */
+.update-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 18px 0 6px;
+  padding: 14px 18px;
+  border: 1px solid rgba(14, 148, 136, 0.28);
+  border-radius: var(--r);
+  background: linear-gradient(135deg, rgba(45, 212, 191, 0.14), rgba(45, 212, 191, 0.04));
+  box-shadow: var(--sh-1);
+}
+.update-text { min-width: 220px; flex: 1; }
+.update-text b {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--brand-ink);
+  font-size: 15px;
+}
+.update-text b svg { width: 17px; height: 17px; }
+.update-text p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.update-note:empty { display: none; }
+.update-note.warn { color: var(--bad); }
+.update-note a { color: var(--brand); font-weight: 600; }
+.update-btn { white-space: nowrap; }
+.update-btn:disabled { opacity: 0.65; }

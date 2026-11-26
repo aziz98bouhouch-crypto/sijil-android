@@ -1,0 +1,12 @@
+{
+  "name": "marhadi-apk-updater",
+  "version": "1.0.0",
+  "description": "تحديث APK من داخل تطبيق مرشدي HG",
+  "main": "index.js",
+  "private": true,
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  }
+}

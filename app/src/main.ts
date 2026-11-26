@@ -15,6 +15,7 @@ import {
   parseSpec,
 } from "./sheets";
 import { icon } from "./icons";
+import { checkForUpdate, installUpdate, type UpdateInfo } from "./updater";
 
 const content = data as unknown as Content;
 const lex = content.lexicon;
@@ -142,6 +143,8 @@ function homeView(): string {
         <div class="stat"><b>${s.accuracy}%</b><span>معدل الإتقان</span></div>
       </div>
     </section>
+
+    <div id="updateSlot"></div>
 
     <a class="teacher-teaser" href="#/teacher">
       <img src="./teacher.webp" alt="الأستاذ مرشدي" />
@@ -596,6 +599,69 @@ function sheetView(lessonId: string, modeId: string): string {
 
 /* ------------------------------ التوجيه ------------------------------ */
 
+async function showUpdate(): Promise<void> {
+  const slot = document.getElementById("updateSlot");
+  if (!slot) return;
+  const info = await checkForUpdate();
+  if (!info || !slot.isConnected) return;
+  renderUpdateCard(slot, info);
+}
+
+function renderUpdateCard(slot: HTMLElement, info: UpdateInfo): void {
+  const card = document.createElement("section");
+  card.className = "update-card";
+
+  const text = document.createElement("div");
+  text.className = "update-text";
+  const title = document.createElement("b");
+  title.innerHTML = `${icon("refresh")} نسخة جديدة ${info.version} متوفرة`;
+  const sub = document.createElement("p");
+  sub.textContent = "حدّث من داخل التطبيق دون حذف تقدّمك.";
+  const note = document.createElement("p");
+  note.className = "update-note";
+  text.append(title, sub, note);
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "btn update-btn";
+  btn.innerHTML = `${icon("refresh")} تحديث الآن`;
+  card.append(text, btn);
+  slot.replaceChildren(card);
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    btn.textContent = "جارٍ التنزيل…";
+    note.className = "update-note";
+    note.textContent = "سيُفتح مثبّت أندرويد عند اكتمال التنزيل.";
+    try {
+      const how = await installUpdate(info);
+      if (how === "installer") {
+        note.textContent = "اكتمل التنزيل. أكمل التثبيت من نافذة النظام.";
+        btn.textContent = "تم التنزيل";
+      } else {
+        note.textContent = "بدأ تنزيل النسخة الجديدة في المتصفح.";
+        btn.textContent = "فُتح رابط التنزيل";
+      }
+    } catch (err) {
+      const code = (err as { code?: string })?.code ?? "";
+      note.className = "update-note warn";
+      note.textContent = code.includes("install_permission")
+        ? "اسمح لمرشدي بتثبيت التطبيقات من الإعدادات ثم أعد المحاولة."
+        : "تعذر إكمال التحديث. تحقق من الاتصال وحاول مجدداً.";
+      if (info.page) {
+        const link = document.createElement("a");
+        link.href = info.page;
+        link.target = "_blank";
+        link.rel = "noopener";
+        link.textContent = " صفحة الإصدار";
+        note.appendChild(link);
+      }
+      btn.disabled = false;
+      btn.textContent = "إعادة المحاولة";
+    }
+  });
+}
+
 function route(): { name: string; parts: string[] } {
   const h = location.hash.replace(/^#\/?/, "");
   const [path, qstr] = h.split("?");
@@ -664,6 +730,8 @@ function render() {
 }
 
 function bind(view: string, seg: string[], needsSearch: boolean) {
+  if (view === "") void showUpdate();
+
   if (needsSearch) {
     const input = document.getElementById("q") as HTMLInputElement | null;
     if (input) {

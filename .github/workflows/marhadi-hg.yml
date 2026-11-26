@@ -46,6 +46,8 @@ jobs:
         run: python3 tools/validate-lessons.py || true
 
       - name: بناء الويب (يولّد content.json ثم tsc ثم vite)
+        env:
+          APP_VERSION: ${{ github.run_number }}
         run: npm run build
 
       - name: أرشفة dist
@@ -82,6 +84,8 @@ jobs:
           cache-dependency-path: app/package-lock.json
 
       - name: تثبيت وبناء الويب
+        env:
+          APP_VERSION: ${{ github.run_number }}
         run: |
           npm ci --no-audit --no-fund
           npm run build
@@ -101,21 +105,26 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: بناء APK (debug)
+      - name: ضبط رقم الإصدار والتوقيع الثابت
+        env:
+          APP_VERSION: ${{ github.run_number }}
+        run: node ../tools/patch-android.mjs
+
+      - name: بناء APK (release موقَّع)
         working-directory: app/android
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug --no-daemon -Dorg.gradle.jvmargs=-Xmx2g
+          ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs=-Xmx2g
 
       - name: أرشفة APK
         uses: actions/upload-artifact@v4
         with:
           name: marhadi-hg-apk
-          path: app/android/app/build/outputs/apk/debug/app-debug.apk
+          path: app/android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
       - name: نسخ الـAPK باسم واضح
-        run: cp app/android/app/build/outputs/apk/debug/app-debug.apk ./marhadi-hg.apk
+        run: cp app/android/app/build/outputs/apk/release/app-release.apk ./marhadi-hg.apk
         working-directory: .
 
       - name: نشر Release
