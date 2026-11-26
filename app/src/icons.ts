@@ -9,6 +9,10 @@ const BODY: Record<string, string> = {
   clock: `<circle cx="12" cy="12" r="8.5"/><path d="M12 7.4V12l3.2 2"/>`,
   pencil: `<path d="M4 20h4l10.5-10.5a2.1 2.1 0 00-3-3L5 17v3z"/><path d="M13.8 6.2l3 3"/>`,
   user: `<circle cx="12" cy="8.2" r="3.9"/><path d="M4.6 20.4c0-3.7 3.3-6.2 7.4-6.2s7.4 2.5 7.4 6.2"/>`,
+  mic: `<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0013 0"/><path d="M12 18v3.2M8.8 21.2h6.4"/>`,
+  send: `<path d="M20.5 3.5L3.8 10.4l6.2 2.6 2.6 6.2 7.9-15.7z"/><path d="M20.5 3.5l-10.5 9.5"/>`,
+  volume: `<path d="M4 9.2h3.7L13 5v14l-5.3-4.2H4z"/><path d="M16.2 8.4a5 5 0 010 7.2"/><path d="M19 5.8a9 9 0 010 12.4"/>`,
+  volumeOff: `<path d="M4 9.2h3.7L13 5v14l-5.3-4.2H4z"/><path d="M16.4 9.4l4.8 5.2M21.2 9.4l-4.8 5.2"/>`,
   bolt: `<path d="M13.5 2.5L4.8 13.6h5.6L10 21.5l8.8-11.1h-5.7l.4-7.9z"/>`,
   // تنقّل
   book: `<path d="M4 4.8A2.8 2.8 0 016.8 2H20v17.5H6.8A2.8 2.8 0 004 22V4.8z"/><path d="M6.8 2v17.5"/>`,

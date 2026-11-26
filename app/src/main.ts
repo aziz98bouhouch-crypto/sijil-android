@@ -4,6 +4,7 @@ import type { Content, Lesson, Concept, Q } from "./types";
 import { MODES, buildMode, availableModes } from "./modes";
 import { guideIndexView, guideTopicView, guideTestView, bindGuide } from "./guideView";
 import { mapsIndexView, mapExerciseView, bindMaps } from "./mapView";
+import { teacherView, bindTeacher, destroyTeacher } from "./teacherView";
 import { recordRun, markSeen, stats, resetAll, type MissRecord } from "./store";
 import {
   buildSpec,
@@ -57,6 +58,7 @@ let lastView = "";
 
 const NAV = [
   { href: "#/", label: "الدروس", key: "home", ic: "book" },
+  { href: "#/teacher", label: "الأستاذ", key: "teacher", ic: "user" },
   { href: "#/lexicon", label: "المعجم", key: "lexicon", ic: "library" },
   { href: "#/guide", label: "الدليل", key: "guide", ic: "compass" },
   { href: "#/maps", label: "الخرائط", key: "maps", ic: "target" },
@@ -140,6 +142,15 @@ function homeView(): string {
         <div class="stat"><b>${s.accuracy}%</b><span>معدل الإتقان</span></div>
       </div>
     </section>
+
+    <a class="teacher-teaser" href="#/teacher">
+      <img src="./teacher.webp" alt="الأستاذ مرشدي" />
+      <div>
+        <b>${icon("spark")} اسأل الأستاذ مرشدي</b>
+        <span>شخصية ثلاثية الأبعاد تشرح الدروس والمفاهيم والمنهجيات، وتستمع لسؤالك بالعربية بعد إذن الميكروفون.</span>
+      </div>
+      <em>تحدّث معه ${icon("arrow")}</em>
+    </a>
 
     <h2 class="sec">${icon("book")} التاريخ <span class="tag">${hist.filter((h) => byId.has(h.id)).length}/${hist.length}</span></h2>
     <div class="grid">${hist.map(card).join("")}</div>
@@ -592,6 +603,7 @@ function route(): { name: string; parts: string[] } {
 }
 
 function render() {
+  if (lastView === "teacher") destroyTeacher();
   const { name, parts } = route();
   const seg = name.split("/").filter(Boolean);
   const view = seg[0] ?? "";
@@ -632,6 +644,9 @@ function render() {
     case "maps":
       html = screen("maps", seg[1] ? mapExerciseView(seg[1]) : mapsIndexView());
       break;
+    case "teacher":
+      html = screen("teacher", teacherView());
+      break;
     case "report":
       html = reportView();
       break;
@@ -666,6 +681,11 @@ function bind(view: string, seg: string[], needsSearch: boolean) {
         }, 220);
       });
     }
+  }
+
+  if (view === "teacher") {
+    void bindTeacher();
+    return;
   }
 
   if (view === "maps") {
@@ -753,6 +773,7 @@ function bind(view: string, seg: string[], needsSearch: boolean) {
 }
 
 window.addEventListener("hashchange", render);
+window.addEventListener("beforeunload", () => destroyTeacher());
 render();
 
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
