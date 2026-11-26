@@ -71,7 +71,7 @@ function miniMap(ex: MapExercise): string {
 export function mapsIndexView(): string {
   state = blank();
   return `<h1 class="page">تمارين التوطين التفاعلي</h1>
-  <p class="lead">خرائط مرسومة من حدود جغرافية حقيقية: اقرأ المطلوب ثم اضغط على المجال الصحيح داخل الخريطة. حدود المقاطعات والجهات الداخلية مخفية، فلا يظهر إلا حدّ كل مجال مستهدف. إن أخطأت يوضح لك التطبيق المجال الذي اخترته والمجال الصحيح، وخريطة المغرب تشمل الصحراء المغربية كاملة.</p>
+  <p class="lead">اقرأ المطلوب ثم اضغط على المجال الصحيح داخل الخريطة.</p>
   <div class="guide-grid maps-grid">
     ${MAPS.map(
       (m) => `<a class="gcard mapcard" href="#/maps/${m.id}">

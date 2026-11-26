@@ -1,6 +1,15 @@
 /* مرشدي HG — عامل خدمة بسيط: الشبكة أولاً، ثم الذاكرة عند انقطاع الاتصال */
-const CACHE = "marhadi-v1";
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"];
+const CACHE = "marhadi-v2";
+const PRECACHE = [
+  "./",
+  "./index.html",
+  "./manifest.webmanifest",
+  "./icon.svg",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./icon-maskable-512.png",
+  "./apple-touch-icon.png",
+];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(PRECACHE)).then(() => self.skipWaiting()));

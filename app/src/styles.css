@@ -535,6 +535,7 @@ input[type="number"] { width: 96px; }
 /* رسوم الدليل التوضيحية */
 .gvisual { margin: 14px 0 0; padding: 8px; background: #fbfefd; border: 1px solid var(--line); border-radius: 12px; }
 .gvisual svg { display: block; width: 100%; height: auto; }
+.gvisual { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .gvisual text { font-family: inherit; }
 .gvisual .svgb { font-size: 12px; font-weight: 700; fill: #21414f; }
 .gvisual .svgs { font-size: 10.5px; fill: #46616e; }
@@ -813,3 +814,120 @@ input[type="number"] { width: 96px; }
 .update-note a { color: var(--brand); font-weight: 600; }
 .update-btn { white-space: nowrap; }
 .update-btn:disabled { opacity: 0.65; }
+
+/* ============ الرئيسية الجديدة ============ */
+.hero-copy { display: flex; flex-direction: column; justify-content: center; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  font-size: 11.5px; font-weight: 600; color: #d6fff7;
+  background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 11px; border-radius: 999px; margin-bottom: 12px;
+}
+.home-hero { align-items: center; }
+.home-hero h1 { line-height: 1.35; letter-spacing: -0.6px; }
+.home-hero p { margin-bottom: 0; }
+
+.home-tiles {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 4px;
+}
+.home-tile {
+  display: flex; flex-direction: column; gap: 3px; padding: 15px 14px;
+  background: #fff; border: 1px solid var(--line); border-radius: 15px;
+  box-shadow: var(--sh-1); transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease);
+  position: relative; overflow: hidden;
+}
+.home-tile::before {
+  content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--brand);
+}
+.home-tile.t-blue::before { background: #2f6fb3; }
+.home-tile.t-amber::before { background: var(--amber); }
+.home-tile.t-violet::before { background: #7b61b8; }
+.home-tile:hover { transform: translateY(-2px); box-shadow: var(--sh-2); }
+.home-tile .ht-ic {
+  width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+  background: #eaf7f4; color: var(--brand); margin-bottom: 5px;
+}
+.home-tile.t-blue .ht-ic { background: #eaf1fb; color: #2f6fb3; }
+.home-tile.t-amber .ht-ic { background: var(--amber-bg); color: var(--amber); }
+.home-tile.t-violet .ht-ic { background: #f1edfa; color: #6a4fa8; }
+.home-tile b { font-size: 14px; color: var(--ink); }
+.home-tile small { font-size: 11.5px; color: var(--muted); }
+
+.home-sec-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.home-sec-head .sec { margin: 18px 0 12px; flex: 1; }
+.home-sec-head .sec::after { display: none; }
+.home-more { font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+
+.lessons-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.count-pill {
+  font-size: 12px; font-weight: 700; color: var(--brand-ink); background: #e6f7f3;
+  border: 1px solid #cdece6; border-radius: 999px; padding: 3px 11px;
+}
+
+/* ============ دليل المبيانات ============ */
+.dim-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.dim-card {
+  position: relative; background: linear-gradient(160deg, #fbfefd, #f1faf7);
+  border: 1px solid var(--line); border-radius: 13px; padding: 13px 14px 12px;
+}
+.dim-card .dim-n {
+  position: absolute; top: 11px; inset-inline-end: 12px;
+  width: 21px; height: 21px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--brand); color: #fff; font-size: 11px; font-weight: 700;
+}
+.dim-card b { display: block; font-size: 14px; color: var(--brand-ink); margin-bottom: 3px; }
+.dim-card p { margin: 0 0 5px; font-size: 12.8px; color: #28514b; }
+.dim-card small { font-size: 11.5px; color: var(--muted); line-height: 1.7; }
+
+.chartapps { display: grid; gap: 9px; }
+.chartapp {
+  border: 1px solid var(--line); border-radius: 12px; background: #fbfefd; padding: 10px 13px;
+}
+.chartapp summary {
+  cursor: pointer; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 13px; color: var(--brand-ink);
+}
+.chartapp summary b { font-size: 13px; font-weight: 600; }
+.chartapp[open] summary { margin-bottom: 10px; }
+.chart-table th:first-child, .chart-table td:first-child { text-align: start; }
+.chart-table td.c { text-align: center; font-variant-numeric: tabular-nums; }
+.chart-reason, .chart-desc { font-size: 13px; line-height: 1.8; color: #28514b; margin: 8px 0 0; }
+.chart-desc { background: #eef9f6; border-right: 3px solid var(--brand); border-radius: 8px; padding: 9px 11px; }
+.chart-reason b, .chart-desc b { color: var(--brand-ink); }
+
+/* ============ رسوم الدليل المحسّنة ============ */
+.gvisual {
+  margin: 14px 0 0; padding: 12px 12px 6px;
+  background: linear-gradient(170deg, #ffffff, #f4fbf9 70%);
+  border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--sh-1);
+}
+.gvisual svg { display: block; width: 100%; height: auto; }
+.gvisual { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.gvisual text { font-family: inherit; }
+.gvisual .svgt { font-size: 15px; font-weight: 700; fill: #143b44; }
+.gvisual .svgb { font-size: 12.5px; font-weight: 700; fill: #21414f; }
+.gvisual .svgl { font-size: 11.8px; font-weight: 600; fill: #2b4c55; }
+.gvisual .svgs { font-size: 10.5px; fill: #46616e; }
+.gvisual .svgm { font-size: 11px; fill: #647b84; }
+.gvisual .svgw { font-size: 13px; font-weight: 700; fill: #fff; }
+.gvisual figcaption { font-size: 12px; color: var(--muted); line-height: 1.7; padding: 8px 6px 4px; }
+
+@media (max-width: 860px) {
+  .home-tiles { grid-template-columns: 1fr 1fr; }
+  .dim-grid { grid-template-columns: 1fr; }
+  .topbar nav a { padding: 6px 9px; font-size: 12.5px; gap: 4px; }
+  .mobile-nav a { padding: 4px 3px; font-size: 9.5px; }
+  .mobile-nav a .ico { width: 19px; height: 19px; }
+}
+@media (max-width: 420px) {
+  .home-tiles { grid-template-columns: 1fr; }
+  .mobile-nav a span { font-size: 9px; }
+}
+.chartapps { grid-template-columns: minmax(0, 1fr); }
+.chartapp { min-width: 0; overflow: hidden; }
+.tablewrap { max-width: 100%; }
+
+@media (max-width: 640px) {
+  .gvisual svg { min-width: 600px; }
+}

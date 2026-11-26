@@ -58,7 +58,8 @@ let lastView = "";
 /* ------------------------------ الهيكل ------------------------------ */
 
 const NAV = [
-  { href: "#/", label: "الدروس", key: "home", ic: "book" },
+  { href: "#/", label: "الرئيسية", key: "home", ic: "home" },
+  { href: "#/lessons", label: "الدروس", key: "lessons", ic: "book" },
   { href: "#/teacher", label: "الأستاذ", key: "teacher", ic: "user" },
   { href: "#/lexicon", label: "المعجم", key: "lexicon", ic: "library" },
   { href: "#/guide", label: "الدليل", key: "guide", ic: "compass" },
@@ -91,75 +92,110 @@ function screen(active: string, inner: string): string {
 
 /* ------------------------------ الرئيسية ------------------------------ */
 
-function homeView(): string {
+function lessonCard(meta: { id: string; code: string; title: string; subject: string; unit: string }): string {
+  const lesson = byId.get(meta.id);
+  const isReady = !!lesson;
+  const modes = isReady ? availableModes(lesson, lex).filter((m) => m.count > 0) : [];
+  return `<article class="lcard ${isReady ? "" : "soon"}">
+    <div class="lhead">
+      <span class="code">${meta.code}</span>
+      <h3>${esc(meta.title)}</h3>
+      <span class="badge ${isReady ? "ok" : ""}">${isReady ? "جاهز" : "لاحقاً"}</span>
+    </div>
+    <div class="lmeta">${esc(meta.unit)} · ${subjectName(meta.subject)}</div>
+    ${
+      isReady
+        ? `<div class="chips">${modes
+            .slice(0, 3)
+            .map((m) => `<span class="chip">${icon(m.icon)}${m.name}</span>`)
+            .join("")}${modes.length > 3 ? `<span class="chip">+${modes.length - 3}</span>` : ""}</div>
+           <div class="row">
+             <a class="btn" href="#/lesson/${meta.id}">${icon("bookOpen")} افتح الدرس</a>
+             <a class="btn ghost" href="#/play/${meta.id}/quick">${icon("bolt")} اختبار</a>
+           </div>`
+        : `<div class="row"><button class="btn ghost" disabled style="opacity:.55">${icon("clock")} قيد الإعداد</button></div>`
+    }
+  </article>`;
+}
+
+function landingView(): string {
   const s = stats(lex.concepts.length);
   const ready = content.lessons.length;
   const total = lex.lessons.length;
+  const featured = lex.lessons.filter((l) => byId.has(l.id)).slice(0, 3);
 
-  const card = (meta: { id: string; code: string; title: string; subject: string; unit: string }) => {
-    const lesson = byId.get(meta.id);
-    const isReady = !!lesson;
-    const modes = isReady ? availableModes(lesson, lex).filter((m) => m.count > 0) : [];
-    return `<article class="lcard ${isReady ? "" : "soon"}">
-      <div class="lhead">
-        <span class="code">${meta.code}</span>
-        <h3>${esc(meta.title)}</h3>
-        <span class="badge ${isReady ? "ok" : ""}">${isReady ? "جاهز" : "لاحقاً"}</span>
-      </div>
-      <div class="lmeta">${esc(meta.unit)} · ${subjectName(meta.subject)}</div>
-      ${
-        isReady
-          ? `<div class="chips">${modes
-              .slice(0, 3)
-              .map((m) => `<span class="chip">${icon(m.icon)}${m.name}</span>`)
-              .join("")}${modes.length > 3 ? `<span class="chip">+${modes.length - 3}</span>` : ""}</div>
-             <div class="row">
-               <a class="btn" href="#/lesson/${meta.id}">${icon("bookOpen")} افتح الدرس</a>
-               <a class="btn ghost" href="#/play/${meta.id}/quick">${icon("bolt")} اختبار</a>
-             </div>`
-          : `<div class="row"><button class="btn ghost" disabled style="opacity:.55">${icon("clock")} قيد الإعداد</button></div>`
-      }
-    </article>`;
-  };
-
-  const hist = lex.lessons.filter((l) => l.subject === "history").sort((a, b) => a.order - b.order);
-  const geo = lex.lessons.filter((l) => l.subject === "geography").sort((a, b) => a.order - b.order);
+  const tiles = [
+    { href: "#/lessons", ic: "book", title: "الدروس", note: `${ready} من ${total} جاهزاً`, tone: "t-teal" },
+    { href: "#/guide", ic: "compass", title: "الدليل المنهجي", note: "الوثيقة، المقال، الخريطة", tone: "t-blue" },
+    { href: "#/maps", ic: "target", title: "الخرائط", note: "توطين تفاعلي", tone: "t-amber" },
+    { href: "#/report", ic: "chart", title: "تقريري", note: `${s.accuracy}% إتقان`, tone: "t-violet" },
+  ];
 
   return screen(
     "home",
-    `<section class="hero">
-      <div>
-        <h1>تعلّم التاريخ والجغرافيا باللعب</h1>
-        <p>ثمانية أطوار مختلفة الميكانيكا لكل درس، ودليل منهجي للتاريخ والجغرافيا: الوثيقة، المقال، الخط الزمني، الخريطة والمبيانات، وأوراق تحرير تُطبع وتُنجز بالقلم وتُصحَّح بالمسح.</p>
+    `<section class="hero home-hero">
+      <div class="hero-copy">
+        <span class="hero-eyebrow">${icon("spark")} الثانية باكالوريا · آداب وعلوم إنسانية</span>
+        <h1>تعلّم التاريخ والجغرافيا<br />باللعب والمنهجية</h1>
+        <p>دروس تفاعلية، دليل منهجي مصحح، خرائط، وأستاذ يشرح بالعربية.</p>
         <div class="row">
-          <a class="btn" href="#/play/geo-2bac-ad-g01/quick">${icon("bolt")} ابدأ الآن</a>
-          <a class="btn ghost" href="#/guide">${icon("compass")} الدليل المنهجي</a>
+          <a class="btn" href="#/lessons">${icon("bookOpen")} ابدأ التعلّم</a>
+          <a class="btn ghost" href="#/teacher">${icon("spark")} اسأل الأستاذ</a>
         </div>
       </div>
       <div class="stats">
         <div class="stat"><b>${ready}/${total}</b><span>درساً جاهزاً</span></div>
         <div class="stat"><b>${lex.concepts.length}</b><span>بطاقة مفهوم</span></div>
-        <div class="stat"><b>${lex.misconceptions.length}</b><span>خطأ شائع</span></div>
+        <div class="stat"><b>${s.lessonsSeen}</b><span>درساً فتحته</span></div>
         <div class="stat"><b>${s.accuracy}%</b><span>معدل الإتقان</span></div>
       </div>
     </section>
+
+    <div class="home-tiles">${tiles
+      .map(
+        (t) => `<a class="home-tile ${t.tone}" href="${t.href}">
+          <span class="ht-ic">${icon(t.ic)}</span>
+          <b>${t.title}</b>
+          <small>${t.note}</small>
+        </a>`,
+      )
+      .join("")}</div>
 
     <div id="updateSlot"></div>
 
     <a class="teacher-teaser" href="#/teacher">
       <img src="./teacher.webp" alt="الأستاذ مرشدي" />
       <div>
-        <b>${icon("spark")} اسأل الأستاذ مرشدي</b>
-        <span>شخصية ثلاثية الأبعاد تشرح الدروس والمفاهيم والمنهجيات، وتستمع لسؤالك بالعربية بعد إذن الميكروفون.</span>
+        <b>${icon("spark")} الأستاذ مرشدي</b>
+        <span>اشرح لي درساً، عرّفني مفهوماً، أو اختبرني شفهياً بالعربية.</span>
       </div>
       <em>تحدّث معه ${icon("arrow")}</em>
     </a>
 
-    <h2 class="sec">${icon("book")} التاريخ <span class="tag">${hist.filter((h) => byId.has(h.id)).length}/${hist.length}</span></h2>
-    <div class="grid">${hist.map(card).join("")}</div>
+    <div class="home-sec-head">
+      <h2 class="sec">${icon("book")} دروس مختارة</h2>
+      <a class="home-more" href="#/lessons">كل الدروس ${icon("arrow")}</a>
+    </div>
+    <div class="grid">${featured.map(lessonCard).join("")}</div>`,
+  );
+}
 
+function lessonsView(): string {
+  const ready = content.lessons.length;
+  const total = lex.lessons.length;
+  const hist = lex.lessons.filter((l) => l.subject === "history").sort((a, b) => a.order - b.order);
+  const geo = lex.lessons.filter((l) => l.subject === "geography").sort((a, b) => a.order - b.order);
+  return screen(
+    "lessons",
+    `<div class="lessons-head">
+      <h1 class="page">الدروس</h1>
+      <span class="count-pill">${ready} / ${total}</span>
+    </div>
+    <h2 class="sec">${icon("book")} التاريخ <span class="tag">${hist.filter((h) => byId.has(h.id)).length}/${hist.length}</span></h2>
+    <div class="grid">${hist.map(lessonCard).join("")}</div>
     <h2 class="sec">${icon("layers")} الجغرافيا <span class="tag">${geo.filter((h) => byId.has(h.id)).length}/${geo.length}</span></h2>
-    <div class="grid">${geo.map(card).join("")}</div>`,
+    <div class="grid">${geo.map(lessonCard).join("")}</div>
+    <div class="row"><a class="btn ghost" href="#/guide">${icon("compass")} الدليل المنهجي</a></div>`,
   );
 }
 
@@ -170,9 +206,9 @@ function lessonView(id: string): string {
   if (!l) {
     const meta = lessonMeta.get(id);
     return screen(
-      "home",
+      "lessons",
       `<div class="note">${icon("clock")}<br />هذا الدرس لم يُبنَ بعد${meta ? ` (${esc(meta.title)})` : ""}.<br />بطاقاته موجودة في المعجم، لكن ملف الدرس والتمارين غير مكتملين حتى الآن.</div>
-       <div class="row"><a class="btn" href="#/">${icon("arrow")} رجوع</a></div>`,
+       <div class="row"><a class="btn" href="#/lessons">${icon("arrow")} رجوع إلى الدروس</a></div>`,
     );
   }
   markSeen(id);
@@ -180,8 +216,8 @@ function lessonView(id: string): string {
   const concepts = l.conceptIds.map((c) => conceptById.get(c)).filter((c): c is Concept => !!c);
 
   return screen(
-    "home",
-    `<a class="back" href="#/">${icon("arrow")} كل الدروس</a>
+    "lessons",
+    `<a class="back" href="#/lessons">${icon("arrow")} كل الدروس</a>
     <header class="lhero">
       <span class="kicker">${esc(l.module)} · ${esc(l.unit)}</span>
       <h1>${esc(l.title)}</h1>
@@ -305,11 +341,11 @@ function lessonView(id: string): string {
 
 function playView(lessonId: string, modeId: string): string {
   const l = byId.get(lessonId);
-  if (!l) return screen("home", `<div class="note">الدرس غير جاهز.</div>`);
+  if (!l) return screen("lessons", `<div class="note">الدرس غير جاهز.</div>`);
 
   if (!play || play.lessonId !== lessonId || play.modeId !== modeId) {
     const qs = buildMode(modeId, l, lex);
-    if (!qs.length) return screen("home", `<div class="note">هذا الطور غير متوفر لهذا الدرس.</div>`);
+    if (!qs.length) return screen("lessons", `<div class="note">هذا الطور غير متوفر لهذا الدرس.</div>`);
     play = { lessonId, modeId, qs, i: 0, score: 0, answered: false, chosen: -1, missed: [] };
   }
 
@@ -320,7 +356,7 @@ function playView(lessonId: string, modeId: string): string {
   if (!q) {
     const pct = Math.round((st.score / st.qs.length) * 100);
     return screen(
-      "home",
+      "lessons",
       `<div class="result">
         <div class="ring" style="--p:${pct}"><span>${pct}%</span></div>
         <h2>${pct >= 80 ? "ممتاز" : pct >= 50 ? "مقبول" : "يحتاج مراجعة"}</h2>
@@ -352,7 +388,7 @@ function playView(lessonId: string, modeId: string): string {
   const concept = q.conceptId ? conceptById.get(q.conceptId) : undefined;
 
   return screen(
-    "home",
+    "lessons",
     `<div class="playbar">
       <a class="back" href="#/lesson/${l.id}" style="margin:0">${icon("close")} خروج</a>
       <div class="pinfo">${esc(mode?.name ?? "")} · ${esc(l.title)}</div>
@@ -530,7 +566,7 @@ let sheetState: {
 
 function sheetView(lessonId: string, modeId: string): string {
   const l = byId.get(lessonId);
-  if (!l) return screen("home", `<div class="note">الدرس غير جاهز.</div>`);
+  if (!l) return screen("lessons", `<div class="note">الدرس غير جاهز.</div>`);
   const modes = availableModes(l, lex).filter((m) => m.count > 0);
   if (
     sheetState.lessonId !== l.id ||
@@ -550,7 +586,7 @@ function sheetView(lessonId: string, modeId: string): string {
   const qs = sheetState.modeId ? buildMode(sheetState.modeId, l, lex).slice(0, sheetState.count) : [];
 
   return screen(
-    "home",
+    "lessons",
     `<a class="back" href="#/lesson/${l.id}">${icon("arrow")} ${esc(l.title)}</a>
     <h1 class="page">${icon("qr")} أوراق تحرير مرمزة</h1>
     <p class="lead">اختر الطور وعدد الأسئلة، ثم اطبع الورقة ليجيب عنها المتعلم بالقلم. رمز QR يحمل مواصفات التمرين فقط (بلا اسم ولا إجابة)، والتصحيح يتم بالمسح.</p>
@@ -678,7 +714,10 @@ function render() {
 
   switch (view) {
     case "":
-      html = homeView();
+      html = landingView();
+      break;
+    case "lessons":
+      html = lessonsView();
       break;
     case "lesson":
       html = lessonView(seg[1] ?? "");

@@ -15,6 +15,7 @@ const BODY: Record<string, string> = {
   volumeOff: `<path d="M4 9.2h3.7L13 5v14l-5.3-4.2H4z"/><path d="M16.4 9.4l4.8 5.2M21.2 9.4l-4.8 5.2"/>`,
   bolt: `<path d="M13.5 2.5L4.8 13.6h5.6L10 21.5l8.8-11.1h-5.7l.4-7.9z"/>`,
   // تنقّل
+  home: `<path d="M3.5 10.6L12 4l8.5 6.6V20a1.2 1.2 0 01-1.2 1.2h-4.6v-6.1H9.3v6.1H4.7A1.2 1.2 0 013.5 20z"/>`,
   book: `<path d="M4 4.8A2.8 2.8 0 016.8 2H20v17.5H6.8A2.8 2.8 0 004 22V4.8z"/><path d="M6.8 2v17.5"/>`,
   library: `<rect x="3" y="4" width="5" height="16" rx="1.4"/><rect x="10" y="4" width="5" height="16" rx="1.4"/><path d="M17.4 5.2l4 14.8"/>`,
   compass: `<circle cx="12" cy="12" r="8.8"/><path d="M15.6 8.4l-2 5.2-5.2 2 2-5.2 5.2-2z"/>`,

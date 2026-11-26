@@ -105,6 +105,9 @@ jobs:
           npx cap add android
           npx cap sync android
 
+      - name: أيقونات التطبيق
+        run: node ../tools/apply-android-icons.mjs
+
       - name: ضبط رقم الإصدار والتوقيع الثابت
         env:
           APP_VERSION: ${{ github.run_number }}

@@ -17,6 +17,13 @@ import {
   type GuideTopic,
 } from "./guide";
 import { icon } from "./icons";
+import { visualHTML, type VisualKind } from "./visuals";
+import {
+  CHART_DIMENSIONS,
+  COLUMN_RULES,
+  CHART_APPLICATIONS,
+  CHART_CHECKLIST,
+} from "./chartGuide";
 
 const esc = (s: string) =>
   String(s)
@@ -27,136 +34,6 @@ const esc = (s: string) =>
 
 const subjectName = (subject: string) => (subject === "history" ? "التاريخ" : "الجغرافيا");
 const subjectClass = (subject: string) => (subject === "history" ? "hist" : "geo");
-
-/** رسوم توضيحية مدمجة (SVG) ترافق كل منهجية */
-function visualHTML(kind: "timeline" | "map" | "bar" | "pie" | "curve"): string {
-  if (kind === "timeline") {
-    const ev = [
-      { y: 1912, x: 50, t: "الحماية", up: true },
-      { y: 1930, x: 279, t: "الظهير البربري", up: false },
-      { y: 1944, x: 457, t: "وثيقة الاستقلال", up: true },
-      { y: 1956, x: 610, t: "الاستقلال", up: false },
-    ];
-    return `<figure class="gvisual"><svg viewBox="0 0 660 190" role="img" aria-label="خط زمني من 1912 إلى 1956">
-      <line x1="40" y1="95" x2="625" y2="95" stroke="#35566b" stroke-width="3" stroke-linecap="round"/>
-      <path d="M625 95l-12-6v12z" fill="#35566b"/>
-      ${ev
-        .map(
-          (e) => `<line x1="${e.x}" y1="86" x2="${e.x}" y2="104" stroke="#35566b" stroke-width="2"/>
-        <circle cx="${e.x}" cy="95" r="6" fill="#fff" stroke="#2f6fb3" stroke-width="3"/>
-        <text x="${e.x}" y="${e.up ? 70 : 124}" text-anchor="middle" class="svgb">${e.y}</text>
-        <text x="${e.x}" y="${e.up ? 52 : 142}" text-anchor="middle" class="svgs">${e.t}</text>`,
-        )
-        .join("")}
-      <path d="M50 160v8h560v-8" fill="none" stroke="#b45f7a" stroke-width="2"/>
-      <text x="330" y="184" text-anchor="middle" class="svgs" fill="#8a4459">المدة: 1956 − 1912 = 44 سنة</text>
-    </svg><figcaption>المسافات بين المحطات تعكس المدد الحقيقية، لا تباعداً اعتباطياً.</figcaption></figure>`;
-  }
-
-  if (kind === "bar") {
-    const bars = [
-      { n: "المغرب", v: 20, x: 95, c: "#2f6fb3" },
-      { n: "الجزائر", v: 35, x: 190, c: "#d98a2b" },
-      { n: "تونس", v: 15, x: 285, c: "#5a9e6f" },
-      { n: "ليبيا", v: 45, x: 380, c: "#b45f7a" },
-    ];
-    return `<figure class="gvisual"><svg viewBox="0 0 520 220" role="img" aria-label="مبيان أعمدة للمقارنة">
-      <text x="62" y="16" class="svgs">إنتاج القمح (مليون طن) — مثال تدريبي</text>
-      ${[0, 15, 30, 45]
-        .map((v) => `<line x1="60" y1="${180 - v * 3.2}" x2="470" y2="${180 - v * 3.2}" stroke="#dce6ea" stroke-width="1"/>
-        <text x="52" y="${184 - v * 3.2}" text-anchor="end" class="svgs">${v}</text>`)
-        .join("")}
-      <line x1="60" y1="20" x2="60" y2="180" stroke="#35566b" stroke-width="2"/>
-      <line x1="60" y1="180" x2="478" y2="180" stroke="#35566b" stroke-width="2"/>
-      ${bars
-        .map(
-          (b) => `<rect x="${b.x}" y="${180 - b.v * 3.2}" width="56" height="${b.v * 3.2}" rx="3" fill="${b.c}"/>
-          <text x="${b.x + 28}" y="${174 - b.v * 3.2}" text-anchor="middle" class="svgb">${b.v}</text>
-          <text x="${b.x + 28}" y="198" text-anchor="middle" class="svgs">${b.n}</text>`,
-        )
-        .join("")}
-      <text x="16" y="105" transform="rotate(-90 16 105)" text-anchor="middle" class="svgs">القيمة</text>
-    </svg><figcaption>أعمدة متساوية العرض، سلّم منتظم، ووحدة معلنة على المحور.</figcaption></figure>`;
-  }
-
-  if (kind === "pie") {
-    return `<figure class="gvisual"><svg viewBox="0 0 520 240" role="img" aria-label="مبيان دائري للنسب">
-      <path d="M150 120 L150 42 A78 78 0 0 1 224.2 144.1 Z" fill="#2f6fb3"/>
-      <path d="M150 120 L224.2 144.1 A78 78 0 0 1 125.9 194.2 Z" fill="#d98a2b"/>
-      <path d="M150 120 L125.9 194.2 A78 78 0 0 1 72 120 Z" fill="#5a9e6f"/>
-      <path d="M150 120 L72 120 A78 78 0 0 1 150 42 Z" fill="#b45f7a"/>
-      <text x="190" y="91" text-anchor="middle" class="svgw">30%</text>
-      <text x="175" y="166" text-anchor="middle" class="svgw">25%</text>
-      <text x="98" y="152" text-anchor="middle" class="svgw">20%</text>
-      <text x="112" y="88" text-anchor="middle" class="svgw">25%</text>
-      ${[
-        ["#2f6fb3", "الفحم", "30%"],
-        ["#d98a2b", "الغاز", "25%"],
-        ["#5a9e6f", "النفط", "20%"],
-        ["#b45f7a", "المتجددة", "25%"],
-      ]
-        .map(
-          ([c, n, v], i) => `<rect x="300" y="${72 + i * 34}" width="16" height="16" rx="3" fill="${c}"/>
-          <text x="326" y="${85 + i * 34}" class="svgs">${n}</text>
-          <text x="430" y="${85 + i * 34}" class="svgb">${v}</text>`,
-        )
-        .join("")}
-      <text x="300" y="232" class="svgs" fill="#6b7d88">المجموع = 100% — مثال تدريبي</text>
-    </svg><figcaption>كل نسبة تُحوَّل إلى زاوية: النسبة × 3.6 في الدائرة، و× 1.8 في نصف الدائرة.</figcaption></figure>`;
-  }
-
-  if (kind === "curve") {
-    const pts = [
-      { x: 90, y: 169, v: "1", l: "1750" },
-      { x: 210, y: 145, v: "2,5", l: "1950" },
-      { x: 330, y: 89, v: "6", l: "2000" },
-      { x: 450, y: 57, v: "8", l: "2022" },
-    ];
-    return `<figure class="gvisual"><svg viewBox="0 0 520 230" role="img" aria-label="منحنى تطور سكان العالم">
-      <text x="62" y="16" class="svgs">سكان العالم (مليار نسمة) — مثال تدريبي</text>
-      ${[0, 2, 4, 6, 8]
-        .map((v) => `<line x1="60" y1="${185 - v * 16}" x2="480" y2="${185 - v * 16}" stroke="#dce6ea"/>
-        <text x="52" y="${189 - v * 16}" text-anchor="end" class="svgs">${v}</text>`)
-        .join("")}
-      <line x1="60" y1="25" x2="60" y2="185" stroke="#35566b" stroke-width="2"/>
-      <line x1="60" y1="185" x2="488" y2="185" stroke="#35566b" stroke-width="2"/>
-      <path d="M90 185 L90 169 L210 145 L330 89 L450 57 L450 185 Z" fill="#2f6fb3" opacity=".10"/>
-      <polyline points="90,169 210,145 330,89 450,57" fill="none" stroke="#2f6fb3" stroke-width="3" stroke-linejoin="round"/>
-      ${pts
-        .map(
-          (p) => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#fff" stroke="#2f6fb3" stroke-width="3"/>
-          <text x="${p.x}" y="${p.y - 12}" text-anchor="middle" class="svgb">${p.v}</text>
-          <text x="${p.x}" y="204" text-anchor="middle" class="svgs">${p.l}</text>`,
-        )
-        .join("")}
-    </svg><figcaption>نقاط متصلة بخط؛ يُقرأ الاتجاه والفترات والانقطاعات، لا الشكل فقط.</figcaption></figure>`;
-  }
-
-  return `<figure class="gvisual"><svg viewBox="0 0 640 260" role="img" aria-label="عناصر قراءة الخريطة">
-    <rect width="640" height="260" fill="#e9f4f7"/>
-    <path d="M40 88 L120 48 L230 40 L320 62 L400 52 L470 78 L500 130 L450 190 L340 208 L220 200 L110 176 L52 140 Z" fill="#f5f1e4" stroke="#7d8f99" stroke-width="2"/>
-    <path d="M300 58 L400 54 L470 82 L480 130 L420 152 L350 140 L318 104 Z" fill="#9cc3dd"/>
-    <path d="M300 120 L350 140 L420 152 L400 196 L310 202 L250 170 L260 132 Z" fill="#e7b87a"/>
-    <path d="M70 106 L170 72 L260 90 L262 138 L190 172 L104 160 L58 138 Z" fill="#a9cfa6"/>
-    <text x="390" y="100" text-anchor="middle" class="svgb">1</text>
-    <text x="340" y="174" text-anchor="middle" class="svgb">2</text>
-    <text x="160" y="124" text-anchor="middle" class="svgb">3</text>
-    <circle cx="585" cy="50" r="26" fill="#fff" stroke="#35566b" stroke-width="2"/>
-    <path d="M585 32l7 22-7-5-7 5z" fill="#b45f7a"/>
-    <text x="585" y="94" text-anchor="middle" class="svgs">الشمال</text>
-    <rect x="492" y="112" width="136" height="112" rx="6" fill="#fff" stroke="#c7d5db"/>
-    <text x="616" y="132" text-anchor="end" class="svgb">المفتاح</text>
-    <rect x="598" y="144" width="12" height="12" fill="#9cc3dd"/><text x="590" y="154" text-anchor="end" class="svgs">صناعة</text>
-    <rect x="598" y="166" width="12" height="12" fill="#e7b87a"/><text x="590" y="176" text-anchor="end" class="svgs">فلاحة</text>
-    <rect x="598" y="188" width="12" height="12" fill="#a9cfa6"/><text x="590" y="198" text-anchor="end" class="svgs">رعي</text>
-    <line x1="52" y1="232" x2="172" y2="232" stroke="#35566b" stroke-width="3"/>
-    <line x1="52" y1="226" x2="52" y2="238" stroke="#35566b" stroke-width="2"/>
-    <line x1="112" y1="228" x2="112" y2="236" stroke="#35566b" stroke-width="2"/>
-    <line x1="172" y1="226" x2="172" y2="238" stroke="#35566b" stroke-width="2"/>
-    <text x="112" y="252" text-anchor="middle" class="svgs">0 — 500 — 1000 كم</text>
-    <text x="300" y="240" text-anchor="middle" class="svgs" fill="#6b7d88">عنوان الخريطة + المفتاح + المقياس + اتجاه الشمال</text>
-  </svg><figcaption>لا تُقرأ الخريطة دون عنوان ومفتاح ومقياس واتجاه شمال.</figcaption></figure>`;
-}
 
 /** تسمية مرجعية الإجابة */
 const srcLabel: Record<AnswerSource, string> = {
@@ -241,12 +118,9 @@ function card(t: GuideTopic): string {
 
 export function guideIndexView(): string {
   return `<h1 class="page">الدليل المنهجي</h1>
-  <p class="lead">كل مجال منهجي في صفحة مستقلة. اختر المادة ثم المجال، واشتغل على الخطوات والمثال والتمارين، ثم اختبر نفسك في الاختبار التطبيقي لكل مادة.</p>
-  <p class="muted small">مستند إلى دليل «مرشدي في التاريخ والجغرافيا» (2020)، والإطار المرجعي المغربي، والكتاب المدرسي.</p>
   ${SUBJECTS.map((s) => {
     const topics = TOPICS.filter((t) => t.subject === s.id);
     return `<h2 class="sec">${esc(s.name)}</h2>
-      <p class="lead">${esc(s.intro)}</p>
       <div class="guide-grid">${topics.map(card).join("")}</div>
       ${s.id === "geography" ? `<div class="guide-grid maps-teaser"><a class="gcard mapcard" href="#/maps"><span class="gicon">${icon("target")}</span><b>تمارين التوطين التفاعلي</b><small>خمس خرائط: اضغط على المجال الصحيح ويصحح لك الخطأ فوراً.</small><span class="gmore">افتح الخرائط ←</span></a></div>` : ""}
       <div class="row"><a class="btn" href="#/guide/test/${s.id}">${icon("check")} اختبار تطبيقي في ${esc(s.name)}</a></div>`;
@@ -282,6 +156,46 @@ function exercisesHTML(t: GuideTopic): string {
     .join("");
 }
 
+function chartDimensionsHTML(): string {
+  return `<div class="dim-grid">${CHART_DIMENSIONS.map(
+    (d, i) => `<div class="dim-card"><span class="dim-n">${i + 1}</span><b>${esc(
+      d.key,
+    )}</b><p>${esc(d.question)}</p><small>${esc(d.detail)}</small></div>`,
+  ).join("")}</div>`;
+}
+
+function columnRulesHTML(): string {
+  return `<div class="tablewrap"><table class="mtable"><thead><tr><th>تركيبة الجدول (عنصر / مكان / زمن)</th><th>نوع المبيان الأنسب</th><th>التمثيل الهندسي</th></tr></thead>
+  <tbody>${COLUMN_RULES.map(
+    (r) => `<tr><th>${esc(r.case)}</th><td><span class="src src-both">${esc(r.kind)}</span></td><td>${esc(r.shape)}</td></tr>`,
+  ).join("")}</tbody></table></div>`;
+}
+
+function chartApplicationsHTML(): string {
+  return `<div class="chartapps">${CHART_APPLICATIONS.map(
+    (a, i) => `<details class="chartapp"${i === 0 ? " open" : ""}>
+      <summary><span class="src src-acquired">${esc(a.type)}</span><b>${esc(a.title)}</b></summary>
+      <div class="tablewrap"><table class="mtable chart-table"><thead><tr>${a.headers
+        .map((h) => `<th>${esc(h)}</th>`)
+        .join("")}</tr></thead><tbody>${a.rows
+        .map(
+          (row) =>
+            `<tr>${row.map((c, j) => (j === 0 ? `<th>${esc(c)}</th>` : `<td class="c">${esc(c)}</td>`)).join("")}</tr>`,
+        )
+        .join("")}</tbody></table></div>
+      <p class="chart-reason"><b>التعليل المنهجي:</b> ${esc(a.reason)}</p>
+      <p class="chart-desc"><b>الوصف الجغرافي (عام ← جزئي في فقرة):</b> ${esc(a.description)}</p>
+    </details>`,
+  ).join("")}</div>`;
+}
+
+function chartChecklistHTML(): string {
+  return `<div class="tablewrap"><table class="mtable"><thead><tr><th>العنصر</th><th>المواصفات المطلوبة</th></tr></thead>
+  <tbody>${CHART_CHECKLIST.map(
+    (c) => `<tr><th>${esc(c.item)}</th><td>${esc(c.spec)}</td></tr>`,
+  ).join("")}</tbody></table></div>`;
+}
+
 export function guideTopicView(id: string): string {
   const topic = TOPICS.find((t) => t.id === id);
   if (!topic) {
@@ -292,11 +206,15 @@ export function guideTopicView(id: string): string {
   const prev = idx > 0 ? siblings[idx - 1] : null;
   const next = idx < siblings.length - 1 ? siblings[idx + 1] : null;
 
+  const visual: VisualKind | null =
+    topic.visual ??
+    (topic.id.endsWith("-doc") ? "doc" : topic.id.endsWith("-essay") ? "essay" : null);
+  const isCharts = topic.id === "geo-bar" || topic.id === "geo-pie" || topic.id === "geo-curve";
+
   return `<a class="back" href="#/guide">${icon("arrow")} الدليل المنهجي</a>
   <div class="ghead">
     <span class="tag ${subjectClass(topic.subject)}">${subjectName(topic.subject)}</span>
     <h1 class="page">${esc(topic.title)}</h1>
-    <p class="lead">${esc(topic.intro)}</p>
   </div>
   <section class="panel">
     <h2>${icon(topic.icon)} خطوات الاشتغال</h2>
@@ -304,13 +222,18 @@ export function guideTopicView(id: string): string {
       .map((s) => `<div class="step"><b>${esc(s.title)}</b><p>${esc(s.text)}</p></div>`)
       .join("")}</div>
   </section>
-  ${topic.visual ? `<section class="panel"><h2>${icon("chart")} صورة توضيحية</h2>${visualHTML(topic.visual)}</section>` : ""}
-  ${topic.visual === "bar" || topic.visual === "pie" || topic.visual === "curve"
-    ? `<section class="panel"><h2>${icon("chart")} اختر المبيان المناسب</h2>${chartTypesHTML()}</section>`
+  ${visual ? `<section class="panel"><h2>${icon("chart")} صورة توضيحية</h2>${visualHTML(visual)}</section>` : ""}
+  ${isCharts ? `<section class="panel"><h2>${icon("chart")} اختر المبيان المناسب</h2>${chartTypesHTML()}</section>` : ""}
+  ${topic.id === "geo-bar"
+    ? `<section class="panel"><h2>${icon("target")} القاعدة الذهبية: ثلاثة أبعاد قبل الرسم</h2>
+        ${chartDimensionsHTML()}
+      </section>
+      <section class="panel"><h2>${icon("chart")} جدول اختيار شكل الأعمدة</h2>${columnRulesHTML()}</section>
+      <section class="panel"><h2>${icon("bookOpen")} تطبيقات نموذجية مرسومة ومصححة</h2>${chartApplicationsHTML()}</section>
+      <section class="panel"><h2>${icon("check")} شبكة القبول والتنقيط</h2>${chartChecklistHTML()}</section>`
     : ""}
   ${topic.skills
     ? `<section class="panel"><h2>${icon("doc")} جدول المهارات ومرجعية الإجابة</h2>
-    <p class="muted small">قبل الكتابة، تحقق من عمود «مرجعية الإجابة»: بعض الأسئلة تُستخرج من الوثائق حصراً، وبعضها من المكتسبات.</p>
     ${skillsHTML(topic.skills)}</section>`
     : ""}
   ${topic.application
@@ -342,7 +265,6 @@ export function guideTopicView(id: string): string {
   </section>
   <section class="panel">
     <h2>${icon("pencil")} تمرين تطبيقي</h2>
-    <p class="muted small">اختر الجواب؛ سيظهر التصحيح والشرح فوراً.</p>
     ${exercisesHTML(topic)}
   </section>
   <section class="panel">
@@ -351,7 +273,6 @@ export function guideTopicView(id: string): string {
   </section>
   ${topic.id === "hist-doc" || topic.id === "geo-doc"
     ? `<section class="panel"><h2>${icon("doc")} مسرد المفاهيم لسؤال التعريف</h2>
-    <p class="muted small">التعريف من المكتسبات أساساً؛ استحضر الزمن والمكان والدلالة، وأغنِه بمعطيات الوثيقة إن وافقت.</p>
     ${conceptsHTML(topic.subject)}</section>`
     : ""}
   <div class="row gnav">
@@ -366,7 +287,6 @@ export function guideTestView(subject: string): string {
   return `<a class="back" href="#/guide">${icon("arrow")} الدليل المنهجي</a>
   <span class="tag ${subjectClass(key)}">${subjectName(key)}</span>
   <h1 class="page">${esc(test.title)}</h1>
-  <p class="lead">${esc(test.intro)}</p>
   <div id="test">
     ${test.questions
       .map(
