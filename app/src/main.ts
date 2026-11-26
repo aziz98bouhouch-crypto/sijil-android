@@ -18,7 +18,13 @@ import { icon } from "./icons";
 const content = data as unknown as Content;
 const lex = content.lexicon;
 const app = document.getElementById("app") as HTMLElement;
-document.getElementById("splash")?.remove();
+const splash = document.getElementById("splash");
+if (splash) {
+  window.setTimeout(() => {
+    splash.classList.add("gone");
+    window.setTimeout(() => splash.remove(), 420);
+  }, 260);
+}
 
 const esc = (s: string) =>
   String(s)
@@ -500,19 +506,25 @@ function reportView(): string {
 
 /* ------------------------------ الأوراق ------------------------------ */
 
-let sheetState: { modeId: string; count: number; qr: string | null; payload: string } = {
-  modeId: "",
-  count: 8,
-  qr: null,
-  payload: "",
-};
+let sheetState: {
+  lessonId: string;
+  modeId: string;
+  count: number;
+  qr: string | null;
+  payload: string;
+} = { lessonId: "", modeId: "", count: 8, qr: null, payload: "" };
 
 function sheetView(lessonId: string, modeId: string): string {
   const l = byId.get(lessonId);
   if (!l) return screen("home", `<div class="note">الدرس غير جاهز.</div>`);
   const modes = availableModes(l, lex).filter((m) => m.count > 0);
-  if (!sheetState.modeId || !modes.some((m) => m.id === sheetState.modeId)) {
+  if (
+    sheetState.lessonId !== l.id ||
+    !sheetState.modeId ||
+    !modes.some((m) => m.id === sheetState.modeId)
+  ) {
     sheetState = {
+      lessonId: l.id,
       modeId: modeId && modes.some((m) => m.id === modeId) ? modeId : modes[0]?.id ?? "",
       count: 8,
       qr: null,
