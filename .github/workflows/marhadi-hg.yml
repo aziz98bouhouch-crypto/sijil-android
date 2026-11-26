@@ -123,7 +123,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [ -f /tmp/gradle-build.log ]; then
-            tail -c 3500 /tmp/gradle-build.log > /tmp/gradle-tail.txt
+            {
+              echo "### سبب فشل بناء APK"
+              grep -m1 -A30 "What went wrong" /tmp/gradle-build.log || true
+              echo "### أول الأخطاء"
+              grep -m5 -B2 -A6 "error:\|Caused by:" /tmp/gradle-build.log || true
+              echo "### آخر السجل"
+              tail -c 1500 /tmp/gradle-build.log || true
+            } > /tmp/gradle-tail.txt
             gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/comments" \
               -f body="$(cat /tmp/gradle-tail.txt)" || true
           fi
