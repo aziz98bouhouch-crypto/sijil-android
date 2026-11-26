@@ -61,6 +61,27 @@ const isNative = () => !!speechWindow.Capacitor?.isNativePlatform?.();
 
 let voices: SpeechSynthesisVoice[] = [];
 let voiceNoteShown = false;
+let pendingSpeech = "";
+let voiceTries = 0;
+let unlockBound = false;
+
+function speakLater() {
+  if (pendingSpeech && !muted && !listening) speak(pendingSpeech);
+}
+
+function bindSpeechUnlock() {
+  if (unlockBound) return;
+  unlockBound = true;
+  document.addEventListener("pointerdown", speakLater);
+  document.addEventListener("keydown", speakLater);
+}
+
+function unbindSpeechUnlock() {
+  if (!unlockBound) return;
+  unlockBound = false;
+  document.removeEventListener("pointerdown", speakLater);
+  document.removeEventListener("keydown", speakLater);
+}
 
 function refreshVoices() {
   if (!("speechSynthesis" in window)) return;
@@ -112,39 +133,57 @@ function cleanForSpeech(text: string) {
 }
 
 function speak(text: string) {
+  const clean = cleanForSpeech(text).slice(0, 1800);
+  if (!clean) return;
   if (muted || !("speechSynthesis" in window)) {
     avatar?.setSpeaking(false);
     return;
   }
+  pendingSpeech = text;
+  bindSpeechUnlock();
   window.speechSynthesis.cancel();
   refreshVoices();
   const voice = pickVoice();
+  // قد تُحمَّل الأصوات بعد أول رسم للصفحة؛ نعيد المحاولة بدل إسكات الأستاذ.
+  if (!voice && voiceTries < 4) {
+    const attempt = ++voiceTries;
+    window.setTimeout(() => {
+      if (pendingSpeech === text && !muted) speak(text);
+    }, 350 * attempt);
+    return;
+  }
   if (!voice) {
     if (!voiceNoteShown) {
       voiceNoteShown = true;
       micNote("لا يوجد صوت عربي مثبّت على هذا الجهاز. النص مكتوب أمامك، ويمكنك تثبيت صوت عربي من إعدادات النظام لسماع الأستاذ.");
     }
     avatar?.setSpeaking(false);
+    pendingSpeech = "";
     if (!listening) setStatus("جاهز · اسأل بالعربية", "");
     return;
   }
-  const u = new SpeechSynthesisUtterance(cleanForSpeech(text).slice(0, 1800));
+  voiceTries = 0;
+  const u = new SpeechSynthesisUtterance(clean);
   u.lang = voice?.lang ?? "ar-MA";
   if (voice) u.voice = voice;
   u.rate = 0.97;
   u.pitch = 1.04;
   u.onstart = () => {
+    pendingSpeech = "";
     avatar?.setSpeaking(true);
     setStatus("يتحدث…", "talking");
   };
   u.onend = () => {
+    pendingSpeech = "";
     avatar?.setSpeaking(false);
     if (!listening) setStatus("جاهز · اسأل بالعربية", "");
   };
   u.onerror = () => {
+    pendingSpeech = "";
     avatar?.setSpeaking(false);
     if (!listening) setStatus("جاهز · اسأل بالعربية", "");
   };
+  if (window.speechSynthesis.paused) window.speechSynthesis.resume();
   window.speechSynthesis.speak(u);
   window.setTimeout(() => {
     if (!("speechSynthesis" in window) || window.speechSynthesis.speaking) return;
@@ -558,6 +597,11 @@ export async function bindTeacher(): Promise<void> {
 
   const greeting = tutorGreeting();
   addMessage("teacher", greeting.text);
+  // يبدأ الأستاذ بالكلام وحده عند فتح الشاشة، ويُستأنف تلقائياً عند أول لمسة
+  // إن منع المتصفح النطق قبل تفاعل المستخدم.
+  window.setTimeout(() => {
+    if (bindToken === token) speak(greeting.text);
+  }, 250);
   const suggest = document.getElementById("chatSuggest");
   if (suggest) {
     for (const p of quickPrompts()) {
@@ -592,6 +636,8 @@ export async function bindTeacher(): Promise<void> {
       document.getElementById("avatarLoading")?.remove();
       stage.querySelector(".avatar-fallback")?.remove();
       setMood("happy");
+      const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+      if (synth?.speaking) avatar.setSpeaking(true);
       window.setTimeout(() => {
         if (token === bindToken) avatar?.wave();
       }, 500);
@@ -607,6 +653,9 @@ export async function bindTeacher(): Promise<void> {
 
 export function destroyTeacher(silent = true): void {
   bindToken++;
+  pendingSpeech = "";
+  voiceTries = 0;
+  unbindSpeechUnlock();
   cleanupSpeechInput();
   stopSpeech();
   window.clearTimeout(typingTimer);
