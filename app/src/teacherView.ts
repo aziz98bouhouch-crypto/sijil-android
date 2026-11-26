@@ -64,6 +64,74 @@ let voiceNoteShown = false;
 let pendingSpeech = "";
 let voiceTries = 0;
 let unlockBound = false;
+let speechToken = 0;
+
+/* --------------------- النطق الأصلي على أندرويد (TTS) --------------------- */
+// WebView لا يوفّر أصوات speechSynthesis على أندرويد، لذلك نستخدم محرك
+// النطق الأصلي في الهاتف عبر إضافة Capacitor، وهو يدعم العربية مباشرة.
+
+type NativeTtsModule = typeof import("@capacitor-community/text-to-speech");
+let nativeModule: Promise<NativeTtsModule> | null = null;
+let nativeLang: string | null = null;
+
+function loadNativeTts(): Promise<NativeTtsModule> {
+  if (!nativeModule) nativeModule = import("@capacitor-community/text-to-speech");
+  return nativeModule;
+}
+
+async function pickNativeLang(TTS: NativeTtsModule["TextToSpeech"]): Promise<string | null> {
+  if (nativeLang) return nativeLang;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      for (const lang of ["ar-MA", "ar-SA", "ar-EG", "ar"]) {
+        const res = await TTS.isLanguageSupported({ lang });
+        if (res.supported) {
+          nativeLang = lang;
+          return lang;
+        }
+      }
+      return null;
+    } catch {
+      // قد يكون المحرك لم يكمل تهيئته بعد.
+      await new Promise((r) => window.setTimeout(r, 300));
+    }
+  }
+  return null;
+}
+
+async function speakNative(text: string) {
+  const clean = cleanForSpeech(text).slice(0, 1800);
+  const token = bindToken;
+  const tok = ++speechToken;
+  try {
+    const { TextToSpeech } = await loadNativeTts();
+    if (token !== bindToken || tok !== speechToken) return;
+    const lang = await pickNativeLang(TextToSpeech);
+    if (token !== bindToken || tok !== speechToken) return;
+    if (!lang) {
+      pendingSpeech = "";
+      avatar?.setSpeaking(false);
+      if (!listening) setStatus("النص متاح · لا صوت عربي", "");
+      micNote(
+        "لم يجد الهاتف صوتاً عربياً لمحرك النطق. ثمّن «أصوات Google» أو بيانات العربية من إعدادات الهاتف ← اللغة والإدخال ← تحويل النص إلى كلام، ثم أعد فتح التطبيق.",
+        "warn",
+      );
+      return;
+    }
+    pendingSpeech = "";
+    avatar?.setSpeaking(true);
+    setStatus("يتحدث…", "talking");
+    await TextToSpeech.speak({ text: clean, lang, rate: 0.95, pitch: 1.02, volume: 1 });
+    if (tok !== speechToken) return;
+    avatar?.setSpeaking(false);
+    if (!listening) setStatus("جاهز · اسأل بالعربية", "");
+  } catch {
+    if (tok !== speechToken) return;
+    pendingSpeech = "";
+    avatar?.setSpeaking(false);
+    if (!listening) setStatus("جاهز · اسأل بالعربية", "");
+  }
+}
 
 function speakLater() {
   if (pendingSpeech && !muted && !listening) speak(pendingSpeech);
@@ -135,11 +203,20 @@ function cleanForSpeech(text: string) {
 function speak(text: string) {
   const clean = cleanForSpeech(text).slice(0, 1800);
   if (!clean) return;
-  if (muted || !("speechSynthesis" in window)) {
+  if (muted) {
     avatar?.setSpeaking(false);
     return;
   }
   pendingSpeech = text;
+  // على الهاتف نستخدم محرك أندرويد الأصلي أولاً لأنه ينطق العربية بثبات.
+  if (isNative()) {
+    void speakNative(text);
+    return;
+  }
+  if (!("speechSynthesis" in window)) {
+    avatar?.setSpeaking(false);
+    return;
+  }
   bindSpeechUnlock();
   window.speechSynthesis.cancel();
   refreshVoices();
@@ -193,6 +270,13 @@ function speak(text: string) {
 }
 
 function stopSpeech() {
+  speechToken++;
+  pendingSpeech = "";
+  if (isNative()) {
+    void loadNativeTts()
+      .then(({ TextToSpeech }) => TextToSpeech.stop())
+      .catch(() => void 0);
+  }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
   avatar?.setSpeaking(false);
 }
