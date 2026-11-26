@@ -12,12 +12,12 @@ const version = process.env.APP_VERSION || "1";
 gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${version}`);
 gradle = gradle.replace(/versionName\s+"[^"]*"/, `versionName "${version}"`);
 
-if (!gradle.includes("marhadi-release")) {
+if (!gradle.includes("marhadiRelease")) {
   gradle = gradle.replace(
     /android\s*\{/,
     `android {
     signingConfigs {
-        marhadi-release {
+        marhadiRelease {
             storeFile file("../../keys/marhadi.keystore")
             storeType "PKCS12"
             storePassword "marhadi-hg-2026"
@@ -30,10 +30,10 @@ if (!gradle.includes("marhadi-release")) {
 
 gradle = gradle.replace(
   /(buildTypes\s*\{[\s\S]*?release\s*\{)/,
-  "$1\n            signingConfig signingConfigs.marhadi-release",
+  "$1\n            signingConfig signingConfigs.marhadiRelease",
 );
 
-if (!gradle.includes("signingConfig signingConfigs.marhadi-release")) {
+if (!gradle.includes("signingConfig signingConfigs.marhadiRelease")) {
   throw new Error("تعذر إضافة توقيع الإصدار إلى build.gradle");
 }
 
