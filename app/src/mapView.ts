@@ -1,7 +1,7 @@
 /** عرض تمارين التوطين التفاعلي على خرائط SVG دقيقة */
 
 import { MAPS, type MapExercise } from "./maps";
-import { GEO } from "./mapShapes";
+import { GEO_BASES, GEO_ZONES } from "./mapShapes";
 import { icon } from "./icons";
 
 const esc = (s: string) =>
@@ -35,11 +35,12 @@ let state: MapState = blank();
 
 /** خريطة SVG: سياق رمادي + حدود الدولة + مجالات قابلة للنقر مقصوصة داخل الحدود */
 function mapSVG(ex: MapExercise, interactive: boolean): string {
-  const g = GEO[ex.mapId];
+  const g = GEO_BASES[ex.base];
+  const zoneList = GEO_ZONES[ex.id] ?? [];
   if (!g) return "";
-  const clipId = `clip-${ex.mapId}`;
+  const clipId = `clip-${ex.base}`;
   const zones = interactive
-    ? g.zones
+    ? zoneList
         .map(
           (z) =>
             `<path class="mapzone" data-zone="${esc(z.id)}" d="${z.d}" role="button" tabindex="0" aria-label="${esc(
@@ -57,12 +58,13 @@ function mapSVG(ex: MapExercise, interactive: boolean): string {
 }
 
 function miniMap(ex: MapExercise): string {
-  const g = GEO[ex.mapId];
+  const g = GEO_BASES[ex.base];
+  const zoneList = GEO_ZONES[ex.id] ?? [];
   if (!g) return "";
   return `<div class="mapthumb"><svg viewBox="${g.viewBox}" aria-hidden="true">
     <g class="mapctx">${g.context.map((d) => `<path d="${d}" />`).join("")}</g>
     ${g.outline ? `<path class="mapbase" d="${g.outline}" />` : ""}
-    <g class="mapzones">${g.zones.map((z) => `<path class="mapzone mini" d="${z.d}" />`).join("")}</g>
+    <g class="mapzones">${zoneList.map((z) => `<path class="mapzone mini" d="${z.d}" />`).join("")}</g>
   </svg></div>`;
 }
 
@@ -152,7 +154,7 @@ export function bindMaps(): void {
       const zoneId = zoneEl.dataset.zone ?? "";
       const target = ex.targets[state.i];
       if (!target) return;
-      const zone = GEO[ex.mapId]?.zones.find((z) => z.id === zoneId);
+      const zone = (GEO_ZONES[ex.id] ?? []).find((z) => z.id === zoneId);
 
       if (zoneId === target.zone) {
         if (!state.mistake) state.clean++;

@@ -1,18 +1,25 @@
 /**
- * يبني ملف mapShapes.ts من بيانات Natural Earth (حدود الدول الحقيقية).
+ * يبني mapShapes.ts من حدود حقيقية:
+ *  - Natural Earth: حدود الدول وسياق الجوار.
+ *  - GADM 4.1 (المستوى 1): الولايات/المقاطعات/الجهات التي تُجمَّع في مجالات التوطين.
  * التشغيل: node tools/build-maps.mjs
- * المصدر: ne_110m_admin_0_countries.geojson
  */
 import fs from "node:fs";
 
-const SRC = "C:/tmp/geodata/countries.geojson";
+const NE = "C:/tmp/geodata/countries.geojson";
+const GADM = {
+  USA: "C:/tmp/geodata/gadm41_USA_1.json",
+  CHN: "C:/tmp/geodata/gadm41_CHN_1.json",
+  MAR: "C:/tmp/geodata/gadm41_MAR_1.json",
+};
 const OUT = "C:/tmp/marhadi-hg/app/src/mapShapes.ts";
 
-const gj = JSON.parse(fs.readFileSync(SRC, "utf8"));
-const byName = new Map(gj.features.map((f) => [f.properties.ADMIN, f]));
+const ne = JSON.parse(fs.readFileSync(NE, "utf8"));
+const byName = new Map(ne.features.map((f) => [f.properties.ADMIN, f]));
+const admin = {};
+for (const [k, p] of Object.entries(GADM)) admin[k] = JSON.parse(fs.readFileSync(p, "utf8")).features;
 
 const rad = (d) => (d * Math.PI) / 180;
-/** إسقاط مركاتور: x خط الطول، y محوّل ليسهل قياس المسافات */
 const my = (lat) => (Math.log(Math.tan(Math.PI / 4 + rad(Math.max(-85, Math.min(85, lat))) / 2)) * 180) / Math.PI;
 
 function polygons(feature) {
@@ -21,12 +28,12 @@ function polygons(feature) {
   return g.type === "Polygon" ? [g.coordinates] : g.coordinates;
 }
 
-/** الحلقات الخارجية فقط (بلا جزر صغيرة جداً لتخفيف الحجم) */
+/** حلقات خارجية فقط، مع استبعاد الجزر الصغيرة */
 function rings(feature, opts = {}) {
   const out = [];
   for (const poly of polygons(feature)) {
     const ring = poly[0];
-    if (!ring || ring.length < 5) continue;
+    if (!ring || ring.length < 4) continue;
     let lon = 0;
     let lat = 0;
     for (const [x, y] of ring) {
@@ -36,7 +43,7 @@ function rings(feature, opts = {}) {
     lon /= ring.length;
     lat /= ring.length;
     if (opts.usOnly && (lon < -130 || lat > 50)) continue;
-    if (opts.minArea && Math.abs(ringArea(ring)) < opts.minArea) continue;
+    if (Math.abs(ringArea(ring)) < (opts.minArea ?? 0)) continue;
     out.push(ring);
   }
   return out;
@@ -48,41 +55,65 @@ function ringArea(ring) {
   return a / 2;
 }
 
-/** قصّ حلقة على مستطيل (Sutherland–Hodgman) في فضاء الإسقاط */
+/** تبسيط دوكلاص-بوكر على نقاط مُسقطة (بالبكسل) */
+function simplify(points, tol) {
+  if (points.length < 5) return points;
+  const keep = new Uint8Array(points.length);
+  keep[0] = 1;
+  keep[points.length - 1] = 1;
+  const stack = [[0, points.length - 1]];
+  while (stack.length) {
+    const [a, b] = stack.pop();
+    let maxD = -1;
+    let idx = -1;
+    const [ax, ay] = points[a];
+    const [bx, by] = points[b];
+    const dx = bx - ax;
+    const dy = by - ay;
+    const len = Math.hypot(dx, dy) || 1;
+    for (let i = a + 1; i < b; i++) {
+      const [px, py] = points[i];
+      const d = Math.abs(dy * px - dx * py + bx * ay - by * ax) / len;
+      if (d > maxD) {
+        maxD = d;
+        idx = i;
+      }
+    }
+    if (maxD > tol && idx > 0) {
+      keep[idx] = 1;
+      stack.push([a, idx], [idx, b]);
+    }
+  }
+  const out = [];
+  for (let i = 0; i < points.length; i++) if (keep[i]) out.push(points[i]);
+  return out;
+}
+
 function clipRing(ring, xmin, xmax, ymin, ymax) {
   const edges = [
-    (p) => p[0] >= xmin,
-    (p) => p[0] <= xmax,
-    (p) => p[1] >= ymin,
-    (p) => p[1] <= ymax,
+    [(p) => p[0] >= xmin, (a, b) => (xmin - a[0]) / (b[0] - a[0])],
+    [(p) => p[0] <= xmax, (a, b) => (xmax - a[0]) / (b[0] - a[0])],
+    [(p) => p[1] >= ymin, (a, b) => (ymin - a[1]) / (b[1] - a[1])],
+    [(p) => p[1] <= ymax, (a, b) => (ymax - a[1]) / (b[1] - a[1])],
   ];
-  const inter = (a, b, keep) => {
-    const dx = b[0] - a[0];
-    const dy = b[1] - a[1];
-    let t = 0;
-    const edgeIndex = edges.indexOf(keep);
-    if (edgeIndex === 0) t = (xmin - a[0]) / dx;
-    if (edgeIndex === 1) t = (xmax - a[0]) / dx;
-    if (edgeIndex === 2) t = (ymin - a[1]) / dy;
-    if (edgeIndex === 3) t = (ymax - a[1]) / dy;
-    return [a[0] + dx * t, a[1] + dy * t];
-  };
   let out = ring;
-  for (const keep of edges) {
+  for (const [inside, tAt] of edges) {
     const input = out;
     out = [];
     if (!input.length) break;
     for (let i = 0; i < input.length; i++) {
       const cur = input[i];
       const prev = input[(i + input.length - 1) % input.length];
-      const curIn = keep(cur);
-      const prevIn = keep(prev);
+      const curIn = inside(cur);
+      const prevIn = inside(prev);
+      const cross = () => {
+        const t = Math.max(0, Math.min(1, tAt(prev, cur)));
+        return [prev[0] + (cur[0] - prev[0]) * t, prev[1] + (cur[1] - prev[1]) * t];
+      };
       if (curIn) {
-        if (!prevIn) out.push(inter(prev, cur, keep));
+        if (!prevIn) out.push(cross());
         out.push(cur);
-      } else if (prevIn) {
-        out.push(inter(prev, cur, keep));
-      }
+      } else if (prevIn) out.push(cross());
     }
   }
   return out;
@@ -99,33 +130,28 @@ function makeFrame(bbox) {
   const k = (W - pad * 2) / (pMaxX - pMinX);
   const H = (pMaxY - pMinY) * k + pad * 2;
   const pt = (lon, lat) => [pad + (lon - pMinX) * k, pad + (pMaxY - my(lat)) * k];
-  return { pt, pad, W, H, pMinX, pMaxX, pMinY, pMaxY, k, bbox };
+  return { pt, pad, W, H, pMinX, pMaxX, pMinY, pMaxY };
 }
 
 const n1 = (v) => Math.round(v * 10) / 10;
 
-function pathFromRings(ringList, frame, clipped) {
+function toPath(ringList, frame, { clipped = false, tol = 0.9 } = {}) {
   const parts = [];
   for (const ring of ringList) {
-    let r = [];
-    for (const [lon, lat] of ring) r.push(frame.pt(lon, lat));
+    let pts = ring.map(([lon, lat]) => frame.pt(lon, lat));
     if (clipped) {
-      r = clipRing(r, frame.pad, frame.W - frame.pad, frame.pad, frame.pad + (frame.H - frame.pad * 2));
+      const yMax = frame.pad + (frame.H - frame.pad * 2);
+      pts = clipRing(pts, frame.pad, frame.W - frame.pad, frame.pad, yMax);
     }
-    if (r.length < 3) continue;
-    parts.push("M" + r.map(([x, y]) => `${n1(x)} ${n1(y)}`).join("L") + "Z");
+    if (pts.length > 2 && pts[0][0] === pts[pts.length - 1][0] && pts[0][1] === pts[pts.length - 1][1]) {
+      pts = pts.slice(0, -1);
+    }
+    if (pts.length < 4) continue;
+    pts = simplify(pts, tol);
+    if (pts.length < 3) continue;
+    parts.push("M" + pts.map(([x, y]) => `${n1(x)} ${n1(y)}`).join("L") + "Z");
   }
   return parts.join("");
-}
-
-function rectPath([lon1, lat1, lon2, lat2], frame) {
-  const a = frame.pt(lon1, lat1);
-  const b = frame.pt(lon2, lat2);
-  const x1 = n1(Math.min(a[0], b[0]));
-  const x2 = n1(Math.max(a[0], b[0]));
-  const y1 = n1(Math.min(a[1], b[1]));
-  const y2 = n1(Math.max(a[1], b[1]));
-  return `M${x1} ${y1}L${x2} ${y1}L${x2} ${y2}L${x1} ${y2}Z`;
 }
 
 const intersects = (f, bbox) => {
@@ -135,143 +161,170 @@ const intersects = (f, bbox) => {
 };
 
 const BASES = {
-  us: {
-    bbox: [-126, 23, -66, 50],
-    outline: ["United States of America"],
-    usOnly: true,
-  },
-  china: {
-    bbox: [72, 17, 136, 55],
-    outline: ["China"],
-  },
-  europe: {
-    bbox: [-12, 34, 32, 62],
-    outline: [],
-  },
-  morocco: {
-    bbox: [-18, 20, -0.5, 36.5],
-    outline: ["Morocco", "Western Sahara"],
-  },
+  us: { bbox: [-126, 23, -66, 50], outline: ["United States of America"], usOnly: true },
+  china: { bbox: [72, 17, 136, 55], outline: ["China"] },
+  europe: { bbox: [-12, 34, 32, 62], outline: [] },
+  morocco: { bbox: [-18, 20, -0.5, 36.5], outline: ["Morocco", "Western Sahara"] },
 };
 
-const MAPS = {
-  "us-industry": {
-    base: "us",
-    zones: [
-      { id: "old", label: "الصناعات القديمة: الشمال الشرقي والبحيرات الكبرى", rect: [-90, 38, -70, 48] },
-      { id: "modern", label: "الصناعات الحديثة: حزام الشمس (الجنوب والجنوب الشرقي)", rect: [-100, 25, -75, 38] },
-      { id: "precision", label: "الصناعات الدقيقة: الساحل الغربي (كاليفورنيا)", rect: [-125, 32, -114, 42] },
-    ],
-  },
-  "us-agri": {
-    base: "us",
-    zones: [
-      { id: "grain", label: "زراعة الحبوب: السهول الكبرى", rect: [-104, 35, -96, 49] },
-      { id: "pasture", label: "المراعي: الغرب الجاف والأقاليم الجبلية", rect: [-118, 35, -104, 45] },
-      { id: "mixed", label: "الزراعة المختلطة وتربية الماشية: الشمال الشرقي", rect: [-96, 38, -80, 48] },
-      { id: "subtropical", label: "الزراعات شبه المدارية: فلوريدا والخليج", rect: [-85, 25, -80, 31] },
-    ],
-  },
-  "china-agri": {
-    base: "china",
-    zones: [
-      { id: "grain", label: "زراعة الحبوب: السهل الشمالي والشرقي", rect: [110, 32, 130, 46] },
-      { id: "tropical", label: "الزراعات المدارية: الجنوب الصيني", rect: [104, 18, 120, 25] },
-      { id: "livestock", label: "تربية المواشي: الشمال والغرب (منغوليا الداخلية والهضاب)", rect: [75, 35, 109, 48] },
-    ],
-  },
-  "china-industry": {
-    base: "china",
-    zones: [
-      { id: "high", label: "تركز صناعي هام: السواحل الشرقية (بكين، اليانغتسي، اللؤلؤ)", rect: [112, 22, 122, 40] },
-      { id: "medium", label: "تركز صناعي متوسط: الوسط والشمال الشرقي", rect: [104, 28, 112, 40, 120, 40, 132, 48] },
-      { id: "weak", label: "تركز صناعي ضعيف: الغرب الداخلي والهضاب", rect: [75, 28, 104, 48] },
-    ],
-  },
-  eu: {
-    base: "europe",
-    countries: [
-      { id: "france", label: "فرنسا", name: "France" },
-      { id: "uk", label: "المملكة المتحدة", name: "United Kingdom" },
-      { id: "greece", label: "اليونان", name: "Greece" },
-      { id: "spain", label: "إسبانيا", name: "Spain" },
-      { id: "sweden", label: "السويد", name: "Sweden" },
-      { id: "poland", label: "بولونيا", name: "Poland" },
-      { id: "romania", label: "رومانيا", name: "Romania" },
-      { id: "croatia", label: "كرواتيا", name: "Croatia" },
-    ],
-  },
-  "morocco-occupation": {
-    base: "morocco",
-    zones: [
-      { id: "s1912", label: "السهول الأطلسية: فاس، الرباط، الدار البيضاء، مراكش (1912)", rect: [-9.6, 31, -5.4, 35.2] },
-      { id: "s1914", label: "الشمال الشرقي وتازة (1914)", rect: [-5.4, 32, -2, 34.6] },
-      { id: "rif", label: "الريف: حرب عبد الكريم الخطابي (1921–1926)", rect: [-5.6, 34.6, -2, 36.2] },
-      { id: "s1934", label: "الأطلس الصغير والجنوب الشرقي: اكتمال الاحتلال (1934)", rect: [-11, 27.6, -3.6, 31] },
-      { id: "sahara", label: "الصحراء المغربية تحت الاحتلال الإسباني (1884–1975)", rect: [-17, 20.5, -8.5, 27.6] },
-    ],
-  },
-  "morocco-sahara": {
-    base: "morocco",
-    zones: [
-      { id: "tarfaya", label: "منطقة طرفاية (1912–1958)", rect: [-13.4, 27.6, -8.5, 29.6] },
-      { id: "saqia", label: "الساقية الحمراء (1884)", rect: [-15.2, 24.4, -8.5, 27.6] },
-      { id: "oued", label: "وادي الذهب (1884)", rect: [-17.2, 20.4, -8.5, 24.4] },
-    ],
-  },
+const ZONES = {
+  "us-industry": [
+    {
+      id: "old",
+      label: "الصناعات القديمة: الشمال الشرقي والبحيرات الكبرى",
+      units: ["Connecticut", "Maine", "Massachusetts", "NewHampshire", "RhodeIsland", "Vermont", "NewJersey", "NewYork", "Pennsylvania", "Ohio", "Indiana", "Illinois", "Michigan", "Wisconsin", "Minnesota", "Missouri", "Iowa"],
+    },
+    {
+      id: "modern",
+      label: "الصناعات الحديثة: حزام الشمس (الجنوب والجنوب الشرقي)",
+      units: ["Delaware", "Maryland", "Virginia", "WestVirginia", "NorthCarolina", "SouthCarolina", "Georgia", "Florida", "Kentucky", "Tennessee", "Alabama", "Mississippi", "Arkansas", "Louisiana", "Oklahoma", "Texas"],
+    },
+    {
+      id: "precision",
+      label: "الصناعات الدقيقة: كاليفورنيا والساحل الغربي",
+      units: ["California", "Oregon", "Washington"],
+    },
+  ],
+  "us-agri": [
+    {
+      id: "grain",
+      label: "زراعة الحبوب: السهول الكبرى",
+      units: ["NorthDakota", "SouthDakota", "Nebraska", "Kansas", "Oklahoma", "Texas"],
+    },
+    {
+      id: "pasture",
+      label: "المراعي: الغرب الجاف والجبال",
+      units: ["Montana", "Wyoming", "Colorado", "NewMexico", "Nevada", "Idaho", "Utah", "Arizona"],
+    },
+    {
+      id: "mixed",
+      label: "الزراعة المختلطة وتربية الماشية: الشمال الشرقي والبحيرات",
+      units: ["Iowa", "Illinois", "Indiana", "Ohio", "Missouri", "Minnesota", "Wisconsin", "Michigan", "Kentucky", "Tennessee", "NewYork", "Pennsylvania"],
+    },
+    {
+      id: "subtropical",
+      label: "الزراعات شبه المدارية: فلوريدا وسواحل الخليج",
+      units: ["Florida", "Louisiana", "Mississippi"],
+    },
+  ],
+  "china-agri": [
+    {
+      id: "grain",
+      label: "زراعة الحبوب: السهل الشمالي والشمال الشرقي",
+      units: ["Hebei", "Henan", "Shandong", "Shanxi", "Shaanxi", "Anhui", "Jiangsu", "Liaoning", "Jilin", "Heilongjiang"],
+    },
+    {
+      id: "tropical",
+      label: "الزراعات المدارية: الجنوب الصيني",
+      units: ["Guangdong", "Guangxi", "Hainan", "Fujian", "Yunnan"],
+    },
+    {
+      id: "livestock",
+      label: "تربية المواشي: الشمال والغرب (منغوليا الداخلية والهضاب)",
+      units: ["NeiMongol", "XinjiangUygur", "Xizang", "Qinghai", "Gansu", "NingxiaHui"],
+    },
+  ],
+  "china-industry": [
+    {
+      id: "high",
+      label: "تركز صناعي هام: السواحل الشرقية",
+      units: ["Beijing", "Tianjin", "Shanghai", "Jiangsu", "Zhejiang", "Fujian", "Guangdong", "Shandong", "Hebei"],
+    },
+    {
+      id: "medium",
+      label: "تركز صناعي متوسط: الوسط والشمال الشرقي",
+      units: ["Liaoning", "Jilin", "Heilongjiang", "Henan", "Hubei", "Hunan", "Anhui", "Jiangxi", "Shanxi", "Shaanxi", "Chongqing", "Sichuan"],
+    },
+    {
+      id: "weak",
+      label: "تركز صناعي ضعيف: الغرب الداخلي والهضاب",
+      units: ["XinjiangUygur", "Xizang", "Qinghai", "Gansu", "NingxiaHui", "Guizhou", "Yunnan", "NeiMongol"],
+    },
+  ],
+  "eu-expansion": [
+    { id: "france", label: "فرنسا", country: "France" },
+    { id: "uk", label: "المملكة المتحدة", country: "United Kingdom" },
+    { id: "greece", label: "اليونان", country: "Greece" },
+    { id: "spain", label: "إسبانيا", country: "Spain" },
+    { id: "sweden", label: "السويد", country: "Sweden" },
+    { id: "poland", label: "بولونيا", country: "Poland" },
+    { id: "romania", label: "رومانيا", country: "Romania" },
+    { id: "croatia", label: "كرواتيا", country: "Croatia" },
+  ],
+  "morocco-occupation": [
+    {
+      id: "s1912",
+      label: "السهول الأطلسية: الدار البيضاء، الرباط، مراكش، تادلة (1912)",
+      units: ["GrandCasablanca", "Chaouia-Ouardigha", "Doukkala-Abda", "Rabat-Salé-Zemmour-Zaer", "Gharb-Chrarda-BéniHssen", "Tadla-Azilal", "Marrakech-Tensift-AlHaouz"],
+    },
+    { id: "s1914", label: "الشرق وتازة: وجدة 1907 وتازة 1914", units: ["Fès-Boulemane", "Taza-AlHoceima-Taounate", "Oriental"] },
+    { id: "rif", label: "الريف: حرب عبد الكريم الخطابي (1921–1926)", units: ["Tanger-Tétouan"] },
+    {
+      id: "s1934",
+      label: "الأطلس والجنوب الشرقي: اكتمال الاحتلال (1934)",
+      units: ["Meknès-Tafilalet", "Souss-Massa-Draâ", "Guelmim-Es-Semara"],
+    },
+    { id: "sahara", label: "الصحراء المغربية تحت الاحتلال الإسباني (1884–1975)", country: "Western Sahara" },
+  ],
 };
 
-const out = {};
-for (const [id, cfg] of Object.entries(MAPS)) {
-  const base = BASES[cfg.base];
+const outBases = {};
+for (const [key, base] of Object.entries(BASES)) {
   const frame = makeFrame(base.bbox);
-  const outlineNames = base.outline;
-
-  // شكل الدولة/الدول موضع السؤال
   let outline = "";
-  if (outlineNames.length) {
-    for (const nm of outlineNames) {
-      const f = byName.get(nm);
-      if (!f) throw new Error("دولة غير موجودة: " + nm);
-      outline += pathFromRings(rings(f, base), frame, false);
-    }
+  for (const nm of base.outline) {
+    const f = byName.get(nm);
+    if (!f) throw new Error("دولة غير موجودة: " + nm);
+    outline += toPath(rings(f, base), frame, { tol: 1.1 });
   }
-
-  // دول السياق (رمادية) مقصوصة على الإطار
-  const zoneNames = new Set((cfg.countries ?? []).map((c) => c.name));
+  const zonesCountries = new Set((ZONES["eu-expansion"] ?? []).map((z) => z.country).filter(Boolean));
   const context = [];
-  for (const f of gj.features) {
+  for (const f of ne.features) {
     const nm = f.properties.ADMIN;
-    if (outlineNames.includes(nm) || zoneNames.has(nm)) continue;
+    if (base.outline.includes(nm) || zonesCountries.has(nm)) continue;
     if (!intersects(f, base.bbox)) continue;
-    const d = pathFromRings(rings(f), frame, true);
+    const d = toPath(rings(f), frame, { clipped: true, tol: 2.4 });
     if (d) context.push(d);
   }
-
-  const zones = [];
-  for (const z of cfg.countries ?? []) {
-    const f = byName.get(z.name);
-    if (!f) throw new Error("دولة غير موجودة: " + z.name);
-    zones.push({ id: z.id, label: z.label, d: pathFromRings(rings(f), frame, true) });
-  }
-  for (const z of cfg.zones ?? []) {
-    const rects = z.rect.length === 8 ? [z.rect.slice(0, 4), z.rect.slice(4, 8)] : [z.rect];
-    const d = rects.map((r) => rectPath(r, frame)).join("");
-    zones.push({ id: z.id, label: z.label, d });
-  }
-
-  out[id] = {
-    viewBox: `0 0 ${Math.round(frame.W)} ${Math.round(frame.H)}`,
-    outline,
-    context,
-    zones,
-  };
+  outBases[key] = { viewBox: `0 0 ${Math.round(frame.W)} ${Math.round(frame.H)}`, outline, context, frame };
 }
 
-const header = `/* مولَّد آلياً من Natural Earth (ne_110m_admin_0_countries) عبر tools/build-maps.mjs — لا تحرّره يدوياً. */\n\nexport interface GeoZone {\n  id: string;\n  label: string;\n  d: string;\n}\n\nexport interface GeoMap {\n  viewBox: string;\n  outline: string;\n  context: string[];\n  zones: GeoZone[];\n}\n\nexport const GEO: Record<string, GeoMap> = `;
+const outZones = {};
+for (const [mapId, zones] of Object.entries(ZONES)) {
+  const baseKey = mapId.startsWith("us-") ? "us" : mapId.startsWith("china-") ? "china" : mapId.startsWith("morocco-") ? "morocco" : "europe";
+  const { frame } = outBases[baseKey];
+  outZones[mapId] = zones.map((z) => {
+    let d = "";
+    if (z.country) {
+      const f = byName.get(z.country);
+      if (!f) throw new Error("دولة غير موجودة: " + z.country);
+      d = toPath(rings(f, { minArea: 0.04 }), frame, { clipped: true, tol: 2.4 });
+    } else {
+      const feats = admin[GADM_KEY(baseKey)].filter((f) => z.units.includes(f.properties.NAME_1));
+      const found = new Set(feats.map((f) => f.properties.NAME_1));
+      for (const u of z.units) if (!found.has(u)) throw new Error(`وحدة غير موجودة (${mapId}): ${u}`);
+      d = feats.map((f) => toPath(rings(f, { minArea: 0.04 }), frame, { clipped: true, tol: 2.4 })).join("");
+    }
+    return { id: z.id, label: z.label, d };
+  });
+}
 
-fs.writeFileSync(OUT, header + JSON.stringify(out, null, 0) + ";\n");
+function GADM_KEY(baseKey) {
+  return baseKey === "us" ? "USA" : baseKey === "china" ? "CHN" : "MAR";
+}
+
+for (const b of Object.values(outBases)) delete b.frame;
+
+const header = `/* مولَّد آلياً من Natural Earth + GADM 4.1 عبر tools/build-maps.mjs — لا تحرّره يدوياً. */\n\nexport interface GeoBase {\n  viewBox: string;\n  outline: string;\n  context: string[];\n}\n\nexport interface GeoZone {\n  id: string;\n  label: string;\n  d: string;\n}\n\nexport const GEO_BASES: Record<string, GeoBase> = `;
+
+fs.writeFileSync(
+  OUT,
+  header +
+    JSON.stringify(outBases) +
+    ";\n\nexport const GEO_ZONES: Record<string, GeoZone[]> = " +
+    JSON.stringify(outZones) +
+    ";\n",
+);
 console.log("written", OUT, (fs.statSync(OUT).size / 1024).toFixed(1) + "kB");
-for (const [k, v] of Object.entries(out)) {
-  console.log(k, v.viewBox, "context:", v.context.length, "zones:", v.zones.length, "outline:", v.outline.length);
-}
+for (const [k, v] of Object.entries(outBases)) console.log("base", k, v.viewBox, "context", v.context.length, "outline", v.outline.length);
+for (const [k, v] of Object.entries(outZones)) console.log("zones", k, v.length, v.map((z) => z.d.length).join("/"));
