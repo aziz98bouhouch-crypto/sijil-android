@@ -445,13 +445,15 @@ async function startWebMic(rec: WebSpeech) {
       stream.getTracks().forEach((tr) => tr.stop());
     }
     let transcript = "";
+    let lastHeard = 0;
     rec.lang = "ar-MA";
-    rec.continuous = false;
+    rec.continuous = true;
     rec.interimResults = true;
     rec.maxAlternatives = 1;
     rec.onstart = () => {
       setMicUI(true);
-      micNote("أستمع… تكلّم بالعربية، وسأرسل سؤالك تلقائياً.");
+      stopSpeech();
+      micNote("أستمع… تكلّم بالعربية، وسأرسل سؤالك عند توقفك عن الكلام.");
     };
     rec.onresult = (e) => {
       let text = "";
@@ -461,13 +463,17 @@ async function startWebMic(rec: WebSpeech) {
         if (e.results[i].isFinal) final = true;
       }
       transcript = text;
+      lastHeard = Date.now();
       micNote(`سمعت: «${text.trim()}»`);
       if (final) {
-        try {
-          rec.stop();
-        } catch {
-          /* ignore */
-        }
+        window.clearTimeout(silenceTimer);
+        silenceTimer = window.setTimeout(() => {
+          try {
+            rec.stop();
+          } catch {
+            /* ignore */
+          }
+        }, 1400);
       }
     };
     let langFallbackTried = false;
@@ -563,6 +569,7 @@ async function startNativeMic() {
     stateHandle = await SR.addListener("listeningState", (state) => {
       if (state.status === "started") {
         setMicUI(true);
+        stopSpeech();
         micNote("أستمع… تكلّم بالعربية، وسأرسل سؤالك عند التوقف.");
       } else if (state.status === "stopped" && listening) {
         void finish();
