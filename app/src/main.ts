@@ -206,8 +206,7 @@ function lessonsView(): string {
     <h2 class="sec">${icon("book")} التاريخ <span class="tag">${hist.filter((h) => byId.has(h.id)).length}/${hist.length}</span></h2>
     <div class="grid">${hist.map(lessonCard).join("")}</div>
     <h2 class="sec">${icon("layers")} الجغرافيا <span class="tag">${geo.filter((h) => byId.has(h.id)).length}/${geo.length}</span></h2>
-    <div class="grid">${geo.map(lessonCard).join("")}</div>
-    <div class="row"><a class="btn ghost" href="#/guide">${icon("compass")} الدليل المنهجي</a></div>`,
+    <div class="grid">${geo.map(lessonCard).join("")}</div>`,
   );
 }
 
