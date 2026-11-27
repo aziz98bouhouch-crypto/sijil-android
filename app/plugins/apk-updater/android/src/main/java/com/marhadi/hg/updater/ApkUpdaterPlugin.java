@@ -24,6 +24,10 @@ public class ApkUpdaterPlugin extends Plugin {
     private PluginCall pendingCall;
     private BroadcastReceiver receiver;
 
+    // حالة انتظار إذن «تثبيت تطبيقات غير معروفة»
+    private PluginCall permCall;
+    private String permUrl;
+
     @PluginMethod
     public void install(PluginCall call) {
         final String url = call.getString("url");
@@ -35,7 +39,13 @@ public class ApkUpdaterPlugin extends Plugin {
         final Context ctx = getContext();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !ctx.getPackageManager().canRequestPackageInstalls()) {
-            // نفتح إعدادات «تثبيت تطبيقات غير معروفة» ثم يطلب من المستخدم إعادة المحاولة.
+            // نفتح إعدادات الإذن ونعِد المحاولة تلقائياً عند عودة المستخدم للتطبيق.
+            if (permCall != null) {
+                call.reject("هناك طلب إذن معلّق", "busy");
+                return;
+            }
+            permCall = call;
+            permUrl = url;
             try {
                 Intent settings = new Intent(
                     Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
@@ -44,12 +54,36 @@ public class ApkUpdaterPlugin extends Plugin {
                 settings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 ctx.startActivity(settings);
             } catch (Exception ignored) {
-                /* بعض الأجهزة لا توفّر هذه الشاشة */
+                permCall = null;
+                permUrl = null;
+                call.reject("اسمح لمرشدي بتثبيت التطبيقات من الإعدادات ثم أعد المحاولة", "install_permission");
             }
-            call.reject("اسمح لمرشدي بتثبيت التطبيقات ثم أعد المحاولة", "install_permission");
             return;
         }
 
+        startDownload(call, url);
+    }
+
+    @Override
+    protected void handleOnResume() {
+        super.handleOnResume();
+        if (permCall == null || permUrl == null) return;
+        final Context ctx = getContext();
+        final boolean granted = Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+            || ctx.getPackageManager().canRequestPackageInstalls();
+        final PluginCall call = permCall;
+        final String url = permUrl;
+        permCall = null;
+        permUrl = null;
+        if (granted) {
+            startDownload(call, url);
+        } else {
+            call.reject("اسمح لمرشدي بتثبيت التطبيقات من الإعدادات ثم أعد المحاولة", "install_permission");
+        }
+    }
+
+    private void startDownload(PluginCall call, String url) {
+        final Context ctx = getContext();
         if (pendingCall != null) {
             call.reject("هناك تنزيل جارٍ بالفعل", "busy");
             return;
@@ -157,6 +191,11 @@ public class ApkUpdaterPlugin extends Plugin {
         if (pendingCall != null) {
             pendingCall.reject("أُغلق التطبيق قبل اكتمال التنزيل", "cancelled");
             pendingCall = null;
+        }
+        if (permCall != null) {
+            permCall.reject("أُغلق التطبيق قبل منح إذن التثبيت", "cancelled");
+            permCall = null;
+            permUrl = null;
         }
         unregisterReceiver();
         super.handleOnDestroy();
