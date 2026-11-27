@@ -88,7 +88,10 @@ function mobileNav(active: string): string {
 function screen(active: string, inner: string): string {
   return `<div class="shell">${nav(active)}<main>${inner}</main>
     <footer class="foot">مرشدي HG — التاريخ والجغرافيا · الثانية باكالوريا آداب وعلوم إنسانية<br />
-    المحتوى محرّر من الكتاب المدرسي · لا نقطة نهائية آلية</footer></div>${mobileNav(active)}`;
+    المحتوى محرّر من الكتاب المدرسي · لا نقطة نهائية آلية<br />
+    <span class="foot-ver">الإصدار ${esc(__APP_VERSION__)}</span>
+    <button type="button" class="foot-update" id="footUpdate">التحقق من التحديث</button>
+    <span class="foot-note" id="updateNote"></span></footer></div>${mobileNav(active)}`;
 }
 
 /* ------------------------------ الرئيسية ------------------------------ */
@@ -775,6 +778,28 @@ function render() {
 
 function bind(view: string, seg: string[], needsSearch: boolean) {
   if (view === "") void showUpdate();
+
+  const footBtn = document.getElementById("footUpdate");
+  if (footBtn) {
+    footBtn.addEventListener("click", async () => {
+      const note = document.getElementById("updateNote");
+      footBtn.setAttribute("disabled", "");
+      if (note) note.textContent = "جارٍ الفحص…";
+      const info = await checkForUpdate(true);
+      if (info) {
+        const slot = document.getElementById("updateSlot");
+        if (slot) {
+          renderUpdateCard(slot, info);
+          if (note) note.textContent = "";
+        } else if (note) {
+          note.innerHTML = `نسخة ${info.version} متوفرة — <a href="${info.page}" target="_blank" rel="noopener">صفحة الإصدار</a>`;
+        }
+      } else if (note) {
+        note.textContent = "أنت على أحدث نسخة";
+      }
+      footBtn.removeAttribute("disabled");
+    });
+  }
 
   if (needsSearch) {
     const input = document.getElementById("q") as HTMLInputElement | null;
