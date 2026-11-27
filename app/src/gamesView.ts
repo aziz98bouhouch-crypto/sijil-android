@@ -678,7 +678,18 @@ const DEBATES = [
 ];
 
 function debateStage(stage: HTMLElement) {
-  const d = DEBATES[0];
+  stage.innerHTML = shell(`
+    <div class="ginfo"><b>اختر خصم المناظرة</b><span>ستحاور الشخصية — استخدم حجج الدرس لتقنعها</span></div>
+    <div class="chart-opts" style="grid-template-columns:1fr">
+      ${DEBATES.map((d, i) => `<button class="chart-opt" data-i="${i}"><b>${esc(d.persona)}</b><br><small style="opacity:.75">${esc(d.thesis.slice(0, 90))}…</small></button>`).join("")}
+    </div>`,
+    `<span>مناظرة تفاعلية</span>`);
+  stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((b) => {
+    b.addEventListener("click", () => runDebate(stage, DEBATES[Number(b.dataset.i)]));
+  });
+}
+
+function runDebate(stage: HTMLElement, d: (typeof DEBATES)[number]) {
   let turns = 0;
   const draw = () => {
     stage.innerHTML = shell(`
