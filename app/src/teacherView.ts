@@ -121,7 +121,7 @@ async function speakNative(text: string) {
     pendingSpeech = "";
     avatar?.setSpeaking(true);
     setStatus("يتحدث…", "talking");
-    await TextToSpeech.speak({ text: clean, lang, rate: 0.95, pitch: 1.02, volume: 1 });
+    await TextToSpeech.speak({ text: clean, lang, rate: 0.95, pitch: 0.88, volume: 1 });
     if (tok !== speechToken) return;
     avatar?.setSpeaking(false);
     if (!listening) setStatus("جاهز · اسأل بالعربية", "");
@@ -158,12 +158,11 @@ function refreshVoices() {
 
 function pickVoice(): SpeechSynthesisVoice | undefined {
   const ar = voices.filter((v) => v.lang?.toLowerCase().startsWith("ar"));
-  return (
-    ar.find((v) => v.lang === "ar-MA") ??
-    ar.find((v) => v.lang === "ar-SA") ??
-    ar.find((v) => v.lang === "ar-EG") ??
-    ar[0]
-  );
+  const male = (v: SpeechSynthesisVoice) =>
+    /male|ذكر|man\b|maged|tarik|hoda|salim|omar|youssef/i.test(v.name ?? "");
+  const ma = ar.find((v) => v.lang === "ar-MA");
+  const maleVoice = ar.find((v) => male(v));
+  return maleVoice ?? ma ?? ar.find((v) => v.lang === "ar-SA") ?? ar.find((v) => v.lang === "ar-EG") ?? ar[0];
 }
 
 function setStatus(text: string, tone = "") {
@@ -244,7 +243,7 @@ function speak(text: string) {
   u.lang = voice?.lang ?? "ar-MA";
   if (voice) u.voice = voice;
   u.rate = 0.97;
-  u.pitch = 1.04;
+  u.pitch = 0.88;
   u.onstart = () => {
     pendingSpeech = "";
     avatar?.setSpeaking(true);
@@ -471,9 +470,21 @@ async function startWebMic(rec: WebSpeech) {
         }
       }
     };
+    let langFallbackTried = false;
     rec.onerror = (e) => {
-      cleanupSpeechInput();
       const code = e.error ?? "";
+      if (code === "language-not-supported" && !langFallbackTried) {
+        langFallbackTried = true;
+        rec.lang = "ar-SA";
+        try {
+          rec.start();
+        } catch {
+          cleanupSpeechInput();
+          micNote("تعذر التعرف الصوتي بالعربية على هذا المتصفح. اكتب سؤالك.", "warn");
+        }
+        return;
+      }
+      cleanupSpeechInput();
       micNote(
         code === "not-allowed" || code === "service-not-allowed"
           ? "لم يُسمح باستخدام الميكروفون. اسمح به من إعدادات المتصفح ثم أعد المحاولة، أو اكتب سؤالك."
@@ -584,10 +595,6 @@ function toggleMic() {
   if (listening) {
     cleanupSpeechInput();
     micNote("أوقفت الاستماع. يمكنك الكتابة أو إعادة المحاولة.");
-    return;
-  }
-  if (muted) {
-    micNote("الصوت مكتوم. اضغط رمز السماعة لتشغيل صوت الأستاذ أولاً.", "warn");
     return;
   }
   if (isNative()) {
