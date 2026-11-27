@@ -1176,3 +1176,49 @@ input[type="number"] { width: 96px; }
 .gresult p { font-size: 13px; color: rgba(210,245,238,0.8); line-height: 1.9; max-width: 52ch; }
 .gresult .btn { margin-top: 6px; }
 .game-loading { display: grid; place-items: center; min-height: 300px; color: rgba(210,245,238,0.6); }
+
+/* ============ الرئيسية: اختصارات + لافتة ألعاب ============ */
+.home-quick {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; margin: 16px 0 4px;
+}
+.hq {
+  display: flex; flex-direction: column; align-items: center; gap: 5px; text-decoration: none;
+  background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 13px 6px 11px;
+  box-shadow: var(--sh-1); transition: transform 0.16s var(--ease), box-shadow 0.16s;
+}
+.hq:hover { transform: translateY(-2px); box-shadow: var(--sh-2); }
+.hq-ic {
+  width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+  background: linear-gradient(145deg, #0e9488, #14b8a6); color: #fff;
+  box-shadow: 0 4px 12px rgba(14, 148, 136, 0.25);
+}
+.hq-ic .ico { width: 19px; height: 19px; }
+.hq b { font-size: 12.5px; color: var(--ink); }
+.hq small { font-size: 10.5px; color: var(--muted); }
+.games-banner {
+  display: flex; align-items: center; gap: 13px; text-decoration: none; margin-top: 14px;
+  background: linear-gradient(135deg, #1a1030 0%, #3b1d5e 55%, #5b2a86 100%);
+  border-radius: 18px; padding: 15px 18px; color: #f3eaff;
+  box-shadow: 0 14px 34px rgba(59, 29, 94, 0.35); position: relative; overflow: hidden;
+  transition: transform 0.18s var(--ease);
+}
+.games-banner:hover { transform: translateY(-2px); }
+.games-banner::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 120% at 85% 50%, rgba(168, 85, 247, 0.35), transparent 70%);
+}
+.games-banner > * { position: relative; }
+.gb-ic {
+  width: 48px; height: 48px; border-radius: 15px; flex: none; display: grid; place-items: center;
+  background: linear-gradient(145deg, #a855f7, #7c3aed); color: #fff;
+  box-shadow: 0 6px 18px rgba(168, 85, 247, 0.45);
+}
+.gb-ic .ico { width: 25px; height: 25px; }
+.games-banner div { flex: 1; }
+.games-banner b { display: block; font-size: 15.5px; color: #fff; }
+.games-banner span { font-size: 12px; color: rgba(240, 225, 255, 0.75); }
+.games-banner em { font-style: normal; font-size: 12px; font-weight: 700; color: #e9d5ff; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.games-banner em .ico { width: 14px; height: 14px; }
+@media (max-width: 760px) {
+  .home-quick { grid-template-columns: repeat(3, 1fr); }
+}

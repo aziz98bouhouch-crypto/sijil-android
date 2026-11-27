@@ -132,13 +132,14 @@ function landingView(): string {
   const s = stats(lex.concepts.length);
   const ready = content.lessons.length;
   const total = lex.lessons.length;
-  const featured = lex.lessons.filter((l) => byId.has(l.id)).slice(0, 3);
 
-  const tiles = [
-    { href: "#/lessons", ic: "book", title: "الدروس", note: `${ready} من ${total} جاهزاً`, tone: "t-teal" },
-    { href: "#/guide", ic: "compass", title: "الدليل المنهجي", note: "الوثيقة، المقال، الخريطة", tone: "t-blue" },
-    { href: "#/maps", ic: "target", title: "الخرائط", note: "توطين تفاعلي", tone: "t-amber" },
-    { href: "#/report", ic: "chart", title: "تقريري", note: `${s.accuracy}% إتقان`, tone: "t-violet" },
+  const quick = [
+    { href: "#/lessons", ic: "book", label: "الدروس", note: `${ready}/${total}` },
+    { href: "#/games", ic: "swords", label: "الألعاب", note: "تحدَّ اليوم" },
+    { href: "#/guide", ic: "compass", label: "الدليل", note: "منهجية" },
+    { href: "#/maps", ic: "target", label: "الخرائط", note: "توطين" },
+    { href: "#/lexicon", ic: "library", label: "المعجم", note: `${lex.concepts.length} مفهوماً` },
+    { href: "#/report", ic: "chart", label: "تقريري", note: `${s.accuracy}%` },
   ];
 
   return screen(
@@ -161,17 +162,24 @@ function landingView(): string {
       </div>
     </section>
 
-    <div class="home-tiles">${tiles
-      .map(
-        (t) => `<a class="home-tile ${t.tone}" href="${t.href}">
-          <span class="ht-ic">${icon(t.ic)}</span>
-          <b>${t.title}</b>
-          <small>${t.note}</small>
-        </a>`,
-      )
-      .join("")}</div>
+    <nav class="home-quick" aria-label="اختصارات">
+      ${quick
+        .map(
+          (q) => `<a class="hq" href="${q.href}">
+            <span class="hq-ic">${icon(q.ic)}</span>
+            <b>${q.label}</b><small>${q.note}</small>
+          </a>`,
+        )
+        .join("")}
+    </nav>
 
     <div id="updateSlot"></div>
+
+    <a class="games-banner" href="#/games">
+      <span class="gb-ic">${icon("swords")}</span>
+      <div><b>ساحة الألعاب</b><span>خط الزمن · محقق الوثائق · مختبر المبيان · صانع القرار</span></div>
+      <em>العب الآن ${icon("arrow")}</em>
+    </a>
 
     <a class="teacher-teaser" href="#/teacher">
       <img src="./teacher.webp" alt="الأستاذ مرشدي" />
@@ -180,13 +188,7 @@ function landingView(): string {
         <span>اشرح لي درساً، عرّفني مفهوماً، أو اختبرني شفهياً بالعربية.</span>
       </div>
       <em>تحدّث معه ${icon("arrow")}</em>
-    </a>
-
-    <div class="home-sec-head">
-      <h2 class="sec">${icon("book")} دروس مختارة</h2>
-      <a class="home-more" href="#/lessons">كل الدروس ${icon("arrow")}</a>
-    </div>
-    <div class="grid">${featured.map(lessonCard).join("")}</div>`,
+    </a>`,
   );
 }
 
