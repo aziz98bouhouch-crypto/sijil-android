@@ -485,9 +485,9 @@ function lexiconView(query: string): string {
       .map(([dom, cs]) => {
         const d = domains.get(dom);
         return `<h2 class="sec">${esc(d?.name ?? dom)} <span class="tag">${cs.length}</span></h2>
-        <div class="grid small">${cs
+        <div class="grid small" data-dom="${esc(dom)}">${cs
           .map(
-            (c) => `<article class="kcard">
+            (c) => `<article class="kcard" data-s="${esc((c.term + " " + c.def + " " + (c.type ?? "")).toLowerCase())}">
               <div class="khead"><b>${esc(c.term)}</b><span class="chip">${esc(c.type ?? c.kind)}</span></div>
               <p>${esc(c.def)}</p>
               <div class="kmeta">
@@ -822,19 +822,42 @@ function bind(view: string, seg: string[], needsSearch: boolean) {
   if (needsSearch) {
     const input = document.getElementById("q") as HTMLInputElement | null;
     if (input) {
-      let t: number | undefined;
-      input.addEventListener("input", () => {
-        window.clearTimeout(t);
-        t = window.setTimeout(() => {
-          const v = input.value;
-          location.replace(`#/lexicon?q=${encodeURIComponent(v)}`);
-          const el = document.getElementById("q") as HTMLInputElement | null;
-          if (el) {
-            el.focus();
-            el.setSelectionRange(v.length, v.length);
+      const cards = [...document.querySelectorAll<HTMLElement>(".kcard[data-s]")];
+      if (cards.length) {
+        /* فلترة فورية داخل الصفحة — لا إعادة رسم فلا تختفي لوحة المفاتيح */
+        input.addEventListener("input", () => {
+          const v = input.value.trim().toLowerCase();
+          let shown = 0;
+          for (const c of cards) {
+            const ok = !v || (c.dataset.s ?? "").includes(v);
+            c.style.display = ok ? "" : "none";
+            if (ok) shown++;
           }
-        }, 220);
-      });
+          document.querySelectorAll<HTMLElement>(".grid.small[data-dom]").forEach((g) => {
+            const any = [...g.querySelectorAll<HTMLElement>(".kcard")].some((c) => c.style.display !== "none");
+            g.style.display = any ? "" : "none";
+            const h = g.previousElementSibling as HTMLElement | null;
+            if (h?.classList.contains("sec")) h.style.display = any ? "" : "none";
+          });
+          const tag = document.querySelector<HTMLElement>(".page .tag");
+          if (tag) tag.textContent = `${shown}/${lex.concepts.length}`;
+          history.replaceState(null, "", `#/lexicon?q=${encodeURIComponent(input.value)}`);
+        });
+      } else {
+        let t: number | undefined;
+        input.addEventListener("input", () => {
+          window.clearTimeout(t);
+          t = window.setTimeout(() => {
+            const v = input.value;
+            location.replace(`#/lexicon?q=${encodeURIComponent(v)}`);
+            const el = document.getElementById("q") as HTMLInputElement | null;
+            if (el) {
+              el.focus();
+              el.setSelectionRange(v.length, v.length);
+            }
+          }, 220);
+        });
+      }
     }
   }
 
