@@ -388,6 +388,21 @@ function send(text: string) {
 
 /* ------------------------------ الميكروفون ------------------------------ */
 
+/** النص المسموع يُكتب في حقل الإدخال أولاً ثم يُرسل — لا يضيع إن كان الأستاذ مشغولاً */
+function submitVoice(text: string) {
+  const input = document.getElementById("chatInput") as HTMLInputElement | null;
+  const clean = text.trim();
+  if (input && clean) {
+    input.value = clean;
+    input.focus();
+  }
+  if (!busy) {
+    send(clean);
+  } else {
+    micNote("سؤالك المسجل في مربع الكتابة — اضغط إرسال عندما يجهز الأستاذ.");
+  }
+}
+
 function micNote(text: string, tone = "") {
   const el = document.getElementById("micNote");
   if (!el) return;
@@ -433,7 +448,7 @@ function finishWeb(rec: WebSpeech, transcript: string) {
   if (webRec !== rec) return;
   cleanupSpeechInput();
   const text = transcript.trim();
-  if (text.length > 1) send(text);
+  if (text.length > 1) submitVoice(text);
   else micNote("لم أسمع عبارة واضحة. أعد المحاولة أو اكتب سؤالك.");
 }
 
@@ -548,7 +563,7 @@ async function startNativeMic() {
       }
       cleanup();
       const text = transcript.trim();
-      if (text.length > 1) send(text);
+      if (text.length > 1) submitVoice(text);
       else micNote("لم أسمع عبارة واضحة. أعد المحاولة أو اكتب سؤالك.");
     };
 
