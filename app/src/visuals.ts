@@ -248,7 +248,7 @@ function barChart(): string {
     ${[0, 50, 100, 150]
       .map(
         (v) => `<line x1="64" y1="${y(v)}" x2="660" y2="${y(v)}" stroke="#e4eef0" stroke-width="1"/>
-        <text x="56" y="${y(v) + 4}" text-anchor="start" class="svgm">${v}</text>`,
+        <text x="58" y="${y(v) + 4}" text-anchor="end" class="svgm">${v}</text>`,
       )
       .join("")}
     <line x1="64" y1="64" x2="64" y2="250" stroke="#35566b" stroke-width="1.6"/>
@@ -278,17 +278,17 @@ function pieChart(): string {
     <text x="664" y="28" class="svgm" text-anchor="start">مجموع النسب = 100%</text>
     <g transform="translate(210 175)">
       <circle r="104" fill="#fff" stroke="#e4eef0"/>
-      <path d="M0 0 L0 -104 A104 104 0 0 1 98.9 -32.1 Z" fill="#2f6fb3"/>
-      <path d="M0 0 L98.9 -32.1 A104 104 0 0 1 61.1 84.1 Z" fill="#d98a2b"/>
-      <path d="M0 0 L61.1 84.1 A104 104 0 0 1 -83.3 62.2 Z" fill="#5a9e6f"/>
-      <path d="M0 0 L-83.3 62.2 A104 104 0 0 1 0 -104 Z" fill="#b45f7a"/>
+      <path d="M0 0 L0 -104 A104 104 0 0 1 98.9 32.1 Z" fill="#2f6fb3"/>
+      <path d="M0 0 L98.9 32.1 A104 104 0 0 1 -32.1 98.9 Z" fill="#d98a2b"/>
+      <path d="M0 0 L-32.1 98.9 A104 104 0 0 1 -104 0 Z" fill="#5a9e6f"/>
+      <path d="M0 0 L-104 0 A104 104 0 0 1 0 -104 Z" fill="#b45f7a"/>
       <circle r="46" fill="#fff"/>
       <text x="0" y="-2" text-anchor="middle" class="svgb">100%</text>
       <text x="0" y="17" text-anchor="middle" class="svgm">المجموع</text>
-      <text x="0" y="-78" text-anchor="middle" class="svgw" font-size="11">30%</text>
-      <text x="74" y="-4" text-anchor="middle" class="svgw" font-size="11">25%</text>
-      <text x="48" y="66" text-anchor="middle" class="svgw" font-size="11">20%</text>
-      <text x="-66" y="48" text-anchor="middle" class="svgw" font-size="11">25%</text>
+      <text x="55" y="-40" text-anchor="middle" class="svgw" font-size="11">30%</text>
+      <text x="31" y="62" text-anchor="middle" class="svgw" font-size="11">25%</text>
+      <text x="-56" y="42" text-anchor="middle" class="svgw" font-size="11">20%</text>
+      <text x="-48" y="-46" text-anchor="middle" class="svgw" font-size="11">25%</text>
     </g>
     ${legend
       .map(
@@ -297,7 +297,7 @@ function pieChart(): string {
         <text x="560" y="${124 + i * 38}" text-anchor="end" class="svgb">${v}</text>`,
       )
       .join("")}
-    <text x="390" y="292" text-anchor="end" class="svgm">نصف الدائرة: الزاوية = النسبة × 1.8</text>
+    <text x="390" y="292" text-anchor="end" class="svgm">الدائرة الكاملة: الزاوية = النسبة × 3.6</text>
   </svg><figcaption>ابدأ من أعلى الدائرة مع عقارب الساعة، وسمِّ كل قطاع، وتحقق من أن مجموع الزوايا 360°.</figcaption></figure>`;
 }
 
@@ -315,7 +315,7 @@ function curveChart(): string {
     ${[0, 2, 4, 6, 8]
       .map(
         (v) => `<line x1="64" y1="${y(v)}" x2="660" y2="${y(v)}" stroke="#e4eef0"/>
-        <text x="56" y="${y(v) + 4}" text-anchor="start" class="svgm">${v}</text>`,
+        <text x="58" y="${y(v) + 4}" text-anchor="end" class="svgm">${v}</text>`,
       )
       .join("")}
     <line x1="64" y1="64" x2="64" y2="250" stroke="#35566b" stroke-width="1.6"/>
@@ -389,8 +389,8 @@ export function chartThumb(kind: ChartThumbKind): string {
           <rect x="${gx + 19}" y="${112 - h2}" width="17" height="${h2}" rx="3" fill="#2f6fb3" opacity="0.9"/>`;
         })
         .join("")}
-      <rect x="150" y="22" width="12" height="9" rx="2" fill="#0e9488"/><text x="166" y="30" font-size="11" fill="#46616e">ظاهرة أ</text>
-      <rect x="150" y="38" width="12" height="9" rx="2" fill="#2f6fb3"/><text x="166" y="46" font-size="11" fill="#46616e">ظاهرة ب</text>
+      <rect x="140" y="14" width="12" height="9" rx="2" fill="#0e9488"/><text x="156" y="22" font-size="11" fill="#46616e">ظاهرة أ</text>
+      <rect x="140" y="28" width="12" height="9" rx="2" fill="#2f6fb3"/><text x="156" y="36" font-size="11" fill="#46616e">ظاهرة ب</text>
     </svg>`;
   }
   /* ===== أمثلة أعمدة: منفصلة / متراكبة / ذات اتجاهين / متصلة ===== */
