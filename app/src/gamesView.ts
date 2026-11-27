@@ -254,7 +254,7 @@ const WATER_CARDS: Card[] = [
     a: { label: "مشاريع استثمارية موجهة في الأرياف", fx: { eco: -8, env: 0, soc: 14, dip: 0 }, note: "تثبيت السكان — «التنمية المتوازنة»." },
     b: { label: "توسيع المدن لاستيعاب المهاجرين", fx: { eco: -10, env: -8, soc: -4, dip: 0 }, note: "تكلفة عمرانية وبيئية مرتفعة." } },
   { text: "مؤسسة دولية تعرض قرضاً لقطاع الفلاحة بشروط بيئية صارمة. ما القرار؟",
-    a: { label: "قبول القرض والشروط", fx: { eco: 8, env: 12, soc: 0, dip: 8 }, note: "تمويل أخضر يحصّن Credibilité الدولية." },
+    a: { label: "قبول القرض والشروط", fx: { eco: 8, env: 12, soc: 0, dip: 8 }, note: "تمويل أخضر يحصّن المصداقية الدولية." },
     b: { label: "رفض التدخل في الشؤون الداخلية", fx: { eco: -4, env: 0, soc: 0, dip: -12 }, note: "موقف سيادي لكن يفقد تمويلاً متاحاً." } },
   { text: "نقص الأمطار يتكرر 3 سنوات. ما الاستراتيجية؟",
     a: { label: "برنامج طوارئ وطني شامل", fx: { eco: -14, env: 10, soc: 10, dip: 2 }, note: "تعبئة مجتمعية — يرفع الاستقرار لكنه مكلف." },
@@ -321,13 +321,13 @@ interface RaceCard {
 }
 
 const RACES: RaceCard[] = [
-  { title: "الناتج الداخلي الخام — الولايات المتحدة", unit: "مليار دولار", known: [14, 15, 17, 19, 23, 25],
-    future: "down", cause: "أزمة 2008 crashed GDP then recovery",
+  { title: "الناتج الداخلي الخام — الولايات المتحدة", unit: "تريليون دولار", known: [10, 12, 14, 15, 16, 20],
+    future: "down", cause: "أزمة الرهن العقاري 2008 تُحدث تراجعاً مؤقتاً ثم تعافٍ",
     options: ["أزمة الرهن العقاري 2008", "ازدهار التسعينيات", "سقوط جدار برلين"] },
   { title: "نسبة التمدين — المغرب", unit: "%", known: [35, 42, 49, 55, 61, 64],
     future: "up", cause: "الهجرة القروية للمدن",
     options: ["الهجرة القروية للمدن", "انخفاض الخصوبة", "توسع المدن الجديدة"] },
-  { title: "مساهمة الفلاحة في PIB — الصين", unit: "%", known: [40, 36, 31, 26, 22, 18],
+  { title: "نسبة مساهمة الفلاحة — الصين", unit: "%", known: [40, 36, 31, 26, 22, 18],
     future: "down", cause: "التحول نحو الصناعة والخدمات",
     options: ["التحول نحو الصناعة والخدمات", "ازدهار الفلاحة", "ثورة الخضراء"] },
 ];
@@ -631,6 +631,9 @@ function mapxStage(stage: HTMLElement) {
   const newRound = () => {
     round++;
     const p = MAP_PUZZLES[(round - 1) % MAP_PUZZLES.length];
+    const order = shuffle(p.options.map((_, i) => i));
+    const opts = order.map((i) => p.options[i]);
+    const ans = order.indexOf(p.answer);
     stage.innerHTML = shell(`
       <div class="ginfo"><b>الجولة ${round}/5 — فك شفرة الطبقات</b><span>طبقة أ × طبقة ب</span></div>
       <div class="map-layers">
@@ -638,16 +641,16 @@ function mapxStage(stage: HTMLElement) {
         <div class="map-layer"><span class="map-layer-tag">ب</span> ${esc(p.b)}</div>
       </div>
       <div class="chart-opts" style="grid-template-columns:1fr">
-        ${p.options.map((o, i) => `<button class="chart-opt" data-i="${i}">${esc(o)}</button>`).join("")}
+        ${opts.map((o, i) => `<button class="chart-opt" data-i="${i}">${esc(o)}</button>`).join("")}
       </div>
       <div class="gscore-line">النقاط: ${score}</div>`,
       `<span>حلل العلاقة بين الطبقتين</span>`);
     stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((b) => {
       b.addEventListener("click", () => {
-        const ok = Number(b.dataset.i) === p.answer;
+        const ok = Number(b.dataset.i) === ans;
         if (ok) score += 12;
         stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((x) => {
-          if (Number(x.dataset.i) === p.answer) x.classList.add("is-right");
+          if (Number(x.dataset.i) === ans) x.classList.add("is-right");
           else if (x === b) x.classList.add("is-wrong");
           x.disabled = true;
         });
