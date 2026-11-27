@@ -1056,3 +1056,123 @@ input[type="number"] { width: 96px; }
 @media (max-width: 640px) {
   .gvisual svg { min-width: 600px; }
 }
+
+/* ============ الألعاب ============ */
+.gcard {
+  display: flex; flex-direction: column; gap: 8px; text-decoration: none;
+  background: linear-gradient(160deg, #fff, #f2fbf8); border: 1px solid var(--line);
+  border-radius: 18px; padding: 18px; box-shadow: var(--sh-1);
+  transition: transform 0.18s var(--ease), box-shadow 0.18s;
+}
+.gcard:hover { transform: translateY(-3px); box-shadow: var(--sh-2); }
+.gcard-ic {
+  width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+  background: linear-gradient(145deg, #0e9488, #14b8a6); color: #fff;
+  box-shadow: 0 6px 16px rgba(14, 148, 136, 0.3);
+}
+.gcard-ic .ico { width: 24px; height: 24px; }
+.gcard b { font-size: 16px; color: var(--ink); }
+.gcard p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.7; flex: 1; }
+.gcard-go { font-size: 12px; font-weight: 700; color: var(--brand); display: inline-flex; align-items: center; gap: 5px; }
+.gcard-go .ico { width: 14px; height: 14px; }
+
+.game-stage {
+  background: linear-gradient(160deg, #0d3a35, #0a2925); border-radius: 20px;
+  border: 1px solid rgba(94, 234, 212, 0.15); padding: 18px; color: #eafffa;
+  box-shadow: 0 18px 44px rgba(5, 40, 36, 0.3); min-height: 380px;
+}
+.gscore { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; color: rgba(210,245,238,0.6); }
+.gbody { display: flex; flex-direction: column; gap: 12px; }
+.ginfo b { display: block; font-size: 15px; color: #fff; }
+.ginfo span { font-size: 12.5px; color: rgba(210,245,238,0.75); line-height: 1.7; }
+.gscore-line { font-size: 12px; color: #9ff5e4; text-align: center; }
+.gfeedback {
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(94,234,212,0.25);
+  border-radius: 12px; padding: 10px 14px; font-size: 12.5px; line-height: 1.8; color: #d8fbf4;
+}
+.gfeedback b { color: #7dffce; }
+.gfeedback small { color: rgba(210,245,238,0.55); }
+
+/* خط الزمن */
+.chrono-slots { display: flex; flex-direction: column; gap: 6px; }
+.chrono-slot {
+  min-height: 44px; border-radius: 12px; border: 1.5px dashed rgba(94,234,212,0.3);
+  display: flex; align-items: center; gap: 10px; padding: 6px 12px;
+  background: rgba(255,255,255,0.03); font-size: 12.5px; color: rgba(210,245,238,0.6);
+}
+.chrono-slot.filled { border-style: solid; border-color: rgba(94,234,212,0.55); background: rgba(94,234,212,0.1); color: #eafffa; }
+.chrono-slot b { color: #7dffce; min-width: 74px; }
+.chrono-deck { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.chrono-card {
+  font: inherit; font-size: 12.5px; cursor: pointer; padding: 9px 13px; border-radius: 12px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16); color: #eafffa;
+  display: flex; flex-direction: column; gap: 2px; transition: transform 0.15s;
+}
+.chrono-card small { color: #7dffce; font-size: 10.5px; }
+.chrono-card:hover { transform: translateY(-2px); background: rgba(94,234,212,0.15); }
+.chrono-card.wrong { background: rgba(220,60,50,0.3); border-color: #f0655a; animation: shake 0.4s; }
+@keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* محقق الوثائق */
+.doc-paper {
+  background: #f7f2e4; color: #3a3226; border-radius: 14px; padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35); display: flex; flex-direction: column; gap: 4px;
+  font-family: inherit;
+}
+.doc-line {
+  font: inherit; text-align: start; cursor: pointer; display: flex; gap: 10px; align-items: baseline;
+  background: none; border: 0; border-bottom: 1px dashed #ddd0b4; padding: 9px 4px;
+  font-size: 13px; line-height: 1.8; color: #3a3226; border-radius: 8px;
+}
+.doc-line:hover { background: rgba(14,148,136,0.07); }
+.doc-num {
+  flex: none; width: 22px; height: 22px; border-radius: 50%; background: #0e9488; color: #fff;
+  font-size: 11px; display: grid; place-items: center; font-weight: 700;
+}
+.doc-line.wrong { background: rgba(220,60,50,0.15); }
+.doc-line.is-lie { background: rgba(220,60,50,0.2); border-color: #d64541; }
+.doc-line.is-true { opacity: 0.55; }
+.doc-line:disabled { cursor: default; }
+
+/* مختبر المبيان */
+.chart-q { text-align: center; }
+.chart-when { font-size: 14px; font-weight: 700; margin: 0 0 8px; }
+.chart-rules { font-size: 12.5px; color: #6b5f45; margin: 0; line-height: 1.8; }
+.chart-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chart-opt {
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; padding: 16px 10px;
+  border-radius: 14px; border: 2px solid rgba(94,234,212,0.3); color: #eafffa;
+  background: rgba(255,255,255,0.06); transition: all 0.15s;
+}
+.chart-opt:hover { background: rgba(94,234,212,0.15); border-color: #5eead4; }
+.chart-opt.is-right { background: rgba(45,212,125,0.25); border-color: #6ee7a0; color: #d1ffe0; }
+.chart-opt.is-wrong { background: rgba(220,60,50,0.3); border-color: #f0655a; color: #ffd9d5; }
+
+/* صانع القرار */
+.gmeters { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gmeter { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: rgba(210,245,238,0.8); }
+.gmeter span { min-width: 86px; }
+.gmeter b { min-width: 24px; text-align: end; color: #fff; }
+.gbar { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.1); overflow: hidden; }
+.gbar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #14b8a6, #5eead4); transition: width 0.5s var(--ease); }
+.schoices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.schoice {
+  font: inherit; cursor: pointer; text-align: start; padding: 14px 16px; border-radius: 16px;
+  border: 2px solid rgba(94,234,212,0.3); background: rgba(255,255,255,0.06); color: #eafffa;
+  transition: transform 0.15s, background 0.15s;
+}
+.schoice:hover { transform: translateY(-2px); background: rgba(94,234,212,0.14); border-color: #5eead4; }
+.schoice b { font-size: 13px; line-height: 1.7; }
+
+/* نتيجة */
+.gresult { text-align: center; padding: 30px 10px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.gresult-ic {
+  width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; color: #fff;
+}
+.gresult.win .gresult-ic { background: linear-gradient(145deg, #10b981, #34d399); box-shadow: 0 10px 30px rgba(16,185,129,0.4); }
+.gresult.lose .gresult-ic { background: linear-gradient(145deg, #dc2626, #f87171); box-shadow: 0 10px 30px rgba(220,38,38,0.4); }
+.gresult-ic .ico { width: 30px; height: 30px; }
+.gresult b { font-size: 18px; color: #fff; }
+.gresult p { font-size: 13px; color: rgba(210,245,238,0.8); line-height: 1.9; max-width: 52ch; }
+.gresult .btn { margin-top: 6px; }
+.game-loading { display: grid; place-items: center; min-height: 300px; color: rgba(210,245,238,0.6); }

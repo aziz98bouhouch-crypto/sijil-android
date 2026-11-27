@@ -5,6 +5,7 @@ import { MODES, buildMode, availableModes } from "./modes";
 import { guideIndexView, guideTopicView, guideTestView, bindGuide } from "./guideView";
 import { mapsIndexView, mapExerciseView, bindMaps } from "./mapView";
 import { teacherView, bindTeacher, destroyTeacher } from "./teacherView";
+import { gamesIndexView, gameView, bindGames } from "./gamesView";
 import { recordRun, markSeen, stats, resetAll, type MissRecord } from "./store";
 import {
   buildSpec,
@@ -62,6 +63,7 @@ const NAV = [
   { href: "#/", label: "الرئيسية", key: "home", ic: "home" },
   { href: "#/lessons", label: "الدروس", key: "lessons", ic: "book" },
   { href: "#/teacher", label: "الأستاذ", key: "teacher", ic: "user" },
+  { href: "#/games", label: "الألعاب", key: "games", ic: "swords" },
   { href: "#/lexicon", label: "المعجم", key: "lexicon", ic: "library" },
   { href: "#/guide", label: "الدليل", key: "guide", ic: "compass" },
   { href: "#/maps", label: "الخرائط", key: "maps", ic: "target" },
@@ -760,6 +762,12 @@ function render() {
     case "teacher":
       html = screen("teacher", teacherView());
       break;
+    case "games":
+      html = screen("games", gamesIndexView());
+      break;
+    case "game":
+      html = screen("games", gameView(seg[1] ?? ""));
+      break;
     case "report":
       html = reportView();
       break;
@@ -820,6 +828,7 @@ function bind(view: string, seg: string[], needsSearch: boolean) {
     }
   }
 
+  if (view === "game") bindGames(seg[1] ?? "");
   if (view === "teacher") {
     void bindTeacher();
     return;
