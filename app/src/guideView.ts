@@ -17,7 +17,7 @@ import {
   type GuideTopic,
 } from "./guide";
 import { icon } from "./icons";
-import { visualHTML, type VisualKind } from "./visuals";
+import { visualHTML, chartThumb, type ChartThumbKind, type VisualKind } from "./visuals";
 import {
   CHART_DIMENSIONS,
   COLUMN_RULES,
@@ -94,10 +94,21 @@ function modelHTML(m: ModelEssay): string {
     .join("")}</div></details>`;
 }
 
+const chartThumbFor = (type: string): ChartThumbKind =>
+  type.includes("نصف")
+    ? "half"
+    : type.includes("دائري")
+      ? "pie"
+      : type.includes("مزدوج")
+        ? "grouped"
+        : type.includes("منحنى")
+          ? "curve"
+          : "bar";
+
 function chartTypesHTML(): string {
-  return `<div class="tablewrap"><table class="mtable"><thead><tr><th>نوع المبيان</th><th>متى يُستعمل؟</th><th>الضوابط</th></tr></thead>
+  return `<div class="tablewrap"><table class="mtable charttypes"><thead><tr><th>نوع المبيان</th><th>متى يُستعمل؟</th><th>الضوابط</th></tr></thead>
   <tbody>${CHART_TYPES.map(
-    (c) => `<tr><th>${esc(c.type)}</th><td>${esc(c.when)}</td><td>${esc(c.rules)}</td></tr>`,
+    (c) => `<tr><th><span class="cthumb">${chartThumb(chartThumbFor(c.type))}</span>${esc(c.type)}</th><td>${esc(c.when)}</td><td>${esc(c.rules)}</td></tr>`,
   ).join("")}</tbody></table></div>`;
 }
 
@@ -164,10 +175,19 @@ function chartDimensionsHTML(): string {
   ).join("")}</div>`;
 }
 
+const colThumbFor = (kind: string, shape: string): ChartThumbKind => {
+  const s = kind + " " + shape;
+  if (s.includes("اتجاهين")) return "diverging";
+  if (s.includes("متصلة") || s.includes("مدرج")) return "hist";
+  if (s.includes("متراكبة")) return "stacked";
+  if (s.includes("مركبة") || s.includes("متجمعة")) return "grouped";
+  return "sep";
+};
+
 function columnRulesHTML(): string {
-  return `<div class="tablewrap"><table class="mtable"><thead><tr><th>تركيبة الجدول (عنصر / مكان / زمن)</th><th>نوع المبيان الأنسب</th><th>التمثيل الهندسي</th></tr></thead>
+  return `<div class="tablewrap"><table class="mtable colrules"><thead><tr><th>تركيبة الجدول (عنصر / مكان / زمن)</th><th>نوع المبيان الأنسب</th><th>التمثيل الهندسي</th></tr></thead>
   <tbody>${COLUMN_RULES.map(
-    (r) => `<tr><th>${esc(r.case)}</th><td><span class="src src-both">${esc(r.kind)}</span></td><td>${esc(r.shape)}</td></tr>`,
+    (r) => `<tr><th>${esc(r.case)}</th><td><span class="cthumb">${chartThumb(colThumbFor(r.kind, r.shape))}</span><span class="src src-both">${esc(r.kind)}</span></td><td>${esc(r.shape)}</td></tr>`,
   ).join("")}</tbody></table></div>`;
 }
 

@@ -1,5 +1,7 @@
 /** رسوم توضيحية للمنهجيات — SVG خفيف بلا صور خارجية */
 
+import { MA_VIEW, MA_OUTLINE, MA_ZONES, MA_CITIES, MA_ATLAS } from "./mapArt";
+
 export type VisualKind = "timeline" | "map" | "doc" | "essay" | "bar" | "pie" | "curve";
 
 function timeline(): string {
@@ -74,71 +76,94 @@ function timeline(): string {
 }
 
 function moroccoMap(): string {
-  const outline =
-    "M262 46 L300 38 L330 52 L352 44 L372 58 L410 54 L436 70 L470 66 L500 84 L534 78 L548 100 L530 118 L548 140 L536 162 L556 186 L548 214 L566 244 L548 274 L552 306 L522 334 L482 346 L440 338 L404 352 L368 338 L334 352 L300 338 L268 346 L242 318 L230 288 L210 262 L196 232 L204 204 L186 180 L196 152 L182 128 L200 104 L196 82 L224 66 Z";
-  const north =
-    "M196 82 L224 66 L262 46 L330 52 L372 58 L410 54 L436 70 L470 66 L500 84 L534 78 L548 100 L530 118 L548 140 L536 162 L500 150 L460 160 L420 140 L380 150 L340 130 L300 140 L260 120 L220 130 L196 152 L182 128 L200 104 Z";
-  const center =
-    "M220 130 L260 120 L300 140 L340 130 L380 150 L420 140 L460 160 L500 150 L536 162 L556 186 L548 214 L520 210 L480 230 L440 214 L400 230 L360 216 L320 230 L280 214 L240 224 L204 204 L186 180 L196 152 Z";
-  const cities = [
-    { x: 300, y: 72, name: "طنجة", side: "end" },
-    { x: 250, y: 148, name: "الرباط", side: "start" },
-    { x: 232, y: 172, name: "الدار البيضاء", side: "start" },
-    { x: 300, y: 208, name: "مراكش", side: "end" },
-    { x: 252, y: 258, name: "أكادير", side: "start" },
-    { x: 280, y: 318, name: "العيون", side: "end" },
+  /* حدود حقيقية من geoBoundaries/GADM (mapArt.ts): المغرب والصحراء المغربية
+     مرسومتان كوحدة واحدة بلا خط فصل — نفس منطق تمارين التوطين في mapShapes.ts */
+  const bands: [string, string][] = [
+    ["north", "المتوسطي الشمالي"],
+    ["center", "الوسط: سهول وأطلس"],
+    ["south", "الجنوب"],
+    ["sahara", "المناطق الصحراوية"],
   ];
-  return `<figure class="gvisual"><svg viewBox="0 0 720 400" role="img" aria-label="خريطة تخطيطية للمغرب مع مفتاح ومقياس واتجاه الشمال">
+  const bandColor: Record<string, string> = {
+    north: "#a9cdec",
+    center: "#eed9a9",
+    south: "#e3c493",
+    sahara: "#dcc9b8",
+  };
+  /* إزاحة وتسميات يدوية لتفادي تراكب أسماء المدن */
+  const labelAt: Record<string, [number, number, string]> = {
+    "طنجة": [0, 18, "middle"],
+    "وجدة": [-10, 5, "end"],
+    "فاس": [0, -12, "middle"],
+    "الرباط": [-10, 6, "end"],
+    "مكناس": [10, 14, "start"],
+    "الدار البيضاء": [-10, 16, "end"],
+    "القنيطرة": [0, -12, "middle"],
+    "مراكش": [0, -12, "middle"],
+    "أكادير": [-10, 6, "end"],
+    "الصويرة": [0, -12, "middle"],
+    "تزنيت": [10, 14, "start"],
+    "ورزازات": [0, -12, "middle"],
+    "العيون": [0, -12, "middle"],
+    "الداخلة": [10, 6, "start"],
+  };
+  const cities = MA_CITIES.map((c) => {
+    const [dx, dy, anchor] = labelAt[c.name] ?? [0, 16, "middle"];
+    return `<circle cx="${c.x}" cy="${c.y}" r="5" fill="#0f766e" stroke="#fff" stroke-width="2"/>
+    <text x="${c.x + dx}" y="${c.y + dy}" text-anchor="${anchor}" class="mal" font-size="15" style="paint-order:stroke;stroke:#f4fbf9;stroke-width:3.5;stroke-linejoin:round">${c.name}</text>`;
+  }).join("");
+  const peaks = MA_ATLAS.map(
+    (p) => `<path d="M${p.x} ${p.y - 8}L${p.x + 4.6} ${p.y + 3.4}L${p.x - 4.6} ${p.y + 3.4}Z" fill="#8a6bbf" opacity="0.85"/>`,
+  ).join("");
+  return `<figure class="gvisual"><svg viewBox="${MA_VIEW}" role="img" aria-label="خريطة المملكة المغربية مع مفتاح ومقياس واتجاه الشمال">
     <defs>
-      <clipPath id="maClip"><path d="${outline}"/></clipPath>
-      <linearGradient id="sea" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#eaf5f9"/><stop offset="1" stop-color="#f8fcfd"/>
+      <linearGradient id="sea2" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e8f4f8"/><stop offset="1" stop-color="#f8fcfd"/>
       </linearGradient>
+      <clipPath id="maClip2"><path d="${MA_OUTLINE}"/></clipPath>
     </defs>
-    <rect x="0" y="0" width="720" height="400" fill="url(#sea)"/>
-    <text x="64" y="30" class="svgt" text-anchor="end">المغرب: تركز الساكنة والأنشطة</text>
-    <text x="664" y="30" class="svgm" text-anchor="start">خريطة تخطيطية للقراءة لا للحدود</text>
+    <rect x="0" y="0" width="1000" height="1066" fill="url(#sea2)"/>
+    <text x="960" y="46" text-anchor="end" class="svgt2">المملكة المغربية: التوزيع الجغرافي</text>
+    <text x="60" y="46" class="svgm2" text-anchor="start">خريطة تخطيطية للقراءة لا للحدود</text>
+    <text x="700" y="30" text-anchor="middle" class="svgs2" fill="#3f7488">البحر الأبيض المتوسط</text>
+    <text x="34" y="560" text-anchor="middle" class="svgs2" fill="#3f7488" transform="rotate(-90 34 560)">المحيط الأطلسي</text>
 
-    <path d="${outline}" fill="#f3ead8" stroke="#6f8792" stroke-width="2"/>
-    <g clip-path="url(#maClip)">
-      <path d="${north}" fill="#9cc9dd" opacity="0.75"/>
-      <path d="${center}" fill="#ecd7a8" opacity="0.85"/>
-      <path d="M230 288 L268 346 L300 338 L334 352 L368 338 L404 352 L440 338 L482 346 L522 334 L552 306 L548 274 L566 244 L548 214 L520 210 L480 230 L440 214 L400 230 L360 216 L320 230 L280 214 L240 224 L204 204 L196 232 L210 262 L230 288 Z" fill="#f0d9b1" opacity="0.6"/>
-      <path d="M232 172 L300 208 L340 250 L300 300 L260 330 L230 288 L210 262 L196 232 L204 204 L220 190 Z" fill="#d7e8d2" opacity="0.85"/>
+    <path d="${MA_OUTLINE}" fill="#f3ead8"/>
+    <g clip-path="url(#maClip2)">
+      ${bands
+        .map(
+          ([k]) => `<path d="${MA_ZONES[k]}" fill="${bandColor[k]}" fill-rule="evenodd" opacity="0.85"/>`,
+        )
+        .join("")}
+      ${peaks}
+    </g>
+    <path d="${MA_OUTLINE}" fill="none" stroke="#6f8792" stroke-width="2.5"/>
+    <text x="585" y="520" text-anchor="middle" class="svgs2" fill="#6b5a86">الأطلس</text>
+
+    ${cities}
+
+    <g transform="translate(948 128)">
+      <circle r="34" fill="#fff" stroke="#35566b" stroke-width="2"/>
+      <path d="M0 -24l9 31-9-7-9 7z" fill="#b45f7a"/>
+      <text x="0" y="52" text-anchor="middle" class="svgm2">الشمال</text>
     </g>
 
-    <path d="M300 72 L470 110" stroke="#b9ccd4" stroke-width="1" stroke-dasharray="2 3"/>
-    <text x="480" y="108" class="svgm" text-anchor="end">تركز ساحلي</text>
-    <text x="388" y="262" class="svgm" text-anchor="middle">كثافة ضعيفة</text>
-
-    ${cities
-      .map(
-        (c) => `<circle cx="${c.x}" cy="${c.y}" r="4.5" fill="#0f766e" stroke="#fff" stroke-width="2"/>
-        <text x="${c.x + (c.side === "end" ? 10 : -10)}" y="${c.y + 4}" text-anchor="${c.side}" class="svgl" fill="#17454a">${c.name}</text>`,
-      )
-      .join("")}
-
-    <g transform="translate(626 62)">
-      <circle cx="0" cy="0" r="27" fill="#fff" stroke="#35566b" stroke-width="1.6"/>
-      <path d="M0 -20l8 27-8-6-8 6z" fill="#b45f7a"/>
-      <text x="0" y="42" text-anchor="middle" class="svgm">الشمال</text>
+    <g transform="translate(56 88)">
+      <rect width="370" height="180" rx="14" fill="#fff" stroke="#d6e4e8"/>
+      <text x="352" y="28" text-anchor="end" class="svgb2">المفتاح (تقسيم مبسّط)</text>
+      ${bands
+        .map(
+          ([k, label], i) => `<rect x="336" y="${44 + i * 24}" width="15" height="13" rx="2" fill="${bandColor[k]}" stroke="#c9bfa8" stroke-width="0.6"/>
+          <text x="326" y="${55 + i * 24}" text-anchor="end" class="svgm2">${label}</text>`,
+        )
+        .join("")}
+      <line x1="20" y1="150" x2="190" y2="150" stroke="#35566b" stroke-width="2"/>
+      <line x1="20" y1="144" x2="20" y2="156" stroke="#35566b" stroke-width="1.4"/>
+      <line x1="105" y1="146" x2="105" y2="154" stroke="#35566b" stroke-width="1.1"/>
+      <line x1="190" y1="144" x2="190" y2="156" stroke="#35566b" stroke-width="1.4"/>
+      <text x="105" y="172" text-anchor="middle" class="svgm2">0 — 250 — 500 كم (تقريبي)</text>
     </g>
-
-    <rect x="562" y="268" width="146" height="118" rx="10" fill="#fff" stroke="#d6e4e8"/>
-    <text x="700" y="288" text-anchor="start" class="svgb">المفتاح</text>
-    <rect x="686" y="298" width="14" height="12" fill="#9cc9dd"/><text x="678" y="309" text-anchor="start" class="svgm">مجال ساحلي</text>
-    <rect x="686" y="320" width="14" height="12" fill="#ecd7a8"/><text x="678" y="331" text-anchor="start" class="svgm">سهول داخلية</text>
-    <rect x="686" y="342" width="14" height="12" fill="#d7e8d2"/><text x="678" y="353" text-anchor="start" class="svgm">مجال جبلي</text>
-    <rect x="686" y="364" width="14" height="12" fill="#f0d9b1"/><text x="678" y="375" text-anchor="start" class="svgm">مجال صحراوي</text>
-
-    <g transform="translate(62 356)">
-      <line x1="0" y1="0" x2="120" y2="0" stroke="#35566b" stroke-width="2"/>
-      <line x1="0" y1="-5" x2="0" y2="5" stroke="#35566b" stroke-width="1.4"/>
-      <line x1="60" y1="-4" x2="60" y2="4" stroke="#35566b" stroke-width="1.2"/>
-      <line x1="120" y1="-5" x2="120" y2="5" stroke="#35566b" stroke-width="1.4"/>
-      <text x="60" y="18" text-anchor="middle" class="svgm">0 — 250 — 500 كم</text>
-    </g>
-  </svg><figcaption>لا تُقرأ الخريطة دون عنوان ومفتاح ومقياس واتجاه شمال. صف التركز ثم الامتداد ثم فسّر بالمناخ والتضاريس والسواحل والأنشطة.</figcaption></figure>`;
+  </svg><figcaption>الحدود مرسومة كوحدة واحدة: الصحراء المغربية جزء من التراب الوطني ولا يُفصل عنها خطٌّ حدودي. صف التركز ثم الامتداد ثم فسّر بالمناخ والتضاريس والسواحل والأنشطة.</figcaption></figure>`;
 }
 
 function documentAnatomy(): string {
@@ -306,6 +331,161 @@ function curveChart(): string {
       .join("")}
     <text x="16" y="160" transform="rotate(-90 16 160)" text-anchor="middle" class="svgm">مليار نسمة</text>
   </svg><figcaption>النقاط متصلة لأن الزمن متصل. اقرأ الاتجاه والانقطاعات والفترات، لا الشكل فقط.</figcaption></figure>`;
+}
+
+/* ===== رسوم مصغّرة لأنواع المبيانات — تُعرض في جدول «اختر المبيان المناسب» ===== */
+
+export type ChartThumbKind =
+  | "curve"
+  | "bar"
+  | "grouped"
+  | "pie"
+  | "half"
+  | "sep"
+  | "stacked"
+  | "diverging"
+  | "hist";
+
+const TH_COLORS = ["#0e9488", "#2f6fb3", "#d98a2b", "#b45f7a"];
+
+export function chartThumb(kind: ChartThumbKind): string {
+  if (kind === "curve") {
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="رسم منحنى بياني">
+      <line x1="24" y1="16" x2="24" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      <line x1="24" y1="112" x2="206" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      ${[34, 68, 102].map((y) => `<line x1="24" y1="${y}" x2="206" y2="${y}" stroke="#eef3f4"/>`).join("")}
+      <path d="M30 104 C60 96 74 78 100 66 S150 40 198 26" fill="none" stroke="#0e9488" stroke-width="3" stroke-linecap="round"/>
+      ${[[30, 104], [100, 66], [198, 26]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4.5" fill="#fff" stroke="#0e9488" stroke-width="2.6"/>`).join("")}
+      <path d="M198 26l-4 8M198 26l-9 3" stroke="#0e9488" stroke-width="1.6" fill="none"/>
+    </svg>`;
+  }
+  if (kind === "bar") {
+    const bars = [
+      [38, 62], [86, 88], [134, 46], [182, 74],
+    ];
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="رسم أعمدة بياني">
+      <line x1="20" y1="18" x2="20" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      <line x1="20" y1="112" x2="208" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      ${[40, 68, 96].map((y) => `<line x1="20" y1="${y}" x2="208" y2="${y}" stroke="#eef3f4"/>`).join("")}
+      ${bars
+        .map(
+          ([x, h], i) => `<rect x="${x}" y="${112 - h}" width="24" height="${h}" rx="4" fill="${TH_COLORS[i % 4]}" opacity="0.9"/>
+          <rect x="${x + 6}" y="${112 - h - 15}" width="12" height="4" rx="2" fill="#35566b" opacity="0.55"/>`,
+        )
+        .join("")}
+    </svg>`;
+  }
+  if (kind === "grouped") {
+    const groups = [36, 104, 172];
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="رسم أعمدة مزدوجة بياني">
+      <line x1="20" y1="18" x2="20" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      <line x1="20" y1="112" x2="208" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      ${[40, 68, 96].map((y) => `<line x1="20" y1="${y}" x2="208" y2="${y}" stroke="#eef3f4"/>`).join("")}
+      ${groups
+        .map((gx, gi) => {
+          const h1 = 52 + gi * 10;
+          const h2 = 74 - gi * 8;
+          return `<rect x="${gx}" y="${112 - h1}" width="17" height="${h1}" rx="3" fill="#0e9488" opacity="0.9"/>
+          <rect x="${gx + 19}" y="${112 - h2}" width="17" height="${h2}" rx="3" fill="#2f6fb3" opacity="0.9"/>`;
+        })
+        .join("")}
+      <rect x="150" y="22" width="12" height="9" rx="2" fill="#0e9488"/><text x="166" y="30" font-size="11" fill="#46616e">ظاهرة أ</text>
+      <rect x="150" y="38" width="12" height="9" rx="2" fill="#2f6fb3"/><text x="166" y="46" font-size="11" fill="#46616e">ظاهرة ب</text>
+    </svg>`;
+  }
+  /* ===== أمثلة أعمدة: منفصلة / متراكبة / ذات اتجاهين / متصلة ===== */
+  const colAxes = `<line x1="20" y1="18" x2="20" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      <line x1="20" y1="112" x2="208" y2="112" stroke="#9fb2bc" stroke-width="1.4"/>
+      ${[40, 68, 96].map((y) => `<line x1="20" y1="${y}" x2="208" y2="${y}" stroke="#eef3f4"/>`).join("")}`;
+  if (kind === "sep") {
+    const bars = [
+      [36, 66], [84, 44], [132, 84], [180, 58],
+    ];
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="أعمدة بسيطة منفصلة">
+      ${colAxes}
+      ${bars.map(([x, h]) => `<rect x="${x}" y="${112 - h}" width="26" height="${h}" rx="4" fill="#0e9488" opacity="0.85"/>`).join("")}
+      <text x="112" y="132" text-anchor="middle" font-size="11" fill="#647b84">فئات متباعدة بمسافات متساوية</text>
+    </svg>`;
+  }
+  if (kind === "stacked") {
+    const groups = [
+      { x: 52, a: 46, b: 30 },
+      { x: 118, a: 60, b: 22 },
+    ];
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="أعمدة متراكبة">
+      ${colAxes}
+      ${groups
+        .map(
+          (g) => `<rect x="${g.x}" y="${112 - g.a - g.b}" width="34" height="${g.b}" rx="3" fill="#2f6fb3" opacity="0.9"/>
+          <rect x="${g.x}" y="${112 - g.a}" width="34" height="${g.a}" rx="3" fill="#0e9488" opacity="0.9"/>
+          <rect x="${g.x}" y="${112 - g.a - g.b - 14}" width="10" height="4" rx="2" fill="#35566b" opacity="0.5"/>`,
+        )
+        .join("")}
+      <rect x="158" y="24" width="12" height="9" rx="2" fill="#0e9488"/><text x="174" y="32" font-size="11" fill="#46616e">عنصر 1</text>
+      <rect x="158" y="40" width="12" height="9" rx="2" fill="#2f6fb3"/><text x="174" y="48" font-size="11" fill="#46616e">عنصر 2</text>
+    </svg>`;
+  }
+  if (kind === "diverging") {
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="أعمدة باتجاهين حول الصفر">
+      <line x1="20" y1="66" x2="208" y2="66" stroke="#35566b" stroke-width="1.8"/>
+      ${[40, 68, 96].map((y) => `<line x1="20" y1="${y}" x2="208" y2="${y}" stroke="#eef3f4"/>`).join("")}
+      <rect x="42" y="66" width="22" height="40" rx="3" fill="#0e9488" opacity="0.85"/>
+      <rect x="42" y="26" width="22" height="40" rx="3" fill="#0e9488" opacity="0.85"/>
+      <rect x="90" y="66" width="22" height="30" rx="3" fill="#b45f7a" opacity="0.85"/>
+      <rect x="138" y="36" width="22" height="30" rx="3" fill="#0e9488" opacity="0.85"/>
+      <rect x="186" y="66" width="22" height="18" rx="3" fill="#b45f7a" opacity="0.85"/>
+      <text x="112" y="60" text-anchor="middle" font-size="10" fill="#647b84">صفر</text>
+      <text x="112" y="132" text-anchor="middle" font-size="11" fill="#647b84">فائض ↑ / عجز ↓</text>
+    </svg>`;
+  }
+  if (kind === "hist") {
+    const hs = [18, 30, 52, 74, 88, 74, 52, 30, 18];
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="مدرج تكراري بأعمدة متصلة">
+      ${colAxes}
+      ${hs
+        .map((h, i) => `<rect x="${28 + i * 18}" y="${112 - h}" width="18" height="${h}" fill="#8a6bbf" opacity="0.75"/>`)
+        .join("")}
+      <path d="M28 100 C50 96 60 78 80 62 C100 46 120 44 140 52 C160 60 176 74 192 88" fill="none" stroke="#35566b" stroke-width="1.6" stroke-dasharray="4 3"/>
+      <text x="112" y="132" text-anchor="middle" font-size="11" fill="#647b84">فئات متصلة بلا فراغ</text>
+    </svg>`;
+  }
+  if (kind === "pie" || kind === "half") {
+    const half = kind === "half";
+    const cx = half ? 66 : 78;
+    const cy = half ? 116 : 72;
+    const r = half ? 46 : 44;
+    /* قطاعات: زوايا من أعلى الدائرة مع عقارب الساعة (360) أو نصف علوي (180) */
+    const fr = half ? [0.4, 0.3, 0.3] : [0.3, 0.25, 0.2, 0.25];
+    const ptAt = (f: number) => {
+      if (half) {
+        const ang = Math.PI - f * Math.PI; // من اليسار فوق القوس إلى اليمين
+        return [cx + r * Math.cos(ang), cy - r * Math.sin(ang)];
+      }
+      const ang = -Math.PI / 2 + f * Math.PI * 2;
+      return [cx + r * Math.cos(ang), cy + r * Math.sin(ang)];
+    };
+    let acc = 0;
+    const sectors = fr.map((f, i) => {
+      const a = ptAt(acc);
+      acc += f;
+      const b = ptAt(acc);
+      const large = f > 0.5 ? 1 : 0;
+      return `<path d="M${cx} ${cy}L${a[0].toFixed(1)} ${a[1].toFixed(1)}A${r} ${r} 0 ${large} 1 ${b[0].toFixed(1)} ${b[1].toFixed(1)}Z" fill="${TH_COLORS[i % 4]}" opacity="0.9"/>`;
+    });
+    const legend = fr
+      .map((f, i) => {
+        const ly = 34 + i * 26;
+        return `<rect x="150" y="${ly}" width="13" height="13" rx="3" fill="${TH_COLORS[i % 4]}"/>
+        <text x="170" y="${ly + 11}" font-size="12" fill="#46616e">${Math.round(f * 100)}%</text>`;
+      })
+      .join("");
+    return `<svg viewBox="0 0 220 140" role="img" aria-label="رسم دائري أو نصف دائري بياني">
+      ${half ? `<line x1="${cx - r - 4}" y1="${cy}" x2="${cx + r + 4}" y2="${cy}" stroke="#9fb2bc" stroke-width="1.4"/>` : ""}
+      ${sectors.join("")}
+      ${legend}
+    </svg>`;
+  }
+  return "";
 }
 
 export function visualHTML(kind: VisualKind): string {

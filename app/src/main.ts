@@ -15,6 +15,7 @@ import {
   parseSpec,
 } from "./sheets";
 import { icon } from "./icons";
+import { lessonArt } from "./lessonArt";
 import { checkForUpdate, installUpdate, type UpdateInfo } from "./updater";
 
 const content = data as unknown as Content;
@@ -96,25 +97,29 @@ function lessonCard(meta: { id: string; code: string; title: string; subject: st
   const lesson = byId.get(meta.id);
   const isReady = !!lesson;
   const modes = isReady ? availableModes(lesson, lex).filter((m) => m.count > 0) : [];
+  const art = lessonArt(meta.id);
   return `<article class="lcard ${isReady ? "" : "soon"}">
-    <div class="lhead">
-      <span class="code">${meta.code}</span>
-      <h3>${esc(meta.title)}</h3>
-      <span class="badge ${isReady ? "ok" : ""}">${isReady ? "جاهز" : "لاحقاً"}</span>
+    ${art ? `<div class="lart">${art}</div><div class="lscrim"></div>` : ""}
+    <div class="lbody">
+      <div class="lhead">
+        <span class="code">${meta.code}</span>
+        <span class="badge ${isReady ? "ok" : ""}">${isReady ? "جاهز" : "لاحقاً"}</span>
+      </div>
+      <h3 class="ltitle">${esc(meta.title)}</h3>
+      <div class="lmeta">${esc(meta.unit)} · ${subjectName(meta.subject)}</div>
+      ${
+        isReady
+          ? `<div class="chips">${modes
+              .slice(0, 3)
+              .map((m) => `<span class="chip">${icon(m.icon)}${m.name}</span>`)
+              .join("")}${modes.length > 3 ? `<span class="chip">+${modes.length - 3}</span>` : ""}</div>
+             <div class="row lactions">
+               <a class="btn" href="#/lesson/${meta.id}">${icon("bookOpen")} افتح الدرس</a>
+               <a class="btn ghost" href="#/play/${meta.id}/quick">${icon("bolt")} اختبار</a>
+             </div>`
+          : `<div class="row lactions"><button class="btn ghost" disabled style="opacity:.7">${icon("clock")} قيد الإعداد</button></div>`
+      }
     </div>
-    <div class="lmeta">${esc(meta.unit)} · ${subjectName(meta.subject)}</div>
-    ${
-      isReady
-        ? `<div class="chips">${modes
-            .slice(0, 3)
-            .map((m) => `<span class="chip">${icon(m.icon)}${m.name}</span>`)
-            .join("")}${modes.length > 3 ? `<span class="chip">+${modes.length - 3}</span>` : ""}</div>
-           <div class="row">
-             <a class="btn" href="#/lesson/${meta.id}">${icon("bookOpen")} افتح الدرس</a>
-             <a class="btn ghost" href="#/play/${meta.id}/quick">${icon("bolt")} اختبار</a>
-           </div>`
-        : `<div class="row"><button class="btn ghost" disabled style="opacity:.55">${icon("clock")} قيد الإعداد</button></div>`
-    }
   </article>`;
 }
 
