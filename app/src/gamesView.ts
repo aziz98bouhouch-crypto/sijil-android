@@ -1,6 +1,7 @@
-/** ألعاب البكالوريا gamified — محقق الوثائق، صانع القرار، مختبر المبيان، خط الزمن */
+﻿/** ألعاب البكالوريا gamified — محقق الوثائق، صانع القرار، مختبر المبيان، خط الزمن */
 import content from "./content.json";
 import { CHART_TYPES } from "./guide";
+import { askTutor } from "./tutor";
 import { icon } from "./icons";
 import type { Content, Lesson } from "./types";
 
@@ -12,7 +13,7 @@ const misconceptions = data.lexicon.misconceptions;
 const esc = (s: string) =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-export type GameKind = "chrono" | "lie" | "chart" | "strategy" | "race" | "geoclue";
+export type GameKind = "chrono" | "lie" | "chart" | "strategy" | "race" | "geoclue" | "links" | "essay" | "mapx" | "debate";
 
 interface GameDef {
   kind: GameKind;
@@ -28,6 +29,10 @@ const GAMES: GameDef[] = [
   { kind: "strategy", title: "صانع القرار", desc: "أزمة جيوسياسية — قراراتك تحدد مصير المؤشرات", ic: "swords" },
   { kind: "race", title: "سباق المبيانات", desc: "توقّع مسار المنحنى واختر التفسير الصحيح", ic: "chart" },
   { kind: "geoclue", title: "تحدي التخمين الجغرافي", desc: "خمّن المجال من تلميحات تدريجية", ic: "target" },
+  { kind: "links", title: "الروابط الخفية", desc: "صنّف 16 بطاقة إلى 4 مجموعات مترابطة", ic: "layers" },
+  { kind: "essay", title: "مهندس المقال", desc: "ابنِ هيكل المقال المقالي من كتل مبعثرة", ic: "pencil" },
+  { kind: "mapx", title: "فك تشفير الخرائط", desc: "طابق الطبقات الجغرافية وتطوّر الحدود", ic: "compass" },
+  { kind: "debate", title: "مناظرة الأستاذ", desc: "حوار حي مع شخصية — أقنعه بحجج الدرس", ic: "swords" },
 ];
 
 /* ------------------------------ الإطار ------------------------------ */
@@ -318,7 +323,7 @@ interface RaceCard {
 const RACES: RaceCard[] = [
   { title: "الناتج الداخلي الخام — الولايات المتحدة", unit: "مليار دولار", known: [14, 15, 17, 19, 23, 25],
     future: "down", cause: "أزمة 2008 crashed GDP then recovery",
-    options: ["أزمة الرهن العقاري 2008", "ازدهارsprach los 1990s", "سقوط جدار برلين"] },
+    options: ["أزمة الرهن العقاري 2008", "ازدهار التسعينيات", "سقوط جدار برلين"] },
   { title: "نسبة التمدين — المغرب", unit: "%", known: [35, 42, 49, 55, 61, 64],
     future: "up", cause: "الهجرة القروية للمدن",
     options: ["الهجرة القروية للمدن", "انخفاض الخصوبة", "توسع المدن الجديدة"] },
@@ -455,6 +460,271 @@ function geoClueStage(stage: HTMLElement) {
   newRound();
 }
 
+/* ------------------------------ 7) الروابط الخفية ------------------------------ */
+
+interface LinkGroup { name: string; items: string[] }
+
+const LINK_GROUPS: LinkGroup[] = [
+  { name: "تكتلات اقتصادية كبرى", items: ["الاتحاد الأوروبي", "النافتا", "آسيان", "ميركوسور"] },
+  { name: "مضائق وملاح بحرية حرجة", items: ["جبل طارق", "هرمز", "باب المندب", "الملقا"] },
+  { name: "معسكرات الحرب الباردة", items: ["الاتحاد السوفياتي", "الولايات المتحدة", "حلف وارسو", "حلف شمال الأطلسي"] },
+  { name: "محطات الثورة الفرنسية", items: ["اقتحام الباستيل", "إعلان حقوق الإنسان", "إعدام لويس السادس عشر", "العهد الكبير"] },
+];
+
+function linksStage(stage: HTMLElement) {
+  const groups = shuffle(LINK_GROUPS);
+  const cards = shuffle(groups.flatMap((g) => g.items.map((t) => ({ t, g: g.name }))));
+  const solved = new Set<string>();
+  let sel: string[] = [], errors = 0;
+
+  const draw = () => {
+    const remaining = cards.filter((c) => !solved.has(c.t));
+    stage.innerHTML = shell(`
+      <div class="ginfo"><b>صنّف البطاقات إلى مجموعات من 4</b><span>المجموعات المكتشفة: ${solved.size / 4}/4 — أخطاء: ${errors}/4</span></div>
+      <div class="links-grid">
+        ${remaining.map((c) => `<button class="link-card ${sel.includes(c.t) ? "sel" : ""}" data-t="${esc(c.t)}">${esc(c.t)}</button>`).join("")}
+        ${[...solved].map((t) => `<button class="link-card done" disabled>${esc(t)}</button>`).join("")}
+      </div>
+      <div class="row" style="justify-content:center">
+        <button class="btn" id="linksOk" ${sel.length !== 4 ? "disabled" : ""}>تحقق</button>
+        <button class="btn ghost" id="linksClr">مسح التحديد</button>
+      </div>
+      <div class="gscore-line">اختر 4 بطاقات لها رابط مشترك ثم اضغط «تحقق»</div>`,
+      `<span>استلهام لعبة Connections</span>`);
+
+    stage.querySelectorAll<HTMLButtonElement>(".link-card:not(.done)").forEach((b) => {
+      b.addEventListener("click", () => {
+        const t = b.dataset.t!;
+        if (sel.includes(t)) sel = sel.filter((x) => x !== t);
+        else if (sel.length < 4) sel.push(t);
+        draw();
+      });
+    });
+    document.getElementById("linksClr")?.addEventListener("click", () => { sel = []; draw(); });
+    document.getElementById("linksOk")?.addEventListener("click", () => {
+      const chosen = cards.filter((c) => sel.includes(c.t));
+      const names = new Set(chosen.map((c) => c.g));
+      if (names.size === 1) {
+        chosen.forEach((c) => solved.add(c.t));
+        sel = [];
+        const gname = chosen[0].g;
+        if (solved.size === 16) {
+          stage.innerHTML = shell(result(errors <= 2, "خبير الروابط!", `صنّفت المجموعات الأربعة بأخطاء ${errors}. المجموعات: ${groups.map((g) => g.name).join("، ")}`, "#/guide"));
+          return;
+        }
+        draw();
+        const note = document.createElement("div");
+        note.className = "gfeedback ok";
+        note.innerHTML = `<b>ممتاز!</b> المجموعة: ${esc(gname)}`;
+        stage.querySelector(".gbody")!.appendChild(note);
+      } else {
+        errors++;
+        sel = [];
+        if (errors >= 4) {
+          stage.innerHTML = shell(result(false, "المحاولة انتهت", `المجموعات هي: ${groups.map((g) => `${g.name} (${g.items.join("، ")})`).join(" — ")}`, "#/games"));
+          return;
+        }
+        draw();
+        const note = document.createElement("div");
+        note.className = "gfeedback bad";
+        note.innerHTML = `<b>ليست مجموعة واحدة.</b> فكّر في الرابط المشترك بين البطاقات`;
+        stage.querySelector(".gbody")!.appendChild(note);
+      }
+    });
+  };
+  draw();
+}
+
+/* ------------------------------ 8) مهندس المقال ------------------------------ */
+
+interface Essay { topic: string; intro: string; blocks: { t: string; ok: boolean }[] }
+
+const ESSAYS: Essay[] = [
+  { topic: "مظاهر وعوامل قوة الفلاحة المغربية",
+    intro: "أطروحة: تتعدد مظاهر النشاط الفلاحي وتختلف عوامله بين المجال الجنوبي والمجال الشمالي.",
+    blocks: [
+      { t: "مقدمة: طرح الإشكال — كيف تتوزع مظاهر الفلاحة بين شمال المملكة وجنوبها؟", ok: true },
+      { t: "عرض 1: المظاهر الفلاحية في الشمال — جبال الأطلس المتوسط والمجال الساحلي", ok: true },
+      { t: "عرض 2: المظاهر الفلاحية في الجنوب — السهول الداخلية والسفوح الصحراوية", ok: true },
+      { t: "تحليل: تفسير التباين — العوامل الطبيعية (التساقطات، التربة) والبشرية (الكثافة، القنوات)", ok: true },
+      { t: "خاتمة: خلاصة + إعادة صياغة الإشكال بأفق تنموي", ok: true },
+      { t: "دخيل: مراحل الحرب العالمية الأولى في أوروبا", ok: false },
+      { t: "دخيل: مبيان تطور الصادرات اليابانية", ok: false },
+    ] },
+  { topic: "التكتلات الاقتصادية وأثرها على النظام العالمي",
+    intro: "أطروحة: التكتلات تحرر التجارة داخل المجموعة لكنها تخلق تمايزاً مع الخارج.",
+    blocks: [
+      { t: "مقدمة: الإشكال — هل التكتل قوة للنمو أم حاجز للتبادل العالمي؟", ok: true },
+      { t: "عرض 1: آليات التكامل — حرية تنقل السلع ورؤوس الأموال", ok: true },
+      { t: "عرض 2: الأثر الإيجابي — نمو التجارة الداخلية ونقل التكنولوجيا", ok: true },
+      { t: "عرض 3: الأثر السلبي — تمايز الأسعار مع الدول غير الأعضاء", ok: true },
+      { t: "خاتمة: تقييم متوازن + موقع المغرب التفاوضي", ok: true },
+      { t: "دخيل: مراحل الثورة الفرنسية 1789-1799", ok: false },
+      { t: "دخيل: تعريف خط الاستواء ومداره", ok: false },
+    ] },
+];
+
+function essayStage(stage: HTMLElement) {
+  let round = 0, score = 0;
+  const newRound = () => {
+    round++;
+    const e = ESSAYS[(round - 1) % ESSAYS.length];
+    const needed = e.blocks.filter((b) => b.ok);
+    const pool = shuffle(e.blocks.map((b, i) => ({ ...b, i })));
+    const used = new Set<number>();
+    let placed = 0, errors = 0;
+
+    const draw = () => {
+      const slots = needed.map((_, i) =>
+        placed > i
+          ? `<div class="essay-slot filled">${esc(needed[i].t.slice(0, 42))}…</div>`
+          : `<div class="essay-slot">${i + 1}</div>`,
+      ).join("");
+      stage.innerHTML = shell(`
+        <div class="ginfo"><b>الموضوع: ${esc(e.topic)}</b><span>${esc(e.intro)}</span></div>
+        <div class="essay-slots">${slots}</div>
+        <div class="links-grid essay-pool">
+          ${pool.filter((b) => !used.has(b.i)).map((b) => `<button class="link-card" data-i="${b.i}">${esc(b.t.slice(0, 60))}${b.t.length > 60 ? "…" : ""}</button>`).join("")}
+        </div>
+        <div class="gscore-line">المواضع: ${placed}/${needed.length} — أخطاء: ${errors} — النقاط: ${score}</div>`,
+        `<span>اضغط الكتلة الصحيحة بالترتيب المنهجي — الدخيل يُعاقَب</span>`);
+      stage.querySelectorAll<HTMLButtonElement>(".essay-pool .link-card").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const b = pool.find((x) => x.i === Number(btn.dataset.i))!;
+          if (!b.ok) { errors++; score = Math.max(0, score - 5); btn.classList.add("is-wrong"); setTimeout(draw, 500); return; }
+          if (b.t !== needed[placed].t) { errors++; score = Math.max(0, score - 3); btn.classList.add("is-wrong"); setTimeout(draw, 500); return; }
+          used.add(b.i);
+          placed++;
+          if (placed === needed.length) {
+            score += 15;
+            stage.innerHTML = shell(result(errors <= 2, "مهندس مقال!", `${esc(e.topic)} — بُني المقال بخطأ ${errors}.`, "#/guide"));
+            return;
+          }
+          draw();
+        });
+      });
+    };
+    draw();
+  };
+  newRound();
+}
+
+/* ------------------------------ 9) فك تشفير الخرائط ------------------------------ */
+
+interface MapPuzzle { a: string; b: string; options: string[]; answer: number; lesson: string }
+
+const MAP_PUZZLES: MapPuzzle[] = [
+  { a: "خريطة الكثافة السكانية", b: "خريطة التساقطات المطرية",
+    options: ["الكثافة العالية تقابل التساقطات المرتفعة — علاقة مباشرة", "الكثافة تتوزع عكس التساقطات تماماً", "لا علاقة بين الطبقتين", "الكثافة تتبع خطوط الطول فقط"], answer: 0, lesson: "العلاقة بين المكونات" },
+  { a: "خريطة التجمعات الحضرية", b: "خريطة شبكة النقل",
+    options: ["المدن الكبرى تتطور حيث تتقاطع محاور النقل", "المدن لا علاقة لها بالنقل", "المدن تنشأ عشوائياً", "النقل يتبع الكثافة فقط"], answer: 0, lesson: "التحضر والتنظيم المجالي" },
+  { a: "خريطة أقاليم الصيد", b: "خريطة قرب الشواطئ",
+    options: ["الصيد يتركز قرب الشواطئ حيث الثروة السمكية", "الصيد يبتعد عن الشواطئ", "الصيد عشوائي", "الشواطئ لا تؤثر"], answer: 0, lesson: "الأنشطة الساحلية" },
+  { a: "خريطة الحدود قبل 1914", b: "خريطة الحدود بعد 1918",
+    options: ["الحرب العالمية الأولى أعادت رسم خريطة أوروبا", "لم تتغير الحدود", "ازدادت الإمبراطوريات", "انهارت كل الدول"], answer: 0, lesson: "أوروبا بين الحربين" },
+  { a: "خريطة المستعمرات 1914", b: "خريطة الاستقلالات بعد 1945",
+    options: ["موجة الاستقلالات بعد الحرب العالمية الثانية", "لم تتغير الخريطة", "توسعت الإمبراطوريات", "ظهرت دول جديدة في أوروبا فقط"], answer: 0, lesson: "النظام العالمي الجديد" },
+];
+
+function mapxStage(stage: HTMLElement) {
+  let round = 0, score = 0;
+  const newRound = () => {
+    round++;
+    const p = MAP_PUZZLES[(round - 1) % MAP_PUZZLES.length];
+    stage.innerHTML = shell(`
+      <div class="ginfo"><b>الجولة ${round}/5 — فك شفرة الطبقات</b><span>طبقة أ × طبقة ب</span></div>
+      <div class="map-layers">
+        <div class="map-layer"><span class="map-layer-tag">أ</span> ${esc(p.a)}</div>
+        <div class="map-layer"><span class="map-layer-tag">ب</span> ${esc(p.b)}</div>
+      </div>
+      <div class="chart-opts" style="grid-template-columns:1fr">
+        ${p.options.map((o, i) => `<button class="chart-opt" data-i="${i}">${esc(o)}</button>`).join("")}
+      </div>
+      <div class="gscore-line">النقاط: ${score}</div>`,
+      `<span>حلل العلاقة بين الطبقتين</span>`);
+    stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((b) => {
+      b.addEventListener("click", () => {
+        const ok = Number(b.dataset.i) === p.answer;
+        if (ok) score += 12;
+        stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((x) => {
+          if (Number(x.dataset.i) === p.answer) x.classList.add("is-right");
+          else if (x === b) x.classList.add("is-wrong");
+          x.disabled = true;
+        });
+        const note = document.createElement("div");
+        note.className = "gfeedback";
+        note.innerHTML = `<b>${ok ? "تحليل صحيح!" : "إجابة غير دقيقة."}</b> ${esc(p.options[p.answer])} <small>— ${esc(p.lesson)}</small>`;
+        stage.querySelector(".gbody")!.appendChild(note);
+        stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
+        setTimeout(() => {
+          if (round >= 5) stage.innerHTML = shell(result(score >= 50, "محلل خرائط!", `حصّلت ${score}/60 في فك تشفير الطبقات.`, "#/maps"));
+          else newRound();
+        }, 2600);
+      });
+    });
+  };
+  newRound();
+}
+
+/* ------------------------------ 10) مناظرة الأستاذ ------------------------------ */
+
+const DEBATES = [
+  { persona: "مدافع عن العولمة الليبرالية",
+    thesis: "أنت تُجسّد رأياً يقول إن العولمة رفعت مستوى المعيشة عالمياً وأن التجارة الحرة تخدم الجميع. ناقشه بحجج الدرس: التفاوت بين الشمال والجنوب، أثر على الفلاحة المحلية، أزمات النظام المالي.",
+    lesson: "lesson-g10" },
+  { persona: "رئيس أمريكي في أزمات 1929",
+    thesis: "أنت تقود الاقتصاد الأمريكي بعد انهيار بورصة وول ستريت. الطالب يحاورك عن السبيل للخروج من الكساد: تدخل الدولة أم السوق الحرة؟ استخدم معطيات درس الولايات المتحدة.",
+    lesson: "lesson-us" },
+];
+
+function debateStage(stage: HTMLElement) {
+  const d = DEBATES[0];
+  let turns = 0;
+  const draw = () => {
+    stage.innerHTML = shell(`
+      <div class="ginfo"><b>${esc(d.persona)}</b><span>${esc(d.thesis)}</span></div>
+      <div class="debate-log" id="debLog">
+        <div class="bubble teacher">سؤال لك: ما رأيك في قضايا الدرس؟ ابدأ حجّتك بأقوى معطى تجده في المحتوى.</div>
+      </div>
+      <div class="row" style="gap:8px">
+        <input id="debInput" class="debate-input" placeholder="اكتب حجّتك…" maxlength="300">
+        <button class="btn" id="debSend">${icon("send")}</button>
+      </div>
+      <div class="gscore-line">الأدوار: ${turns}/4 — ثم يقيّم الأستاذ قوة حججك</div>`,
+      `<span>حوار مناظرة — 4 أدوار</span>`);
+    const log = document.getElementById("debLog")!;
+    const inp = document.getElementById("debInput") as HTMLInputElement;
+    const send = async () => {
+      const v = inp.value.trim();
+      if (!v) return;
+      inp.value = "";
+      log.insertAdjacentHTML("beforeend", `<div class="bubble student">${esc(v)}</div>`);
+      turns++;
+      const thinking = document.createElement("div");
+      thinking.className = "bubble teacher";
+      thinking.textContent = "…";
+      log.appendChild(thinking);
+      log.scrollTop = log.scrollHeight;
+      const reply = await Promise.resolve(askTutor(`مناظرة: أنت ${d.persona}. رد على هذا الرأي بجملتين قصيرتين كأنك في حوار مباشر، ثم اقترح سؤالاً مضاداً: ${v}`));
+      thinking.textContent = reply.text;
+      log.scrollTop = log.scrollHeight;
+      stage.querySelector(".gscore-line")!.textContent = `الأدوار: ${Math.min(turns, 4)}/4`;
+      if (turns >= 4) {
+        const ev = await Promise.resolve(askTutor(`قيّم هذه المناظرة باختصار: ${d.persona} ضد حجج الطالب. أعطِ تقديراً من 10 وتوصية واحدة: آخر ما قيل «${v}»`));
+        const note = document.createElement("div");
+        note.className = "gfeedback";
+        note.innerHTML = `<b>تقييم الأستاذ</b><br>${esc(ev.text)}`;
+        stage.querySelector(".gbody")!.appendChild(note);
+        inp.disabled = true;
+        document.getElementById("debSend")?.setAttribute("disabled", "");
+      }
+    };
+    document.getElementById("debSend")?.addEventListener("click", send);
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+  };
+  draw();
+}
+
 /* ------------------------------ الموزع ------------------------------ */
 
 export function bindGames(kind: string): void {
@@ -467,6 +737,10 @@ export function bindGames(kind: string): void {
     else if (kind === "strategy") strategyStage(stage);
     else if (kind === "race") raceStage(stage);
     else if (kind === "geoclue") geoClueStage(stage);
+    else if (kind === "links") linksStage(stage);
+    else if (kind === "essay") essayStage(stage);
+    else if (kind === "mapx") mapxStage(stage);
+    else if (kind === "debate") debateStage(stage);
   }, 60);
   void t;
 }

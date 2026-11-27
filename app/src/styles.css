@@ -1222,3 +1222,27 @@ input[type="number"] { width: 96px; }
 @media (max-width: 760px) {
   .home-quick { grid-template-columns: repeat(3, 1fr); }
 }
+
+/* ---------- ألعاب جديدة ---------- */
+.links-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.link-card { background: rgba(255,244,214,0.08); border: 1.5px solid rgba(255,244,214,0.25); color: #fff7e6; border-radius: 12px; padding: 10px 6px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; font-family: inherit; }
+.link-card:hover { background: rgba(255,244,214,0.18); transform: translateY(-2px); }
+.link-card.sel { background: #d9a441; border-color: #ffd97a; color: #3a2400; }
+.link-card.done { background: rgba(110,231,160,0.15); border-color: #6ee7a0; color: #d1ffe0; opacity: .55; }
+.link-card.is-wrong { border-color: #f0655a; background: rgba(220,60,50,0.25); }
+.essay-slots { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.essay-slot { background: rgba(94,234,212,0.08); border: 1.5px dashed rgba(94,234,212,0.35); border-radius: 10px; padding: 8px 12px; font-size: 12px; color: rgba(210,245,238,0.7); text-align: center; }
+.essay-slot.filled { border-style: solid; background: rgba(110,231,160,0.12); color: #d1ffe0; }
+.essay-pool .link-card { text-align: right; }
+.map-layers { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.map-layer { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; padding: 10px 14px; font-size: 13.5px; color: #eafffa; display: flex; align-items: center; gap: 10px; }
+.map-layer-tag { background: #5eead4; color: #062a26; font-weight: 800; border-radius: 8px; padding: 2px 10px; font-size: 12px; }
+.debate-log { display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 10px; }
+.debate-log .bubble { max-width: 88%; border-radius: 14px; padding: 9px 13px; font-size: 13px; line-height: 1.8; }
+.debate-log .bubble.teacher { align-self: flex-start; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: #eafffa; border-start-start-radius: 4px; }
+.debate-log .bubble.student { align-self: flex-end; background: linear-gradient(135deg,#0e7490,#155e75); color: #fff; border-start-end-radius: 4px; }
+@media (max-width: 560px) { .links-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.debate-input { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px; padding: 10px 14px; color: #fff; font-family: inherit; font-size: 14px; }
+.debate-input:focus { outline: none; border-color: #5eead4; }
+.debate-input::placeholder { color: rgba(210,245,238,0.4); }
