@@ -674,7 +674,7 @@ function renderUpdateCard(slot: HTMLElement, info: UpdateInfo): void {
   card.append(text, btn);
   slot.replaceChildren(card);
 
-  btn.addEventListener("click", async () => {
+  const runInstall = async () => {
     btn.disabled = true;
     btn.textContent = "جارٍ التنزيل…";
     note.className = "update-note";
@@ -705,7 +705,15 @@ function renderUpdateCard(slot: HTMLElement, info: UpdateInfo): void {
       btn.disabled = false;
       btn.textContent = "إعادة المحاولة";
     }
-  });
+  };
+  btn.addEventListener("click", () => void runInstall());
+  // على أندرويد: التحديث يتم داخل التطبيق — ننزّل فوراً ويفتح المثبّت تلقائياً.
+  const isNativeApp = !!(window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
+  if (isNativeApp) {
+    btn.textContent = "جارٍ التحديث…";
+    note.textContent = "نسخة جديدة — جارٍ التنزيل داخل التطبيق.";
+    void runInstall();
+  }
 }
 
 function route(): { name: string; parts: string[] } {
