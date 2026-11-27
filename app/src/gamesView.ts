@@ -12,7 +12,7 @@ const misconceptions = data.lexicon.misconceptions;
 const esc = (s: string) =>
   String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-export type GameKind = "chrono" | "lie" | "chart" | "strategy";
+export type GameKind = "chrono" | "lie" | "chart" | "strategy" | "race" | "geoclue";
 
 interface GameDef {
   kind: GameKind;
@@ -26,6 +26,8 @@ const GAMES: GameDef[] = [
   { kind: "lie", title: "محقق الوثائق", desc: "اكتشف الجملة المغلوطة داخل الوثيقة", ic: "doc" },
   { kind: "chart", title: "مختبر المبيان", desc: "اختر نوع المبيان الأنسب لكل معطى إحصائي", ic: "chart" },
   { kind: "strategy", title: "صانع القرار", desc: "أزمة جيوسياسية — قراراتك تحدد مصير المؤشرات", ic: "swords" },
+  { kind: "race", title: "سباق المبيانات", desc: "توقّع مسار المنحنى واختر التفسير الصحيح", ic: "chart" },
+  { kind: "geoclue", title: "تحدي التخمين الجغرافي", desc: "خمّن المجال من تلميحات تدريجية", ic: "target" },
 ];
 
 /* ------------------------------ الإطار ------------------------------ */
@@ -302,6 +304,157 @@ function strategyStage(stage: HTMLElement) {
   draw();
 }
 
+/* ------------------------------ 5) سباق المبيانات ------------------------------ */
+
+interface RaceCard {
+  title: string;
+  unit: string;
+  known: number[];
+  future: "up" | "flat" | "down";
+  cause: string;
+  options: string[];
+}
+
+const RACES: RaceCard[] = [
+  { title: "الناتج الداخلي الخام — الولايات المتحدة", unit: "مليار دولار", known: [14, 15, 17, 19, 23, 25],
+    future: "down", cause: "أزمة 2008 crashed GDP then recovery",
+    options: ["أزمة الرهن العقاري 2008", "ازدهارsprach los 1990s", "سقوط جدار برلين"] },
+  { title: "نسبة التمدين — المغرب", unit: "%", known: [35, 42, 49, 55, 61, 64],
+    future: "up", cause: "الهجرة القروية للمدن",
+    options: ["الهجرة القروية للمدن", "انخفاض الخصوبة", "توسع المدن الجديدة"] },
+  { title: "مساهمة الفلاحة في PIB — الصين", unit: "%", known: [40, 36, 31, 26, 22, 18],
+    future: "down", cause: "التحول نحو الصناعة والخدمات",
+    options: ["التحول نحو الصناعة والخدمات", "ازدهار الفلاحة", "ثورة الخضراء"] },
+];
+
+function raceStage(stage: HTMLElement) {
+  let round = 0, score = 0;
+  const W = 640, H = 200, pad = 24;
+  const newRound = () => {
+    round++;
+    const c = RACES[(round - 1) % RACES.length];
+    const n = c.known.length;
+    const all = [...c.known, c.known[n - 1] + (c.future === "up" ? 3 : c.future === "down" ? -3 : 0)];
+    const min = Math.min(...all) - 4, max = Math.max(...all) + 4;
+    const px = (i: number) => pad + (i / (all.length - 1)) * (W - pad * 2);
+    const py = (v: number) => H - pad - ((v - min) / (max - min)) * (H - pad * 2);
+    const pts = all.map((v, i) => `${px(i).toFixed(0)},${py(v).toFixed(0)}`).join(" ");
+    const knownPts = c.known.map((v, i) => `${px(i).toFixed(0)},${py(v).toFixed(0)}`).join(" ");
+    stage.innerHTML = shell(`
+      <div class="ginfo"><b>${esc(c.title)}</b><span>${esc(c.unit)} — توقف المنحنى عند ${c.known[n - 1]}: ماذا سيحدث بعد ذلك؟</span></div>
+      <svg viewBox="0 0 ${W} ${H}" class="race-svg">
+        <line x1="${pad}" y1="${H - pad}" x2="${W - pad}" y2="${H - pad}" stroke="rgba(255,255,255,0.2)"/>
+        <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H - pad}" stroke="rgba(255,255,255,0.2)"/>
+        <polyline points="${pts}" fill="none" stroke="rgba(94,234,212,0.35)" stroke-width="3" stroke-dasharray="7 6"/>
+        <polyline id="raceLine" points="${knownPts}" fill="none" stroke="#5eead4" stroke-width="3.5" stroke-linejoin="round"/>
+        <circle cx="${px(n - 1)}" cy="${py(c.known[n - 1])}" r="6" fill="#fff"/>
+      </svg>
+      <div class="chart-opts" style="grid-template-columns:1fr">
+        <button class="chart-opt" data-a="up">↗ صعود</button>
+        <button class="chart-opt" data-a="flat">→ استقرار</button>
+        <button class="chart-opt" data-a="down">↘ تراجع</button>
+      </div>
+      <div class="gscore-line">النقاط: ${score}</div>`,
+      `<span>اقرأ الاتجاه قبل أن يكمل المنحنى</span>`);
+    let answered = false;
+    stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((b) => {
+      b.addEventListener("click", () => {
+        if (answered) return;
+        answered = true;
+        const dir = b.dataset.a as "up" | "flat" | "down";
+        const okDir = dir === c.future;
+        if (okDir) score += 10;
+        /* أكمل رسم المستقبل */
+        const line = stage.querySelector("#raceLine") as SVGPolylineElement | null;
+        const endIdx = all.length - 1;
+        if (line) {
+          const futurePts = [px(n - 1), py(c.known[n - 1])];
+          for (let i = n; i <= endIdx; i++) futurePts.push(px(i), py(all[i]));
+          line.setAttribute("points", [...knownPts.split(" "), ...Array.from({ length: endIdx - n + 1 }, (_, k) => `${px(n + k)},${py(all[n + k])}`)].join(" "));
+          line.setAttribute("stroke", okDir ? "#6ee7a0" : "#f87171");
+        }
+        const note = document.createElement("div");
+        note.className = "gfeedback";
+        note.innerHTML = `<b>${okDir ? "اتجاه صحيح!" : "اتجاه خاطئ."}</b> التفسير: ${esc(c.cause)} <small>— ${esc(c.title)}</small>`;
+        stage.querySelector(".gbody")!.appendChild(note);
+        stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
+        setTimeout(() => {
+          if (round >= 6) stage.innerHTML = shell(result(score >= 50, "محلل اتجاهات!", `حصّلت ${score}/60 في قراءة المنحنيات وتفسيرها.`, "#/guide/chart"));
+          else newRound();
+        }, 2800);
+      });
+    });
+  };
+  newRound();
+}
+
+/* ------------------------------ 6) تحدي التخمين الجغرافي ------------------------------ */
+
+interface Clue { answer: string; options: string[]; clues: string[] }
+
+const CLUES: Clue[] = [
+  { answer: "الاتحاد الأوروبي", options: ["الاتحاد الأوروبي", "النافتا", "آسيان", "السوق المشتركة"],
+    clues: ["تكتل اقتصادي يضم 27 دولة", "عملة موحدة: اليورو", "أقوى اقتصاد جهوي في العالم", "مقره بروكسل"] },
+  { answer: "الصحراء الغربية / الأقاليم الصحراوية", options: ["الصحراء الغربية", "منطقة الأقاليم الجنوبية", "الصحراء الليبية", "الصحراء النفودية"],
+    clues: ["مناخ قاحل معروضات رملية", "ثروات فوسفاتية مهمة", "جزء من التراب الوطني المغربي", "مدن كبرى: العيون والداخلة"] },
+  { answer: "الولايات المتحدة الأمريكية", options: ["الولايات المتحدة", "روسيا", "الصين", "الهند"],
+    clues: ["أكبر اقتصاد في العالم", "متعدد الأعراق immigrant nation", "عاصمة وولشينغتون", "قوة بحرية وجوية عظمى"] },
+  { answer: "حوض البحر الأبيض المتوسط", options: ["البحر الأبيض المتوسط", "البحر الأحمر", "المحيط الأطلسي", "بحر العرب"],
+    clues: ["يفصل أوروبا عن أفريقيا", "مضيق جبل طارق عند مدخله", "حضارات قديمة على ضفافه", "تكتل الأورو-متوسطي حوله"] },
+  { answer: "الصين", options: ["الصين", "اليابان", "كوريا الجنوبية", "الهند"],
+    clues: ["أكبر عدد سكان في العالم", "ثاني اقتصاد عالمياً", "حزب شيوعي واحد", "نموذج «اشتراكية السوق»"] },
+  { answer: "الأطلس المتوسط", options: ["الأطلس المتوسط", "الأطلس الكبير", "الأطلس الصغير", "جبال الريف"],
+    clues: ["يمتد من طنجة إلى مراكش", "قممه تتجاوز 4000م", "ممرات تاريخية كطريق تداوت", "مناخ متوسطي جبلي"] },
+];
+
+function geoClueStage(stage: HTMLElement) {
+  let round = 0, score = 0;
+  const newRound = () => {
+    round++;
+    const c = CLUES[(round - 1) % CLUES.length];
+    let hint = 0;
+    const draw = () => {
+      stage.innerHTML = shell(`
+        <div class="ginfo"><b>الجولة ${round}/6 — خمّن المجال</b><span>تلميح ${hint + 1}/${c.clues.length}: ${esc(c.clues[hint])}</span></div>
+        <div class="chart-opts">
+          ${c.options.map((o) => `<button class="chart-opt" data-o="${esc(o)}">${esc(o)}</button>`).join("")}
+        </div>
+        <div class="row" style="justify-content:center">
+          <button class="btn ghost" id="clueMore" ${hint >= c.clues.length - 1 ? "disabled" : ""}>تلميح آخر (−5 نقاط)</button>
+        </div>
+        <div class="gscore-line">النقاط: ${score}</div>`,
+        `<span>كلما خمّنت مبكراً ربحت أكثر</span>`);
+      stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((b) => {
+        b.addEventListener("click", () => {
+          const ok = b.dataset.o === c.answer;
+          score += ok ? Math.max(5, 20 - hint * 5) : 0;
+          stage.querySelectorAll<HTMLButtonElement>(".chart-opt").forEach((x) => {
+            if ((x as HTMLElement).dataset.o === c.answer) x.classList.add("is-right");
+            else if (x === b) x.classList.add("is-wrong");
+            x.disabled = true;
+          });
+          const note = document.createElement("div");
+          note.className = "gfeedback";
+          note.innerHTML = `<b>${ok ? "أصبت!" : "ليست الإجابة."}</b> ${esc(c.answer)} — ${esc(c.clues.join(" · "))}`;
+          stage.querySelector(".gbody")!.appendChild(note);
+          stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
+          setTimeout(() => {
+            if (round >= 6) stage.innerHTML = shell(result(score >= 70, "مستكشف جغرافي!", `حصّلت ${score} نقطة في التخمين الجغرافي.`, "#/games"));
+            else newRound();
+          }, 2400);
+        });
+      });
+      document.getElementById("clueMore")?.addEventListener("click", () => {
+        hint++;
+        score = Math.max(0, score - 5);
+        draw();
+      });
+    };
+    draw();
+  };
+  newRound();
+}
+
 /* ------------------------------ الموزع ------------------------------ */
 
 export function bindGames(kind: string): void {
@@ -312,6 +465,8 @@ export function bindGames(kind: string): void {
     else if (kind === "lie") lieStage(stage);
     else if (kind === "chart") chartStage(stage);
     else if (kind === "strategy") strategyStage(stage);
+    else if (kind === "race") raceStage(stage);
+    else if (kind === "geoclue") geoClueStage(stage);
   }, 60);
   void t;
 }
