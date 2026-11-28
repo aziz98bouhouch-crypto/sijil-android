@@ -1,11 +1,13 @@
 /**
- * عقل الأستاذ: إجابات عربية مبنية حصراً على محتوى التطبيق
- * (الدروس + المعجم + الدليل المنهجي + الخرائط)، دون شبكة ودون تخزين للأسئلة.
+ * عقل الأستاذ: إجابات عربية مبنية على محتوى التطبيق
+ * (الدروس + المعجم + الدليل المنهجي + الخرائط + الموسوعة)،
+ * مع بحث ويب اختياري عند عدم توفر جواب محلي.
  */
 import content from "./content.json";
 import type { Concept, Content, Item, Lesson } from "./types";
 import { CONCEPTS, ESSAY_SCORING, ESSAY_STRUCTURE, RUBRIC_3_7, TOPICS, CHART_TYPES } from "./guide";
 import { MAPS } from "./maps";
+import { ENCYCLOPEDIA, type EncyclopediaEntry } from "./encyclopedia";
 import { stats } from "./store";
 
 const data = content as unknown as Content;
@@ -23,6 +25,8 @@ export interface TutorReply {
   refs?: TutorRef[];
   followups?: string[];
   mood?: "happy" | "explain" | "thinking" | "listening";
+  /** true حين لا يجد المحتوى المحلي جواباً — يسمح للواجهة بتجربة بحث الويب. */
+  miss?: boolean;
 }
 
 /* ------------------------------ تطبيع اللغة ------------------------------ */
@@ -54,7 +58,7 @@ const words = (s: string) =>
 /* ------------------------------ فهرس المعرفة ------------------------------ */
 
 interface Chunk {
-  kind: "lesson" | "concept" | "guide" | "map";
+  kind: "lesson" | "concept" | "guide" | "map" | "encyclopedia";
   title: string;
   heading: string;
   text: string;
@@ -62,6 +66,7 @@ interface Chunk {
   lessonId?: string;
   guideId?: string;
   concept?: Concept;
+  entry?: EncyclopediaEntry;
   tokens: Set<string>;
   titleTokens: Set<string>;
 }
@@ -234,6 +239,19 @@ for (const m of MAPS) {
   });
 }
 
+const conceptTerms = new Set(concepts.map((c) => norm(c.term)));
+
+for (const e of ENCYCLOPEDIA) {
+  add({
+    kind: "encyclopedia",
+    title: e.term,
+    heading: e.kind,
+    text: `${e.def}${e.when ? ` الزمن: ${e.when}.` : ""}${e.where ? ` المكان: ${e.where}.` : ""}`,
+    href: `#/lexicon?q=${encodeURIComponent(e.term)}`,
+    entry: e,
+  });
+}
+
 /* ------------------------------ البحث ------------------------------ */
 
 const df = new Map<string, number>();
@@ -261,6 +279,25 @@ function ranked(query: string, kind?: Chunk["kind"]): { chunk: Chunk; score: num
 }
 
 const lessonById = new Map(lessons.map((l) => [l.id, l]));
+
+/**
+ * دقة مدخلات الموسوعة: تتطلب كلمتين متميزتين على الأقل من الاستعلام داخل
+ * المدخل، أو ورود مصطلحه (أو جزء مميز منه) حرفياً في السؤال.
+ * يمنع اختطاف إجابات بدلالة حرف مشترك واحد مثل «القديمة».
+ */
+function encScoreOk(input: string, c: Chunk): boolean {
+  if (!c.entry) return false;
+  const qt = new Set(words(input));
+  let hits = 0;
+  for (const t of qt) if (c.tokens.has(t)) hits++;
+  if (hits >= 2) return true;
+  const n = norm(input);
+  const nt = norm(c.entry.term);
+  return nt.length > 4 && (n.includes(nt) || nt.includes(n));
+}
+
+const topEncyclopedia = (input: string) =>
+  ranked(input, "encyclopedia").find((h) => encScoreOk(input, h.chunk));
 
 function lessonMatch(query: string): Lesson | undefined {
   const hits = ranked(query, "lesson");
@@ -320,6 +357,21 @@ function guideReply(g: (typeof TOPICS)[number]): TutorReply {
       .join("\n"),
     refs: [{ label: `صفحة «${g.title}» في الدليل`, href: `#/guide/${g.id}` }],
     followups: ["أعطني مثالاً محلولاً", "كيف أتعامل مع سؤال استخراج؟", "اختبرني في المنهجية"],
+    mood: "explain",
+  };
+}
+
+function encyclopediaReply(e: EncyclopediaEntry): TutorReply {
+  const lines = [`«${e.term}» (${e.kind}): ${e.def}`];
+  if (e.when) lines.push(`الزمن: ${e.when}.`);
+  if (e.where) lines.push(`المكان: ${e.where}.`);
+  const refs: TutorRef[] = conceptTerms.has(norm(e.term))
+    ? [{ label: `بطاقة «${e.term}» في المعجم`, href: `#/lexicon?q=${encodeURIComponent(e.term)}` }]
+    : [];
+  return {
+    text: lines.join("\n"),
+    refs: refs.length ? refs : undefined,
+    followups: ["أعطني مثالاً", "ما علاقته بموضوع دراسي؟", "اختبرني"],
     mood: "explain",
   };
 }
@@ -524,6 +576,17 @@ export function askTutor(raw: string): TutorReply {
 
   if (/^(ما هو|ما هي|ما معنى|عرف|تعريف|مفهوم|معنى)/.test(q) || /ما المقصود/.test(q)) {
     const hits = ranked(input, "concept");
+    const enc = topEncyclopedia(input);
+    // الموسوعة تتفوق حين يذكر الاستعلام مصطلحها كاملاً وليس له بطاقة معجم،
+    // أو حين يكون تطابق المفهوم ضعيفاً جداً.
+    if (enc?.chunk.entry) {
+      const e = enc.chunk.entry;
+      const lexiconHas = conceptTerms.has(norm(e.term));
+      const exactTerm = norm(input).includes(norm(e.term));
+      if (!lexiconHas && (exactTerm || enc.score > (hits[0]?.score ?? 0) * 1.2)) {
+        return encyclopediaReply(e);
+      }
+    }
     if (hits.length) {
       const c = hits[0].chunk;
       if (c.concept) return conceptReply(c.concept);
@@ -552,7 +615,14 @@ export function askTutor(raw: string): TutorReply {
     if (c.concept) return conceptReply(c.concept);
   }
 
-  const hits = ranked(input);
+  const encHit = topEncyclopedia(input);
+  if (encHit?.chunk.entry) {
+    return encyclopediaReply(encHit.chunk.entry);
+  }
+
+  const hits = ranked(input).filter(
+    (h) => h.chunk.kind !== "encyclopedia" || encScoreOk(input, h.chunk),
+  );
   if (hits.length && hits[0].score >= 1.6) {
     const top = hits.slice(0, 2).map((h) => h.chunk);
     const primary = top[0];
@@ -593,5 +663,6 @@ export function askTutor(raw: string): TutorReply {
     text: "لم أجد في محتوى التطبيق جواباً مباشراً عن هذا السؤال. جرّب أن تذكر الدرس أو المفهوم أو المهارة التي تهمك، مثل: «اشرح درس العولمة»، «ما تعريف التبادل الحر؟»، «كيف أجيب عن سؤال استخراج؟»، أو «اختبرني».",
     followups: quickPrompts(),
     mood: "thinking",
+    miss: true,
   };
 }

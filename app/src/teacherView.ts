@@ -5,6 +5,7 @@
  */
 import { icon } from "./icons";
 import { askTutor, quickPrompts, tutorGreeting, type TutorRef, type TutorReply } from "./tutor";
+import { askWebTutor, webSearchAvailable } from "./webTutor";
 import { createVoiceEngine, type VoiceEngine } from "./voiceEngine";
 
 type Mood = "happy" | "explain" | "thinking" | "listening";
@@ -167,6 +168,9 @@ function typingRow(): HTMLElement {
 function respond(reply: TutorReply) {
   addMessage("teacher", reply.text, reply.refs ?? [], reply.followups ?? []);
   setMood(reply.mood ?? "explain");
+  // المحرك يضمن onSpeakingChange(false) في كل نهاية محاولة،
+  // لذا الانتقال التفاؤلي إلى speaking آمن حتى لو فشل الصوت.
+  setPhase("speaking");
   voice?.speak(reply.text);
   if (reply.mood === "happy") wave();
 }
@@ -188,9 +192,27 @@ function send(text: string) {
   const token = bindToken;
   typingTimer = window.setTimeout(() => {
     if (token !== bindToken) return;
-    t.remove();
-    respond(askTutor(clean));
+    void answer(clean, t, token);
   }, 420);
+}
+
+/**
+ * يجيب من المحتوى المحلي أولاً؛ عند عدم وجود جواب (miss) يجرب بحث الويب
+ * إن كان مفعّلاً، مع إبقاء مؤشر «يفكّر» أثناء الانتظار.
+ */
+async function answer(clean: string, t: HTMLElement, token: number) {
+  const reply = askTutor(clean);
+  const finish = (r: TutorReply) => {
+    if (token !== bindToken) return;
+    t.remove();
+    respond(r);
+  };
+  if (!reply.miss || !webSearchAvailable()) {
+    finish(reply);
+    return;
+  }
+  const web = await askWebTutor(clean);
+  finish(web ?? reply);
 }
 
 /* ------------------------------ الصوت المسموع ------------------------------ */
