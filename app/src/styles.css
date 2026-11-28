@@ -698,74 +698,86 @@ input[type="number"] { width: 96px; }
   background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.24);
 }
 
-.teacher-wrap {
-  display: grid; grid-template-columns: 1fr 1.05fr; gap: 18px; align-items: stretch;
+.teacher-desk {
+  position: relative; max-width: 720px; margin: 0 auto; padding-top: 62px;
 }
-.avatar-panel, .chat-panel {
+.chat-panel {
   border-radius: 22px; overflow: hidden; position: relative;
 }
-.avatar-panel {
-  background: linear-gradient(165deg, #0a2e2a 0%, #0d3f38 55%, #0a2a26 100%);
-  border: 1px solid rgba(94, 234, 212, 0.16);
-  box-shadow: 0 18px 44px rgba(5, 40, 36, 0.35), inset 0 1px 0 rgba(255,255,255,0.06);
-  padding: 14px; display: flex; flex-direction: column; gap: 10px; color: #eafffa;
-}
-.avatar-stage {
-  position: relative; flex: 1; min-height: 380px; height: clamp(380px, 50vh, 540px);
-  border-radius: 18px; overflow: hidden;
+.teacher-orb {
+  position: absolute; top: 62px; left: 50%; transform: translate(-50%, -50%);
+  width: 96px; height: 96px; z-index: 3; border-radius: 50%;
+  display: grid; place-items: center; color: #eafffa;
   background:
-    radial-gradient(90% 80% at 50% 0%, rgba(94, 234, 212, 0.20), transparent 55%),
-    radial-gradient(70% 60% at 50% 100%, rgba(20, 184, 166, 0.25), transparent 70%),
-    linear-gradient(180deg, #0e3d36 0%, #082722 100%);
-  border: 1px solid rgba(94, 234, 212, 0.14);
+    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 46%),
+    radial-gradient(circle at 50% 60%, #6ee7d0, #14b8a6 55%, #0f766e 92%, #115e59);
+  box-shadow:
+    0 0 0 5px rgba(94, 234, 212, 0.13),
+    0 0 24px rgba(45, 212, 191, 0.55),
+    0 0 74px rgba(45, 212, 191, 0.32),
+    0 16px 34px rgba(4, 42, 38, 0.45),
+    inset 0 -12px 26px rgba(5, 46, 42, 0.5),
+    inset 0 10px 22px rgba(255, 255, 255, 0.35);
+  animation: orbfly 5.5s ease-in-out infinite, orbbright 3.6s ease-in-out infinite;
+  transition: box-shadow 0.45s ease, filter 0.45s ease;
 }
-.avatar-stage::before {
-  content: ""; position: absolute; inset: 0;
-  background-image:
-    radial-gradient(60% 50% at 50% 30%, rgba(94, 234, 212, 0.22), transparent 70%),
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 100% 100%, 42px 42px, 42px 42px;
-  pointer-events: none;
+.teacher-orb::before {
+  content: ""; position: absolute; inset: 11px; border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.38);
+  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.3), 0 0 12px rgba(255, 255, 255, 0.18);
 }
-.avatar-stage::after {
-  content: ""; position: absolute; left: 8%; right: 8%; bottom: -4px; height: 90px;
-  background: radial-gradient(60% 100% at 50% 100%, rgba(20, 184, 166, 0.28), transparent 70%);
-  filter: blur(6px); pointer-events: none;
+.teacher-orb::after {
+  content: ""; position: absolute; inset: -15px; border-radius: 50%;
+  border: 1.5px solid rgba(94, 234, 212, 0.45);
+  animation: orbring 2.8s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
 }
-.avatar-fallback {
-  position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
-  height: 94%; width: auto; max-width: 92%; object-fit: contain; object-position: bottom;
-  opacity: 0.96; pointer-events: none;
+.teacher-orb .ico { width: 42px; height: 42px; filter: drop-shadow(0 3px 8px rgba(0, 45, 40, 0.45)); }
+@keyframes orbring { 0% { transform: scale(0.8); opacity: 0.85; } 100% { transform: scale(1.32); opacity: 0; } }
+@keyframes orbfly { 0%, 100% { margin-top: 0; } 50% { margin-top: -10px; } }
+@keyframes orbbright { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.16); } }
+
+.teacher-orb.speaking { animation: orbfly 1.9s ease-in-out infinite, orbbright 0.8s ease-in-out infinite; }
+.teacher-orb.speaking::after { border-color: rgba(125, 255, 206, 0.85); animation-duration: 1.4s; }
+.teacher-orb.wave .ico { animation: orbwave 0.7s ease-in-out 3; transform-origin: 75% 85%; }
+@keyframes orbwave { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-20deg); } 70% { transform: rotate(15deg); } }
+
+.teacher-orb.mood-happy {
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 46%),
+    radial-gradient(circle at 50% 60%, #a7f3d0, #34d399 55%, #059669 92%, #065f46);
+  box-shadow:
+    0 0 0 5px rgba(52, 211, 153, 0.16),
+    0 0 26px rgba(52, 211, 153, 0.6),
+    0 0 78px rgba(52, 211, 153, 0.36),
+    0 16px 34px rgba(6, 60, 40, 0.45),
+    inset 0 -12px 26px rgba(6, 60, 40, 0.5),
+    inset 0 10px 22px rgba(255, 255, 255, 0.35);
 }
-.avatar-canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block; }
-.avatar-stage.fallback .avatar-canvas { display: none; }
-.avatar-loading {
-  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px;
-  color: #c9f7ef; font-size: 13px; background: rgba(4, 30, 27, 0.35); z-index: 2;
+.teacher-orb.mood-thinking {
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 46%),
+    radial-gradient(circle at 50% 60%, #fde68a, #f59e0b 55%, #b45309 92%, #78350f);
+  box-shadow:
+    0 0 0 5px rgba(251, 191, 36, 0.16),
+    0 0 26px rgba(251, 191, 36, 0.55),
+    0 0 76px rgba(251, 191, 36, 0.3),
+    0 16px 34px rgba(60, 42, 6, 0.45),
+    inset 0 -12px 26px rgba(60, 42, 6, 0.5),
+    inset 0 10px 22px rgba(255, 255, 255, 0.35);
 }
-.avatar-tag {
-  position: absolute; top: 10px; inset-inline-start: 10px; z-index: 2;
-  display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600;
-  color: #d8fbf4; background: rgba(4, 30, 27, 0.5); border: 1px solid rgba(255, 255, 255, 0.16);
-  padding: 4px 10px; border-radius: 999px; backdrop-filter: blur(8px);
+.teacher-orb.mood-listening {
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0) 46%),
+    radial-gradient(circle at 50% 60%, #fecdd3, #fb7185 55%, #e11d48 92%, #881337);
+  box-shadow:
+    0 0 0 5px rgba(251, 113, 133, 0.16),
+    0 0 26px rgba(251, 113, 133, 0.55),
+    0 0 76px rgba(251, 113, 133, 0.32),
+    0 16px 34px rgba(60, 10, 24, 0.45),
+    inset 0 -12px 26px rgba(60, 10, 24, 0.5),
+    inset 0 10px 22px rgba(255, 255, 255, 0.35);
 }
-.avatar-caption { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 4px; }
-.avatar-id b { display: block; font-size: 16px; color: #f2fffd; letter-spacing: 0.2px; }
-.avatar-id span { font-size: 11.8px; color: rgba(210, 245, 238, 0.65); }
-.expression {
-  font-size: 11.5px; font-weight: 600; color: #9ff5e4; background: rgba(94, 234, 212, 0.12);
-  border: 1px solid rgba(94, 234, 212, 0.3); padding: 3px 10px; border-radius: 999px; white-space: nowrap;
-  backdrop-filter: blur(4px);
-}
-.avatar-say { margin: 0; padding: 0 4px; font-size: 12.8px; line-height: 1.8; color: rgba(214, 246, 240, 0.78); }
-.avatar-facts { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 4px 2px; }
-.avatar-facts span {
-  display: inline-flex; align-items: center; gap: 5px; font-size: 11.2px; color: #c9f7ef;
-  background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.13);
-  padding: 4px 10px; border-radius: 999px; backdrop-filter: blur(4px);
-}
-.avatar-facts .ico { width: 13px; height: 13px; }
+.teacher-orb.mood-listening::after { border-color: rgba(251, 113, 133, 0.55); }
 
 .chat-panel {
   display: flex; flex-direction: column; min-height: 0; gap: 10px;
@@ -883,8 +895,6 @@ input[type="number"] { width: 96px; }
 @keyframes dotp { 0%, 100% { opacity: 0.35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
 
 @media (max-width: 860px) {
-  .teacher-wrap { grid-template-columns: 1fr; }
-  .avatar-stage { height: 330px; min-height: 300px; }
   .chat-log { max-height: 46vh; }
   .teacher-teaser { padding: 12px 14px; gap: 10px; }
   .teacher-teaser img { width: 52px; height: 52px; }
@@ -892,7 +902,9 @@ input[type="number"] { width: 96px; }
   .mobile-nav a { padding: 5px 6px; font-size: 10px; }
 }
 @media (max-width: 480px) {
-  .avatar-stage { height: 300px; }
+  .teacher-orb { width: 80px; height: 80px; top: 52px; }
+  .teacher-desk { padding-top: 52px; }
+  .teacher-orb .ico { width: 34px; height: 34px; }
   .bubble { max-width: 92%; }
   .chat-form { grid-template-columns: 42px minmax(0, 1fr) 42px; }
   .mic-btn, .send-btn { width: 42px; height: 42px; }
