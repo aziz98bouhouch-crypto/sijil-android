@@ -18,6 +18,10 @@ let typingTimer: number | undefined;
 type Phase = "idle" | "thinking" | "listening" | "speaking";
 let phase: Phase = "idle";
 let muted = false;
+/** عدّاد أسئلة: يُسقط إجابة بحث ويب وصلت بعد أن انتقل المستخدم لسؤال أحدث. */
+let askSeq = 0;
+/** true أثناء انتظار رد بحث الويب — يسمح للمستخدم بالإرسال بالتوازي. */
+let webPending = false;
 /** حالة سطرعلوي لاصقة (مثل «لا صوت عربي») حتى يتجاوزها حدث صوتي أو فعل مستخدم. */
 let stickyStatus: { text: string; tone: string } | null = null;
 
@@ -177,7 +181,8 @@ function respond(reply: TutorReply) {
 
 function send(text: string) {
   const clean = text.trim();
-  if (!clean || phase === "thinking") return;
+  // «thinking» يقصر على توليد الرد المحلي؛ أثناء انتظار الويب يمكن الإرسال.
+  if (!clean || (phase === "thinking" && !webPending)) return;
   const input = document.getElementById("chatInput") as HTMLInputElement | null;
   if (input) input.value = "";
   stickyStatus = null;
@@ -190,29 +195,36 @@ function send(text: string) {
   log?.appendChild(t);
   scrollChat();
   const token = bindToken;
+  const seq = ++askSeq;
   typingTimer = window.setTimeout(() => {
     if (token !== bindToken) return;
-    void answer(clean, t, token);
+    void answer(clean, t, token, seq);
   }, 420);
 }
 
 /**
  * يجيب من المحتوى المحلي أولاً؛ عند عدم وجود جواب (miss) يجرب بحث الويب
- * إن كان مفعّلاً، مع إبقاء مؤشر «يفكّر» أثناء الانتظار.
+ * إن كان مفعّلاً. الإجابة القديمة تُهمَل إذا سُئل سؤال أحدث أثناء الانتظار.
  */
-async function answer(clean: string, t: HTMLElement, token: number) {
+async function answer(clean: string, t: HTMLElement, token: number, seq: number) {
   const reply = askTutor(clean);
   const finish = (r: TutorReply) => {
-    if (token !== bindToken) return;
     t.remove();
+    if (token !== bindToken || seq !== askSeq) return;
     respond(r);
   };
   if (!reply.miss || !webSearchAvailable()) {
     finish(reply);
     return;
   }
-  const web = await askWebTutor(clean);
-  finish(web ?? reply);
+  webPending = true;
+  setStatus("أبحث في الويب…", "thinking");
+  try {
+    const web = await askWebTutor(clean);
+    finish(web ?? reply);
+  } finally {
+    if (seq === askSeq) webPending = false;
+  }
 }
 
 /* ------------------------------ الصوت المسموع ------------------------------ */
@@ -359,6 +371,8 @@ export async function bindTeacher(): Promise<void> {
 
 export function destroyTeacher(silent = true): void {
   bindToken++;
+  askSeq++;
+  webPending = false;
   phase = "idle";
   stickyStatus = null;
   window.clearTimeout(typingTimer);
