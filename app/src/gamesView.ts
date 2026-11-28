@@ -88,6 +88,7 @@ function chronoStage(stage: HTMLElement) {
   const pool = lessons.filter((l) => (l.timeline?.length ?? 0) >= 4);
   const usable = pool.length ? pool : lessons.filter((l) => l.timeline?.length);
   let round = 0, totalMistakes = 0, lastLesson = "";
+  const usedSigs = new Set<string>();
 
   const newRound = () => {
     round++;
@@ -98,7 +99,16 @@ function chronoStage(stage: HTMLElement) {
     let lesson = pick(hardPool);
     if (lesson.id === lastLesson && hardPool.length > 1) { do { lesson = pick(hardPool); } while (lesson.id === lastLesson); }
     lastLesson = lesson.id;
-    const events = lesson.timeline ?? [];
+    const all = lesson.timeline ?? [];
+    /* جولة فريدة: عيّنة فرعية من الأحداث — الحجم يكبر مع المستوى */
+    const k = all.length > 5 ? Math.min(all.length, 5 + Math.floor(lvl0 / 4)) : Math.max(3, all.length - 1);
+    let events = all, sig = "";
+    for (let t = 0; t < 25; t++) {
+      events = shuffle(all).slice(0, k);
+      sig = lesson.id + ":" + events.map((e) => all.indexOf(e)).sort((a, b) => a - b).join(",");
+      if (!usedSigs.has(sig)) break;
+    }
+    usedSigs.add(sig);
     const ordered = [...events].sort((a, b) => (a.date < b.date ? -1 : 1));
     const deck = shuffle(events.map((e, i) => ({ ...e, key: i })));
     let step = 0, mistakes = 0;
@@ -155,18 +165,25 @@ function chronoStage(stage: HTMLElement) {
 
 function lieStage(stage: HTMLElement) {
   const deck: { text: string; lie: boolean; fix?: string; src: string }[] = [];
-  const truePool = concepts.slice(0, 60).map((c) => ({ text: c.def, src: c.term }));
-  const liePool = misconceptions.slice(0, 60).map((m) => ({ text: m.claim, fix: m.fix, src: m.id }));
+  const truePool = concepts.map((c) => ({ text: c.def, src: c.term }));
+  const liePool = misconceptions.map((m) => ({ text: m.claim, fix: m.fix, src: m.id }));
+  const usedSigs = new Set<string>();
   let round = 0, score = 0, current: typeof deck = [], lastLie = "";
 
   const newRound = () => {
     const lvl = Math.floor((round) / 10) + 1;
     const liesWanted = lvl >= 7 ? 2 : 1;
-    let lies = shuffle(liePool).slice(0, liesWanted);
-    if (liesWanted === 1 && lies[0].src === lastLie) { const alt = pick(liePool.filter((l) => l.src !== lastLie)); lies = [alt]; }
-    lastLie = lies[0].src;
-    const trues = shuffle(truePool).slice(0, 4 - liesWanted).map((t) => ({ text: t.text, lie: false, src: t.src }));
-    current = shuffle([...trues, ...lies.map((l) => ({ text: l.text, lie: true, fix: l.fix, src: l.src }))]);
+    let sig = "";
+    for (let t = 0; t < 25; t++) {
+      let lies = shuffle(liePool).slice(0, liesWanted);
+      if (liesWanted === 1 && lies[0].src === lastLie) { const alt = pick(liePool.filter((l) => l.src !== lastLie)); lies = [alt]; }
+      const trues = shuffle(truePool).slice(0, 4 - liesWanted);
+      current = shuffle([...trues.map((x) => ({ text: x.text, lie: false, src: x.src })), ...lies.map((l) => ({ text: l.text, lie: true, fix: l.fix, src: l.src }))]);
+      sig = current.map((c) => c.src).sort().join("|");
+      if (!usedSigs.has(sig)) break;
+    }
+    usedSigs.add(sig);
+    lastLie = current.find((c) => c.lie)!.src;
     const found = new Set<number>();
     round++;
     stage.innerHTML = shell(`
@@ -217,6 +234,22 @@ function lieStage(stage: HTMLElement) {
 
 /* ------------------------------ 3) مختبر المبيان ------------------------------ */
 
+/* معطى إحصائي مولّد عشوائياً يناسب نوع المبيان — يجعل كل جولة فريدة */
+function genSpec(chartType: string): string {
+  const ri = (a: number, b: number) => a + Math.floor(Math.random() * (b - a + 1));
+  const pickN = <T,>(a: T[], n: number) => shuffle(a).slice(0, n);
+  const years = () => `${ri(1995, 2005)} ← ${ri(2006, 2015)} ← ${ri(2016, 2020)} ← ${ri(2021, 2025)}`;
+  if (chartType === "مبيان بالمنحنى")
+    return `تطور «${pick(["عدد السياح", "استهلاك الماء", "الناتج الزراعي", "درجة الحرارة", "عدد التلاميذ"])}» بالمغرب: ${years()} ← القيم: ${[ri(10, 40), ri(15, 50), ri(20, 60), ri(25, 70)].join(" ← ")} (بالمليون)`;
+  if (chartType === "مبيان بالأعمدة")
+    return `مقارنة «${pick(["عدد السكان", "المساحة", "الناتج المحلي", "عدد المدارس"])}» بين ${pickN(["الدار البيضاء", "فاس", "مراكش", "طنجة", "أكادير", "وجدة", "الرباط", "مكناس"], 4).join(" / ")}: ${[ri(10, 90), ri(10, 90), ri(10, 90), ri(10, 90)].join(" / ")} (بالألف)`;
+  if (chartType === "مبيان بالأعمدة المزدوجة")
+    return `مقارنة «${pick(["الصادرات والواردات", "الذكور والإناث", "الحضر والريف", "الإنتاج والاستهلاك"])}» لثلاث سنوات متتالية: ${[ri(20, 60), ri(25, 65), ri(30, 70)].join(" / ")} مقابل ${[ri(15, 55), ri(20, 60), ri(25, 65)].join(" / ")}`;
+  if (chartType === "مبيان دائري (360°)")
+    return `بنية «${pick(["مزيج الطاقة", "توزيع السكان", "مصادر الدخل", "نفقات الأسرة"])}»: ${ri(30, 50)}% + ${ri(20, 35)}% + ${ri(10, 25)}% + ${100 - (0)}% الباقي موزع على فئات أصغر`;
+  return `بنية «${pick(["رأي الاستفتاء", "توزيع الأصوات", "نعم/لا", "موافق/معارض"])}» بخيارين رئيسيين ونسبتان فقط`;
+}
+
 function chartStage(stage: HTMLElement) {
   let round = 0, score = 0, lastChart = "";
   const types = CHART_TYPES.map((c) => c.type);
@@ -233,11 +266,11 @@ function chartStage(stage: HTMLElement) {
     const options = hard
       ? shuffle([correct, ...shuffle(distract).slice(0, 4)])
       : shuffle([correct, ...shuffle(distract).slice(0, 3)]);
+    const spec = genSpec(correct.type);
     stage.innerHTML = shell(`
       <div class="ginfo"><b>المستوى ${lvl} · الجولة ${((round - 1) % 10) + 1}/10</b><span>أي مبيان تختار لتمثيل هذه المعطيات؟</span></div>
       <div class="doc-paper chart-q">
-        ${hard ? "" : `<p class="chart-when">${esc(correct.when)}</p>`}
-        <p class="chart-rules">${esc(correct.rules)}</p>
+        <p class="chart-when">${esc(spec)}</p>
       </div>
       <div class="chart-opts">
         ${options.map((o) => `<button class="chart-opt" data-t="${esc(o.type)}">${esc(o.type)}</button>`).join("")}
@@ -253,12 +286,16 @@ function chartStage(stage: HTMLElement) {
           else if (x === b) x.classList.add("is-wrong");
           x.disabled = true;
         });
+        const note = document.createElement("div");
+        note.className = "gfeedback";
+        note.innerHTML = `<b>${ok ? "صحيح!" : "المناسب: " + esc(correct.type)}</b> ${esc(correct.rules)}`;
+        stage.querySelector(".gbody")!.appendChild(note);
         stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
         setTimeout(() => {
           if (round >= 100) {
-            stage.innerHTML = shell(result(score >= 800, "رسام مبيانات!", `حصّلت ${score}/1000 في اختيار المبيان عبر 10 مستويات. راجع «اختيار المبيان» في الدليل لمزيد من القواعد.`, "#/guide/chart"));
+            stage.innerHTML = shell(result(score >= 800, "رسام مبيانات!", `حصّلت ${score}/1000 في اختيار المبيان عبر 10 مستويات.`, "#/guide/chart"));
           } else newRound();
-        }, 1600);
+        }, 2200);
       });
     });
   };
@@ -345,6 +382,45 @@ function strategyStage(stage: HTMLElement) {
 
 /* ------------------------------ 5) سباق المبيانات ------------------------------ */
 
+const RACE_TITLES: { t: string; u: string }[] = [
+  { t: "الناتج الداخلي الخام — POWER", u: "تريليون دولار" },
+  { t: "نسبة التمدين — COUNTRY", u: "%" },
+  { t: "نسبة مساهمة الفلاحة — COUNTRY", u: "%" },
+  { t: "النمو السكاني — REGION", u: "% سنوياً" },
+  { t: "استهلاك الطاقة — COUNTRY", u: "مليار طن معادل" },
+  { t: "معدل البطالة — COUNTRY", u: "%" },
+  { t: "نسبة الفئات العمرية — REGION", u: "%" },
+  { t: "حجم التجارة الخارجية — COUNTRY", u: "مليار دولار" },
+];
+const RACE_POWER = ["الولايات المتحدة", "الصين", "فرنسا", "ألمانيا", "اليابان", "الهند", "البرازيل"];
+const RACE_COUNTRY = ["المغرب", "مصر", "الجزائر", "تركيا", "إسبانيا", "إيطاليا", "كندا"];
+const RACE_REGION = ["أفريقيا جنوب الصحراء", "العالم العربي", "الاتحاد الأوروبي", "آسيا الجنوبية", "أمريكا اللاتينية"];
+const RACE_CAUSES: Record<"up" | "flat" | "down", string[]> = {
+  up: ["نمو اقتصادي مستمر", "ازدياد الاستثمارات", "تحسن الظروف الدولية", "توسع الطلب العالمي"],
+  flat: ["استقرار نسبي بلا صدمات", "توازن بين عوامل متعارضة", "مرحلة انتقالية هادئة"],
+  down: ["أزمة مالية أو اقتصادية", "تراجع الطلب", "أزمة مناخية أو صحية", "اضطرابات جيوسياسية"],
+};
+
+function genRace(): RaceCard {
+  const tpl = pick(RACE_TITLES);
+  const title = tpl.t.replace("POWER", pick(RACE_POWER)).replace("COUNTRY", pick(RACE_COUNTRY)).replace("REGION", pick(RACE_REGION));
+  const future = pick(["up", "flat", "down"] as const);
+  const n = 6 + Math.floor(Math.random() * 3);
+  let v = 15 + Math.floor(Math.random() * 40);
+  const known = [v];
+  for (let i = 1; i < n; i++) {
+    v += Math.floor(Math.random() * 9) - 3;
+    v = Math.max(3, v);
+    known.push(v);
+  }
+  const others = (["up", "flat", "down"] as const).filter((d) => d !== future);
+  return {
+    title, unit: tpl.u, known, future,
+    cause: pick(RACE_CAUSES[future]),
+    options: shuffle([pick(RACE_CAUSES[future]), pick(RACE_CAUSES[others[0]]), pick(RACE_CAUSES[others[1]])]),
+  };
+}
+
 interface RaceCard {
   title: string;
   unit: string;
@@ -354,47 +430,14 @@ interface RaceCard {
   options: string[];
 }
 
-const RACES: RaceCard[] = [
-  { title: "الناتج الداخلي الخام — الولايات المتحدة", unit: "تريليون دولار", known: [10, 12, 14, 15, 16, 20],
-    future: "down", cause: "أزمة الرهن العقاري 2008 تُحدث تراجعاً مؤقتاً ثم تعافٍ",
-    options: ["أزمة الرهن العقاري 2008", "ازدهار التسعينيات", "سقوط جدار برلين"] },
-  { title: "نسبة التمدين — المغرب", unit: "%", known: [35, 42, 49, 55, 61, 64],
-    future: "up", cause: "الهجرة القروية للمدن",
-    options: ["الهجرة القروية للمدن", "انخفاض الخصوبة", "توسع المدن الجديدة"] },
-  { title: "نسبة مساهمة الفلاحة — الصين", unit: "%", known: [40, 36, 31, 26, 22, 18],
-    future: "down", cause: "التحول نحو الصناعة والخدمات",
-    options: ["التحول نحو الصناعة والخدمات", "ازدهار الفلاحة", "ثورة الخضراء"] },
-  { title: "الناتج الداخلي الخام — الصين", unit: "تريليون دولار", known: [1.4, 2.7, 4.9, 7.5, 10.4, 14.7],
-    future: "up", cause: "انفتاح اقتصادي 1978 + دخول منظمة التجارة العالمية 2001",
-    options: ["الانفتاح الاقتصادي ودخول التجارة العالمية", "الثورة الثقافية", "الحرب مع اليابان"] },
-  { title: "نسبة التمدين — فرنسا", unit: "%", known: [51, 56, 61, 67, 73, 81],
-    future: "up", cause: "الهجرة من الأرياف إلى المدن بعد الحربين",
-    options: ["الهجرة القروية للمدن", "ازدهار الفلاحة", "الثورة الصناعية"] },
-  { title: "نسبة مساهمة الفلاحة — فرنسا", unit: "%", known: [12, 9, 8, 6, 4, 3],
-    future: "down", cause: "تحضر الاقتصاد وتطور الصناعة والخدمات",
-    options: ["تحضر الاقتصاد", "انخفاض الأراضي الزراعية", "الحرب العالمية الأولى"] },
-  { title: "النمو السكاني — أفريقيا جنوب الصحراء", unit: "% سنوياً", known: [2.6, 2.7, 2.7, 2.8, 2.8, 2.9],
-    future: "up", cause: "خصوبة مرتفعة وتحسن الرعاية الصحية",
-    options: ["خصوبة مرتفعة وتحسن الرعاية الصحية", "هجرة جماعية للخارج", "انتشار الأوبئة"] },
-];
-
-/* اختيار عشوائي بدون تكرار فوري — يعيد الخلط عند نفاد المجموعة */
-function pickUnused<T>(arr: T[], used: Set<number>): T {
-  if (used.size >= arr.length) used.clear();
-  let i: number;
-  do { i = Math.floor(Math.random() * arr.length); } while (used.has(i));
-  used.add(i);
-  return arr[i];
-}
+/* المصفوفة RACES حُذفت — genRace() يولّد سلاسل فريدة عشوائياً كل جولة */
 
 function raceStage(stage: HTMLElement) {
   let round = 0, score = 0;
-  const usedIdx = new Set<number>();
   const W = 640, H = 200, pad = 24;
   const newRound = () => {
     round++;
-    const ri = (() => { if (usedIdx.size >= RACES.length) usedIdx.clear(); let i: number; do { i = Math.floor(Math.random() * RACES.length); } while (usedIdx.has(i)); usedIdx.add(i); return i; })();
-    const base = RACES[ri];
+    const base = genRace();
     const lvl = Math.floor((round - 1) / 10) + 1;
     const c = lvl >= 8 ? { ...base, known: base.known.slice(0, -1) } : base;
     const n = c.known.length;
@@ -653,14 +696,28 @@ const ESSAYS: Essay[] = [
     ] },
 ];
 
+/* كتل دخيلة مشتركة — تُسحب عشوائياً كل مستوى فتبقى التوليفة مختلفة */
+const EXTRA_BLOCKS = [
+  "دخيل: مراحل الحرب الباردة 1947-1991",
+  "دخيل: تعريف خط الاستواء ومداره",
+  "دخيل: مبيان أعمدة لتطور الصادرات 1990-2020",
+  "دخيل: معاهدة فرساي وبنودها",
+  "دخيل: طبقات الغلاف الجوي وخصائصها",
+  "دخيل: مراحل الثورة الفرنسية 1789-1799",
+  "دخيل: مكونات النظام البيئي البحري",
+  "دخيل: الحرب العالمية الأولى — الجبهات والأطراف",
+  "دخيل: التيارات البحرية الرئيسية",
+  "دخيل: أزمة 1929 والكساد الكبير",
+].map((t) => ({ t, ok: false }));
+
 function essayStage(stage: HTMLElement) {
   let round = 0, score = 0;
   const newRound = () => {
     round++;
     const e = ESSAYS[(round - 1) % ESSAYS.length];
     const needed = e.blocks.filter((b) => b.ok);
-    const other = ESSAYS[round % ESSAYS.length];
-    const extra = round >= 8 ? other.blocks.filter((b) => !b.ok).slice(0, 1) : [];
+    const extraCount = round >= 8 ? 3 : 2;
+    const extra = shuffle(EXTRA_BLOCKS).slice(0, extraCount);
     const pool = shuffle([...e.blocks, ...extra].map((b, i) => ({ ...b, i })));
     const used = new Set<number>();
     let placed = 0, errors = 0;
