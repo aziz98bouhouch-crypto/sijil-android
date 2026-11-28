@@ -87,7 +87,7 @@ function result(ok: boolean, title: string, text: string, href = "#/games"): str
 function chronoStage(stage: HTMLElement) {
   const pool = lessons.filter((l) => (l.timeline?.length ?? 0) >= 4);
   const usable = pool.length ? pool : lessons.filter((l) => l.timeline?.length);
-  let round = 0, totalMistakes = 0;
+  let round = 0, totalMistakes = 0, lastLesson = "";
 
   const newRound = () => {
     round++;
@@ -95,7 +95,9 @@ function chronoStage(stage: HTMLElement) {
     const hardPool = lvl0 >= 8
       ? [...usable].sort((a, b) => (b.timeline?.length ?? 0) - (a.timeline?.length ?? 0)).slice(0, Math.max(3, Math.ceil(usable.length / 3)))
       : usable;
-    const lesson = pick(hardPool);
+    let lesson = pick(hardPool);
+    if (lesson.id === lastLesson && hardPool.length > 1) { do { lesson = pick(hardPool); } while (lesson.id === lastLesson); }
+    lastLesson = lesson.id;
     const events = lesson.timeline ?? [];
     const ordered = [...events].sort((a, b) => (a.date < b.date ? -1 : 1));
     const deck = shuffle(events.map((e, i) => ({ ...e, key: i })));
@@ -155,12 +157,14 @@ function lieStage(stage: HTMLElement) {
   const deck: { text: string; lie: boolean; fix?: string; src: string }[] = [];
   const truePool = concepts.slice(0, 60).map((c) => ({ text: c.def, src: c.term }));
   const liePool = misconceptions.slice(0, 60).map((m) => ({ text: m.claim, fix: m.fix, src: m.id }));
-  let round = 0, score = 0, current: typeof deck = [];
+  let round = 0, score = 0, current: typeof deck = [], lastLie = "";
 
   const newRound = () => {
     const lvl = Math.floor((round) / 10) + 1;
     const liesWanted = lvl >= 7 ? 2 : 1;
-    const lies = shuffle(liePool).slice(0, liesWanted);
+    let lies = shuffle(liePool).slice(0, liesWanted);
+    if (liesWanted === 1 && lies[0].src === lastLie) { const alt = pick(liePool.filter((l) => l.src !== lastLie)); lies = [alt]; }
+    lastLie = lies[0].src;
     const trues = shuffle(truePool).slice(0, 4 - liesWanted).map((t) => ({ text: t.text, lie: false, src: t.src }));
     current = shuffle([...trues, ...lies.map((l) => ({ text: l.text, lie: true, fix: l.fix, src: l.src }))]);
     const found = new Set<number>();
@@ -214,14 +218,16 @@ function lieStage(stage: HTMLElement) {
 /* ------------------------------ 3) مختبر المبيان ------------------------------ */
 
 function chartStage(stage: HTMLElement) {
-  let round = 0, score = 0;
+  let round = 0, score = 0, lastChart = "";
   const types = CHART_TYPES.map((c) => c.type);
 
   const newRound = () => {
     round++;
     const lvl = Math.floor((round - 1) / 10) + 1;
     const hard = lvl >= 8;
-    const correct = pick(CHART_TYPES);
+    let correct = pick(CHART_TYPES);
+    if (correct.type === lastChart) { do { correct = pick(CHART_TYPES); } while (correct.type === lastChart); }
+    lastChart = correct.type;
     const distract = CHART_TYPES.filter((c) => c.type !== correct.type);
     /* المستويات الصعبة: 5 خيارات بدل 4 */
     const options = hard
@@ -358,14 +364,37 @@ const RACES: RaceCard[] = [
   { title: "نسبة مساهمة الفلاحة — الصين", unit: "%", known: [40, 36, 31, 26, 22, 18],
     future: "down", cause: "التحول نحو الصناعة والخدمات",
     options: ["التحول نحو الصناعة والخدمات", "ازدهار الفلاحة", "ثورة الخضراء"] },
+  { title: "الناتج الداخلي الخام — الصين", unit: "تريليون دولار", known: [1.4, 2.7, 4.9, 7.5, 10.4, 14.7],
+    future: "up", cause: "انفتاح اقتصادي 1978 + دخول منظمة التجارة العالمية 2001",
+    options: ["الانفتاح الاقتصادي ودخول التجارة العالمية", "الثورة الثقافية", "الحرب مع اليابان"] },
+  { title: "نسبة التمدين — فرنسا", unit: "%", known: [51, 56, 61, 67, 73, 81],
+    future: "up", cause: "الهجرة من الأرياف إلى المدن بعد الحربين",
+    options: ["الهجرة القروية للمدن", "ازدهار الفلاحة", "الثورة الصناعية"] },
+  { title: "نسبة مساهمة الفلاحة — فرنسا", unit: "%", known: [12, 9, 8, 6, 4, 3],
+    future: "down", cause: "تحضر الاقتصاد وتطور الصناعة والخدمات",
+    options: ["تحضر الاقتصاد", "انخفاض الأراضي الزراعية", "الحرب العالمية الأولى"] },
+  { title: "النمو السكاني — أفريقيا جنوب الصحراء", unit: "% سنوياً", known: [2.6, 2.7, 2.7, 2.8, 2.8, 2.9],
+    future: "up", cause: "خصوبة مرتفعة وتحسن الرعاية الصحية",
+    options: ["خصوبة مرتفعة وتحسن الرعاية الصحية", "هجرة جماعية للخارج", "انتشار الأوبئة"] },
 ];
+
+/* اختيار عشوائي بدون تكرار فوري — يعيد الخلط عند نفاد المجموعة */
+function pickUnused<T>(arr: T[], used: Set<number>): T {
+  if (used.size >= arr.length) used.clear();
+  let i: number;
+  do { i = Math.floor(Math.random() * arr.length); } while (used.has(i));
+  used.add(i);
+  return arr[i];
+}
 
 function raceStage(stage: HTMLElement) {
   let round = 0, score = 0;
+  const usedIdx = new Set<number>();
   const W = 640, H = 200, pad = 24;
   const newRound = () => {
     round++;
-    const base = RACES[(round - 1) % RACES.length];
+    const ri = (() => { if (usedIdx.size >= RACES.length) usedIdx.clear(); let i: number; do { i = Math.floor(Math.random() * RACES.length); } while (usedIdx.has(i)); usedIdx.add(i); return i; })();
+    const base = RACES[ri];
     const lvl = Math.floor((round - 1) / 10) + 1;
     const c = lvl >= 8 ? { ...base, known: base.known.slice(0, -1) } : base;
     const n = c.known.length;
@@ -437,16 +466,30 @@ const CLUES: Clue[] = [
   { answer: "البحر الأبيض المتوسط", options: ["البحر الأبيض المتوسط", "البحر الأحمر", "المحيط الأطلسي", "بحر العرب"],
     clues: ["يفصل أوروبا عن أفريقيا", "مضيق جبل طارق عند مدخله", "حضارات قديمة على ضفافه", "تكتل الأورو-متوسطي حوله"] },
   { answer: "الصين", options: ["الصين", "اليابان", "كوريا الجنوبية", "الهند"],
-    clues: ["أكبر عدد سكان في العالم", "ثاني اقتصاد عالمياً", "حزب شيوعي واحد", "نموذج «اشتراكية السوق»"] },
+    clues: ["ثاني أكبر عدد سكان في العالم", "ثاني اقتصاد عالمياً", "حزب شيوعي واحد", "نموذج «اشتراكية السوق»"] },
   { answer: "الأطلس المتوسط", options: ["الأطلس المتوسط", "الأطلس الكبير", "الأطلس الصغير", "جبال الريف"],
     clues: ["يمتد من طنجة إلى مراكش", "قممه تتجاوز 4000م", "ممرات تاريخية كطريق تداوت", "مناخ متوسطي جبلي"] },
+  { answer: "معاهدة وستفاليا", options: ["معاهدة وستفاليا", "معاهدة فرساي", "اتفاقية مونسو", "ميثاق الأمم المتحدة"],
+    clues: ["عام 1648", "أنهت حرب الثلاثين عاماً", "كرّست مبدأ سيادة الدولة", "أعادت رسم خريطة أوروبا"] },
+  { answer: "الثورة الصناعية", options: ["الثورة الصناعية", "الثورة الفرنسية", "الثورة الروسية", "الثورة الخضراء"],
+    clues: ["بدأت في بريطانيا القرن 18", "الآلة البخارية محورها", "التحول من فلاحي لأجراء", "أسست النظام الرأسمالي"] },
+  { answer: "نهر الأمازون", options: ["نهر الأمازون", "نهر النيل", "نهر الكونغو", "نهر الميسيسيبي"],
+    clues: ["أكبر نهر من حيث التصريف في العالم", "يقع في أمريكا الجنوبية", "تحيطه الغابات الاستوائية", "ينبع في بيرو"] },
+  { answer: "حلف وارسو", options: ["حلف وارسو", "حلف الأطلسي", "الاتحاد الأوروبي", "السوق المشتركة"],
+    clues: ["نشأ 1955", "المعسكر الشرقي في الحرب الباردة", "كان مقابلاً لحلف الناتو", "انهار مع تفكك الاتحاد السوفياتي"] },
+  { answer: "بحر قزوين", options: ["بحر قزوين", "البحر الأحمر", "بحر العرب", "البحر الميت"],
+    clues: ["أكبر بحيرة مالحة في العالم", "تقع بين أوروبا وآسيا", "غني باحتياطيات النفط", "لا يصب فيه أي نهر"] },
+  { answer: "الحرب العالمية الأولى", options: ["الحرب العالمية الأولى", "الحرب العالمية الثانية", "حرب الثلاثين عاماً", "حرب المئة عام"],
+    clues: ["1914-1918", "انطلقت من سراييفو", "استخدمت الدبابات والغازات", "أنهتها معاهدة فرساي"] },
 ];
 
 function geoClueStage(stage: HTMLElement) {
   let round = 0, score = 0;
+  const usedIdx = new Set<number>();
   const newRound = () => {
     round++;
-    const c = CLUES[(round - 1) % CLUES.length];
+    const ci = (() => { if (usedIdx.size >= CLUES.length) usedIdx.clear(); let i: number; do { i = Math.floor(Math.random() * CLUES.length); } while (usedIdx.has(i)); usedIdx.add(i); return i; })();
+    const c = CLUES[ci];
     const lvl = Math.floor((round - 1) / 10) + 1;
     const hintCost = lvl >= 8 ? 8 : 5;
     let hint = 0;
@@ -680,13 +723,25 @@ const MAP_PUZZLES: MapPuzzle[] = [
     options: ["الحرب العالمية الأولى أعادت رسم خريطة أوروبا", "لم تتغير الحدود", "ازدادت الإمبراطوريات", "انهارت كل الدول"], answer: 0, lesson: "أوروبا بين الحربين", hard: "الحرب العالمية الأولى لم تغير الحدود الأوروبية" },
   { a: "خريطة المستعمرات 1914", b: "خريطة الاستقلالات بعد 1945",
     options: ["موجة الاستقلالات بعد الحرب العالمية الثانية", "لم تتغير الخريطة", "توسعت الإمبراطوريات", "ظهرت دول جديدة في أوروبا فقط"], answer: 0, lesson: "النظام العالمي الجديد", hard: "الاستقلالات وقعت كلها قبل 1945" },
+  { a: "خريطة العالم قبل 1914", b: "خريطة العالم بعد 1945",
+    options: ["الحربان العالميتان أعادتا رسم الخريطة السياسية", "لم تتغير الخريطة إطلاقاً", "ازدادت الإمبراطوريات الأوروبية", "ظهرت القارات الخمس"], answer: 0, lesson: "النظام العالمي", hard: "الإمبراطوريات الأوروبية توسعت بعد 1945" },
+  { a: "خريطة المناخ", b: "خريطة أنواع الزراعة",
+    options: ["المناخ يحدد نوع الزراعة الممكن في كل منطقة", "الزراعة لا علاقة لها بالمناخ", "المناخ عشوائي بلا نمط", "الزراعة تتبع الحدود السياسية فقط"], answer: 0, lesson: "العوامل الطبيعية", hard: "الزراعة تتبع الحدود السياسية" },
+  { a: "خريطة الإمبراطورية الرومانية", b: "خريطة اليونان القديمة",
+    options: ["روما ورثت الحضارة اليونانية ووسعتها", "روما قطعت كل صلة باليونان", "اليونان احتلت روما عسكرياً", "الحضارتان لا صلة بينهما"], answer: 0, lesson: "الحضارة اليونانية الرومانية", hard: "روما قطعت كل صلة باليونان" },
+  { a: "خريطة المغرب الطبيعي", b: "خريطة المدن المغربية",
+    options: ["المدن الكبرى تتجمع قرب السواحل والسهول لا في الجبال", "المدن تتوزع بالتساوي على كل التضاريس", "المدن تتركز في المناطق الجبلية", "السواحل خالية من المدن"], answer: 0, lesson: "التعمير", hard: "المدن تتركز في المناطق الجبلية" },
+  { a: "خريطة الأقاليم المناخية", b: "خريطة الكثافة السكانية",
+    options: ["السكان يتركزون في الأقاليم المعتدلة والمناطق الساحلية", "السكان يتوزعون بالتساوي على كل المناخات", "السكان يتركزون في الصحاري الحارة", "المناخ لا يؤثر في التوزيع السكاني"], answer: 0, lesson: "العوامل الطبيعية", hard: "السكان يتركزون في الصحاري الحارة" },
 ];
 
 function mapxStage(stage: HTMLElement) {
   let round = 0, score = 0;
+  const usedIdx = new Set<number>();
   const newRound = () => {
     round++;
-    const p = MAP_PUZZLES[(round - 1) % MAP_PUZZLES.length];
+    const pi = (() => { if (usedIdx.size >= MAP_PUZZLES.length) usedIdx.clear(); let i: number; do { i = Math.floor(Math.random() * MAP_PUZZLES.length); } while (usedIdx.has(i)); usedIdx.add(i); return i; })();
+    const p = MAP_PUZZLES[pi];
     const lvl = Math.floor((round - 1) / 10) + 1;
     const order = shuffle(p.options.map((_, i) => i));
     const opts = order.map((i) => p.options[i]);
