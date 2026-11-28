@@ -324,63 +324,74 @@ function extractGlyph(img, work, fit) {
 
 /* -------------------------------- shapes -------------------------------- */
 
-/** يضع صورة داخل لوحة مربعة شفافة بمقاس نسبة (scale)، ثم يقصّها بقناع، ثم يصغّرها. */
-function composited(size, art, artW, artH, scale, mask, ss) {
-  const big = size * ss;
-  const inner = Math.round(big * scale);
-  const small = resize(art, artW, artH, inner, inner);
-  const canvas = Buffer.alloc(big * big * 4);
-  const off = Math.floor((big - inner) / 2);
+/** تدرّج الخلفية كامل المربع (بلا زوايا شفافة) — يُستعمل للأيقونة الدائرية والتكيفية. */
+function gradientCanvas(size, fit) {
+  const out = Buffer.alloc(size * size * 4);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const c = evalBg(fit.coef, x / (size - 1), y / (size - 1));
+      const o = (y * size + x) * 4;
+      out[o] = Math.round(c[0]);
+      out[o + 1] = Math.round(c[1]);
+      out[o + 2] = Math.round(c[2]);
+      out[o + 3] = 255;
+    }
+  }
+  return out;
+}
+
+/** الشعار وحده على لوحة شفافة، بحيث يشغل نسبة safe من عرض اللوحة. */
+function glyphCanvas(size, glyph, glyphSize, safe) {
+  const inner = Math.round(size * safe);
+  const g = resize(glyph, glyphSize, glyphSize, inner, inner);
+  const out = Buffer.alloc(size * size * 4);
+  const off = Math.floor((size - inner) / 2);
   for (let y = 0; y < inner; y++) {
     for (let x = 0; x < inner; x++) {
       const s = (y * inner + x) * 4;
-      const d = ((y + off) * big + (x + off)) * 4;
-      canvas[d] = small[s];
-      canvas[d + 1] = small[s + 1];
-      canvas[d + 2] = small[s + 2];
-      canvas[d + 3] = small[s + 3];
+      const d = ((y + off) * size + (x + off)) * 4;
+      out[d] = g[s];
+      out[d + 1] = g[s + 1];
+      out[d + 2] = g[s + 2];
+      out[d + 3] = g[s + 3];
     }
   }
-  if (mask === 'circle') {
-    const c = big / 2, r = big / 2;
-    for (let y = 0; y < big; y++) {
-      for (let x = 0; x < big; x++) {
-        const dx = x + 0.5 - c, dy = y + 0.5 - c;
-        if (Math.hypot(dx, dy) > r) canvas[(y * big + x) * 4 + 3] = 0;
-      }
+  return out;
+}
+
+/** يركّب الطبقة الأمامية فوق الخلفية. */
+function over(bg, fg, size) {
+  const out = Buffer.from(bg);
+  for (let i = 0; i < size * size * 4; i += 4) {
+    const a = fg[i + 3] / 255;
+    if (!a) continue;
+    for (let c = 0; c < 3; c++) {
+      out[i + c] = clamp(Math.round(fg[i + c] * a + out[i + c] * (1 - a)), 0, 255);
+    }
+    out[i + 3] = Math.max(out[i + 3], fg[i + 3]);
+  }
+  return out;
+}
+
+/**
+ * أيقونة دائرية حقيقية: تدرّج كامل + الشعار ثم قناع دائري،
+ * تُرسم بمضاعف ss ثم تُصغَّر لتنعيم الحافة (لا زوايا مقصوصة).
+ */
+function roundIcon(size, glyph, glyphSize, fit, safe, ss) {
+  const big = size * ss;
+  const canvas = over(gradientCanvas(big, fit), glyphCanvas(big, glyph, glyphSize, safe), big);
+  const c = big / 2;
+  for (let y = 0; y < big; y++) {
+    for (let x = 0; x < big; x++) {
+      if (Math.hypot(x + 0.5 - c, y + 0.5 - c) > c) canvas[(y * big + x) * 4 + 3] = 0;
     }
   }
   return resize(canvas, big, big, size, size);
 }
 
 /** يبني الأيقونة التكيفية: خلفية متدرّجة تغطي 108dp كاملة + الشعار في المنطقة الآمنة. */
-function buildAdaptive(size, glyph, glyphW, fit, safe) {
-  const bg = Buffer.alloc(size * size * 4);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const c = evalBg(fit.coef, x / (size - 1), y / (size - 1));
-      const o = (y * size + x) * 4;
-      bg[o] = Math.round(c[0]);
-      bg[o + 1] = Math.round(c[1]);
-      bg[o + 2] = Math.round(c[2]);
-      bg[o + 3] = 255;
-    }
-  }
-  const inner = Math.round(size * safe);
-  const g = resize(glyph, glyphW, glyphW, inner, inner);
-  const fg = Buffer.alloc(size * size * 4);
-  const off = Math.floor((size - inner) / 2);
-  for (let y = 0; y < inner; y++) {
-    for (let x = 0; x < inner; x++) {
-      const s = (y * inner + x) * 4;
-      const d = ((y + off) * size + (x + off)) * 4;
-      fg[d] = g[s];
-      fg[d + 1] = g[s + 1];
-      fg[d + 2] = g[s + 2];
-      fg[d + 3] = g[s + 3];
-    }
-  }
-  return { bg, fg };
+function buildAdaptive(size, glyph, glyphSize, fit, safe) {
+  return { bg: gradientCanvas(size, fit), fg: glyphCanvas(size, glyph, glyphSize, safe) };
 }
 
 /* --------------------------------- build -------------------------------- */
@@ -424,7 +435,7 @@ function main() {
     const write = (name, buf, w, h) => fs.writeFileSync(path.join(outDir, name), encodePNG(w, h, buf));
     write('legacy-192.png', resize(art.data, art.w, art.h, 192, 192), 192, 192);
     write('legacy-48.png', resize(art.data, art.w, art.h, 48, 48), 48, 48);
-    write('round-192.png', composited(192, art.data, art.w, art.h, 0.92, 'circle', 4), 192, 192);
+    write('round-192.png', roundIcon(192, glyph, WORK, fit,  0.85, 3), 192, 192);
     write('adaptive-432.png', adaptive, 432, 432);
     write('foreground-432.png', fg, 432, 432);
     write('background-432.png', bg, 432, 432);
@@ -443,7 +454,7 @@ function main() {
     const fgSize = Math.round(108 * dpi);
     const { bg, fg } = buildAdaptive(fgSize, glyph, WORK, fit, SAFE);
     fs.writeFileSync(path.join(dir, 'ic_launcher.png'), encodePNG(legacy, legacy, resize(art.data, art.w, art.h, legacy, legacy)));
-    fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), encodePNG(legacy, legacy, composited(legacy, art.data, art.w, art.h, 0.92, 'circle', 4)));
+    fs.writeFileSync(path.join(dir, 'ic_launcher_round.png'), encodePNG(legacy, legacy, roundIcon(legacy, glyph, WORK, fit,  0.85, 3)));
     fs.writeFileSync(path.join(dir, 'ic_launcher_foreground.png'), encodePNG(fgSize, fgSize, fg));
     fs.writeFileSync(path.join(dir, 'ic_launcher_background.png'), encodePNG(fgSize, fgSize, bg));
     console.log('wrote mipmap-' + name + ' (' + legacy + 'px legacy, ' + fgSize + 'px adaptive layers)');
