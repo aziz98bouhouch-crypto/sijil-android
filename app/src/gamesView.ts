@@ -51,11 +51,28 @@ export function gamesIndexView(): string {
   <div class="note">الألعاب تدريبية بلا نقطة نهائية — كل خطأ مصحوب بتفسير من محتوى التطبيق.</div>`;
 }
 
+/* رسوم تعبيرية SVG لكل لعبة — كاريكاتير متجهي خفيف */
+function gameArt(kind: string): string {
+  const scenes: Record<string, string> = {
+    chrono: `<circle cx="120" cy="70" r="34" fill="none" stroke="#ffd97a" stroke-width="5"/><path d="M120 52v18l13 8" stroke="#ffd97a" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="120" cy="70" r="4" fill="#ffd97a"/><path d="M40 118h160" stroke="rgba(255,255,255,.35)" stroke-width="3" stroke-dasharray="8 7"/>`,
+    lie: `<rect x="70" y="30" width="100" height="80" rx="8" fill="rgba(255,244,214,.14)" stroke="rgba(255,244,214,.5)" stroke-width="2"/><path d="M88 52h64M88 66h64M88 80h40" stroke="rgba(255,244,214,.6)" stroke-width="4" stroke-linecap="round"/><circle cx="140" cy="98" r="12" fill="#f0655a"/><path d="M136 98l3 3 5-6" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    chart: `<path d="M40 110V60M80 110V40M120 110V75M160 110V55" stroke="#5eead4" stroke-width="9" stroke-linecap="round"/><path d="M40 118h130" stroke="rgba(255,255,255,.35)" stroke-width="3"/>`,
+    strategy: `<path d="M60 60l14 14 26-30" stroke="#6ee7a0" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M140 60l-14 14-26-30" stroke="#f87171" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="100" cy="100" r="16" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.4)" stroke-width="2"/>`,
+    race: `<polyline points="40,105 70,95 95,98 120,80 145,60 170,45" fill="none" stroke="#5eead4" stroke-width="5" stroke-linecap="round"/><circle cx="170" cy="45" r="8" fill="#ffd97a"/><path d="M40 118h135" stroke="rgba(255,255,255,.3)" stroke-width="3"/>`,
+    geoclue: `<circle cx="100" cy="70" r="42" fill="none" stroke="#5eead4" stroke-width="4"/><circle cx="100" cy="70" r="26" fill="none" stroke="rgba(94,234,212,.4)" stroke-width="3"/><circle cx="100" cy="70" r="10" fill="#ffd97a"/><path d="M100 16v12M100 112v12M46 70h12M142 70h12" stroke="#5eead4" stroke-width="4" stroke-linecap="round"/>`,
+    links: `<g fill="none" stroke="#ffd97a" stroke-width="3"><rect x="52" y="45" width="34" height="26" rx="6"/><rect x="82" y="75" width="34" height="26" rx="6"/><rect x="120" y="45" width="34" height="26" rx="6"/><rect x="140" y="105" width="30" height="22" rx="6"/></g><path d="M86 58h14M116 58c10 0 10 17 22 17M99 88l12 12M134 71v18" stroke="rgba(255,255,255,.5)" stroke-width="2.5" stroke-dasharray="5 4"/>`,
+    essay: `<rect x="55" y="35" width="90" height="95" rx="8" fill="rgba(255,244,214,.1)" stroke="rgba(255,244,214,.45)" stroke-width="2"/><path d="M70 55h60M70 70h60M70 85h42M70 100h52M70 112h30" stroke="rgba(255,244,214,.55)" stroke-width="3.5" stroke-linecap="round"/><path d="M120 105l10 10 18-22" stroke="#6ee7a0" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`,
+    mapx: `<path d="M45 55l22-12 28 8 25-15 20 18-8 30-25 12-28-6-22 14z" fill="rgba(94,234,212,.15)" stroke="#5eead4" stroke-width="3" stroke-linejoin="round"/><circle cx="80" cy="70" r="9" fill="#ffd97a"/><circle cx="130" cy="62" r="9" fill="#f87171"/><path d="M80 70l50-8" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-dasharray="5 4"/>`,
+    debate: `<circle cx="70" cy="70" r="26" fill="rgba(248,113,113,.18)" stroke="#f87171" stroke-width="3"/><circle cx="130" cy="70" r="26" fill="rgba(94,234,212,.15)" stroke="#5eead4" stroke-width="3"/><circle cx="70" cy="62" r="3.5" fill="#fff"/><circle cx="82" cy="62" r="3.5" fill="#fff"/><path d="M62 80q8 7 16 0M122 80q8 7 16 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M96 66l8 0M100 62v8" stroke="#ffd97a" stroke-width="3" stroke-linecap="round"/>`,
+  };
+  return `<svg class="game-art" viewBox="0 0 200 140" aria-hidden="true"><defs><linearGradient id="ga-${kind}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(14,116,144,.55)"/><stop offset="1" stop-color="rgba(8,74,110,.35)"/></linearGradient></defs><rect width="200" height="140" rx="18" fill="url(#ga-${kind})"/>${scenes[kind] ?? scenes.chart}</svg>`;
+}
+
 export function gameView(kind: string): string {
   const g = GAMES.find((x) => x.kind === kind);
   if (!g) return `<div class="note">لعبة غير موجودة. <a href="#/games">الألعاب</a></div>`;
   return `<a class="back" href="#/games">${icon("arrow")} الألعاب</a>
-  <div class="page-head"><div><h1>${g.title}</h1><p class="lead">${g.desc}</p></div></div>
+  <div class="page-head"><div><h1>${g.title}</h1><p class="lead">${g.desc}</p></div>${gameArt(kind)}</div>
   <section class="game-stage" id="gameStage"><div class="game-loading">جارٍ تجهيز اللعبة…</div></section>`;
 }
 

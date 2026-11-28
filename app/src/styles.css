@@ -1258,3 +1258,8 @@ input[type="number"] { width: 96px; }
 .debate-input { flex: 1; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.16); border-radius: 12px; padding: 10px 14px; color: #fff; font-family: inherit; font-size: 14px; }
 .debate-input:focus { outline: none; border-color: #5eead4; }
 .debate-input::placeholder { color: rgba(210,245,238,0.4); }
+
+/* رسوم الألعاب التعبيرية */
+.game-art { width: 200px; height: 140px; flex-shrink: 0; }
+.page-head:has(.game-art) { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+@media (max-width: 560px) { .game-art { width: 130px; height: 92px; } }
