@@ -65,6 +65,10 @@ function gameArt(kind: string): string {
     mapx: `<path d="M45 55l22-12 28 8 25-15 20 18-8 30-25 12-28-6-22 14z" fill="rgba(94,234,212,.15)" stroke="#5eead4" stroke-width="3" stroke-linejoin="round"/><circle cx="80" cy="70" r="9" fill="#ffd97a"/><circle cx="130" cy="62" r="9" fill="#f87171"/><path d="M80 70l50-8" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-dasharray="5 4"/>`,
     debate: `<circle cx="70" cy="70" r="26" fill="rgba(248,113,113,.18)" stroke="#f87171" stroke-width="3"/><circle cx="130" cy="70" r="26" fill="rgba(94,234,212,.15)" stroke="#5eead4" stroke-width="3"/><circle cx="70" cy="62" r="3.5" fill="#fff"/><circle cx="82" cy="62" r="3.5" fill="#fff"/><path d="M62 80q8 7 16 0M122 80q8 7 16 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M96 66l8 0M100 62v8" stroke="#ffd97a" stroke-width="3" stroke-linecap="round"/>`,
   };
+  /* صور فوتوغرافية حرة محلية للألعاب المتوفرة — SVG احتياطي للبقية */
+  const PHOTOS = new Set(["chrono", "lie", "mapx", "debate"]);
+  if (PHOTOS.has(kind))
+    return `<img class="game-art" src="games/${kind}.jpg" alt="" loading="lazy" onerror="this.outerHTML='';this.parentElement?.classList.add('no-art')"/>`;
   return `<svg class="game-art" viewBox="0 0 200 140" aria-hidden="true"><defs><linearGradient id="ga-${kind}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="rgba(14,116,144,.55)"/><stop offset="1" stop-color="rgba(8,74,110,.35)"/></linearGradient></defs><rect width="200" height="140" rx="18" fill="url(#ga-${kind})"/>${scenes[kind] ?? scenes.chart}</svg>`;
 }
 

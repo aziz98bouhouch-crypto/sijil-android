@@ -1263,3 +1263,4 @@ input[type="number"] { width: 96px; }
 .game-art { width: 200px; height: 140px; flex-shrink: 0; }
 .page-head:has(.game-art) { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 @media (max-width: 560px) { .game-art { width: 130px; height: 92px; } }
+img.game-art { object-fit: cover; border-radius: 18px; box-shadow: 0 6px 18px rgba(0,0,0,.3); }
