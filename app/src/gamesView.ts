@@ -91,7 +91,11 @@ function chronoStage(stage: HTMLElement) {
 
   const newRound = () => {
     round++;
-    const lesson = pick(usable);
+    const lvl0 = Math.floor((round - 1) / 10) + 1;
+    const hardPool = lvl0 >= 8
+      ? [...usable].sort((a, b) => (b.timeline?.length ?? 0) - (a.timeline?.length ?? 0)).slice(0, Math.max(3, Math.ceil(usable.length / 3)))
+      : usable;
+    const lesson = pick(hardPool);
     const events = lesson.timeline ?? [];
     const ordered = [...events].sort((a, b) => (a.date < b.date ? -1 : 1));
     const deck = shuffle(events.map((e, i) => ({ ...e, key: i })));
@@ -154,37 +158,47 @@ function lieStage(stage: HTMLElement) {
   let round = 0, score = 0, current: typeof deck = [];
 
   const newRound = () => {
-    const lie = pick(liePool);
-    const trues = shuffle(truePool).slice(0, 3).map((t) => ({ text: t.text, lie: false, src: t.src }));
-    current = shuffle([...trues, { text: lie.text, lie: true, fix: lie.fix, src: lie.src }]);
+    const lvl = Math.floor((round) / 10) + 1;
+    const liesWanted = lvl >= 7 ? 2 : 1;
+    const lies = shuffle(liePool).slice(0, liesWanted);
+    const trues = shuffle(truePool).slice(0, 4 - liesWanted).map((t) => ({ text: t.text, lie: false, src: t.src }));
+    current = shuffle([...trues, ...lies.map((l) => ({ text: l.text, lie: true, fix: l.fix, src: l.src }))]);
+    const found = new Set<number>();
     round++;
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>وثيقة ${round}</b><span>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10 — ${current.length} عبارات، انقر على الجملة المغلوطة</span></div>
+      <div class="ginfo"><b>وثيقة ${round}</b><span>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10 — ${current.length} عبارات، انقر على ${liesWanted > 1 ? "الجملتين المغلوطتين" : "الجملة المغلوطة"}</span></div>
       <div class="doc-paper">
         ${current.map((c, i) => `<button class="doc-line" data-i="${i}"><span class="doc-num">${i + 1}</span>${esc(c.text)}</button>`).join("")}
       </div>
-      <div class="gscore-line">النقاط: ${score}</div>`,
-      `<span>الوثائق لا تكذب — إلا جملة واحدة</span>`);
+      <div class="gscore-line">النقاط: ${score}${liesWanted > 1 ? ` — الأخطاء المتبقية: ${liesWanted}` : ""}</div>`,
+      `<span>الوثائق لا تكذب — إلا ${liesWanted > 1 ? "جملتان مغلوطتان" : "جملة واحدة"}</span>`);
     stage.querySelectorAll<HTMLButtonElement>(".doc-line").forEach((b) => {
       b.addEventListener("click", () => {
-        const c = current[Number(b.dataset.i)];
+        const idx = Number(b.dataset.i);
+        const c = current[idx];
         if (c.lie) {
+          found.add(idx);
           score += 10;
-          stage.querySelectorAll<HTMLButtonElement>(".doc-line").forEach((x) => {
-            const cc = current[Number(x.dataset.i)];
-            x.classList.add(cc.lie ? "is-lie" : "is-true");
-            x.disabled = true;
-          });
+          b.classList.add("is-lie");
+          b.disabled = true;
+          stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}${liesWanted > found.size ? ` — الأخطاء المتبقية: ${liesWanted - found.size}` : ""}`;
           const note = document.createElement("div");
           note.className = "gfeedback";
           note.innerHTML = `<b>أصبت!</b> التصحيح: ${esc(c.fix ?? "")} <small>— ${esc(c.src)}</small>`;
           stage.querySelector(".gbody")!.appendChild(note);
-          stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
-          setTimeout(() => {
-            if (round >= 100) {
-              stage.innerHTML = shell(result(score >= 700, score >= 850 ? "محقق محترف!" : "تحقيق جيد", `حصّلت ${score}/1000 في كشف الأخطاء عبر 10 مستويات. راجع بطاقات المفاهيم في المعجم لتثبيت التصحيحات.`, "#/lexicon"));
-            } else newRound();
-          }, 2600);
+          if (found.size >= liesWanted) {
+            stage.querySelectorAll<HTMLButtonElement>(".doc-line").forEach((x) => {
+              const cc = current[Number(x.dataset.i)];
+              if (cc.lie) x.classList.add("is-lie");
+              else x.classList.add("is-true");
+              x.disabled = true;
+            });
+            setTimeout(() => {
+              if (round >= 100) {
+                stage.innerHTML = shell(result(score >= 700, score >= 850 ? "محقق محترف!" : "تحقيق جيد", `حصّلت ${score}/1000 في كشف الأخطاء عبر 10 مستويات. راجع بطاقات المفاهيم في المعجم لتثبيت التصحيحات.`, "#/lexicon"));
+              } else newRound();
+            }, 2600);
+          }
         } else {
           b.classList.add("wrong");
           setTimeout(() => b.classList.remove("wrong"), 450);
@@ -205,12 +219,18 @@ function chartStage(stage: HTMLElement) {
 
   const newRound = () => {
     round++;
+    const lvl = Math.floor((round - 1) / 10) + 1;
+    const hard = lvl >= 8;
     const correct = pick(CHART_TYPES);
-    const options = shuffle([correct, ...shuffle(CHART_TYPES.filter((c) => c.type !== correct.type)).slice(0, 3)]);
+    const distract = CHART_TYPES.filter((c) => c.type !== correct.type);
+    /* المستويات الصعبة: 5 خيارات بدل 4 */
+    const options = hard
+      ? shuffle([correct, ...shuffle(distract).slice(0, 4)])
+      : shuffle([correct, ...shuffle(distract).slice(0, 3)]);
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10</b><span>أي مبيان تختار لتمثيل هذه المعطيات؟</span></div>
+      <div class="ginfo"><b>المستوى ${lvl} · الجولة ${((round - 1) % 10) + 1}/10</b><span>أي مبيان تختار لتمثيل هذه المعطيات؟</span></div>
       <div class="doc-paper chart-q">
-        <p class="chart-when">${esc(correct.when)}</p>
+        ${hard ? "" : `<p class="chart-when">${esc(correct.when)}</p>`}
         <p class="chart-rules">${esc(correct.rules)}</p>
       </div>
       <div class="chart-opts">
@@ -345,7 +365,9 @@ function raceStage(stage: HTMLElement) {
   const W = 640, H = 200, pad = 24;
   const newRound = () => {
     round++;
-    const c = RACES[(round - 1) % RACES.length];
+    const base = RACES[(round - 1) % RACES.length];
+    const lvl = Math.floor((round - 1) / 10) + 1;
+    const c = lvl >= 8 ? { ...base, known: base.known.slice(0, -1) } : base;
     const n = c.known.length;
     const all = [...c.known, c.known[n - 1] + (c.future === "up" ? 3 : c.future === "down" ? -3 : 0)];
     const min = Math.min(...all) - 4, max = Math.max(...all) + 4;
@@ -425,6 +447,8 @@ function geoClueStage(stage: HTMLElement) {
   const newRound = () => {
     round++;
     const c = CLUES[(round - 1) % CLUES.length];
+    const lvl = Math.floor((round - 1) / 10) + 1;
+    const hintCost = lvl >= 8 ? 8 : 5;
     let hint = 0;
     const draw = () => {
       stage.innerHTML = shell(`
@@ -433,7 +457,7 @@ function geoClueStage(stage: HTMLElement) {
           ${c.options.map((o) => `<button class="chart-opt" data-o="${esc(o)}">${esc(o)}</button>`).join("")}
         </div>
         <div class="row" style="justify-content:center">
-          <button class="btn ghost" id="clueMore" ${hint >= c.clues.length - 1 ? "disabled" : ""}>تلميح آخر (−5 نقاط)</button>
+          <button class="btn ghost" id="clueMore" ${hint >= c.clues.length - 1 ? "disabled" : ""}>تلميح آخر (−${hintCost} نقاط)</button>
         </div>
         <div class="gscore-line">النقاط: ${score}</div>`,
         `<span>كلما خمّنت مبكراً ربحت أكثر</span>`);
@@ -459,7 +483,7 @@ function geoClueStage(stage: HTMLElement) {
       });
       document.getElementById("clueMore")?.addEventListener("click", () => {
         hint++;
-        score = Math.max(0, score - 5);
+        score = Math.max(0, score - hintCost);
         draw();
       });
     };
@@ -542,7 +566,7 @@ function linksStage(stage: HTMLElement) {
       } else {
         errors++;
         sel = [];
-        if (errors >= 4) {
+        if (errors >= (lvl >= 8 ? 2 : 4)) {
           stage.innerHTML = shell(result(false, "المحاولة انتهت", `المجموعات هي: ${groups.map((g) => `${g.name} (${g.items.join("، ")})`).join(" — ")}`, "#/games"));
           return;
         }
@@ -592,7 +616,9 @@ function essayStage(stage: HTMLElement) {
     round++;
     const e = ESSAYS[(round - 1) % ESSAYS.length];
     const needed = e.blocks.filter((b) => b.ok);
-    const pool = shuffle(e.blocks.map((b, i) => ({ ...b, i })));
+    const other = ESSAYS[round % ESSAYS.length];
+    const extra = round >= 8 ? other.blocks.filter((b) => !b.ok).slice(0, 1) : [];
+    const pool = shuffle([...e.blocks, ...extra].map((b, i) => ({ ...b, i })));
     const used = new Set<number>();
     let placed = 0, errors = 0;
 
@@ -641,19 +667,19 @@ function essayStage(stage: HTMLElement) {
 
 /* ------------------------------ 9) فك تشفير الخرائط ------------------------------ */
 
-interface MapPuzzle { a: string; b: string; options: string[]; answer: number; lesson: string }
+interface MapPuzzle { a: string; b: string; options: string[]; answer: number; lesson: string; hard?: string }
 
 const MAP_PUZZLES: MapPuzzle[] = [
   { a: "خريطة الكثافة السكانية", b: "خريطة التساقطات المطرية",
-    options: ["الكثافة العالية تقابل التساقطات المرتفعة — علاقة مباشرة", "الكثافة تتوزع عكس التساقطات تماماً", "لا علاقة بين الطبقتين", "الكثافة تتبع خطوط الطول فقط"], answer: 0, lesson: "العلاقة بين المكونات" },
+    options: ["الكثافة العالية تقابل التساقطات المرتفعة — علاقة مباشرة", "الكثافة تتوزع عكس التساقطات تماماً", "لا علاقة بين الطبقتين", "الكثافة تتبع خطوط الطول فقط"], answer: 0, lesson: "العلاقة بين المكونات", hard: "الكثافة مرتفعة حيث التساقطات متوسطة — العلاقة غير مباشرة" },
   { a: "خريطة التجمعات الحضرية", b: "خريطة شبكة النقل",
-    options: ["المدن الكبرى تتطور حيث تتقاطع محاور النقل", "المدن لا علاقة لها بالنقل", "المدن تنشأ عشوائياً", "النقل يتبع الكثافة فقط"], answer: 0, lesson: "التحضر والتنظيم المجالي" },
+    options: ["المدن الكبرى تتطور حيث تتقاطع محاور النقل", "المدن لا علاقة لها بالنقل", "المدن تنشأ عشوائياً", "النقل يتبع الكثافة فقط"], answer: 0, lesson: "التحضر والتنظيم المجالي", hard: "المدن تنجذب للموانئ فقط دون المحاور البرية" },
   { a: "خريطة أقاليم الصيد", b: "خريطة قرب الشواطئ",
-    options: ["الصيد يتركز قرب الشواطئ حيث الثروة السمكية", "الصيد يبتعد عن الشواطئ", "الصيد عشوائي", "الشواطئ لا تؤثر"], answer: 0, lesson: "الأنشطة الساحلية" },
+    options: ["الصيد يتركز قرب الشواطئ حيث الثروة السمكية", "الصيد يبتعد عن الشواطئ", "الصيد عشوائي", "الشواطئ لا تؤثر"], answer: 0, lesson: "الأنشطة الساحلية", hard: "الصيد يتركز في عرض البحر البعيد" },
   { a: "خريطة الحدود قبل 1914", b: "خريطة الحدود بعد 1918",
-    options: ["الحرب العالمية الأولى أعادت رسم خريطة أوروبا", "لم تتغير الحدود", "ازدادت الإمبراطوريات", "انهارت كل الدول"], answer: 0, lesson: "أوروبا بين الحربين" },
+    options: ["الحرب العالمية الأولى أعادت رسم خريطة أوروبا", "لم تتغير الحدود", "ازدادت الإمبراطوريات", "انهارت كل الدول"], answer: 0, lesson: "أوروبا بين الحربين", hard: "الحرب العالمية الأولى لم تغير الحدود الأوروبية" },
   { a: "خريطة المستعمرات 1914", b: "خريطة الاستقلالات بعد 1945",
-    options: ["موجة الاستقلالات بعد الحرب العالمية الثانية", "لم تتغير الخريطة", "توسعت الإمبراطوريات", "ظهرت دول جديدة في أوروبا فقط"], answer: 0, lesson: "النظام العالمي الجديد" },
+    options: ["موجة الاستقلالات بعد الحرب العالمية الثانية", "لم تتغير الخريطة", "توسعت الإمبراطوريات", "ظهرت دول جديدة في أوروبا فقط"], answer: 0, lesson: "النظام العالمي الجديد", hard: "الاستقلالات وقعت كلها قبل 1945" },
 ];
 
 function mapxStage(stage: HTMLElement) {
@@ -661,8 +687,10 @@ function mapxStage(stage: HTMLElement) {
   const newRound = () => {
     round++;
     const p = MAP_PUZZLES[(round - 1) % MAP_PUZZLES.length];
+    const lvl = Math.floor((round - 1) / 10) + 1;
     const order = shuffle(p.options.map((_, i) => i));
     const opts = order.map((i) => p.options[i]);
+    if (lvl >= 8 && p.hard) opts.push(p.hard);
     const ans = order.indexOf(p.answer);
     stage.innerHTML = shell(`
       <div class="ginfo"><b>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10 — فك شفرة الطبقات</b><span>طبقة أ × طبقة ب</span></div>
