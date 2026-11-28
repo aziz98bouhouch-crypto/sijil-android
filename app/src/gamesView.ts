@@ -86,27 +86,30 @@ function result(ok: boolean, title: string, text: string, href = "#/games"): str
 
 function chronoStage(stage: HTMLElement) {
   const pool = lessons.filter((l) => (l.timeline?.length ?? 0) >= 4);
-  const lesson = pick(pool.length ? pool : lessons.filter((l) => l.timeline?.length));
-  const events = lesson.timeline ?? [];
-  const ordered = [...events].sort((a, b) => (a.date < b.date ? -1 : 1));
-  const deck = shuffle(events.map((e, i) => ({ ...e, key: i })));
-  let step = 0, mistakes = 0;
+  const usable = pool.length ? pool : lessons.filter((l) => l.timeline?.length);
+  let round = 0, totalMistakes = 0;
 
-  const draw = () => {
+  const newRound = () => {
+    round++;
+    const lesson = pick(usable);
+    const events = lesson.timeline ?? [];
+    const ordered = [...events].sort((a, b) => (a.date < b.date ? -1 : 1));
+    const deck = shuffle(events.map((e, i) => ({ ...e, key: i })));
+    let step = 0, mistakes = 0;
+
+    const lvl = Math.floor((round - 1) / 10) + 1;
+    const rInLvl = ((round - 1) % 10) + 1;
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>${esc(lesson.title)}</b><span>رتّب ${events.length} أحداث من الأقدم إلى الأحدث — الخطأ explanations في الأسفل</span></div>
+      <div class="ginfo"><b>${esc(lesson.title)}</b><span>رتّب ${events.length} أحداث — المستوى ${lvl} · الجولة ${rInLvl}/10</span></div>
       <div class="chrono-slots">
         ${ordered.map(() => `<div class="chrono-slot"></div>`).join("")}
       </div>
       <div class="chrono-deck">
-        ${deck.map((e) => `<button class="chrono-card" data-key="${e.key}" ${step > ordered.findIndex((o) => o.date === e.date && o.label === e.label) && false ? "" : ""}>${esc(e.label)}<small>${esc(e.date)}</small></button>`).join("")}
+        ${deck.map((e) => `<button class="chrono-card" data-key="${e.key}">${esc(e.label)}<small>${esc(e.date)}</small></button>`).join("")}
       </div>
       <div class="gscore-line">أخطاء: ${mistakes} · المرحلة: ${step}/${events.length}</div>`,
       `<span>الأقدم ← → الأحدث</span>`);
-    bind();
-  };
 
-  const bind = () => {
     stage.querySelectorAll<HTMLButtonElement>(".chrono-card").forEach((btn) => {
       btn.addEventListener("click", () => {
         const key = Number(btn.dataset.key);
@@ -120,8 +123,13 @@ function chronoStage(stage: HTMLElement) {
           btn.remove();
           step++;
           if (step >= ordered.length) {
-            const stars = mistakes === 0 ? "★★★" : mistakes <= 2 ? "★★☆" : "★☆☆";
-            stage.innerHTML = shell(result(true, `أحسنت! ${stars}`, `رتّبت أحداث «${lesson.title}» بـ${mistakes} خطأ. راجع الخط الزمني في الدرس للمقارنة.`, `#/lesson/${lesson.id}`));
+            totalMistakes += mistakes;
+            if (round >= 100) {
+              const avg = totalMistakes / 100;
+              stage.innerHTML = shell(result(avg <= 1.5, "مؤرخ خط الزمن!", `أكملت 100 جولة ترتيب بـ${totalMistakes} خطأ إجمالاً (معدل ${avg.toFixed(1)}).`, "#/games"));
+              return;
+            }
+            setTimeout(newRound, 900);
             return;
           }
           stage.querySelector(".gscore-line")!.textContent = `أخطاء: ${mistakes} · المرحلة: ${step}/${events.length}`;
@@ -134,7 +142,7 @@ function chronoStage(stage: HTMLElement) {
       });
     });
   };
-  draw();
+  newRound();
 }
 
 /* ------------------------------ 2) محقق الوثائق ------------------------------ */
@@ -151,7 +159,7 @@ function lieStage(stage: HTMLElement) {
     current = shuffle([...trues, { text: lie.text, lie: true, fix: lie.fix, src: lie.src }]);
     round++;
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>الجولة ${round}/5</b><span>وثيقة من ${current.length} عبارات — انقر على الجملة المغلوطة تاريخياً أو جغرافياً</span></div>
+      <div class="ginfo"><b>وثيقة ${round}</b><span>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10 — ${current.length} عبارات، انقر على الجملة المغلوطة</span></div>
       <div class="doc-paper">
         ${current.map((c, i) => `<button class="doc-line" data-i="${i}"><span class="doc-num">${i + 1}</span>${esc(c.text)}</button>`).join("")}
       </div>
@@ -173,8 +181,8 @@ function lieStage(stage: HTMLElement) {
           stage.querySelector(".gbody")!.appendChild(note);
           stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
           setTimeout(() => {
-            if (round >= 5) {
-              stage.innerHTML = shell(result(score >= 30, score >= 40 ? "محقق محترف!" : "تحقيق جيد", `حصّلت ${score}/50 في كشف الأخطاء. راجع بطاقات المفاهيم في المعجم لتثبيت التصحيحات.`, "#/lexicon"));
+            if (round >= 100) {
+              stage.innerHTML = shell(result(score >= 700, score >= 850 ? "محقق محترف!" : "تحقيق جيد", `حصّلت ${score}/1000 في كشف الأخطاء عبر 10 مستويات. راجع بطاقات المفاهيم في المعجم لتثبيت التصحيحات.`, "#/lexicon"));
             } else newRound();
           }, 2600);
         } else {
@@ -200,7 +208,7 @@ function chartStage(stage: HTMLElement) {
     const correct = pick(CHART_TYPES);
     const options = shuffle([correct, ...shuffle(CHART_TYPES.filter((c) => c.type !== correct.type)).slice(0, 3)]);
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>الجولة ${round}/6</b><span>أي مبيان تختار لتمثيل هذه المعطيات؟</span></div>
+      <div class="ginfo"><b>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10</b><span>أي مبيان تختار لتمثيل هذه المعطيات؟</span></div>
       <div class="doc-paper chart-q">
         <p class="chart-when">${esc(correct.when)}</p>
         <p class="chart-rules">${esc(correct.rules)}</p>
@@ -221,8 +229,8 @@ function chartStage(stage: HTMLElement) {
         });
         stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
         setTimeout(() => {
-          if (round >= 6) {
-            stage.innerHTML = shell(result(score >= 50, "رسام مبيانات!", `حصّلت ${score}/60. راجع «اختيار المبيان» في الدليل لمزيد من القواعد.`, "#/guide/chart"));
+          if (round >= 100) {
+            stage.innerHTML = shell(result(score >= 800, "رسام مبيانات!", `حصّلت ${score}/1000 في اختيار المبيان عبر 10 مستويات. راجع «اختيار المبيان» في الدليل لمزيد من القواعد.`, "#/guide/chart"));
           } else newRound();
         }, 1600);
       });
@@ -346,7 +354,7 @@ function raceStage(stage: HTMLElement) {
     const pts = all.map((v, i) => `${px(i).toFixed(0)},${py(v).toFixed(0)}`).join(" ");
     const knownPts = c.known.map((v, i) => `${px(i).toFixed(0)},${py(v).toFixed(0)}`).join(" ");
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>${esc(c.title)}</b><span>${esc(c.unit)} — توقف المنحنى عند ${c.known[n - 1]}: ماذا سيحدث بعد ذلك؟</span></div>
+      <div class="ginfo"><b>${esc(c.title)}</b><span>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10 — ${esc(c.unit)}، توقف المنحنى عند ${c.known[n - 1]}: ماذا سيحدث؟</span></div>
       <svg viewBox="0 0 ${W} ${H}" class="race-svg">
         <line x1="${pad}" y1="${H - pad}" x2="${W - pad}" y2="${H - pad}" stroke="rgba(255,255,255,0.2)"/>
         <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${H - pad}" stroke="rgba(255,255,255,0.2)"/>
@@ -384,7 +392,7 @@ function raceStage(stage: HTMLElement) {
         stage.querySelector(".gbody")!.appendChild(note);
         stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
         setTimeout(() => {
-          if (round >= 6) stage.innerHTML = shell(result(score >= 50, "محلل اتجاهات!", `حصّلت ${score}/60 في قراءة المنحنيات وتفسيرها.`, "#/guide/chart"));
+          if (round >= 100) stage.innerHTML = shell(result(score >= 700, "محلل اتجاهات!", `حصّلت ${score}/1000 في قراءة المنحنيات عبر 10 مستويات.`, "#/guide/chart"));
           else newRound();
         }, 2800);
       });
@@ -420,7 +428,7 @@ function geoClueStage(stage: HTMLElement) {
     let hint = 0;
     const draw = () => {
       stage.innerHTML = shell(`
-        <div class="ginfo"><b>الجولة ${round}/6 — خمّن المجال</b><span>تلميح ${hint + 1}/${c.clues.length}: ${esc(c.clues[hint])}</span></div>
+        <div class="ginfo"><b>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10 — خمّن المجال</b><span>تلميح ${hint + 1}/${c.clues.length}: ${esc(c.clues[hint])}</span></div>
         <div class="chart-opts">
           ${c.options.map((o) => `<button class="chart-opt" data-o="${esc(o)}">${esc(o)}</button>`).join("")}
         </div>
@@ -444,7 +452,7 @@ function geoClueStage(stage: HTMLElement) {
           stage.querySelector(".gbody")!.appendChild(note);
           stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
           setTimeout(() => {
-            if (round >= 6) stage.innerHTML = shell(result(score >= 70, "مستكشف جغرافي!", `حصّلت ${score} نقطة في التخمين الجغرافي.`, "#/games"));
+            if (round >= 100) stage.innerHTML = shell(result(score >= 800, "مستكشف جغرافي!", `حصّلت ${score}/1000 نقطة في التخمين الجغرافي عبر 10 مستويات.`, "#/games"));
             else newRound();
           }, 2400);
         });
@@ -472,15 +480,20 @@ const LINK_GROUPS: LinkGroup[] = [
 ];
 
 function linksStage(stage: HTMLElement) {
-  const groups = shuffle(LINK_GROUPS);
-  const cards = shuffle(groups.flatMap((g) => g.items.map((t) => ({ t, g: g.name }))));
+  let lvl = 1, groups = shuffle(LINK_GROUPS);
+  let cards = shuffle(groups.flatMap((g) => g.items.map((t) => ({ t, g: g.name }))));
   const solved = new Set<string>();
   let sel: string[] = [], errors = 0;
+  const reset = () => {
+    groups = shuffle(LINK_GROUPS);
+    cards = shuffle(groups.flatMap((g) => g.items.map((t) => ({ t, g: g.name }))));
+    solved.clear(); sel = []; errors = 0;
+  };
 
   const draw = () => {
     const remaining = cards.filter((c) => !solved.has(c.t));
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>صنّف البطاقات إلى مجموعات من 4</b><span>المجموعات المكتشفة: ${solved.size / 4}/4 — أخطاء: ${errors}/4</span></div>
+      <div class="ginfo"><b>صنّف البطاقات إلى مجموعات من 4</b><span>المستوى ${lvl} · مجموعات مكتشفة: ${solved.size / 4}/4 — أخطاء: ${errors}/4</span></div>
       <div class="links-grid">
         ${remaining.map((c) => `<button class="link-card ${sel.includes(c.t) ? "sel" : ""}" data-t="${esc(c.t)}">${esc(c.t)}</button>`).join("")}
         ${[...solved].map((t) => `<button class="link-card done" disabled>${esc(t)}</button>`).join("")}
@@ -509,7 +522,16 @@ function linksStage(stage: HTMLElement) {
         sel = [];
         const gname = chosen[0].g;
         if (solved.size === 16) {
-          stage.innerHTML = shell(result(errors <= 2, "خبير الروابط!", `صنّفت المجموعات الأربعة بأخطاء ${errors}. المجموعات: ${groups.map((g) => g.name).join("، ")}`, "#/guide"));
+          if (lvl >= 10) {
+            stage.innerHTML = shell(result(errors <= 2, "خبير الروابط!", `أكملت 10 مستويات — أخطاء ${errors} في الأخيرة. المجموعات: ${groups.map((g) => g.name).join("، ")}`, "#/guide"));
+            return;
+          }
+          lvl++; reset();
+          const lvlNote = document.createElement("div");
+          lvlNote.className = "gfeedback ok";
+          lvlNote.innerHTML = `<b>المستوى ${lvl}!</b> مجموعة جديدة بانتظارك`;
+          stage.querySelector(".gbody")!.appendChild(lvlNote);
+          setTimeout(draw, 1600);
           return;
         }
         draw();
@@ -581,7 +603,7 @@ function essayStage(stage: HTMLElement) {
           : `<div class="essay-slot">${i + 1}</div>`,
       ).join("");
       stage.innerHTML = shell(`
-        <div class="ginfo"><b>الموضوع: ${esc(e.topic)}</b><span>${esc(e.intro)}</span></div>
+        <div class="ginfo"><b>المستوى ${round} · الموضوع: ${esc(e.topic)}</b><span>${esc(e.intro)}</span></div>
         <div class="essay-slots">${slots}</div>
         <div class="links-grid essay-pool">
           ${pool.filter((b) => !used.has(b.i)).map((b) => `<button class="link-card" data-i="${b.i}">${esc(b.t.slice(0, 60))}${b.t.length > 60 ? "…" : ""}</button>`).join("")}
@@ -597,7 +619,15 @@ function essayStage(stage: HTMLElement) {
           placed++;
           if (placed === needed.length) {
             score += 15;
-            stage.innerHTML = shell(result(errors <= 2, "مهندس مقال!", `${esc(e.topic)} — بُني المقال بخطأ ${errors}.`, "#/guide"));
+            if (round >= 10) {
+              stage.innerHTML = shell(result(errors <= 2, "مهندس مقال!", `أكملت 10 مستويات مقالية — ${score} نقطة.`, "#/guide"));
+              return;
+            }
+            const note = document.createElement("div");
+            note.className = "gfeedback ok";
+            note.innerHTML = `<b>مقال مكتمل!</b> +15 — انتقل للموضوع التالي`;
+            stage.querySelector(".gbody")!.appendChild(note);
+            setTimeout(newRound, 1600);
             return;
           }
           draw();
@@ -635,7 +665,7 @@ function mapxStage(stage: HTMLElement) {
     const opts = order.map((i) => p.options[i]);
     const ans = order.indexOf(p.answer);
     stage.innerHTML = shell(`
-      <div class="ginfo"><b>الجولة ${round}/5 — فك شفرة الطبقات</b><span>طبقة أ × طبقة ب</span></div>
+      <div class="ginfo"><b>المستوى ${Math.floor((round - 1) / 10) + 1} · الجولة ${((round - 1) % 10) + 1}/10 — فك شفرة الطبقات</b><span>طبقة أ × طبقة ب</span></div>
       <div class="map-layers">
         <div class="map-layer"><span class="map-layer-tag">أ</span> ${esc(p.a)}</div>
         <div class="map-layer"><span class="map-layer-tag">ب</span> ${esc(p.b)}</div>
@@ -660,7 +690,7 @@ function mapxStage(stage: HTMLElement) {
         stage.querySelector(".gbody")!.appendChild(note);
         stage.querySelector(".gscore-line")!.textContent = `النقاط: ${score}`;
         setTimeout(() => {
-          if (round >= 5) stage.innerHTML = shell(result(score >= 50, "محلل خرائط!", `حصّلت ${score}/60 في فك تشفير الطبقات.`, "#/maps"));
+          if (round >= 100) stage.innerHTML = shell(result(score >= 800, "محلل خرائط!", `حصّلت ${score}/1000 في فك تشفير الطبقات عبر 10 مستويات.`, "#/maps"));
           else newRound();
         }, 2600);
       });
