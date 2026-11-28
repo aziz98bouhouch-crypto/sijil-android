@@ -581,15 +581,38 @@ export function askTutor(raw: string): TutorReply {
     return mapReply();
   }
 
-  if (/منهجي|منهجية|كيف اجيب|كيفية الاجابة|خطوات المقال|المقال|الوثيقة|الوثائق|مبيان|مبيانات|خط زمني|جدول|تعليق|تحليل/.test(q)) {
+  if (/منهجي|منهجية|كيف اجيب|كيفية الاجابة|مقال|وثيق|مبيان|مبيانات|خط زمني|جدول|تعليق|تحليل/.test(q)) {
     const hits = ranked(input, "guide");
-    if (hits.length) {
-      const best = hits[0].chunk;
-      const topic = best.guideId ? TOPICS.find((t) => t.id === best.guideId) : undefined;
+    // تفضيل موضوع المادة المذكورة في السؤال (جغرافي/تاريخي) على بقية النتائج.
+    const subj = /جغراف|خارط|توطين|مبيان|منحنى/.test(q) ? "geo-" : /تاريخ|تاريخي/.test(q) ? "hist-" : "";
+    const topical = hits.map((h) => h.chunk).filter((c) => c.guideId);
+    // مقتطف عام يُذكر عنوانه صراحة في السؤال (مثل «شبكة التنقيط») يتقدم على تفضيل المادة،
+    // لكن فقط إذا كانت مفرداته غريبة عن عناوين المواضيع (وإلا «خطوات المقال» تخطف «المقال الجغرافي»).
+    const qn = norm(input);
+    const topicalTitles = new Set(topical.flatMap((c) => [...c.titleTokens]));
+    const named = hits
+      .map((h) => h.chunk)
+      .find(
+        (c) =>
+          !c.guideId &&
+          norm(c.title).length > 5 &&
+          qn.includes(norm(c.title)) &&
+          [...new Set(words(c.title))].every((t) => t.length <= 3 || !topicalTitles.has(t)),
+      );
+    const best = named ?? (subj ? topical.find((c) => c.guideId!.startsWith(subj)) : undefined) ?? hits[0]?.chunk;
+    if (best?.guideId) {
+      const topic = TOPICS.find((t) => t.id === best.guideId);
       if (topic) return guideReply(topic);
     }
-    const fallback = TOPICS.find((t) => q.includes(norm(t.title).split(" ")[1] ?? "")) ?? TOPICS[0];
-    return guideReply(fallback);
+    if (best) {
+      return {
+        text: `${best.title} — ${best.heading}.\n${best.text.slice(0, 900)}`,
+        refs: [refOf(best)],
+        followups: ["أعطني مثالاً محلولاً", "كيف أتعامل مع سؤال استخراج؟", "اختبرني في المنهجية"],
+        mood: "explain",
+      };
+    }
+    return guideReply(TOPICS[0]);
   }
 
   if (/^(ما هو|ما هي|ما معنى|عرف|تعريف|مفهوم|معنى)/.test(q) || /ما المقصود/.test(q)) {
