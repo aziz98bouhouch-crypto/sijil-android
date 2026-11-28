@@ -299,8 +299,24 @@ async function portalHandler(req,res){
       try{
         const j=JSON.parse(body);const data=(j&&j.data)?j.data:j;
         syncData=(j&&j.data)?j:data;syncLastPush=Date.now();
-        try{if(data&&win&&win.webContents&&!win.webContents.isDestroyed()){await win.webContents.executeJavaScript('if(typeof window.handleSyncImport==="function")window.handleSyncImport('+JSON.stringify(data)+')').catch(()=>{});}}catch(e){}
-        res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(JSON.stringify({ok:true}));return;
+        /* الدفع من الهاتف قد يحمل صورًا (بضعة ميغابايت): يُمرَّر على دفعات بدل حقن
+           نصّ واحد ضخم في executeJavaScript، لأن فشل الحقن كان يُبتلع بصمت
+           فيبدو الدفع ناجحًا بينما لم يصل شيء إلى قاعدة بيانات الحاسوب. */
+        let merged=null;
+        try{
+          if(data&&win&&win.webContents&&!win.webContents.isDestroyed()){
+            const json=JSON.stringify(data);
+            const CHUNK=262144;
+            await win.webContents.executeJavaScript('window.__syncImportBegin&&window.__syncImportBegin()');
+            for(let k=0;k<json.length;k+=CHUNK){
+              await win.webContents.executeJavaScript('window.__syncImportChunk&&window.__syncImportChunk('+k+','+JSON.stringify(json.slice(k,k+CHUNK))+')');
+            }
+            merged=await win.webContents.executeJavaScript('(typeof window.handleSyncImportChunked==="function")?window.handleSyncImportChunked():Promise.resolve({ok:false,error:"no-handler"})');
+          }else{
+            merged={ok:false,error:'app-window-not-ready'};
+          }
+        }catch(e){merged={ok:false,error:String((e&&e.message)||e)};}
+        res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store','Access-Control-Allow-Origin':'*'});res.end(JSON.stringify({ok:true,merged:merged}));return;
       }catch(e){
         res.writeHead(400,{'Content-Type':'application/json','Access-Control-Allow-Origin':'*'});res.end(JSON.stringify({error:'invalid json'}));return;
       }
