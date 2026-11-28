@@ -299,10 +299,28 @@ function encScoreOk(input: string, c: Chunk): boolean {
 const topEncyclopedia = (input: string) =>
   ranked(input, "encyclopedia").find((h) => encScoreOk(input, h.chunk));
 
+/**
+ * دقة عامة للمقاطع: تتطلب كلمتين متميزتين على الأقل من الاستعلام داخل المقطع،
+ * أو تطابقاً واحداً واقعاً في العنوان، أو ورود عنوان المقطع في السؤال.
+ * (score وحده لا يكفي: كلمة نادرة واحدة تعطي idf مرتفعاً.)
+ */
+function chunkScoreOk(input: string, c: Chunk): boolean {
+  let hits = 0;
+  let titleHit = false;
+  for (const t of words(input)) {
+    if (!c.tokens.has(t)) continue;
+    hits++;
+    if (c.titleTokens.has(t)) titleHit = true;
+  }
+  if (hits >= 2 || (hits === 1 && titleHit)) return true;
+  const nt = norm(c.title);
+  return nt.length > 4 && norm(input).includes(nt);
+}
+
 function lessonMatch(query: string): Lesson | undefined {
   const hits = ranked(query, "lesson");
   const best = hits[0];
-  if (!best || best.score < 1.4) return undefined;
+  if (!best || best.score < 1.4 || !chunkScoreOk(query, best.chunk)) return undefined;
   return best.chunk.lessonId ? lessonById.get(best.chunk.lessonId) : undefined;
 }
 
@@ -587,7 +605,7 @@ export function askTutor(raw: string): TutorReply {
         return encyclopediaReply(e);
       }
     }
-    if (hits.length) {
+    if (hits.length && hits[0].score >= 1.2 && chunkScoreOk(input, hits[0].chunk)) {
       const c = hits[0].chunk;
       if (c.concept) return conceptReply(c.concept);
       return {
@@ -610,7 +628,7 @@ export function askTutor(raw: string): TutorReply {
   }
 
   const bestConcept = ranked(input, "concept")[0];
-  if (bestConcept && bestConcept.score > 3.2 && words(input).length <= 5) {
+  if (bestConcept && bestConcept.score > 3.2 && words(input).length <= 5 && chunkScoreOk(input, bestConcept.chunk)) {
     const c = bestConcept.chunk;
     if (c.concept) return conceptReply(c.concept);
   }
@@ -621,7 +639,9 @@ export function askTutor(raw: string): TutorReply {
   }
 
   const hits = ranked(input).filter(
-    (h) => h.chunk.kind !== "encyclopedia" || encScoreOk(input, h.chunk),
+    (h) =>
+      chunkScoreOk(input, h.chunk) &&
+      (h.chunk.kind !== "encyclopedia" || encScoreOk(input, h.chunk)),
   );
   if (hits.length && hits[0].score >= 1.6) {
     const top = hits.slice(0, 2).map((h) => h.chunk);
