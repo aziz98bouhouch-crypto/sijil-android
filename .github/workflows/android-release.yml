@@ -75,6 +75,10 @@ jobs:
           rm -rf android
           npx cap add android
 
+      - name: Apply launcher icon (adaptive + legacy)
+        working-directory: cap
+        run: node make-icons.js android
+
       - name: Inject camera/storage permissions into manifest
         working-directory: cap
         run: node add-permissions.js
